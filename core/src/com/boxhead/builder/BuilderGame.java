@@ -1,14 +1,20 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 
 public class BuilderGame extends Game {
 
     GameScreen gameScreen;
+    InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
     @Override
     public void create() {
         gameScreen = new GameScreen();
+        inputMultiplexer.addProcessor(InputManager.getInstance());
+        inputMultiplexer.addProcessor(gameScreen);
+        Gdx.input.setInputProcessor(inputMultiplexer);
         setScreen(gameScreen);
     }
 
