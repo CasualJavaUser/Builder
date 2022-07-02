@@ -13,6 +13,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameScreen extends InputAdapter implements Screen {
 
     private OrthographicCamera camera;
@@ -29,6 +32,8 @@ public class GameScreen extends InputAdapter implements Screen {
                         SCROLL_SPEED = 100;
 
     private final int CELL_SIZE = 16;
+
+    private final List<Building> buildings = new ArrayList<>();
 
     private boolean isBuilding = false;
 
@@ -55,6 +60,10 @@ public class GameScreen extends InputAdapter implements Screen {
         draw(map, 0, 0);
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
+
+        for (Building building: buildings) {
+            batch.draw(building.getTexture(), building.getX(), building.getY());
+        }
 
         if(isBuilding) {
             build(Buildings.DEFAULT_BUILDING);
@@ -134,6 +143,12 @@ public class GameScreen extends InputAdapter implements Screen {
         mouseY = (int) (((viewport.getScreenHeight() / 2) - Gdx.input.getY()) * camera.zoom + camera.position.y);
 
         draw(building.getTexture(), mouseX - (mouseX % CELL_SIZE), mouseY - (mouseY % CELL_SIZE));
+
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            building.setPosition(mouseX - (mouseX % CELL_SIZE), mouseY - (mouseY % CELL_SIZE));
+            buildings.add(building);
+            isBuilding = false;
+        }
     }
 
     private Vector2 screenToWorld(float x, float y) {
