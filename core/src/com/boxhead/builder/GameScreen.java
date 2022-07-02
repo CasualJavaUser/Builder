@@ -129,17 +129,11 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     private void build(Building building) {
-        int x, y;
-        float mouseX, mouseY;
-        mouseX = Gdx.input.getX()*camera.zoom - (float)viewport.getScreenWidth()/2 + camera.position.x;
-        mouseY = (viewport.getScreenHeight() - Gdx.input.getY()*camera.zoom) - (float)viewport.getScreenHeight()/2 + camera.position.y;
-        /*mouseX *= camera.zoom;
-        mouseY *= camera.zoom;*/
-        x = (int)(mouseX - (mouseX % CELL_SIZE));// - viewport.getScreenWidth()/2 + (int)camera.position.x;
-        y = (int)(mouseY - (mouseY % CELL_SIZE));// - viewport.getScreenHeight()/2 + (int)camera.position.y;
+        int mouseX, mouseY;
+        mouseX = (int) ((Gdx.input.getX() - viewport.getScreenWidth()/2) * camera.zoom + camera.position.x);
+        mouseY = (int) (((viewport.getScreenHeight() / 2) - Gdx.input.getY()) * camera.zoom + camera.position.y);
 
-        draw(building.getTexture(), x, y);
-        //TODO
+        draw(building.getTexture(), mouseX - (mouseX % CELL_SIZE), mouseY - (mouseY % CELL_SIZE));
     }
 
     private Vector2 screenToWorld(float x, float y) {
