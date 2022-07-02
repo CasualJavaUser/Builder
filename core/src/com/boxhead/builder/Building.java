@@ -3,8 +3,8 @@ package com.boxhead.builder;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Building {
-    private Texture texture;
-    private int x, y;
+    protected Texture texture;
+    protected int x, y;
 
     public Building(Texture texture) {
         this.texture = texture;

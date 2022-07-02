@@ -61,12 +61,12 @@ public class GameScreen extends InputAdapter implements Screen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
 
-        for (Building building: buildings) {
+        for (Building building : buildings) {
             batch.draw(building.getTexture(), building.getX(), building.getY());
         }
 
         if(isBuilding) {
-            build(Buildings.DEFAULT_BUILDING);
+            build(Buildings.get(Buildings.Types.DEFAULT_BUILDING));
         }
 
         batch.end();
@@ -138,9 +138,8 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     private void build(Building building) {
-        int mouseX, mouseY;
-        mouseX = (int) ((Gdx.input.getX() - viewport.getScreenWidth()/2) * camera.zoom + camera.position.x);
-        mouseY = (int) (((viewport.getScreenHeight() / 2) - Gdx.input.getY()) * camera.zoom + camera.position.y);
+        Vector2 mousePos = screenToWorld(Gdx.input.getX(), Gdx.input.getY());
+        int mouseX = (int)mousePos.x, mouseY = (int)mousePos.y;
 
         draw(building.getTexture(), mouseX - (mouseX % CELL_SIZE), mouseY - (mouseY % CELL_SIZE));
 
@@ -152,6 +151,7 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     private Vector2 screenToWorld(float x, float y) {
-        return new Vector2(0,0);
+        return new Vector2((x - (float)viewport.getScreenWidth()/2) * camera.zoom + camera.position.x,
+                (((float)viewport.getScreenHeight() / 2) - y) * camera.zoom + camera.position.y);
     }
 }

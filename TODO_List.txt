@@ -1,0 +1,1 @@
+Pathfinding - NPCs go to the functional buildings that are nearest to their homes and are corresponding to their jobs.
