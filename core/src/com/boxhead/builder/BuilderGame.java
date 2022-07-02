@@ -12,7 +12,6 @@ public class BuilderGame extends Game {
     @Override
     public void create() {
         gameScreen = new GameScreen();
-        inputMultiplexer.addProcessor(InputManager.getInstance());
         inputMultiplexer.addProcessor(gameScreen);
         Gdx.input.setInputProcessor(inputMultiplexer);
         setScreen(gameScreen);

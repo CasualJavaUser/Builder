@@ -1,7 +1,6 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -19,8 +18,10 @@ public class GameScreen extends InputAdapter implements Screen {
     private SpriteBatch batch;
     private Texture map;
 
-    private float mapX, mapY;
-    private float scrollSpeed = 100;
+    private float scrollSpeed;
+
+    private final float MAX_ZOOM = 1f, MIN_ZOOM = 0.1f, TEXTURE_SIZE = 3f;
+    private final float NORMAL_SCROLL = 250, FAST_SCROLL = 450;
 
     GameScreen() {
         int screenWidth = Gdx.graphics.getWidth();
@@ -30,17 +31,18 @@ public class GameScreen extends InputAdapter implements Screen {
         input = InputManager.getInstance();
 
         map = new Texture("map.png");
-        mapX = (float)(screenWidth/2 - map.getWidth() / 2);
-        mapY = (float)(screenHeight/2 - map.getHeight() / 2);
 
         batch = new SpriteBatch();
+
+        scrollSpeed = NORMAL_SCROLL;
     }
 
     @Override
     public void render(float deltaTime) {
         batch.begin();
 
-        drawMap(deltaTime);
+        moveCamera(deltaTime);
+        draw(map, 0, 0);
 
         batch.end();
     }
@@ -77,21 +79,48 @@ public class GameScreen extends InputAdapter implements Screen {
         map.dispose();
     }
 
-    private void drawMap(float deltaTime) {
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) mapX = mapX - scrollSpeed * deltaTime;
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) mapX = mapX + scrollSpeed * deltaTime;
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)) mapY = mapY - scrollSpeed * deltaTime;
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) mapY = mapY + scrollSpeed * deltaTime;
+    /*private void moveMap(float deltaTime) {
+        if(Gdx.input.isKeyPressed(InputManager.FAST)) scrollSpeed = FAST_SCROLL;
+        else scrollSpeed = NORMAL_SCROLL;
+        if(Gdx.input.isKeyPressed(InputManager.RIGHT)) mapX = mapX - scrollSpeed * deltaTime;
+        if(Gdx.input.isKeyPressed(InputManager.LEFT)) mapX = mapX + scrollSpeed * deltaTime;
+        if(Gdx.input.isKeyPressed(InputManager.UP)) mapY = mapY - scrollSpeed * deltaTime;
+        if(Gdx.input.isKeyPressed(InputManager.DOWN)) mapY = mapY + scrollSpeed * deltaTime;
 
-        batch.draw(map, mapX, mapY, map.getWidth(), map.getHeight());
+        System.out.println(mapX);
+        if(mapX > 0) mapX = 0;
+        else if (mapX < -viewport.getWorldWidth()) mapX = -viewport.getWorldWidth();
+    }*/
+
+    public void moveCamera(float deltaTime) {
+        if(Gdx.input.isKeyPressed(InputManager.FAST)) scrollSpeed = FAST_SCROLL;
+        else scrollSpeed = NORMAL_SCROLL;
+        if(Gdx.input.isKeyPressed(InputManager.RIGHT)) camera.position.x += scrollSpeed * deltaTime;
+        if(Gdx.input.isKeyPressed(InputManager.LEFT)) camera.position.x -= scrollSpeed * deltaTime;
+        if(Gdx.input.isKeyPressed(InputManager.UP)) camera.position.y += scrollSpeed * deltaTime;
+        if(Gdx.input.isKeyPressed(InputManager.DOWN)) camera.position.y -= scrollSpeed * deltaTime;
+
+        //default camera position is (worldWidth / 2, worldHeight / 2)
+        if(camera.position.x < viewport.getWorldWidth() / 2 * camera.zoom) camera.position.x = viewport.getWorldWidth()/2 * camera.zoom;
+        if(camera.position.x > map.getWidth()*TEXTURE_SIZE - viewport.getWorldWidth() / 2 * camera.zoom) camera.position.x = map.getWidth()*TEXTURE_SIZE - viewport.getWorldWidth() / 2 * camera.zoom;
+        if(camera.position.y < viewport.getWorldHeight() / 2 * camera.zoom) camera.position.y = viewport.getWorldHeight() / 2 * camera.zoom;
+        if(camera.position.y > map.getHeight()*TEXTURE_SIZE - viewport.getWorldHeight() / 2 * camera.zoom) camera.position.y = map.getHeight()*TEXTURE_SIZE - viewport.getWorldHeight() / 2 * camera.zoom;
+
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
     }
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
         camera.zoom += amountY/scrollSpeed;
+        if(camera.zoom > MAX_ZOOM) camera.zoom = MAX_ZOOM;
+        else if(camera.zoom < MIN_ZOOM) camera.zoom = MIN_ZOOM;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-        System.out.println("camera zoom " + camera.zoom);
         return false;
+    }
+
+    private void draw(Texture texture, float x, float y) {
+        batch.draw(texture, x, y, texture.getWidth() * TEXTURE_SIZE, texture.getHeight() * TEXTURE_SIZE);
     }
 }

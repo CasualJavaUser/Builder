@@ -12,8 +12,7 @@ public class InputManager implements InputProcessor {
     public static int RIGHT = Input.Keys.RIGHT;
     public static int UP = Input.Keys.UP;
     public static int DOWN = Input.Keys.DOWN;
-
-    private float scroll = 0;
+    public static int FAST = Input.Keys.SHIFT_LEFT;
 
     private InputManager() {}
 
