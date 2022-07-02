@@ -2,25 +2,23 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.Texture;
 
-public class FunctionalBuilding extends Building {
+public class ServiceBuilding extends FunctionalBuilding {
 
-    protected Jobs job;
-    protected int employeeCapacity, employeeCount = 0;
-    protected NPC[] employees;
+    private int guestCapacity, guestCount;
+    private NPC[] guests;
 
-    public FunctionalBuilding(Texture texture, Jobs job, int employeeCapacity) {
-        super(texture);
-        this.job = job;
-        this.employeeCapacity = employeeCapacity;
-        employees = new NPC[employeeCapacity];
+    public ServiceBuilding(Texture texture, Jobs job, int employeeCapacity, int guestCapacity) {
+        super(texture, job, employeeCapacity);
+        this.guestCapacity = guestCapacity;
+        guests = new NPC[guestCapacity];
     }
 
     /**
-     * Removes the specified employee from the building.
-     * @param npc employee to be removed from the building
-     * @return true if the array of employees changed as a result of the call
+     * Removes the specified guest from the building.
+     * @param npc guest to be removed from the building
+     * @return true if the array of guests changed as a result of the call
      */
-    public boolean removeEmployee(NPC npc) {
+    public boolean removeGuest(NPC npc) {
         boolean b = false;
         if (employeeCount > 0) {
             for (int i = 0; i < employees.length; i++) {
@@ -36,11 +34,11 @@ public class FunctionalBuilding extends Building {
     }
 
     /**
-     * Adds the specified employee to the building.
-     * @param npc employee to be added to the building
-     * @return true if the array of employees changed as a result of the call
+     * Adds the specified guest to the building.
+     * @param npc guest to be added to the building
+     * @return true if the array of guests changed as a result of the call
      */
-    public boolean addEmployee(NPC npc) {
+    public boolean addGuest(NPC npc) {
         boolean b = false;
         if (employeeCount < employeeCapacity) {
             for (int i = 0; i < employees.length; i++) {
