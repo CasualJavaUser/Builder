@@ -1,16 +1,16 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Building {
-    protected Texture texture;
+    protected TextureRegion texture;
     protected Vector2i position = null;
 
-    public Building(Texture texture) {
+    public Building(TextureRegion texture) {
         this.texture = texture;
     }
 
-    public Texture getTexture() {
+    public TextureRegion getTexture() {
         return texture;
     }
 

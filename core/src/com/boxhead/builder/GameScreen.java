@@ -6,15 +6,12 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameScreen extends InputAdapter implements Screen {
 
@@ -24,19 +21,14 @@ public class GameScreen extends InputAdapter implements Screen {
 
     private SpriteBatch batch;
     private SpriteBatch transparentBatch;
-    private Texture map;
+    private World world;
 
     private float moveSpeed;
+    private boolean isBuilding = false;
 
     private final float MAX_ZOOM = 1f, MIN_ZOOM = 0.1f,
                         NORMAL_SPEED = 250, FAST_SPEED = 450,
                         SCROLL_SPEED = 100;
-
-    private final int CELL_SIZE = 16;
-
-    private final List<Building> buildings = new ArrayList<>();
-
-    private boolean isBuilding = false;
 
     GameScreen() {
         int screenWidth = Gdx.graphics.getWidth();
@@ -45,7 +37,11 @@ public class GameScreen extends InputAdapter implements Screen {
         viewport = new StretchViewport(screenWidth, screenHeight, camera);
         input = InputManager.getInstance();
 
-        map = new Texture("grid.png");
+        Textures.initTextures();
+
+        world = new World(new Vector2i(100, 130));
+        //world.generateMap();
+        world.debug();
 
         batch = new SpriteBatch();
         transparentBatch = new SpriteBatch();
@@ -61,11 +57,11 @@ public class GameScreen extends InputAdapter implements Screen {
         transparentBatch.begin();
 
         moveCamera(deltaTime);
-        batch.draw(map, 0, 0);
+        world.drawMap(batch);
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
 
-        for (Building building : buildings) {
+        for (Building building : world.getBuildings()) {
             batch.draw(building.getTexture(), building.getX(), building.getY());
         }
 
@@ -107,7 +103,7 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        map.dispose();
+        transparentBatch.dispose();
     }
 
     public void moveCamera(float deltaTime) {
@@ -125,9 +121,9 @@ public class GameScreen extends InputAdapter implements Screen {
 
         //default camera position is (worldWidth / 2, worldHeight / 2)
         if(camera.position.x < (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = (float)viewport.getScreenWidth()/2 * camera.zoom;
-        if(camera.position.x > map.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = map.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom;
+        if(camera.position.x > world.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = world.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom;
         if(camera.position.y < (float)viewport.getScreenHeight() / 2 * camera.zoom) camera.position.y = (float)viewport.getScreenHeight() / 2 * camera.zoom;
-        if(camera.position.y > map.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom) camera.position.y = map.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom;
+        if(camera.position.y > world.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom) camera.position.y = world.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom;
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -144,25 +140,20 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     private void build(Building building) {
-        Texture texture = building.getTexture();
+        TextureRegion texture = building.getTexture();
 
-        Vector2 mousePos = screenToWorld(Gdx.input.getX(), Gdx.input.getY());
-        int mouseX = (int)mousePos.x + CELL_SIZE/(texture.getWidth()/CELL_SIZE)%2,
-                mouseY = (int)mousePos.y + CELL_SIZE/(texture.getHeight()/CELL_SIZE)%2;
-        int posX = mouseX - (mouseX % CELL_SIZE) - texture.getWidth()/(texture.getWidth()/CELL_SIZE),
-                posY = mouseY - (mouseY % CELL_SIZE) - texture.getHeight()/(texture.getHeight()/CELL_SIZE);
+        Vector3 mousePos = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+        int mouseX = (int)mousePos.x + World.TILE_SIZE /(texture.getRegionWidth()/ World.TILE_SIZE)%2,
+                mouseY = (int)mousePos.y + World.TILE_SIZE /(texture.getRegionHeight()/ World.TILE_SIZE)%2;
+        int posX = mouseX - (mouseX % World.TILE_SIZE) - texture.getRegionWidth()/(texture.getRegionWidth()/ World.TILE_SIZE),
+                posY = mouseY - (mouseY % World.TILE_SIZE) - texture.getRegionHeight()/(texture.getRegionHeight()/ World.TILE_SIZE);
 
         transparentBatch.draw(texture, posX, posY);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             building.setPosition(posX, posY);
-            buildings.add(building);
+            world.add(building);
             isBuilding = false;
         }
-    }
-
-    private Vector2 screenToWorld(float x, float y) {
-        return new Vector2((x - (float)viewport.getScreenWidth()/2) * camera.zoom + camera.position.x,
-                (((float)viewport.getScreenHeight() / 2) - y) * camera.zoom + camera.position.y);
     }
 }

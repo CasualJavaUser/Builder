@@ -16,14 +16,14 @@ public class Vector2i {
         this.y = y;
     }
 
-    public Vector2i(Vector2i vector) {
-        this.x = vector.x;
-        this.y = vector.y;
-    }
-
     public Vector2i(Vector2 vector) {
         this.x = (int) vector.x;
         this.y = (int) vector.y;
+    }
+
+    public void set(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
     @Override

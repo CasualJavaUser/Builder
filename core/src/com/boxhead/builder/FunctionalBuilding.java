@@ -1,6 +1,6 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class FunctionalBuilding extends Building {
 
@@ -8,7 +8,7 @@ public class FunctionalBuilding extends Building {
     protected int employeeCapacity, employeeCount = 0;
     protected NPC[] employees;
 
-    public FunctionalBuilding(Texture texture, Jobs job, int employeeCapacity) {
+    public FunctionalBuilding(TextureRegion texture, Jobs job, int employeeCapacity) {
         super(texture);
         this.job = job;
         this.employeeCapacity = employeeCapacity;

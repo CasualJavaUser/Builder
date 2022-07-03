@@ -52,24 +52,24 @@ public class NPC {
 
             int x = start.x, y = start.y;
             Vector2i currentTile = new Vector2i(x, y);
-            Vector2i tempTile;
+            Vector2i tempTile = new Vector2i();
 
             while (!currentTile.equals(destination)) {
-                tempTile = new Vector2i(x + 1, y);
+                tempTile.set(x + 1, y);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile = new Vector2i(x - 1, y);
+                tempTile.set(x - 1, y);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile = new Vector2i(x, y + 1);
+                tempTile.set(x, y + 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile = new Vector2i(x, y - 1);
+                tempTile.set(x, y - 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile = new Vector2i(x + 1, y + 1);
+                tempTile.set(x + 1, y + 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
-                tempTile = new Vector2i(x - 1, y + 1);
+                tempTile.set(x - 1, y + 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
-                tempTile = new Vector2i(x + 1, y - 1);
+                tempTile.set(x + 1, y - 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
-                tempTile = new Vector2i(x - 1, y - 1);
+                tempTile.set(x - 1, y - 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
 
                 unvisitedTiles.remove(currentTile);

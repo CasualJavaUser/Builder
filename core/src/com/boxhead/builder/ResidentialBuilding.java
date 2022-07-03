@@ -1,10 +1,10 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class ResidentialBuilding extends FunctionalBuilding {
 
-    public ResidentialBuilding(Texture texture, int residentCapacity) {
+    public ResidentialBuilding(TextureRegion texture, int residentCapacity) {
         super(texture, Jobs.REST, residentCapacity);
     }
 }

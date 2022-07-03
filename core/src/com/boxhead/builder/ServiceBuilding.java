@@ -1,13 +1,13 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class ServiceBuilding extends FunctionalBuilding {
 
     private int guestCapacity, guestCount;
     private NPC[] guests;
 
-    public ServiceBuilding(Texture texture, Jobs job, int employeeCapacity, int guestCapacity) {
+    public ServiceBuilding(TextureRegion texture, Jobs job, int employeeCapacity, int guestCapacity) {
         super(texture, job, employeeCapacity);
         this.guestCapacity = guestCapacity;
         guests = new NPC[guestCapacity];
