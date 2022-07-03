@@ -113,6 +113,11 @@ public class GameScreen extends InputAdapter implements Screen {
         if(Gdx.input.isKeyPressed(InputManager.UP)) camera.position.y += moveSpeed * deltaTime;
         if(Gdx.input.isKeyPressed(InputManager.DOWN)) camera.position.y -= moveSpeed * deltaTime;
 
+        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+            camera.position.x -= Gdx.input.getDeltaX() * camera.zoom;
+            camera.position.y += Gdx.input.getDeltaY() * camera.zoom;
+        }
+
         //default camera position is (worldWidth / 2, worldHeight / 2)
         if(camera.position.x < (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = (float)viewport.getScreenWidth()/2 * camera.zoom;
         if(camera.position.x > map.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = map.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom;
