@@ -23,6 +23,7 @@ public class GameScreen extends InputAdapter implements Screen {
     private InputManager input;
 
     private SpriteBatch batch;
+    private SpriteBatch transparentBatch;
     private Texture map;
 
     private float moveSpeed;
@@ -47,6 +48,8 @@ public class GameScreen extends InputAdapter implements Screen {
         map = new Texture("grid.png");
 
         batch = new SpriteBatch();
+        transparentBatch = new SpriteBatch();
+        transparentBatch.setColor(1,1,1,.5f);
 
         moveSpeed = NORMAL_SPEED;
     }
@@ -55,9 +58,10 @@ public class GameScreen extends InputAdapter implements Screen {
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
         batch.begin();
+        transparentBatch.begin();
 
         moveCamera(deltaTime);
-        draw(map, 0, 0);
+        batch.draw(map, 0, 0);
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
 
@@ -66,10 +70,11 @@ public class GameScreen extends InputAdapter implements Screen {
         }
 
         if(isBuilding) {
-            build(Buildings.get(Buildings.Types.DEFAULT_BUILDING));
+            build(Buildings.get(Buildings.Types.BIG));
         }
 
         batch.end();
+        transparentBatch.end();
     }
 
     @Override
@@ -138,18 +143,19 @@ public class GameScreen extends InputAdapter implements Screen {
         return false;
     }
 
-    private void draw(Texture texture, float x, float y) {
-        batch.draw(texture, x, y, texture.getWidth(), texture.getHeight());
-    }
-
     private void build(Building building) {
-        Vector2 mousePos = screenToWorld(Gdx.input.getX(), Gdx.input.getY());
-        int mouseX = (int)mousePos.x, mouseY = (int)mousePos.y;
+        Texture texture = building.getTexture();
 
-        draw(building.getTexture(), mouseX - (mouseX % CELL_SIZE), mouseY - (mouseY % CELL_SIZE));
+        Vector2 mousePos = screenToWorld(Gdx.input.getX(), Gdx.input.getY());
+        int mouseX = (int)mousePos.x + CELL_SIZE/(texture.getWidth()/CELL_SIZE)%2,
+                mouseY = (int)mousePos.y + CELL_SIZE/(texture.getHeight()/CELL_SIZE)%2;
+        int posX = mouseX - (mouseX % CELL_SIZE) - texture.getWidth()/(texture.getWidth()/CELL_SIZE),
+                posY = mouseY - (mouseY % CELL_SIZE) - texture.getHeight()/(texture.getHeight()/CELL_SIZE);
+
+        transparentBatch.draw(texture, posX, posY);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            building.setPosition(mouseX - (mouseX % CELL_SIZE), mouseY - (mouseY % CELL_SIZE));
+            building.setPosition(posX, posY);
             buildings.add(building);
             isBuilding = false;
         }
