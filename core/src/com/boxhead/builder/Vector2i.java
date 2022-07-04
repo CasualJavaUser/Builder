@@ -26,6 +26,10 @@ public class Vector2i {
         this.y = y;
     }
 
+    public double distance(Vector2i vector) {
+        return Math.sqrt(Math.pow(x - vector.x, 2d) + Math.pow(y - vector.y, 2d));
+    }
+
     @Override
     public String toString() {
         return x + " " + y;

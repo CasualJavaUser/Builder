@@ -27,20 +27,10 @@ public class Textures {
     }
 
     public static TextureRegion getBuilding(String name) {
-        try {
-            return buildings.get(name);
-        } catch (NullPointerException e) {
-            System.err.println("Missing texture: " + name);
-            return buildings.get("fungus");
-        }
+        return buildings.get(name);
     }
 
     public static TextureRegion getTile(String name) {
-        try {
-            return tiles.get(name);
-        } catch (NullPointerException e) {
-            System.err.println("Missing texture: " + name);
-            return tiles.get("default");
-        }
+        return tiles.get(name);
     }
 }

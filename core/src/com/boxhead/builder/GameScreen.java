@@ -26,6 +26,9 @@ public class GameScreen extends InputAdapter implements Screen {
     private float moveSpeed;
     private boolean isBuilding = false;
 
+    private float timeSinceStart = 0;
+    private float previousTime = 0;
+
     private final float MAX_ZOOM = 1f, MIN_ZOOM = 0.1f,
                         NORMAL_SPEED = 250, FAST_SPEED = 450,
                         SCROLL_SPEED = 100;
@@ -40,6 +43,7 @@ public class GameScreen extends InputAdapter implements Screen {
         Textures.initTextures();
 
         world = new World(new Vector2i(100, 130));
+
         //world.generateMap();
         world.debug();
 
@@ -66,7 +70,7 @@ public class GameScreen extends InputAdapter implements Screen {
         }
 
         if(isBuilding) {
-            build(Buildings.get(Buildings.Types.BIG));
+            build(Buildings.get(Buildings.Types.DEFAULT_FUNCTIONAL_BUILDING));
         }
 
         batch.end();
@@ -152,7 +156,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             building.setPosition(posX, posY);
-            world.add(building);
+            world.addBuilding(building);
             isBuilding = false;
         }
     }

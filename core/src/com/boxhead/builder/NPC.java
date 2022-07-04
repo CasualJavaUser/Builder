@@ -1,13 +1,78 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import java.util.HashMap;
 import java.util.HashSet;
 
 public class NPC {
+    private final Texture texture;
     String name;
     int age, health;
     Jobs job;
     ResidentialBuilding home;
+
+    private Vector2i position;
+    private int pathStep;   //how far into Vector2i[] path has been travelled
+    private Vector2i[] path = null;
+
+    public NPC(Texture texture, Vector2i position) {
+        this.texture = texture;
+        this.position = position;
+    }
+
+    public void navigateTo(Vector2i gridTile) {
+        path = Pathfinding.findPath(position, gridTile);
+        pathStep = 0;
+    }
+
+    public void navigateTo(Jobs job, World world) {
+        double distance = Double.MAX_VALUE;
+        Vector2i closestBuilding = null;
+        for (Building workplace : world.getBuildings()) {
+            if (workplace instanceof FunctionalBuilding && ((FunctionalBuilding) workplace).job == job) {
+                if (position.distance(workplace.position) < distance && ((FunctionalBuilding) workplace).employeeCount < ((FunctionalBuilding) workplace).employeeCapacity) {
+                    distance = position.distance(workplace.position);
+                    closestBuilding = workplace.position;
+                }
+            }
+            if (closestBuilding != null) {
+                path = Pathfinding.findPath(position, new Vector2i(closestBuilding.x / World.TILE_SIZE, closestBuilding.y / World.TILE_SIZE));
+                pathStep = 0;
+            } else {
+                path = null; //no free workplaces
+            }
+        }
+    }
+
+    /**
+     * Follows along a path specified by the navigateTo() method.
+     *
+     * @return true if the NPC moved, false if no path is specified or the end of path is reached
+     */
+
+    public boolean followPath() {
+        if (path == null) {
+            return false;   //no path specified
+        } else if (pathStep == path.length - 1) {
+            path = null;
+            return false;   //reached the destination
+        } else if (!Pathfinding.navigableTiles.contains(path[pathStep + 1])) {
+            path = Pathfinding.findPath(position, path[path.length - 1]);
+            pathStep = 0;
+        }
+        pathStep++;
+        position = path[pathStep];
+        return true;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public Vector2i getPosition() {
+        return position;
+    }
 
     public static class Pathfinding {
         private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
@@ -38,7 +103,7 @@ public class NPC {
         }
 
         public static Vector2i[] findPath(Vector2i start, Vector2i destination) {     //Dijkstra's algorithm
-            if (start.hashCode() == destination.hashCode()) {
+            if (start.equals(destination)) {
                 return new Vector2i[]{start};
             }
             HashSet<Vector2i> unvisitedTiles = new HashSet<>(navigableTiles);
@@ -55,21 +120,21 @@ public class NPC {
             Vector2i tempTile = new Vector2i();
 
             while (!currentTile.equals(destination)) {
-                tempTile.set(x + 1, y);
+                tempTile = new Vector2i(x + 1, y);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile.set(x - 1, y);
+                tempTile = new Vector2i(x - 1, y);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile.set(x, y + 1);
+                tempTile = new Vector2i(x, y + 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile.set(x, y - 1);
+                tempTile = new Vector2i(x, y - 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
-                tempTile.set(x + 1, y + 1);
+                tempTile = new Vector2i(x + 1, y + 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
-                tempTile.set(x - 1, y + 1);
+                tempTile = new Vector2i(x - 1, y + 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
-                tempTile.set(x + 1, y - 1);
+                tempTile = new Vector2i(x + 1, y - 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
-                tempTile.set(x - 1, y - 1);
+                tempTile = new Vector2i(x - 1, y - 1);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
 
                 unvisitedTiles.remove(currentTile);
