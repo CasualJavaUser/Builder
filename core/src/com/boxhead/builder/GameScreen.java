@@ -66,11 +66,11 @@ public class GameScreen extends InputAdapter implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
 
         for (Building building : world.getBuildings()) {
-            batch.draw(building.getTexture(), building.getX(), building.getY());
+            batch.draw(building.getTexture(), building.getGridX() * World.TILE_SIZE, building.getGridY() * World.TILE_SIZE);
         }
 
         if(isBuilding) {
-            build(Buildings.get(Buildings.Types.DEFAULT_FUNCTIONAL_BUILDING));
+            build(Buildings.get(Buildings.Types.DEFAULT_PRODUCTION_BUILDING));
         }
 
         batch.end();
@@ -145,17 +145,20 @@ public class GameScreen extends InputAdapter implements Screen {
 
     private void build(Building building) {
         TextureRegion texture = building.getTexture();
-
         Vector3 mousePos = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-        int mouseX = (int)mousePos.x + World.TILE_SIZE /(texture.getRegionWidth()/ World.TILE_SIZE)%2,
-                mouseY = (int)mousePos.y + World.TILE_SIZE /(texture.getRegionHeight()/ World.TILE_SIZE)%2;
-        int posX = mouseX - (mouseX % World.TILE_SIZE) - texture.getRegionWidth()/(texture.getRegionWidth()/ World.TILE_SIZE),
-                posY = mouseY - (mouseY % World.TILE_SIZE) - texture.getRegionHeight()/(texture.getRegionHeight()/ World.TILE_SIZE);
+
+        int mouseX = (int)mousePos.x - (texture.getRegionWidth()-World.TILE_SIZE)/2,
+                mouseY = (int)mousePos.y - (texture.getRegionHeight()-World.TILE_SIZE)/2;
+
+        int posX = mouseX - (mouseX % World.TILE_SIZE),
+                posY = mouseY - (mouseY % World.TILE_SIZE);
+
+        batch.draw(texture, posX, posY);
 
         transparentBatch.draw(texture, posX, posY);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            building.setPosition(posX, posY);
+            building.setPosition(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
             world.addBuilding(building);
             isBuilding = false;
         }

@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class World {
 
     public final static int TILE_SIZE = 16;
-    public final static int MAX_TIME = 1440;
+    public final static int FULL_DAY = 1440;
 
     private int time;
     private int temperature;
@@ -49,7 +49,7 @@ public class World {
     }
 
     public void addTime(int shift) {
-        time = (time + shift) % MAX_TIME;
+        time = (time + shift) % FULL_DAY;
     }
 
     public ArrayList<Building> getBuildings() {

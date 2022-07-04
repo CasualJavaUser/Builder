@@ -4,14 +4,15 @@ public class Buildings {
 
     public enum Types {
         DEFAULT_BUILDING,
-        DEFAULT_FUNCTIONAL_BUILDING,
+        DEFAULT_PRODUCTION_BUILDING,
         DEFAULT_RESIDENTIAL_BUILDING,
+        DEFAULT_SERVICE_BUILDING,
         BIG
     }
 
     public static Building get(Types building) {
         switch(building) {
-            case DEFAULT_FUNCTIONAL_BUILDING: return new FunctionalBuilding(Textures.getBuilding("service_fungus"), Jobs.LUMBERJACK, 1);
+            case DEFAULT_PRODUCTION_BUILDING: return new ProductionBuilding(Textures.getBuilding("work_fungus"), Jobs.LUMBERJACK, 1);
             case DEFAULT_RESIDENTIAL_BUILDING: return new ResidentialBuilding(Textures.getBuilding("house_fungus"), 5);
             case BIG: return new Building(Textures.getBuilding("fungi"));
             default: return new Building(Textures.getBuilding("fungus"));

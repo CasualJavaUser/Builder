@@ -14,11 +14,11 @@ public class Building {
         return texture;
     }
 
-    public int getX() {
+    public int getGridX() {
         return position.x;
     }
 
-    public int getY() {
+    public int getGridY() {
         return position.y;
     }
 

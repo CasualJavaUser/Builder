@@ -30,8 +30,8 @@ public class NPC {
         double distance = Double.MAX_VALUE;
         Vector2i closestBuilding = null;
         for (Building workplace : world.getBuildings()) {
-            if (workplace instanceof FunctionalBuilding && ((FunctionalBuilding) workplace).job == job) {
-                if (position.distance(workplace.position) < distance && ((FunctionalBuilding) workplace).employeeCount < ((FunctionalBuilding) workplace).employeeCapacity) {
+            if (workplace instanceof ProductionBuilding && ((ProductionBuilding) workplace).job == job) {
+                if (position.distance(workplace.position) < distance && ((ProductionBuilding) workplace).employeeCount < ((ProductionBuilding) workplace).employeeCapacity) {
                     distance = position.distance(workplace.position);
                     closestBuilding = workplace.position;
                 }
