@@ -2,14 +2,14 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class ProductionBuilding extends Building {
+public class ProductionBuilding extends EnterableBuilding {
 
     protected Jobs job;
     protected int employeeCapacity, employeeCount = 0;
     protected NPC[] employees;
 
-    public ProductionBuilding(TextureRegion texture, Jobs job, int employeeCapacity) {
-        super(texture);
+    public ProductionBuilding(TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition) {
+        super(texture, entrancePosition);
         this.job = job;
         this.employeeCapacity = employeeCapacity;
         employees = new NPC[employeeCapacity];
