@@ -1,6 +1,7 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Timer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,12 +19,21 @@ public class World {
     private final ArrayList<Building> buildings = new ArrayList<>();
     private final ArrayList<NPC> npcs = new ArrayList<>();
 
+    private Timer.Task tick = new Timer.Task() {
+        @Override
+        public void run() {
+            addTime(1);
+        }
+    };
+
     public final int[] resourceStorage = new int[Resources.values().length];
 
     public World(Vector2i worldSize) {
         this.worldSize = worldSize;
         tiles = new Tiles.Type[worldSize.x * worldSize.y];
         NPC.Pathfinding.reset(worldSize.x, worldSize.y);
+
+        Timer.schedule(tick, 0, 0.1f);
     }
 
     public void generateMap() {

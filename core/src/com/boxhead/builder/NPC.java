@@ -117,7 +117,7 @@ public class NPC {
 
             int x = start.x, y = start.y;
             Vector2i currentTile = new Vector2i(x, y);
-            Vector2i tempTile = new Vector2i();
+            Vector2i tempTile;
 
             while (!currentTile.equals(destination)) {
                 tempTile = new Vector2i(x + 1, y);
