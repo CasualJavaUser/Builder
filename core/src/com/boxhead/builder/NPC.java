@@ -45,8 +45,13 @@ public class NPC {
         }
     }
 
+    public void navigateTo(EnterableBuilding building) {
+        path = Pathfinding.findPath(position, building.getEntrancePosition());
+        pathStep = 0;
+    }
+
     /**
-     * Follows along a path specified by the navigateTo() method.
+     * Follows along a path specified by the {@code navigateTo()} method.
      *
      * @return true if the NPC moved, false if no path is specified or the end of path is reached
      */
@@ -64,6 +69,41 @@ public class NPC {
         pathStep++;
         position = path[pathStep];
         return true;
+    }
+
+    /**
+     * Makes this NPC enter the specified EnterableBuilding and assigns it as either an employee or a guest.
+     * To enter, the NPC needs to be at the building's entrance tile.
+     * If the building is full, call to this method has no effect.
+     *
+     * @param building the building to be entered
+     * @param guest    (optional) {@code true} if the building is to be entered as a guest.
+     */
+
+    public void enterBuilding(EnterableBuilding building, boolean... guest) {
+        boolean entered = true;
+        if (position.equals(building.getEntrancePosition())) {
+            if (building instanceof ServiceBuilding) {
+                if (guest.length > 0 && guest[0]) {
+                    entered = ((ServiceBuilding) building).addGuest(this);
+                }
+            } else if (building instanceof ProductionBuilding) {
+                entered = ((ProductionBuilding) building).addEmployee(this);
+            }
+
+            if (entered) {
+                path = null;
+                position = building.getPosition();
+            }
+        }
+    }
+
+    public void exitBuilding(World world) {
+        for (Building building : world.getBuildings()) {
+            if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
+                position = building.getPosition().clone();
+            }
+        }
     }
 
     public Texture getTexture() {
@@ -103,7 +143,7 @@ public class NPC {
         }
 
         public static Vector2i[] findPath(Vector2i start, Vector2i destination) {     //Dijkstra's algorithm
-            if (start.equals(destination)) {
+            if (start.equals(destination) || !navigableTiles.contains(start)) {
                 return new Vector2i[]{start};
             }
             HashSet<Vector2i> unvisitedTiles = new HashSet<>(navigableTiles);

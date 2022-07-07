@@ -1,2 +1,19 @@
-1. time
-2. npc going to work producing resources
+game loop:
+- npc going to work producing resources
+- npc being assigned/assigning themselves to jobs/houses
+- proper building system (taking resources/time/labour)
+- gathering resources from the world
+- production chains (?)
+
+- npc stats/needs
+- services
+
+- upgrades/progression (?)
+
+The World:
+- world map generation
+- terrain features (?)
+
+strategic aspect:
+- politics/citizen contentment (?)
+- some kind of enemies from the outside (?)

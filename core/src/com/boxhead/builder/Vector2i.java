@@ -2,7 +2,7 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class Vector2i {
+public class Vector2i implements Cloneable {
     public int x;
     public int y;
 
@@ -50,5 +50,14 @@ public class Vector2i {
         result = 13 + Float.floatToIntBits((float) x);
         result = 13 * result + Float.floatToIntBits((float) y);
         return result;
+    }
+
+    @Override
+    public Vector2i clone() {
+        try {
+            return (Vector2i) super.clone();
+        } catch (CloneNotSupportedException ignored) {
+            return null;
+        }
     }
 }
