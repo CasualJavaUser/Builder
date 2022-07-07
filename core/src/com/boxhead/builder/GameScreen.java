@@ -17,11 +17,9 @@ public class GameScreen extends InputAdapter implements Screen {
 
     private OrthographicCamera camera;
     private Viewport viewport;
-    private InputManager input;
 
     private SpriteBatch batch;
     private SpriteBatch transparentBatch;
-    private World world;
 
     private float moveSpeed;
     private boolean isBuilding = false;
@@ -36,14 +34,14 @@ public class GameScreen extends InputAdapter implements Screen {
         int screenHeight = Gdx.graphics.getHeight();
         camera = new OrthographicCamera();
         viewport = new StretchViewport(screenWidth, screenHeight, camera);
-        input = InputManager.getInstance();
 
         Textures.initTextures();
 
-        world = new World(new Vector2i(100, 130));
+        //World = new World(new Vector2i(100, 130));
+        World.initWorld(new Vector2i(100, 130));
 
-        //world.generateMap();
-        world.debug();
+        //World.generateMap();
+        World.debug();
 
         batch = new SpriteBatch();
         transparentBatch = new SpriteBatch();
@@ -59,11 +57,11 @@ public class GameScreen extends InputAdapter implements Screen {
         transparentBatch.begin();
 
         moveCamera(deltaTime);
-        world.drawMap(batch);
+        World.drawMap(batch);
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
 
-        for (Building building : world.getBuildings()) {
+        for (Building building : World.getBuildings()) {
             batch.draw(building.getTexture(), building.getGridX() * World.TILE_SIZE, building.getGridY() * World.TILE_SIZE);
         }
 
@@ -123,9 +121,9 @@ public class GameScreen extends InputAdapter implements Screen {
 
         //default camera position is (worldWidth / 2, worldHeight / 2)
         if(camera.position.x < (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = (float)viewport.getScreenWidth()/2 * camera.zoom;
-        if(camera.position.x > world.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = world.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom;
+        if(camera.position.x > World.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom) camera.position.x = World.getWidth() - (float)viewport.getScreenWidth() / 2 * camera.zoom;
         if(camera.position.y < (float)viewport.getScreenHeight() / 2 * camera.zoom) camera.position.y = (float)viewport.getScreenHeight() / 2 * camera.zoom;
-        if(camera.position.y > world.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom) camera.position.y = world.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom;
+        if(camera.position.y > World.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom) camera.position.y = World.getHeight() - (float)viewport.getScreenHeight() / 2 * camera.zoom;
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -157,7 +155,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             building.setPosition(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-            world.addBuilding(building);
+            World.addBuilding(building);
             isBuilding = false;
         }
     }

@@ -8,81 +8,87 @@ import java.util.Arrays;
 
 public class World {
 
-    public final static int TILE_SIZE = 16;
-    public final static int FULL_DAY = 1440;
+    public static final int TILE_SIZE = 16;
+    public static final int FULL_DAY = 1440;
 
-    private int time;
-    private int temperature;
-    private Vector2i worldSize;
+    private static int time;
+    private static int temperature;
+    private static Vector2i worldSize;
 
-    private Tiles.Type[] tiles;
-    private final ArrayList<Building> buildings = new ArrayList<>();
-    private final ArrayList<NPC> npcs = new ArrayList<>();
+    private static Tiles.Type[] tiles;
+    private static final ArrayList<Building> buildings = new ArrayList<>();
+    private static final ArrayList<NPC> npcs = new ArrayList<>();
 
-    private Timer.Task tick = new Timer.Task() {
+    /*private Timer.Task tick = new Timer.Task() {
         @Override
         public void run() {
             addTime(1);
         }
-    };
+    };*/
 
-    public final int[] resourceStorage = new int[Resources.values().length];
+    public static final int[] resourceStorage = new int[Resources.values().length];
 
-    public World(Vector2i worldSize) {
+    /*public World(Vector2i worldSize) {
         this.worldSize = worldSize;
         tiles = new Tiles.Type[worldSize.x * worldSize.y];
         NPC.Pathfinding.reset(worldSize.x, worldSize.y);
 
         Timer.schedule(tick, 0, 0.1f);
+    }*/
+
+    public static void initWorld(Vector2i worldSize) {
+        worldSize = worldSize;
+        tiles = new Tiles.Type[worldSize.x * worldSize.y];
+        NPC.Pathfinding.reset(worldSize.x, worldSize.y);
     }
 
-    public void generateMap() {
+    public static void generateMap() {
         Arrays.fill(tiles, Tiles.Type.DIRT);
     }
 
-    public void drawMap(SpriteBatch batch) {
+    public static void drawMap(SpriteBatch batch) {
         for (int i = 0; i < tiles.length; i++) {
             batch.draw(tiles[i].texture, i % worldSize.x * TILE_SIZE, i / worldSize.x * TILE_SIZE);
         }
     }
 
-    public boolean addBuilding(Building building) {
+    public static boolean addBuilding(Building building) {
         return buildings.add(building);
     }
 
-    public boolean addNPC(NPC npc) {
+    public static boolean addNPC(NPC npc) {
         return npcs.add(npc);
     }
 
-    public void setTime(int time) {
-        this.time = time;
+    public static void setTime(int time) {
+        World.time = time;
     }
 
-    public void addTime(int shift) {
+    public static void addTime(int shift) {
         time = (time + shift) % FULL_DAY;
     }
 
-    public ArrayList<Building> getBuildings() {
+    public static ArrayList<Building> getBuildings() {
         return buildings;
     }
 
-    public ArrayList<NPC> getNpcs() {
+    public static ArrayList<NPC> getNpcs() {
         return npcs;
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return worldSize.x * TILE_SIZE;
     }
 
-    public int getHeight() {
+    public static int getHeight() {
         return worldSize.y * TILE_SIZE;
     }
 
-    public int getTime() {
+    public static int getTime() {
         return time;
     }
 
-    public void debug() {
+    public static void debug() {
         Arrays.fill(tiles, Tiles.Type.DEFAULT);
     }
 }

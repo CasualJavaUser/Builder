@@ -27,10 +27,12 @@ public class Textures {
     }
 
     public static TextureRegion getBuilding(String name) {
-        return buildings.get(name);
+        if (buildings.get(name) != null) return buildings.get(name);
+        else return buildings.get("fungus");
     }
 
     public static TextureRegion getTile(String name) {
-        return tiles.get(name);
+        if (tiles.get(name) != null) return tiles.get(name);
+        else return tiles.get("default");
     }
 }

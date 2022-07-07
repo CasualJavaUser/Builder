@@ -7,10 +7,10 @@ import java.util.HashSet;
 
 public class NPC {
     private final Texture texture;
-    String name;
-    int age, health;
-    Jobs job;
-    ResidentialBuilding home;
+    private String name;
+    private int age, health;
+    private Jobs job;
+    private ResidentialBuilding home;
 
     private Vector2i position;
     private int pathStep;   //how far into Vector2i[] path has been travelled
@@ -26,10 +26,10 @@ public class NPC {
         pathStep = 0;
     }
 
-    public void navigateTo(Jobs job, World world) {
+    public void navigateTo(Jobs job) {
         double distance = Double.MAX_VALUE;
         Vector2i closestBuilding = null;
-        for (Building workplace : world.getBuildings()) {
+        for (Building workplace : World.getBuildings()) {
             if (workplace instanceof ProductionBuilding && ((ProductionBuilding) workplace).job == job) {
                 if (position.distance(workplace.position) < distance && ((ProductionBuilding) workplace).employeeCount < ((ProductionBuilding) workplace).employeeCapacity) {
                     distance = position.distance(workplace.position);
@@ -98,8 +98,8 @@ public class NPC {
         }
     }
 
-    public void exitBuilding(World world) {
-        for (Building building : world.getBuildings()) {
+    public void exitBuilding() {
+        for (Building building : World.getBuildings()) {
             if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
                 position = building.getPosition().clone();
             }
