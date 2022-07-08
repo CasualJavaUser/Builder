@@ -55,7 +55,7 @@ public class ProductionBuilding extends EnterableBuilding {
         return b;
     }
 
-    public void produceResources(World world) {
-        world.resourceStorage[job.getProduct().getIndex()] += employeeCount;
+    public void produceResources() {
+        World.resourceStorage[job.getProduct().getIndex()] += employeeCount;
     }
 }

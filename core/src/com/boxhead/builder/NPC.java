@@ -10,7 +10,8 @@ public class NPC {
     private String name;
     private int age, health;
     private Jobs job;
-    private ResidentialBuilding home;
+    private ResidentialBuilding home = null;
+    private boolean inBuilding;
 
     private Vector2i position;
     private int pathStep;   //how far into Vector2i[] path has been travelled
@@ -26,7 +27,7 @@ public class NPC {
         pathStep = 0;
     }
 
-    public void navigateTo(Jobs job) {
+    public void navigateToJob() {
         double distance = Double.MAX_VALUE;
         Vector2i closestBuilding = null;
         for (Building workplace : World.getBuildings()) {
@@ -62,7 +63,7 @@ public class NPC {
         } else if (pathStep == path.length - 1) {
             path = null;
             return false;   //reached the destination
-        } else if (!Pathfinding.navigableTiles.contains(path[pathStep + 1])) {
+        } else if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
             path = Pathfinding.findPath(position, path[path.length - 1]);
             pathStep = 0;
         }
@@ -92,6 +93,7 @@ public class NPC {
             }
 
             if (entered) {
+                inBuilding = true;
                 path = null;
                 position = building.getPosition();
             }
@@ -99,9 +101,13 @@ public class NPC {
     }
 
     public void exitBuilding() {
+        if (!inBuilding) {
+            return;
+        }
         for (Building building : World.getBuildings()) {
             if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
                 position = building.getPosition().clone();
+                inBuilding = false;
             }
         }
     }
@@ -114,42 +120,32 @@ public class NPC {
         return position;
     }
 
+    public Jobs getJob() {
+        return job;
+    }
+
+    public void setHome(ResidentialBuilding house) {
+        home = house;
+    }
+
+    public ResidentialBuilding getHome() {
+        return home;
+    }
+
+    public boolean isInBuilding() {
+        return inBuilding;
+    }
+
     public static class Pathfinding {
-        private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
-
-        public static void reset(int gridWidth, int gridHeight) {
-            navigableTiles.clear();
-            for (int i = 0; i < gridWidth; i++) {
-                for (int j = 0; j < gridHeight; j++) {
-                    navigableTiles.add(new Vector2i(i, j));
-                }
-            }
-        }
-
-        public static void makeUnnavigable(int x, int y) {
-            navigableTiles.remove(new Vector2i(x, y));
-        }
-
-        public static void makeUnnavigable(Vector2i gridPosition) {
-            navigableTiles.remove(gridPosition);
-        }
-
-        public static void makeNavigable(int x, int y) {
-            navigableTiles.add(new Vector2i(x, y));
-        }
-
-        public static void makeNavigable(Vector2i gridPosition) {
-            navigableTiles.add(gridPosition);
-        }
 
         public static Vector2i[] findPath(Vector2i start, Vector2i destination) {     //Dijkstra's algorithm
-            if (start.equals(destination) || !navigableTiles.contains(start)) {
+            if (start.equals(destination) || !World.getNavigableTiles().contains(start)) {
                 return new Vector2i[]{start};
             }
-            HashSet<Vector2i> unvisitedTiles = new HashSet<>(navigableTiles);
+            HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
             HashMap<Vector2i, Double> distanceToTile = new HashMap<>();
             HashMap<Vector2i, Vector2i> parentTree = new HashMap<>();
-            for (Vector2i tile : navigableTiles) {
+            for (Vector2i tile : World.getNavigableTiles()) {
                 distanceToTile.put(tile, Double.MAX_VALUE);
             }
             distanceToTile.remove(start);

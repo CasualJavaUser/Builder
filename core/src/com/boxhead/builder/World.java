@@ -1,10 +1,10 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Timer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class World {
 
@@ -19,41 +19,61 @@ public class World {
     private static final ArrayList<Building> buildings = new ArrayList<>();
     private static final ArrayList<NPC> npcs = new ArrayList<>();
 
-    /*private Timer.Task tick = new Timer.Task() {
-        @Override
-        public void run() {
-            addTime(1);
-        }
-    };*/
-
     public static final int[] resourceStorage = new int[Resources.values().length];
 
-    /*public World(Vector2i worldSize) {
-        this.worldSize = worldSize;
-        tiles = new Tiles.Type[worldSize.x * worldSize.y];
-        NPC.Pathfinding.reset(worldSize.x, worldSize.y);
+    private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
-        Timer.schedule(tick, 0, 0.1f);
-    }*/
 
     public static void initWorld(Vector2i worldSize) {
-        worldSize = worldSize;
+        World.worldSize = worldSize;
         tiles = new Tiles.Type[worldSize.x * worldSize.y];
-        NPC.Pathfinding.reset(worldSize.x, worldSize.y);
+        resetNavigable(worldSize);
     }
 
     public static void generateMap() {
         Arrays.fill(tiles, Tiles.Type.DIRT);
     }
 
-    public static void drawMap(SpriteBatch batch) {
-        for (int i = 0; i < tiles.length; i++) {
-            batch.draw(tiles[i].texture, i % worldSize.x * TILE_SIZE, i / worldSize.x * TILE_SIZE);
+    public static void resetNavigable(Vector2i gridDimensions) {
+        navigableTiles.clear();
+        for (int i = 0; i < gridDimensions.x; i++) {
+            for (int j = 0; j < gridDimensions.y; j++) {
+                navigableTiles.add(new Vector2i(i, j));
+            }
         }
     }
 
-    public static boolean addBuilding(Building building) {
-        return buildings.add(building);
+    public static void makeUnnavigable(int x, int y) {
+        navigableTiles.remove(new Vector2i(x, y));
+    }
+
+    public static void makeUnnavigable(Vector2i gridPosition) {
+        navigableTiles.remove(gridPosition);
+    }
+
+    public static void makeNavigable(int x, int y) {
+        navigableTiles.add(new Vector2i(x, y));
+    }
+
+    public static void makeNavigable(Vector2i gridPosition) {
+        navigableTiles.add(gridPosition);
+    }
+
+    public static boolean placeBuilding(Buildings.Types type, Vector2i gridPosition) {
+        if (navigableTiles.contains(gridPosition)) {
+            Building building = Buildings.get(type);
+            building.setPosition(gridPosition);
+            buildings.add(building);
+            navigableTiles.remove(gridPosition);    //todo
+            return true;
+        }
+        return false;
+    }
+
+    public static void drawMap(SpriteBatch batch) {
+        for (int i = 0; i < tiles.length; i++) {
+            batch.draw(tiles[i].texture, i % worldSize.x * TILE_SIZE, (float) (i / worldSize.x) * TILE_SIZE);
+        }
     }
 
     public static boolean addNPC(NPC npc) {
@@ -86,6 +106,10 @@ public class World {
 
     public static int getTime() {
         return time;
+    }
+
+    public static HashSet<Vector2i> getNavigableTiles() {
+        return navigableTiles;
     }
 
     public static void debug() {

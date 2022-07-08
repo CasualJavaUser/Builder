@@ -1,5 +1,7 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
 public class Buildings {
 
     public enum Types {
@@ -7,7 +9,16 @@ public class Buildings {
         DEFAULT_PRODUCTION_BUILDING,
         DEFAULT_RESIDENTIAL_BUILDING,
         DEFAULT_SERVICE_BUILDING,
-        BIG
+        BIG;
+
+        public TextureRegion getTexture() {
+            switch (this) {
+                case DEFAULT_PRODUCTION_BUILDING: return Textures.getBuilding("work_fungus");
+                case DEFAULT_RESIDENTIAL_BUILDING: return Textures.getBuilding("house_fungus");
+                case BIG: return Textures.getBuilding("fungi");
+                default: return Textures.getBuilding("fungus");
+            }
+        }
     }
 
     public static Building get(Types building) {

@@ -26,9 +26,14 @@ public class Building {
         return position;
     }
 
-    public void setPosition(int x, int y) {
-        if(position == null) position = new Vector2i();
-        position.x = x;
-        position.y = y;
+    public void setPosition(int gridX, int gridY) {
+        if (position == null) position = new Vector2i();
+        position.x = gridX;
+        position.y = gridY;
+    }
+
+    public void setPosition(Vector2i gridPosition) {
+        if (position == null) position = new Vector2i();
+        position = gridPosition.clone();
     }
 }
