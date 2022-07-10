@@ -3,7 +3,7 @@ package com.boxhead.builder;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -13,11 +13,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameScreen extends InputAdapter implements Screen {
 
+    private BuilderGame game;
     private OrthographicCamera camera;
     private Viewport viewport;
-
-    private SpriteBatch batch;
-    private SpriteBatch transparentBatch;
 
     private float moveSpeed;
     private boolean isBuilding = false;
@@ -27,7 +25,8 @@ public class GameScreen extends InputAdapter implements Screen {
             NORMAL_SPEED = 250, FAST_SPEED = 450,
             SCROLL_SPEED = 100;
 
-    GameScreen() {
+    GameScreen(BuilderGame game) {
+        this.game = game;
         int screenWidth = Gdx.graphics.getWidth();
         int screenHeight = Gdx.graphics.getHeight();
         camera = new OrthographicCamera();
@@ -45,47 +44,43 @@ public class GameScreen extends InputAdapter implements Screen {
         //World.generateMap();
         World.debug();
 
-        batch = new SpriteBatch();
-        transparentBatch = new SpriteBatch();
-        transparentBatch.setColor(1, 1, 1, .5f);
-
         moveSpeed = NORMAL_SPEED;
     }
 
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        batch.begin();
-        transparentBatch.begin();
+        game.batch.begin();
 
         moveCamera(deltaTime);
-        World.drawMap(batch);
+        World.drawMap(game.batch);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) isBuilding = !isBuilding;
 
         for (NPC npc : World.getNpcs()) {
             if (!npc.isInBuilding()) {
-                batch.draw(npc.getTexture(), npc.getPosition().x * World.TILE_SIZE, npc.getPosition().y * World.TILE_SIZE);
+                game.batch.draw(npc.getTexture(), npc.getPosition().x * World.TILE_SIZE, npc.getPosition().y * World.TILE_SIZE);
             }
         }
 
         for (Building building : World.getBuildings()) {
-            batch.draw(building.getTexture(), building.getGridX() * World.TILE_SIZE, building.getGridY() * World.TILE_SIZE);
+            game.batch.draw(building.getTexture(), building.getGridX() * World.TILE_SIZE, building.getGridY() * World.TILE_SIZE);
         }
 
         if (isBuilding) {
             build(Buildings.Types.DEFAULT_PRODUCTION_BUILDING);
         }
 
-        batch.end();
-        transparentBatch.end();
+        drawUI();
+
+        game.batch.end();
     }
 
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, false);
         viewport.setWorldSize(width, height);
-        batch.setProjectionMatrix(camera.combined);
+        game.batch.setProjectionMatrix(camera.combined);
     }
 
     @Override
@@ -110,8 +105,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        transparentBatch.dispose();
+
     }
 
     public void moveCamera(float deltaTime) {
@@ -137,8 +131,7 @@ public class GameScreen extends InputAdapter implements Screen {
             camera.position.y = World.getHeight() - (float) viewport.getScreenHeight() / 2 * camera.zoom;
 
         camera.update();
-        batch.setProjectionMatrix(camera.combined);
-        //transparentBatch.setProjectionMatrix(camera.combined);  <-- ???
+        game.batch.setProjectionMatrix(camera.combined);
     }
 
     @Override
@@ -147,7 +140,7 @@ public class GameScreen extends InputAdapter implements Screen {
         if (camera.zoom > MAX_ZOOM) camera.zoom = MAX_ZOOM;
         else if (camera.zoom < MIN_ZOOM) camera.zoom = MIN_ZOOM;
         camera.update();
-        batch.setProjectionMatrix(camera.combined);
+        game.batch.setProjectionMatrix(camera.combined);
         return false;
     }
 
@@ -161,10 +154,18 @@ public class GameScreen extends InputAdapter implements Screen {
         int posX = mouseX - (mouseX % World.TILE_SIZE),
                 posY = mouseY - (mouseY % World.TILE_SIZE);
 
-        transparentBatch.draw(texture, posX, posY);
+        game.batch.setColor(1, 1, 1, .5f);
+        game.batch.draw(texture, posX, posY);
+        game.batch.setColor(1, 1, 1, 1);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             isBuilding = !World.placeBuilding(type, new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE));
         }
+    }
+
+    private void drawUI() {
+        Vector3 vector = camera.unproject(new Vector3(10, viewport.getScreenHeight()-10, 0));
+        Texture texture = new Texture("house_icon.png");
+        game.batch.draw(texture, vector.x, vector.y, texture.getWidth()*camera.zoom, texture.getHeight()*camera.zoom);
     }
 }

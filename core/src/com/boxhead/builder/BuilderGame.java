@@ -3,16 +3,19 @@ package com.boxhead.builder;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class BuilderGame extends Game {
 
-    GameScreen gameScreen;
-    InputMultiplexer inputMultiplexer;
+    private GameScreen gameScreen;
+    private InputMultiplexer inputMultiplexer;
+    public SpriteBatch batch;
 
     @Override
     public void create() {
         inputMultiplexer = new InputMultiplexer();
-        gameScreen = new GameScreen();
+        batch = new SpriteBatch();
+        gameScreen = new GameScreen(this);
 
         inputMultiplexer.addProcessor(gameScreen);
         Gdx.input.setInputProcessor(inputMultiplexer);
@@ -26,6 +29,7 @@ public class BuilderGame extends Game {
 
     @Override
     public void dispose() {
+        batch.dispose();
         gameScreen.dispose();
     }
 

@@ -27,13 +27,10 @@ public class Building {
     }
 
     public void setPosition(int gridX, int gridY) {
-        if (position == null) position = new Vector2i();
-        position.x = gridX;
-        position.y = gridY;
+        position = new Vector2i(gridX, gridY);
     }
 
     public void setPosition(Vector2i gridPosition) {
-        if (position == null) position = new Vector2i();
         position = gridPosition.clone();
     }
 }
