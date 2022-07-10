@@ -7,11 +7,13 @@ import com.badlogic.gdx.InputMultiplexer;
 public class BuilderGame extends Game {
 
     GameScreen gameScreen;
-    InputMultiplexer inputMultiplexer = new InputMultiplexer();
+    InputMultiplexer inputMultiplexer;
 
     @Override
     public void create() {
+        inputMultiplexer = new InputMultiplexer();
         gameScreen = new GameScreen();
+
         inputMultiplexer.addProcessor(gameScreen);
         Gdx.input.setInputProcessor(inputMultiplexer);
         setScreen(gameScreen);
@@ -32,5 +34,14 @@ public class BuilderGame extends Game {
         gameScreen.resize(width, height);
     }
 
+    @Override
+    public void resume() {
+        super.resume();
+        setScreen(gameScreen);
+    }
 
+    @Override
+    public void pause() {
+        super.pause();
+    }
 }

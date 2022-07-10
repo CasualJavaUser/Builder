@@ -1,5 +1,6 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class World {
         World.worldSize = worldSize;
         tiles = new Tiles.Type[worldSize.x * worldSize.y];
         resetNavigable(worldSize);
+        initNPCs();
     }
 
     public static void generateMap() {
@@ -76,7 +78,7 @@ public class World {
         }
     }
 
-    public static boolean addNPC(NPC npc) {
+    public static boolean spawnNPC(NPC npc) {
         return npcs.add(npc);
     }
 
@@ -114,5 +116,9 @@ public class World {
 
     public static void debug() {
         Arrays.fill(tiles, Tiles.Type.DEFAULT);
+    }
+
+    private static void initNPCs() {
+        spawnNPC(new NPC(new Texture("funguy.png"), new Vector2i(worldSize.x / 2,worldSize.y / 2)));
     }
 }

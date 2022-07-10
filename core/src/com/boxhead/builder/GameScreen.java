@@ -1,9 +1,6 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -39,8 +36,11 @@ public class GameScreen extends InputAdapter implements Screen {
         Textures.initTextures();
 
         //World = new World(new Vector2i(100, 130));
-        World.initWorld(new Vector2i(100, 130));
+        World.initWorld(new Vector2i(101, 101));
         Timer.schedule(Logic.getTask(), 0, 0.1f);
+
+        camera.position.set((float)World.getWidth()/2, (float)World.getHeight()/2, camera.position.z);
+        camera.update();
 
         //World.generateMap();
         World.debug();
@@ -83,7 +83,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        viewport.update(width, height, false);
         viewport.setWorldSize(width, height);
         batch.setProjectionMatrix(camera.combined);
     }
@@ -127,7 +127,6 @@ public class GameScreen extends InputAdapter implements Screen {
             camera.position.y += Gdx.input.getDeltaY() * camera.zoom;
         }
 
-        //default camera position is (worldWidth / 2, worldHeight / 2)
         if (camera.position.x < (float) viewport.getScreenWidth() / 2 * camera.zoom)
             camera.position.x = (float) viewport.getScreenWidth() / 2 * camera.zoom;
         if (camera.position.x > World.getWidth() - (float) viewport.getScreenWidth() / 2 * camera.zoom)
@@ -139,6 +138,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+        //transparentBatch.setProjectionMatrix(camera.combined);  <-- ???
     }
 
     @Override

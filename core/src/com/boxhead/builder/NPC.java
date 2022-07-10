@@ -11,6 +11,7 @@ public class NPC {
     private int age, health;
     private Jobs job;
     private ResidentialBuilding home = null;
+    private ProductionBuilding workplace = null;
     private boolean inBuilding;
 
     private Vector2i position;
@@ -20,6 +21,7 @@ public class NPC {
     public NPC(Texture texture, Vector2i position) {
         this.texture = texture;
         this.position = position;
+        job = Jobs.UNEMPLOYED;
     }
 
     public void navigateTo(Vector2i gridTile) {
