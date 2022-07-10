@@ -1,6 +1,7 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,8 +11,8 @@ public class NPC {
     private String name;
     private int age, health;
     private Jobs job;
-    private ResidentialBuilding home = null;
     private ProductionBuilding workplace = null;
+    private ResidentialBuilding home = null;
     private boolean inBuilding;
 
     private Vector2i position;
@@ -29,28 +30,14 @@ public class NPC {
         pathStep = 0;
     }
 
-    public void navigateToJob() {
-        double distance = Double.MAX_VALUE;
-        Vector2i closestBuilding = null;
-        for (Building workplace : World.getBuildings()) {
-            if (workplace instanceof ProductionBuilding && ((ProductionBuilding) workplace).job == job) {
-                if (position.distance(workplace.position) < distance && ((ProductionBuilding) workplace).employeeCount < ((ProductionBuilding) workplace).employeeCapacity) {
-                    distance = position.distance(workplace.position);
-                    closestBuilding = workplace.position;
-                }
-            }
-            if (closestBuilding != null) {
-                path = Pathfinding.findPath(position, new Vector2i(closestBuilding.x / World.TILE_SIZE, closestBuilding.y / World.TILE_SIZE));
-                pathStep = 0;
-            } else {
-                path = null; //no free workplaces
-            }
-        }
-    }
-
     public void navigateTo(EnterableBuilding building) {
-        path = Pathfinding.findPath(position, building.getEntrancePosition());
-        pathStep = 0;
+        if (building != null) {
+            path = Pathfinding.findPath(position, building.getEntrancePosition());
+            path[path.length - 1] = building.getPosition();
+            pathStep = 0;
+        } else {
+            path = null;
+        }
     }
 
     /**
@@ -65,6 +52,9 @@ public class NPC {
         } else if (pathStep == path.length - 1) {
             path = null;
             return false;   //reached the destination
+        } else if (pathStep == path.length - 2 && path[path.length - 1] != path[path.length - 2]) {
+            enterBuilding(EnterableBuilding.getByCoordinates(path[path.length - 1]));
+            return true;
         } else if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
             path = Pathfinding.findPath(position, path[path.length - 1]);
             pathStep = 0;
@@ -91,7 +81,7 @@ public class NPC {
                     entered = ((ServiceBuilding) building).addGuest(this);
                 }
             } else if (building instanceof ProductionBuilding) {
-                entered = ((ProductionBuilding) building).addEmployee(this);
+                entered = ((ProductionBuilding) building).employeeEnter(this);
             }
 
             if (entered) {
@@ -105,7 +95,13 @@ public class NPC {
     public void exitBuilding() {
         if (!inBuilding) {
             return;
+        } else if (position.equals(workplace.getPosition())) {
+            workplace.employeeExit();
+            position = workplace.getEntrancePosition();
+            inBuilding = false;
+            return;
         }
+
         for (Building building : World.getBuildings()) {
             if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
                 position = building.getPosition().clone();
@@ -114,12 +110,61 @@ public class NPC {
         }
     }
 
+    public void seekJob() {
+        if (workplace != null) {
+            workplace.removeEmployee(this); //this NPC gets fired so that it's current job is included in the search
+        }
+
+        ProductionBuilding bestJob = null;
+        int bestQuality = Integer.MIN_VALUE;
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getEmployeeCount() < ((ProductionBuilding) building).getEmployeeCapacity()) {
+                if (((ProductionBuilding) building).getJobQuality() > bestQuality) {
+                    bestJob = (ProductionBuilding) building;
+                    bestQuality = bestJob.getJobQuality();
+                }
+            }
+        }
+
+        if (bestJob != null) {
+            workplace = bestJob;
+            workplace.addEmployee(this);
+            job = workplace.getJob();
+        }   //else - no work is available
+    }
+
+    public void seekHouse() {
+        if (home != null) {
+            home.removeResident();  //similar to seekJob()
+        }
+
+        ResidentialBuilding closestHouse = null;
+        double distance = Double.MAX_VALUE;
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ResidentialBuilding && ((ResidentialBuilding) building).getResidentCount() < ((ResidentialBuilding) building).getResidentCapacity()) {
+                if (position.distance(building.getPosition()) < distance) {
+                    closestHouse = (ResidentialBuilding) building;
+                    distance = position.distance(building.getPosition());
+                }
+            }
+        }
+
+        if (closestHouse != null) {
+            home = closestHouse;
+            closestHouse.addResident();
+        }   //else - no houses available
+    }
+
     public Texture getTexture() {
         return texture;
     }
 
     public Vector2i getPosition() {
         return position;
+    }
+
+    public ProductionBuilding getWorkplace() {
+        return workplace;
     }
 
     public Jobs getJob() {
@@ -208,11 +253,12 @@ public class NPC {
             }
 
             currentTile = destination;
-            Vector2i[] finalPath = new Vector2i[totalDistance];
+            Vector2i[] finalPath = new Vector2i[totalDistance + 1];
             for (int i = totalDistance - 1; i >= 0; i--) {
                 finalPath[i] = currentTile;
                 currentTile = parentTree.get(currentTile);
             }
+            finalPath[totalDistance] = finalPath[totalDistance - 1].clone();
             return finalPath;
         }
 

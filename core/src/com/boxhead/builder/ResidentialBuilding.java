@@ -10,4 +10,28 @@ public class ResidentialBuilding extends EnterableBuilding {
         super(texture, entrancePosition);
         this.residentCapacity = residentCapacity;
     }
+
+    public boolean addResident() {
+        if (residentCount < residentCapacity) {
+            residentCount++;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeResident() {
+        if (residentCount > 0) {
+            residentCount--;
+            return true;
+        }
+        return false;
+    }
+
+    public int getResidentCapacity() {
+        return residentCapacity;
+    }
+
+    public int getResidentCount() {
+        return residentCount;
+    }
 }

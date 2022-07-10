@@ -13,7 +13,7 @@ public class Logic {
                 for (NPC npc : World.getNpcs()) {
                     if (npc.getJob() != Jobs.UNEMPLOYED) {
                         npc.exitBuilding();
-                        npc.navigateToJob();
+                        npc.navigateTo(npc.getWorkplace());
                     }
                 }
             } else if (World.getTime() == 960) { //16:00
@@ -29,6 +29,9 @@ public class Logic {
 
             for (NPC npc : World.getNpcs()) {
                 npc.followPath();
+
+                    npc.seekJob();  //todo
+                    npc.seekHouse();
             }
 
             for (Building building : World.getBuildings()) {
@@ -36,7 +39,6 @@ public class Logic {
                     ((ProductionBuilding) building).produceResources();
                 }
             }
-
         }
     };
 

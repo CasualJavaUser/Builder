@@ -5,7 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class ProductionBuilding extends EnterableBuilding {
 
     protected Jobs job;
-    protected int employeeCapacity, employeeCount = 0;
+    protected int jobQuality = 0;
+    protected int employeeCapacity, employeeCount = 0, employeesInside = 0;
     protected NPC[] employees;
 
     public ProductionBuilding(TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition) {
@@ -55,7 +56,37 @@ public class ProductionBuilding extends EnterableBuilding {
         return b;
     }
 
+    public boolean employeeEnter(NPC npc) {
+        for (NPC employee : employees) {
+            if (employee == npc) {
+                employeesInside++;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void employeeExit() {
+        employeesInside--;
+    }
+
     public void produceResources() {
-        World.resourceStorage[job.getProduct().getIndex()] += employeeCount;
+        World.resourceStorage[job.getProduct().getIndex()] += employeesInside;
+    }
+
+    public int getEmployeeCapacity() {
+        return employeeCapacity;
+    }
+
+    public int getEmployeeCount() {
+        return employeeCount;
+    }
+
+    public Jobs getJob() {
+        return job;
+    }
+
+    public int getJobQuality() {
+        return jobQuality;
     }
 }
