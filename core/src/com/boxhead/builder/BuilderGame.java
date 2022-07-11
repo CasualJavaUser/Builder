@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class BuilderGame extends Game {
 
-    private GameScreen gameScreen;
+    private static GameScreen gameScreen;
     private InputMultiplexer inputMultiplexer;
     public SpriteBatch batch;
 
@@ -47,5 +47,9 @@ public class BuilderGame extends Game {
     @Override
     public void pause() {
         super.pause();
+    }
+
+    public static GameScreen getGameScreen() {
+        return gameScreen;
     }
 }

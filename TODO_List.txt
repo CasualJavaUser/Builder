@@ -6,6 +6,9 @@ game loop:
 
 - npc stats/needs
 - services
+- education
+- residential building quality
+- (base) job and service quality
 
 - upgrades/progression (?)
 

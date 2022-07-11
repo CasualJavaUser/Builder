@@ -29,7 +29,7 @@ public class World {
         World.worldSize = worldSize;
         tiles = new Tiles.Type[worldSize.x * worldSize.y];
         resetNavigable(worldSize);
-        initNPCs();
+        //initNPCs();
     }
 
     public static void generateMap() {
@@ -104,6 +104,14 @@ public class World {
 
     public static int getHeight() {
         return worldSize.y * TILE_SIZE;
+    }
+
+    public static int getGridWidth() {
+        return worldSize.x;
+    }
+
+    public static int getGridHeight() {
+        return worldSize.y;
     }
 
     public static int getTime() {

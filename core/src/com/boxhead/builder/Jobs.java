@@ -3,7 +3,8 @@ package com.boxhead.builder;
 public enum Jobs {
     NULL(Resources.NOTHING),
     UNEMPLOYED(Resources.NOTHING),
-    LUMBERJACK(Resources.WOOD);
+    LUMBERJACK(Resources.WOOD),
+    DOCTOR(Resources.NOTHING);
 
     private final Resources product;
 
