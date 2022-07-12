@@ -23,7 +23,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
     private final float MAX_ZOOM = 1f, MIN_ZOOM = 0.1f,
             NORMAL_SPEED = 250, FAST_SPEED = 450,
-            SCROLL_SPEED = 100;
+            SCROLL_SPEED = 50;
 
     private final Matrix4 UIProjection;
 
@@ -67,7 +67,7 @@ public class GameScreen extends InputAdapter implements Screen {
         }
 
         drawUI();
-        UI.checkUI();
+        UI.updateUI();
 
         game.batch.end();
     }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class UI {
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
@@ -13,37 +14,38 @@ public class UI {
 
     private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton;
     private static ButtonGroup buildingMenu, mainMenu;
+    private static UIElement clock, minuteHand, hourHand;
 
     private static UIElement[][] layers;
 
     public static void initUI() {
-        buildingButton = new Button(Textures.getIcon("house"), new Vector2i(10, 10)) {
+        buildingButton = new Button(Textures.getUI("house"), new Vector2i(10, 10)) {
             @Override
             void onClick() {
                 buildingMenu.setVisible(!buildingMenu.isVisible());
             }
         };
-        npcButton = new Button(Textures.getIcon("npc"), new Vector2i(84, 10)) {
+        npcButton = new Button(Textures.getUI("npc"), new Vector2i(84, 10)) {
             @Override
             void onClick() {
                 World.spawnNPC(new NPC(new Texture("funguy.png"), new Vector2i(World.getGridWidth()/2, World.getGridHeight()/2)));
             }
         };
-        homeButton = new Button(Textures.getIcon("home"), new Vector2i(10, 84)) {
+        homeButton = new Button(Textures.getUI("home"), new Vector2i(10, 84)) {
             @Override
             void onClick() {
                 BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_RESIDENTIAL_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
-        workplaceButton = new Button(Textures.getIcon("workplace"), new Vector2i(84, 84)) {
+        workplaceButton = new Button(Textures.getUI("workplace"), new Vector2i(84, 84)) {
             @Override
             void onClick() {
                 BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_PRODUCTION_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
-        serviceButton = new Button(Textures.getIcon("service"), new Vector2i(158, 84)) {
+        serviceButton = new Button(Textures.getUI("service"), new Vector2i(158, 84)) {
             @Override
             void onClick() {
                 BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_SERVICE_BUILDING);
@@ -54,9 +56,15 @@ public class UI {
         mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
 
+        TextureRegion clockTexture = Textures.getUI("clock_face");
+        Vector2i pos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
+        clock = new UIElement(clockTexture, pos, true);
+        minuteHand = new UIElement(Textures.getUI("minute_hand"), pos, true);
+        hourHand = new UIElement(Textures.getUI("hour_hand"), pos, true);
+
         mainMenu.setVisible(true);
 
-        layers = new UIElement[][] {{mainMenu, buildingMenu}};
+        layers = new UIElement[][] {{mainMenu, buildingMenu, clock, minuteHand, hourHand}};
     }
 
     public static void drawUI(SpriteBatch batch) {
@@ -67,7 +75,10 @@ public class UI {
         }
     }
 
-    public static void checkUI() {
+    public static void updateUI() {
+        minuteHand.setRotation((float)360/60 * World.getTime());
+        hourHand.setRotation((float)360/12 * World.getTime()/60);
+
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             for (UIElement[] layer : layers) {
                 for (UIElement element : layer) {
