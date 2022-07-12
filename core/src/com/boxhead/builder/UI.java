@@ -16,6 +16,9 @@ public class UI {
     private static ButtonGroup buildingMenu, mainMenu;
     private static UIElement clock, minuteHand, hourHand;
 
+    private static Vector2i clockPos;
+    private static TextureRegion clockTexture = Textures.getUI("clock_face");
+
     private static UIElement[][] layers;
 
     public static void initUI() {
@@ -56,11 +59,11 @@ public class UI {
         mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
 
-        TextureRegion clockTexture = Textures.getUI("clock_face");
-        Vector2i pos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
-        clock = new UIElement(clockTexture, pos, true);
-        minuteHand = new UIElement(Textures.getUI("minute_hand"), pos, true);
-        hourHand = new UIElement(Textures.getUI("hour_hand"), pos, true);
+        clockTexture = Textures.getUI("clock_face");
+        clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
+        clock = new UIElement(clockTexture, clockPos, true);
+        minuteHand = new UIElement(Textures.getUI("minute_hand"), clockPos, true);
+        hourHand = new UIElement(Textures.getUI("hour_hand"), clockPos, true);
 
         mainMenu.setVisible(true);
 
@@ -78,6 +81,7 @@ public class UI {
     public static void updateUI() {
         minuteHand.setRotation((float)360/60 * World.getTime());
         hourHand.setRotation((float)360/12 * World.getTime()/60);
+        clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             for (UIElement[] layer : layers) {
