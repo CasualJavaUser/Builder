@@ -8,11 +8,13 @@ public class ProductionBuilding extends EnterableBuilding {
     protected int jobQuality = 0;
     protected int employeeCapacity, employeeCount = 0, employeesInside = 0;
     protected NPC[] employees;
+    protected int productionCounter = 0, productionInterval = 100;
 
-    public ProductionBuilding(TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition) {
+    public ProductionBuilding(TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(texture, entrancePosition);
         this.job = job;
         this.employeeCapacity = employeeCapacity;
+        this.productionInterval = productionInterval;
         employees = new NPC[employeeCapacity];
     }
 
@@ -71,7 +73,11 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void produceResources() {
-        World.resourceStorage[job.getProduct().getIndex()] += employeesInside;
+        productionCounter += employeesInside;
+        if (productionCounter >= productionInterval) {
+            World.resourceStorage[job.getProduct().getIndex()] += 1;
+            productionCounter -= productionInterval;
+        }
     }
 
     public int getEmployeeCapacity() {

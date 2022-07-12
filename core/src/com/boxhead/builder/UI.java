@@ -12,7 +12,7 @@ public class UI {
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
 
-    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton;
+    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, fungusButton;
     private static ButtonGroup buildingMenu, mainMenu;
     private static UIElement clock, minuteHand, hourHand;
 
@@ -32,6 +32,12 @@ public class UI {
             @Override
             void onClick() {
                 World.spawnNPC(new NPC(new Texture("funguy.png"), new Vector2i(World.getGridWidth()/2, World.getGridHeight()/2)));
+            }
+        };
+        fungusButton = new Button(Textures.getUI("fungus"), new Vector2i(158, 10)) {
+            @Override
+            void onClick() {
+                World.setTime(25170);
             }
         };
         homeButton = new Button(Textures.getUI("home"), new Vector2i(10, 84)) {
@@ -56,7 +62,7 @@ public class UI {
             }
         };
 
-        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton);
+        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
 
         clockTexture = Textures.getUI("clock_face");
@@ -79,8 +85,8 @@ public class UI {
     }
 
     public static void updateUI() {
-        minuteHand.setRotation((float)360/60 * World.getTime());
-        hourHand.setRotation((float)360/12 * World.getTime()/60);
+        minuteHand.setRotation((float)World.getTime() * 0.1f);
+        hourHand.setRotation((float)360/43200 * World.getTime());
         clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {

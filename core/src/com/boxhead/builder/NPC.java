@@ -1,6 +1,7 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,19 +15,25 @@ public class NPC {
     private ResidentialBuilding home = null;
     private boolean inBuilding;
 
-    private Vector2i position;
+    private Vector2i position, prevPosition;
+    private Vector2 spritePosition;
     private int pathStep;   //how far into Vector2i[] path has been travelled
     private Vector2i[] path = null;
+    private int stepInterval, nextStep;
 
     public NPC(Texture texture, Vector2i position) {
         this.texture = texture;
         this.position = position;
+        prevPosition = position;
+        spritePosition = position.toVector2();
         job = Jobs.UNEMPLOYED;
+        stepInterval = 50;
     }
 
     public void navigateTo(Vector2i gridTile) {
         path = Pathfinding.findPath(position, gridTile);
         pathStep = 0;
+        nextStep = stepInterval;
     }
 
     public void navigateTo(EnterableBuilding building) {
@@ -37,6 +44,7 @@ public class NPC {
         } else {
             path = null;
         }
+        nextStep = stepInterval;
     }
 
     /**
@@ -46,20 +54,32 @@ public class NPC {
      */
 
     public boolean followPath() {
+        boolean isEntering = false;
         if (path == null) {
             return false;   //no path specified
         } else if (pathStep == path.length - 1) {
             path = null;
             return false;   //reached the destination
         } else if (pathStep == path.length - 2 && path[path.length - 1] != path[path.length - 2]) {
-            enterBuilding(EnterableBuilding.getByCoordinates(path[path.length - 1]));
-            return true;
+            isEntering = true;
         } else if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
             path = Pathfinding.findPath(position, path[path.length - 1]);
             pathStep = 0;
         }
-        pathStep++;
-        position = path[pathStep];
+
+        if(nextStep >= stepInterval) {
+            if(isEntering) {
+                enterBuilding(EnterableBuilding.getByCoordinates(path[path.length - 1]));
+                return true;
+            }
+            pathStep++;
+            prevPosition = position;
+            position = path[pathStep];
+            nextStep = 0;
+        }
+        nextStep++;
+        spritePosition.set(spritePosition.x + (position.x - prevPosition.x) * (1f/(float)stepInterval),
+                           spritePosition.y + (position.y - prevPosition.y) * (1f/(float)stepInterval));
         return true;
     }
 
@@ -160,6 +180,10 @@ public class NPC {
 
     public Vector2i getPosition() {
         return position;
+    }
+
+    public Vector2 getSpritePosition() {
+        return spritePosition;
     }
 
     public ProductionBuilding getWorkplace() {

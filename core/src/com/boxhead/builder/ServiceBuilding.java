@@ -7,11 +7,13 @@ public class ServiceBuilding extends ProductionBuilding {
     private Services service;
     private int guestCapacity, guestCount;
     private NPC[] guests;
+    private int serviceCounter, serviceInterval;
 
-    public ServiceBuilding(TextureRegion texture, Jobs job, Services service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition) {
-        super(texture, job, employeeCapacity, entrancePosition);
+    public ServiceBuilding(TextureRegion texture, Jobs job, Services service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
+        super(texture, job, employeeCapacity, entrancePosition, productionInterval);
         this.service = service;
         this.guestCapacity = guestCapacity;
+        this.serviceInterval = serviceInterval;
         guests = new NPC[guestCapacity];
     }
 

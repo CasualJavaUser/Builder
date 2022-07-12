@@ -38,7 +38,7 @@ public class GameScreen extends InputAdapter implements Screen {
         World.initWorld(new Vector2i(101, 101));
         UI.initUI();
 
-        Timer.schedule(Logic.getTask(), 0, 0.1f);
+        Timer.schedule(Logic.getTask(), 0, .005f);
 
         camera.position.set((float)World.getWidth()/2, (float)World.getHeight()/2, camera.position.z);
         camera.update();
@@ -167,7 +167,7 @@ public class GameScreen extends InputAdapter implements Screen {
     private void drawObjects() {
         for (NPC npc : World.getNpcs()) {
             if (!npc.isInBuilding()) {
-                game.batch.draw(npc.getTexture(), npc.getPosition().x * World.TILE_SIZE, npc.getPosition().y * World.TILE_SIZE);
+                game.batch.draw(npc.getTexture(), npc.getSpritePosition().x * World.TILE_SIZE, npc.getSpritePosition().y * World.TILE_SIZE);
             }
         }
 

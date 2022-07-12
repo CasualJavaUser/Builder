@@ -10,7 +10,7 @@ import java.util.HashSet;
 public class World {
 
     public static final int TILE_SIZE = 16;
-    public static final int FULL_DAY = 1440;
+    public static final int FULL_DAY = 86400;
 
     private static int time;
     private static int temperature;
