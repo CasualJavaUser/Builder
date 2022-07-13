@@ -28,6 +28,11 @@ public class NPC implements Clickable{
     private Vector2i[] path = null;
     private int stepInterval, nextStep;
 
+    public enum Stats {
+        AGE,
+        HEALTH
+    }
+
     public NPC(TextureRegion texture, Vector2i position) {
         this.texture = texture;
         this.position = position;
@@ -38,20 +43,11 @@ public class NPC implements Clickable{
     }
 
     public void navigateTo(Vector2i gridTile) {
-        path = Pathfinding.findPath(position, gridTile);
-        pathStep = 0;
-        nextStep = stepInterval;
+        new Pathfinder(gridTile).start();
     }
 
     public void navigateTo(EnterableBuilding building) {
-        if (building != null) {
-            path = Pathfinding.findPath(position, building.getEntrancePosition());
-            path[path.length - 1] = building.getPosition();
-            pathStep = 0;
-        } else {
-            path = null;
-        }
-        nextStep = stepInterval;
+        new Pathfinder(building).start();
     }
 
     /**
@@ -352,8 +348,27 @@ public class NPC implements Clickable{
         }
     }
 
-    public enum Stats {
-        AGE,
-        HEALTH
+    private class Pathfinder extends Thread {
+
+        public Pathfinder(EnterableBuilding building) {
+            super(() -> {
+                if (building != null) {
+                    path = Pathfinding.findPath(position, building.getEntrancePosition());
+                    path[path.length - 1] = building.getPosition();
+                    pathStep = 0;
+                } else {
+                    path = null;
+                }
+                nextStep = stepInterval;
+            });
+        }
+
+        public Pathfinder(Vector2i gridTile) {
+            super(() -> {
+                path = Pathfinding.findPath(position, gridTile);
+                pathStep = 0;
+                nextStep = stepInterval;
+            });
+        }
     }
 }
