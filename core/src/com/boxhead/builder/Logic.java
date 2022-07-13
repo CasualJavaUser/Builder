@@ -40,6 +40,9 @@ public class Logic {
 
     private static void produceResources() {
         for (Building building : World.getBuildings()) {
+            if (building instanceof ServiceBuilding) {
+                ((ServiceBuilding) building).provideServices();
+            }
             if (building instanceof ProductionBuilding) {
                 ((ProductionBuilding) building).produceResources();
             }

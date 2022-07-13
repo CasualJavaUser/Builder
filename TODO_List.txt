@@ -4,8 +4,6 @@ game loop:
 - gathering resources from the world
 - production chains (?)
 
-- npc stats/needs
-- services
 - education
 - residential building quality
 - (base) job and service quality
