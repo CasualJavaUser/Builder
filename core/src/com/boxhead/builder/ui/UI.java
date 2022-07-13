@@ -1,7 +1,6 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -101,9 +100,9 @@ public class UI {
             for (int j = 0; j < layers[i].length; j++) {
                 if(layers[i][j].isVisible() && layers[i][j] instanceof Clickable) {
                     Clickable element = (Clickable) layers[i][j];
-                    if (element.isDown() || element.isClicked()) {
+                    if (element.isHeld() || element.isClicked()) {
                         if (element.isClicked()) element.onClick();
-                        if (element.isDown()) element.onDown();
+                        if (element.isHeld()) element.onHold();
                         return;
                     }
                 }

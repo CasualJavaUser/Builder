@@ -34,7 +34,7 @@ public class Window extends UIElement implements Clickable {
     }
 
     @Override
-    public boolean isDown() {
+    public boolean isHeld() {
         if(isClicked()) isDragged = true;
         if(isDragged) isDragged = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         return isDragged;
@@ -46,7 +46,7 @@ public class Window extends UIElement implements Clickable {
     }
 
     @Override
-    public void onDown() {
+    public void onHold() {
         position.x += Gdx.input.getX() - mouseOnClick.x;
         position.y -= Gdx.input.getY() - mouseOnClick.y;
         mouseOnClick.set(Gdx.input.getX(), Gdx.input.getY());

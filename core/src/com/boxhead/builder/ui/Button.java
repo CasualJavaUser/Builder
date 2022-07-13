@@ -23,7 +23,7 @@ public abstract class Button extends UIElement implements Clickable {
     }
 
     @Override
-    public boolean isDown() {
+    public boolean isHeld() {
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
             return x >= position.x && x < (position.x + texture.getRegionWidth()) &&
@@ -36,7 +36,7 @@ public abstract class Button extends UIElement implements Clickable {
     public abstract void onClick();
 
     @Override
-    public void onDown() {
+    public void onHold() {
         tint = UI.PRESSED_COLOR;
     }
 

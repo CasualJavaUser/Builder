@@ -23,15 +23,15 @@ public class ButtonGroup extends UIElement implements Clickable {
         return clicked;
     }
 
-    private Button buttonDown() {
-        Button down = null;
+    private Button buttonHeld() {
+        Button held = null;
         for (Button button : buttons) {
-            if(button.isDown()) {
-                down = button;
+            if(button.isHeld()) {
+                held = button;
                 break;
             }
         }
-        return down;
+        return held;
     }
 
     @Override
@@ -60,9 +60,9 @@ public class ButtonGroup extends UIElement implements Clickable {
     }
 
     @Override
-    public boolean isDown() {
+    public boolean isHeld() {
         for (Button button : buttons) {
-            if (button.isDown()) {
+            if (button.isHeld()) {
                 return true;
             }
         }
@@ -77,9 +77,9 @@ public class ButtonGroup extends UIElement implements Clickable {
     }
 
     @Override
-    public void onDown() {
-        if (buttonDown() != null) {
-            buttonDown().onDown();
+    public void onHold() {
+        if (buttonHeld() != null) {
+            buttonHeld().onHold();
         }
     }
 }
