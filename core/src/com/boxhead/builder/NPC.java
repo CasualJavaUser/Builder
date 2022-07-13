@@ -11,10 +11,12 @@ import com.boxhead.builder.ui.UI;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class NPC implements Clickable {
+public class NPC implements Clickable{
+    public static final int NEED_SATISFACTION = 50;
+
     private final TextureRegion texture;
     private String name;
-    private int age, health;
+    private final int[] stats = new int[Stats.values().length];
     private Jobs job;
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
@@ -59,32 +61,36 @@ public class NPC implements Clickable {
      */
 
     public boolean followPath() {
-        boolean isEntering = false;
         if (path == null) {
             return false;   //no path specified
-        } else if (pathStep == path.length - 1) {
+        }
+        if (pathStep >= path.length - 1) {
             path = null;
             return false;   //reached the destination
-        } else if (pathStep == path.length - 2 && path[path.length - 1] != path[path.length - 2]) {
-            isEntering = true;
-        } else if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
-            path = Pathfinding.findPath(position, path[path.length - 1]);
-            pathStep = 0;
         }
 
-        if(nextStep >= stepInterval) {
-            if(isEntering) {
-                enterBuilding(EnterableBuilding.getByCoordinates(path[path.length - 1]));
+        if (nextStep >= stepInterval) {
+            if (pathStep == path.length - 2 && path[path.length - 1] != path[path.length - 2]) {
+                EnterableBuilding building = EnterableBuilding.getByCoordinates(path[path.length - 1]);
+                if (building == null) {
+                    path = null;
+                    return false;   //building was probably deleted or moved
+                }
+                enterBuilding(building);
                 return true;
             }
+            if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
+                navigateTo(EnterableBuilding.getByCoordinates(path[path.length - 1]));
+            }
             pathStep++;
-            prevPosition = position;
+            prevPosition = position.clone();
             position = path[pathStep];
             nextStep = 0;
         }
         nextStep++;
-        spritePosition.set(spritePosition.x + (position.x - prevPosition.x) * (1f/(float)stepInterval),
-                           spritePosition.y + (position.y - prevPosition.y) * (1f/(float)stepInterval));
+        spritePosition.add((position.x - prevPosition.x) * (1f / (float) stepInterval),
+                (position.y - prevPosition.y) * (1f / (float) stepInterval));
+
         return true;
     }
 
@@ -179,6 +185,28 @@ public class NPC implements Clickable {
         }   //else - no houses available
     }
 
+    public void seekService() {
+        for (NPC.Stats stat : NPC.Stats.values()) {
+            if (stats[stat.ordinal()] < NEED_SATISFACTION) {
+                ServiceBuilding closestService = null;
+                double closestDistance = Double.MAX_VALUE;
+                for (Building building : World.getBuildings()) {
+                    if (building instanceof ServiceBuilding &&
+                            ((ServiceBuilding) building).provides(stat) &&
+                            ((ServiceBuilding) building).getGuestCount() < ((ServiceBuilding) building).getGuestCapacity() &&
+                            position.distance(building.getPosition()) < closestDistance) {
+                        closestService = (ServiceBuilding) building;
+                        closestDistance = position.distance(closestService.getPosition());
+                    }
+                }
+                if (closestService != null) {
+                    navigateTo(closestService);
+                    return;
+                }
+            }
+        }
+    }
+
     public TextureRegion getTexture() {
         return texture;
     }
@@ -205,6 +233,10 @@ public class NPC implements Clickable {
 
     public ResidentialBuilding getHome() {
         return home;
+    }
+
+    public int[] getStats() {
+        return stats;
     }
 
     public boolean isInBuilding() {
@@ -318,5 +350,10 @@ public class NPC implements Clickable {
                 parentTree.put(tempTile, currentTile);
             }
         }
+    }
+
+    public enum Stats {
+        AGE,
+        HEALTH
     }
 }
