@@ -9,6 +9,8 @@ public class Window extends UIElement implements Clickable {
 
     private boolean isDragged = false;
 
+    private final Vector2i mouseOnClick = new Vector2i();
+
     public Window(TextureRegion texture) {
         super(texture, new Vector2i());
     }
@@ -39,11 +41,14 @@ public class Window extends UIElement implements Clickable {
     }
 
     @Override
-    public void onClick() {}
+    public void onClick() {
+        mouseOnClick.set(Gdx.input.getX(), Gdx.input.getY());
+    }
 
     @Override
     public void onDown() {
-        position.x += Gdx.input.getDeltaX();
-        position.y -= Gdx.input.getDeltaY();
+        position.x += Gdx.input.getX() - mouseOnClick.x;
+        position.y -= Gdx.input.getY() - mouseOnClick.y;
+        mouseOnClick.set(Gdx.input.getX(), Gdx.input.getY());
     }
 }
