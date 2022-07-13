@@ -69,7 +69,7 @@ public class UI {
         mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
 
-        statWindow = new StatWindow(Textures.getUI("fungus"));
+        statWindow = new StatWindow();
 
         clockTexture = Textures.getUI("clock_face");
         clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);

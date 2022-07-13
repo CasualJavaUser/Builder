@@ -13,9 +13,11 @@ import java.util.HashSet;
 
 public class NPC implements Clickable{
     public static final int NEED_SATISFACTION = 50;
+    public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
+    public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
     private final TextureRegion texture;
-    private String name;
+    private String name, surname;
     private final int[] stats = new int[Stats.values().length];
     private Jobs job;
     private ProductionBuilding workplace = null;
@@ -40,6 +42,8 @@ public class NPC implements Clickable{
         spritePosition = position.toVector2();
         job = Jobs.UNEMPLOYED;
         stepInterval = 50;
+        name = NAMES[(int)(Math.random() * NAMES.length)];
+        surname = SURNAMES[(int)(Math.random() * SURNAMES.length)];
     }
 
     public void navigateTo(Vector2i gridTile) {
@@ -217,6 +221,14 @@ public class NPC implements Clickable{
 
     public ProductionBuilding getWorkplace() {
         return workplace;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSurname() {
+        return surname;
     }
 
     public Jobs getJob() {

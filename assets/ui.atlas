@@ -1,40 +1,40 @@
 
 ui.png
-size: 1024, 128
+size: 512, 256
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 clock_face
   rotate: false
-  xy: 0, 0
+  xy: 128, 128
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 fungus
   rotate: false
-  xy: 384, 64
+  xy: 0, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 home
   rotate: false
-  xy: 512, 0
+  xy: 448, 192
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 hour_hand
   rotate: false
-  xy: 256, 0
+  xy: 256, 128
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 house
   rotate: false
-  xy: 448, 64
+  xy: 256, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -48,21 +48,28 @@ minute_hand
   index: -1
 npc
   rotate: false
-  xy: 448, 0
+  xy: 256, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 service
   rotate: false
-  xy: 384, 0
+  xy: 64, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
+stat_window
+  rotate: false
+  xy: 0, 64
+  size: 128, 192
+  orig: 128, 192
+  offset: 0, 0
+  index: -1
 workplace
   rotate: false
-  xy: 512, 64
+  xy: 384, 192
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
