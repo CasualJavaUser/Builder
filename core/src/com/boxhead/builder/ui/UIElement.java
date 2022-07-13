@@ -1,13 +1,16 @@
-package com.boxhead.builder;
+package com.boxhead.builder.ui;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.Vector2i;
 
 public class UIElement {
     protected TextureRegion texture;
     protected Vector2i position;
     protected float rotation;
     protected boolean isVisible;
+    protected Color tint;
 
     public UIElement(TextureRegion texture, Vector2i position) {
         this(texture, position, 0, false);
@@ -22,6 +25,7 @@ public class UIElement {
         this.position = position;
         this.rotation = rotation;
         isVisible = visible;
+        tint = UI.DEFAULT_COLOR;
     }
 
     public TextureRegion getTexture() {
@@ -44,8 +48,11 @@ public class UIElement {
         this.rotation = rotation;
     }
 
+    public Color getTint() {
+        return tint;
+    }
+
     public void draw(SpriteBatch batch) {
-        //batch.draw(texture, position.x, position.y);
         batch.draw(texture, position.x, position.y, (float)texture.getRegionWidth()/2, (float)texture.getRegionHeight()/2, texture.getRegionWidth(), texture.getRegionHeight(), 1, 1, -rotation);
     }
 }

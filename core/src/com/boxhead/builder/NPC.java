@@ -1,13 +1,18 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.boxhead.builder.ui.Clickable;
+import com.boxhead.builder.ui.UI;
 
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class NPC {
-    private final Texture texture;
+public class NPC implements Clickable {
+    private final TextureRegion texture;
     private String name;
     private int age, health;
     private Jobs job;
@@ -21,7 +26,7 @@ public class NPC {
     private Vector2i[] path = null;
     private int stepInterval, nextStep;
 
-    public NPC(Texture texture, Vector2i position) {
+    public NPC(TextureRegion texture, Vector2i position) {
         this.texture = texture;
         this.position = position;
         prevPosition = position;
@@ -174,7 +179,7 @@ public class NPC {
         }   //else - no houses available
     }
 
-    public Texture getTexture() {
+    public TextureRegion getTexture() {
         return texture;
     }
 
@@ -204,6 +209,21 @@ public class NPC {
 
     public boolean isInBuilding() {
         return inBuilding;
+    }
+
+    @Override
+    public boolean isClicked() {
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            Vector3 mousePos = GameScreen.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+            return mousePos.x >= position.x * World.TILE_SIZE && mousePos.x < (position.x * World.TILE_SIZE + texture.getRegionWidth()) &&
+                    mousePos.y >= position.y * World.TILE_SIZE && mousePos.y < (position.y * World.TILE_SIZE + texture.getRegionHeight());
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick() {
+        UI.showStatWindow(this);
     }
 
     public static class Pathfinding {

@@ -10,11 +10,12 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.boxhead.builder.ui.UI;
 
 public class GameScreen extends InputAdapter implements Screen {
 
     private BuilderGame game;
-    private OrthographicCamera camera;
+    private static OrthographicCamera camera;
     private Viewport viewport;
 
     private float moveSpeed;
@@ -66,8 +67,8 @@ public class GameScreen extends InputAdapter implements Screen {
             if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) isBuilding = false;
         }
 
-        drawUI();
         UI.updateUI();
+        drawUI();
 
         game.batch.end();
     }
@@ -182,5 +183,9 @@ public class GameScreen extends InputAdapter implements Screen {
         game.batch.setProjectionMatrix(UIProjection);
         UI.drawUI(game.batch);
         game.batch.setProjectionMatrix(camera.combined);
+    }
+
+    public static OrthographicCamera getCamera() {
+        return camera;
     }
 }

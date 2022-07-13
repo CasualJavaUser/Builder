@@ -9,19 +9,23 @@ public class Textures {
     private static TextureAtlas buildingAtlas;
     private static TextureAtlas tileAtlas;
     private static TextureAtlas UIAtlas;
+    private static TextureAtlas npcAtlas;
 
     private static HashMap<String, TextureRegion> buildings;
     private static HashMap<String, TextureRegion> tiles;
     private static HashMap<String, TextureRegion> ui;
+    private static HashMap<String, TextureRegion> npcs;
 
     public static void initTextures() {
         buildingAtlas = new TextureAtlas("buildings.atlas");
         tileAtlas = new TextureAtlas("tiles.atlas");
         UIAtlas = new TextureAtlas("ui.atlas");
+        npcAtlas = new TextureAtlas("npcs.atlas");
 
         buildings = new HashMap<>();
         tiles = new HashMap<>();
         ui = new HashMap<>();
+        npcs = new HashMap<>();
 
         for (TextureAtlas.AtlasRegion ar : buildingAtlas.getRegions()) {
             buildings.put(ar.name, ar);
@@ -31,6 +35,9 @@ public class Textures {
         }
         for (TextureAtlas.AtlasRegion ar : UIAtlas.getRegions()) {
             ui.put(ar.name, ar);
+        }
+        for (TextureAtlas.AtlasRegion ar : npcAtlas.getRegions()) {
+            npcs.put(ar.name, ar);
         }
     }
 
@@ -47,5 +54,10 @@ public class Textures {
     public static TextureRegion getUI(String name) {
         if (ui.get(name) != null) return ui.get(name);
         else return ui.get("house");
+    }
+
+    public static TextureRegion getNPC(String name) {
+        if (npcs.get(name) != null) return npcs.get(name);
+        else return npcs.get("funguy");
     }
 }

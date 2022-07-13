@@ -127,6 +127,6 @@ public class World {
     }
 
     private static void initNPCs() {
-        spawnNPC(new NPC(new Texture("funguy.png"), new Vector2i(worldSize.x / 2,worldSize.y / 2)));
+        spawnNPC(new NPC(Textures.getNPC("funguy"), new Vector2i(worldSize.x / 2,worldSize.y / 2)));
     }
 }
