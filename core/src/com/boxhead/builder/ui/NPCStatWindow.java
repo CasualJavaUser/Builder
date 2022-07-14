@@ -5,15 +5,22 @@ import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
 import com.boxhead.builder.utils.Vector2i;
 
-public class StatWindow extends Window{
+public class NPCStatWindow extends Window{
     private NPC npc = null;
     private Vector3 npcPosition;
     private boolean pinned;
     String job = null, name = null;
     private int[] stats = null;
+    private Button closeButton;
 
-    public StatWindow() {
+    public NPCStatWindow() {
         super(Textures.getUI("stat_window"));
+        closeButton = new Button(Textures.getUI("close_button"), new Vector2i()) {
+            @Override
+            public void onClick() {
+                close();
+            }
+        };
     }
 
     public void show(NPC npc) {
@@ -32,6 +39,14 @@ public class StatWindow extends Window{
     public void onHold() {
         pinned = false;
         super.onHold();
+        if(closeButton.isClicked()) closeButton.onClick();
+        //closeButton.onClick() is called here instead of in the onClick() function because onClick() is called before onHold()
+        //and the isDragged variable stayed true despite of the left mouse button not being pressed.
+    }
+
+    @Override
+    public void onClick() {
+        super.onClick();
     }
 
     @Override
@@ -49,6 +64,9 @@ public class StatWindow extends Window{
             stat = NPC.Stats.values()[i].toString().toLowerCase() + ": ";
             UI.FONT.draw(batch, stat + npc.getStats()[i], position.x + 10, position.y - (i+2) * 23 + 105);
         }
+        closeButton.setPosition(position.x + texture.getRegionWidth() - closeButton.getTexture().getRegionWidth(),
+                                position.y + texture.getRegionHeight() - closeButton.getTexture().getRegionHeight());
+        closeButton.draw(batch);
     }
 
     private void updatePosition() {
@@ -60,5 +78,11 @@ public class StatWindow extends Window{
         name = npc.getName() + " " + npc.getSurname();
         job = npc.getJob().toString().toLowerCase();
         stats = npc.getStats();
+    }
+
+    private void close() {
+        setVisible(false);
+        pinned = false;
+        isDragged = false;
     }
 }

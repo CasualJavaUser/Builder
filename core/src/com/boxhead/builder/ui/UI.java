@@ -18,7 +18,7 @@ public class UI {
     private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, fungusButton;
     private static ButtonGroup buildingMenu, mainMenu;
     private static UIElement clock, minuteHand, hourHand;
-    private static StatWindow statWindow;
+    private static NPCStatWindow NPCStatWindow;
 
     private static Vector2i clockPos;
     private static TextureRegion clockTexture = Textures.getUI("clock_face");
@@ -69,7 +69,7 @@ public class UI {
         mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
 
-        statWindow = new StatWindow();
+        NPCStatWindow = new NPCStatWindow();
 
         clockTexture = Textures.getUI("clock_face");
         clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
@@ -80,7 +80,7 @@ public class UI {
         mainMenu.setVisible(true);
 
         layers = new UIElement[][] {{mainMenu, buildingMenu, clock, minuteHand, hourHand},
-                                    {statWindow}};
+                                    {NPCStatWindow}};
     }
 
     public static void drawUI(SpriteBatch batch) {
@@ -116,6 +116,6 @@ public class UI {
     }
 
     public static void showStatWindow(NPC npc) {
-        statWindow.show(npc, true);
+        NPCStatWindow.show(npc, true);
     }
 }

@@ -36,6 +36,10 @@ public class UIElement {
         return position;
     }
 
+    public void setPosition(int x, int y) {
+        position.set(x, y);
+    }
+
     public boolean isVisible() {
         return isVisible;
     }

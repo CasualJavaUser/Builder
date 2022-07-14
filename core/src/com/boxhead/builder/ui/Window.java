@@ -7,7 +7,7 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class Window extends UIElement implements Clickable {
 
-    private boolean isDragged = false;
+    protected boolean isDragged = false;
 
     private final Vector2i mouseOnClick = new Vector2i();
 
