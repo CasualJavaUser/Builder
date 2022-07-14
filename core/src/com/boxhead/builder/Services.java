@@ -1,7 +1,5 @@
 package com.boxhead.builder;
 
-import com.sun.tools.javac.util.Pair;
-
 public enum Services {
     HEAL(new Pair<>(NPC.Stats.HEALTH, 1));
 
@@ -13,8 +11,8 @@ public enum Services {
         stats = new NPC.Stats[effects.length];
         effect = new int[effects.length];
         for (int i = 0; i < effects.length; i++) {
-            stats[i] = effects[i].fst;
-            effect[i] = effects[i].snd;
+            stats[i] = effects[i].first;
+            effect[i] = effects[i].second;
         }
     }
 

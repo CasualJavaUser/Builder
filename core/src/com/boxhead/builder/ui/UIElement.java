@@ -3,7 +3,7 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.Vector2i;
+import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
     protected TextureRegion texture;

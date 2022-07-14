@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.utils.Vector2i;
 
 public class GameScreen extends InputAdapter implements Screen {
 
@@ -162,6 +163,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             isBuilding = !World.placeBuilding(type, new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE));
+            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) isBuilding = true;
         }
     }
 

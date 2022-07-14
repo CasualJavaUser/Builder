@@ -7,9 +7,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class NPC implements Clickable{
     public static final int NEED_SATISFACTION = 50;
@@ -30,6 +33,8 @@ public class NPC implements Clickable{
     private Vector2i[] path = null;
     private int stepInterval, nextStep;
 
+    private static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+
     public enum Stats {
         AGE,
         HEALTH
@@ -47,11 +52,24 @@ public class NPC implements Clickable{
     }
 
     public void navigateTo(Vector2i gridTile) {
-        new Pathfinder(gridTile).start();
+        executor.submit(() -> {
+            path = Pathfinding.findPath(position, gridTile);
+            pathStep = 0;
+            nextStep = stepInterval;
+        });
     }
 
     public void navigateTo(EnterableBuilding building) {
-        new Pathfinder(building).start();
+        executor.submit(() -> {
+            if (building != null) {
+                path = Pathfinding.findPath(position, building.getEntrancePosition());
+                path[path.length - 1] = building.getPosition();
+                pathStep = 0;
+            } else {
+                path = null;
+            }
+            nextStep = stepInterval;
+        });
     }
 
     /**
@@ -357,30 +375,6 @@ public class NPC implements Clickable{
                 parentTree.remove(tempTile);
                 parentTree.put(tempTile, currentTile);
             }
-        }
-    }
-
-    private class Pathfinder extends Thread {
-
-        public Pathfinder(EnterableBuilding building) {
-            super(() -> {
-                if (building != null) {
-                    path = Pathfinding.findPath(position, building.getEntrancePosition());
-                    path[path.length - 1] = building.getPosition();
-                    pathStep = 0;
-                } else {
-                    path = null;
-                }
-                nextStep = stepInterval;
-            });
-        }
-
-        public Pathfinder(Vector2i gridTile) {
-            super(() -> {
-                path = Pathfinding.findPath(position, gridTile);
-                pathStep = 0;
-                nextStep = stepInterval;
-            });
         }
     }
 }

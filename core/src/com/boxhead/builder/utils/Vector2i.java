@@ -1,4 +1,4 @@
-package com.boxhead.builder;
+package com.boxhead.builder.utils;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -24,6 +24,11 @@ public class Vector2i implements Cloneable {
     public void set(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void set(Vector2i v) {
+        x = v.x;
+        y = v.y;
     }
 
     public Vector2i addScalar(Vector2i vector) {

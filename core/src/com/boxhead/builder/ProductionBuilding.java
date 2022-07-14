@@ -1,6 +1,7 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.utils.Vector2i;
 
 public class ProductionBuilding extends EnterableBuilding {
 

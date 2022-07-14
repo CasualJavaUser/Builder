@@ -1,7 +1,7 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
+import com.boxhead.builder.utils.Vector2i;
 
 public class UI {
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
@@ -85,9 +86,7 @@ public class UI {
     public static void drawUI(SpriteBatch batch) {
         for (UIElement[] layer : layers) {
             for (UIElement element : layer) {
-                //batch.setColor(element.getTint());
                 if(element.isVisible()) element.draw(batch);
-                //batch.setColor(DEFAULT_COLOR);
             }
         }
     }

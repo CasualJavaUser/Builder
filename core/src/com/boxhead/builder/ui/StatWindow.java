@@ -3,6 +3,7 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
+import com.boxhead.builder.utils.Vector2i;
 
 public class StatWindow extends Window{
     private NPC npc = null;
@@ -39,16 +40,6 @@ public class StatWindow extends Window{
             updatePosition();
         }
         updateStats();
-        //super.draw(batch);
-        /*batch.draw(texture, position.x, position.y - 105);
-        batch.draw(npc.getTexture(), position.x + 10, position.y + 10, npc.getTexture().getRegionWidth() * 4, npc.getTexture().getRegionHeight() * 4);
-        UI.FONT.draw(batch, name, position.x + 10, position.y);
-        UI.FONT.draw(batch, "job: " + job, position.x + 10, position.y - 23);
-        String stat;
-        for (int i = 0; i < NPC.Stats.values().length; i++) {
-            stat = NPC.Stats.values()[i].toString().toLowerCase() + ": ";
-            UI.FONT.draw(batch, stat + npc.getStats()[i], position.x + 10, position.y - (i+2) * 23);
-        }*/
         batch.draw(texture, position.x, position.y);
         batch.draw(npc.getTexture(), position.x + 10, position.y + 115, npc.getTexture().getRegionWidth() * 4, npc.getTexture().getRegionHeight() * 4);
         UI.FONT.draw(batch, name, position.x + 10, position.y + 105);
