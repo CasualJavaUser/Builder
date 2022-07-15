@@ -4,15 +4,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
 
 public class ProductionBuilding extends EnterableBuilding {
-
     protected Jobs job;
     protected int jobQuality = 0;
     protected int employeeCapacity, employeeCount = 0, employeesInside = 0;
     protected NPC[] employees;
     protected int productionCounter = 0, productionInterval = 100;
 
-    public ProductionBuilding(TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
-        super(texture, entrancePosition);
+    public ProductionBuilding(String name, TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
+        super(name, texture, entrancePosition);
         this.job = job;
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;

@@ -1,4 +1,4 @@
-package com.boxhead.builder;
+package com.boxhead.builder.utils;
 
 public class Pair<A, B> {
     public A first;

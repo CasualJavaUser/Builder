@@ -19,6 +19,7 @@ public class UI {
     private static ButtonGroup buildingMenu, mainMenu;
     private static UIElement clock, minuteHand, hourHand;
     private static NPCStatWindow NPCStatWindow;
+    private static BuildingStatWindow buildingStatWindow;
 
     private static Vector2i clockPos;
     private static TextureRegion clockTexture = Textures.getUI("clock_face");
@@ -70,6 +71,7 @@ public class UI {
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
 
         NPCStatWindow = new NPCStatWindow();
+        buildingStatWindow = new BuildingStatWindow();
 
         clockTexture = Textures.getUI("clock_face");
         clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
@@ -80,7 +82,7 @@ public class UI {
         mainMenu.setVisible(true);
 
         layers = new UIElement[][] {{mainMenu, buildingMenu, clock, minuteHand, hourHand},
-                                    {NPCStatWindow}};
+                                    {NPCStatWindow, buildingStatWindow}};
     }
 
     public static void drawUI(SpriteBatch batch) {
@@ -113,9 +115,19 @@ public class UI {
                 return;
             }
         }
+        for (Building building : World.getBuildings()) {
+            if (building.isClicked()) {
+                building.onClick();
+                return;
+            }
+        }
     }
 
-    public static void showStatWindow(NPC npc) {
-        NPCStatWindow.show(npc, true);
+    public static void showNPCStatWindow(NPC npc) {
+        NPCStatWindow.show(npc);
+    }
+
+    public static void showBuildingStatWindow(Building building) {
+        buildingStatWindow.show(building);
     }
 }

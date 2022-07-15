@@ -199,7 +199,7 @@ public class NPC implements Clickable{
 
         if (closestHouse != null) {
             home = closestHouse;
-            closestHouse.addResident();
+            closestHouse.addResident(this);
         }   //else - no houses available
     }
 
@@ -211,7 +211,7 @@ public class NPC implements Clickable{
                 for (Building building : World.getBuildings()) {
                     if (building instanceof ServiceBuilding &&
                             ((ServiceBuilding) building).provides(stat) &&
-                            ((ServiceBuilding) building).getGuestCount() < ((ServiceBuilding) building).getGuestCapacity() &&
+                            ((ServiceBuilding) building).getGuestsInside() < ((ServiceBuilding) building).getGuestCapacity() &&
                             position.distance(building.getPosition()) < closestDistance) {
                         closestService = (ServiceBuilding) building;
                         closestDistance = position.distance(closestService.getPosition());
@@ -281,7 +281,7 @@ public class NPC implements Clickable{
 
     @Override
     public void onClick() {
-        UI.showStatWindow(this);
+        UI.showNPCStatWindow(this);
     }
 
     public static class Pathfinding {

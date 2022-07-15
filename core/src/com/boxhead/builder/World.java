@@ -16,7 +16,7 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
-    private static Tiles.Type[] tiles;
+    private static Tiles.Types[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
     private static final ArrayList<NPC> npcs = new ArrayList<>();
 
@@ -27,13 +27,13 @@ public class World {
 
     public static void initWorld(Vector2i worldSize) {
         World.worldSize = worldSize;
-        tiles = new Tiles.Type[worldSize.x * worldSize.y];
+        tiles = new Tiles.Types[worldSize.x * worldSize.y];
         resetNavigable(worldSize);
         //initNPCs();
     }
 
     public static void generateMap() {
-        Arrays.fill(tiles, Tiles.Type.DIRT);
+        Arrays.fill(tiles, Tiles.Types.DIRT);
     }
 
     public static void resetNavigable(Vector2i gridDimensions) {
@@ -123,7 +123,7 @@ public class World {
     }
 
     public static void debug() {
-        Arrays.fill(tiles, Tiles.Type.DEFAULT);
+        Arrays.fill(tiles, Tiles.Types.DEFAULT);
     }
 
     private static void initNPCs() {

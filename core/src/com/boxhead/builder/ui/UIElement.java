@@ -7,7 +7,7 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
     protected TextureRegion texture;
-    protected Vector2i position;
+    protected final Vector2i position;
     protected float rotation;
     protected boolean isVisible;
     protected Color tint;

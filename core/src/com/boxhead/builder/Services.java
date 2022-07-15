@@ -1,5 +1,7 @@
 package com.boxhead.builder;
 
+import com.boxhead.builder.utils.Pair;
+
 public enum Services {
     HEAL(new Pair<>(NPC.Stats.HEALTH, 1));
 

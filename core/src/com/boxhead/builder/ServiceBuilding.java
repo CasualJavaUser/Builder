@@ -6,12 +6,12 @@ import com.boxhead.builder.utils.Vector2i;
 public class ServiceBuilding extends ProductionBuilding {
 
     private final Services service;
-    private int guestCapacity, guestCount;
+    private int guestCapacity, guestsInside;
     private NPC[] guests;
     private int serviceCounter, serviceInterval;
 
-    public ServiceBuilding(TextureRegion texture, Jobs job, Services service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
-        super(texture, job, employeeCapacity, entrancePosition, productionInterval);
+    public ServiceBuilding(String name, TextureRegion texture, Jobs job, Services service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
+        super(name, texture, job, employeeCapacity, entrancePosition, productionInterval);
         this.service = service;
         this.guestCapacity = guestCapacity;
         this.serviceInterval = serviceInterval;
@@ -26,11 +26,11 @@ public class ServiceBuilding extends ProductionBuilding {
      */
     public boolean removeGuest(NPC npc) {
         boolean b = false;
-        if (guestCount > 0) {
+        if (guestsInside > 0) {
             for (int i = 0; i < guests.length; i++) {
                 if (guests[i] == npc) {
                     guests[i] = null;
-                    guestCount--;
+                    guestsInside--;
                     b = true;
                     break;
                 }
@@ -47,11 +47,11 @@ public class ServiceBuilding extends ProductionBuilding {
      */
     public boolean addGuest(NPC npc) {
         boolean b = false;
-        if (guestCount < guestCapacity) {
+        if (guestsInside < guestCapacity) {
             for (int i = 0; i < guests.length; i++) {
                 if (guests[i] == null) {
                     guests[i] = npc;
-                    guestCount++;
+                    guestsInside++;
                     b = true;
                     break;
                 }
@@ -83,7 +83,7 @@ public class ServiceBuilding extends ProductionBuilding {
         return guestCapacity;
     }
 
-    public int getGuestCount() {
-        return guestCount;
+    public int getGuestsInside() {
+        return guestsInside;
     }
 }

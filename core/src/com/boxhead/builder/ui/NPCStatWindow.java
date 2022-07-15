@@ -7,29 +7,17 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class NPCStatWindow extends Window{
     private NPC npc = null;
-    private Vector3 npcPosition;
-    private boolean pinned;
-    String job = null, name = null;
+    private String job = null, name = null;
     private int[] stats = null;
-    private Button closeButton;
+    private boolean pinned;
 
     public NPCStatWindow() {
         super(Textures.getUI("stat_window"));
-        closeButton = new Button(Textures.getUI("close_button"), new Vector2i()) {
-            @Override
-            public void onClick() {
-                close();
-            }
-        };
     }
 
     public void show(NPC npc) {
-        show(npc, false);
-    }
-
-    public void show(NPC npc, boolean pinned) {
         this.npc = npc;
-        this.pinned = pinned;
+        pinned = true;
         updateStats();
         updatePosition();
         setVisible(true);
@@ -39,14 +27,6 @@ public class NPCStatWindow extends Window{
     public void onHold() {
         pinned = false;
         super.onHold();
-        if(closeButton.isClicked()) closeButton.onClick();
-        //closeButton.onClick() is called here instead of in the onClick() function because onClick() is called before onHold()
-        //and the isDragged variable stayed true despite of the left mouse button not being pressed.
-    }
-
-    @Override
-    public void onClick() {
-        super.onClick();
     }
 
     @Override
@@ -54,35 +34,28 @@ public class NPCStatWindow extends Window{
         if (pinned) {
             updatePosition();
         }
-        updateStats();
-        batch.draw(texture, position.x, position.y);
+        super.draw(batch);
         batch.draw(npc.getTexture(), position.x + 10, position.y + 115, npc.getTexture().getRegionWidth() * 4, npc.getTexture().getRegionHeight() * 4);
-        UI.FONT.draw(batch, name, position.x + 10, position.y + 105);
-        UI.FONT.draw(batch, "job: " + job, position.x + 10, position.y - 23 + 105);
+
+        updateStats();
+        String s = name + "\njob: " + job;
         String stat;
         for (int i = 0; i < NPC.Stats.values().length; i++) {
-            stat = NPC.Stats.values()[i].toString().toLowerCase() + ": ";
-            UI.FONT.draw(batch, stat + npc.getStats()[i], position.x + 10, position.y - (i+2) * 23 + 105);
+            stat = NPC.Stats.values()[i].toString().toLowerCase() + ": " + npc.getStats()[i];
+            s += "\n" + stat;
         }
-        closeButton.setPosition(position.x + texture.getRegionWidth() - closeButton.getTexture().getRegionWidth(),
-                                position.y + texture.getRegionHeight() - closeButton.getTexture().getRegionHeight());
-        closeButton.draw(batch);
+        UI.FONT.draw(batch, s, position.x + 10, position.y + 105);
     }
 
     private void updatePosition() {
-        npcPosition = GameScreen.getCamera().project(new Vector3(npc.getSpritePosition().x * World.TILE_SIZE, npc.getSpritePosition().y * World.TILE_SIZE, 0));
-        position = new Vector2i((int)(npcPosition.x + 20/GameScreen.getCamera().zoom), (int)(npcPosition.y + 10/GameScreen.getCamera().zoom));
+        Vector3 npcPosition = GameScreen.getCamera().project(new Vector3(npc.getSpritePosition().x * World.TILE_SIZE, npc.getSpritePosition().y * World.TILE_SIZE, 0));
+        position.set((int)(npcPosition.x + 20/GameScreen.getCamera().zoom), (int)(npcPosition.y + 10/GameScreen.getCamera().zoom));
     }
 
     private void updateStats() {
         name = npc.getName() + " " + npc.getSurname();
+        if(name.length() > 15) name = npc.getName() + "\n" + npc.getSurname();
         job = npc.getJob().toString().toLowerCase();
         stats = npc.getStats();
-    }
-
-    private void close() {
-        setVisible(false);
-        pinned = false;
-        isDragged = false;
     }
 }

@@ -63,8 +63,9 @@ public class GameScreen extends InputAdapter implements Screen {
 
         drawObjects();
 
-        if (isBuilding && currentBuilding != null) {
-            placeBuilding(currentBuilding);
+
+        if (isBuilding) {
+            placeBuilding(currentBuilding);  //TODO StatWindow opening when placing building
             if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) isBuilding = false;
         }
 
@@ -76,8 +77,8 @@ public class GameScreen extends InputAdapter implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, false);
         viewport.setWorldSize(width, height);
+        viewport.update(width, height, false);
         game.batch.setProjectionMatrix(camera.combined);
     }
 

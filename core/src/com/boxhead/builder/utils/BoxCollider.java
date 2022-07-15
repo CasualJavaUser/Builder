@@ -20,4 +20,16 @@ public class BoxCollider {
         return position.x >= v1.x && position.x < v1.x + width &&
                 position.y >= v1.y && position.y < v1.y + height;
     }
+
+    public Vector2i getPosition() {
+        return v1;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }
