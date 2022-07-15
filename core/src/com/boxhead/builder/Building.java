@@ -50,12 +50,16 @@ public class Building implements Clickable {
         return name;
     }
 
+    public BoxCollider getCollider() {
+        return collider;
+    }
+
     @Override
     public boolean isClicked() {
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             Vector3 mousePos = GameScreen.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-            return mousePos.x >= collider.getPosition().x * World.TILE_SIZE && mousePos.x < (collider.getPosition().x * World.TILE_SIZE + collider.getWidth()) &&
-                    mousePos.y >= collider.getPosition().y * World.TILE_SIZE && mousePos.y < (collider.getPosition().y * World.TILE_SIZE + collider.getHeight());
+            return mousePos.x >= collider.getGridPosition().x * World.TILE_SIZE && mousePos.x < (collider.getGridPosition().x * World.TILE_SIZE + collider.getWidth()) &&
+                    mousePos.y >= collider.getGridPosition().y * World.TILE_SIZE && mousePos.y < (collider.getGridPosition().y * World.TILE_SIZE + collider.getHeight());
         }
         return false;
     }

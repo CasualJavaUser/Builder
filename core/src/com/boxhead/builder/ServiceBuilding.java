@@ -25,18 +25,16 @@ public class ServiceBuilding extends ProductionBuilding {
      * @return true if the array of guests changed as a result of the call
      */
     public boolean removeGuest(NPC npc) {
-        boolean b = false;
         if (guestsInside > 0) {
             for (int i = 0; i < guests.length; i++) {
                 if (guests[i] == npc) {
                     guests[i] = null;
                     guestsInside--;
-                    b = true;
-                    break;
+                    return true;
                 }
             }
         }
-        return b;
+        return false;
     }
 
     /**
@@ -46,24 +44,22 @@ public class ServiceBuilding extends ProductionBuilding {
      * @return true if the array of guests changed as a result of the call
      */
     public boolean addGuest(NPC npc) {
-        boolean b = false;
         if (guestsInside < guestCapacity) {
             for (int i = 0; i < guests.length; i++) {
                 if (guests[i] == null) {
                     guests[i] = npc;
                     guestsInside++;
-                    b = true;
-                    break;
+                    return true;
                 }
             }
         }
-        return b;
+        return false;
     }
 
     public void provideServices() {
         for (NPC guest : guests) {
             if (guest != null) {
-                service.applyEffects(guest.getStats());
+                service.applyEffects(guest.getStats(), employeesInside);
             }
         }
     }

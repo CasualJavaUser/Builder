@@ -1,16 +1,30 @@
 package com.boxhead.builder;
 
 public enum Resources {
-        NOTHING(0),
-        WOOD(1);
+    NOTHING,
+    WOOD,
+    IRON,
+    COAL,
+    STEEL,
+    TOOLS;
 
-        private final int index;
+    private static final int[] resourceStorage = new int[Resources.values().length];
 
-        Resources(int index) {
-            this.index = index;
+    public static final int MAX_STORAGE = 1000;
+
+    public static boolean checkStorageAvailability(Jobs job) {
+        for (int i = 0; i < job.getResources().length; i++) {
+            if (resourceStorage[job.getResources()[i].ordinal()] + job.getChange()[i] > MAX_STORAGE ||
+                    resourceStorage[job.getResources()[i].ordinal()] + job.getChange()[i] < 0) {
+                return false;
+            }
         }
+        return true;
+    }
 
-        public int getIndex() {
-            return index;
+    public static void addProducts(Jobs recipe) {
+        for (int i = 0; i < recipe.getResources().length; i++) {
+            resourceStorage[recipe.getResources()[i].ordinal()] += recipe.getChange()[i];
         }
+    }
 }

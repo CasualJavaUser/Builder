@@ -16,12 +16,12 @@ public class BoxCollider {
         this.height = height;
     }
 
-    public boolean Overlap(Vector2i position) {
+    public boolean overlap(Vector2i position) {
         return position.x >= v1.x && position.x < v1.x + width &&
                 position.y >= v1.y && position.y < v1.y + height;
     }
 
-    public Vector2i getPosition() {
+    public Vector2i getGridPosition() {
         return v1;
     }
 

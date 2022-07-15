@@ -18,9 +18,9 @@ public enum Services {
         }
     }
 
-    public void applyEffects(int[] npcStats) {
+    public void applyEffects(int[] npcStats, int multiplier) {
         for (int i = 0; i < stats.length; i++) {
-            npcStats[stats[i].ordinal()] += effect[i];
+            npcStats[stats[i].ordinal()] += effect[i] * multiplier;
         }
     }
 

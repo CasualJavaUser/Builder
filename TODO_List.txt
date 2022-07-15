@@ -2,7 +2,6 @@ game loop:
 - npc being assigned/assigning themselves to jobs/houses
 - proper building system (taking resources/time/labour)
 - gathering resources from the world
-- production chains (?)
 
 - education
 - residential building quality

@@ -31,9 +31,10 @@ public class NPC implements Clickable{
     private Vector2 spritePosition;
     private int pathStep;   //how far into Vector2i[] path has been travelled
     private Vector2i[] path = null;
+    private boolean enterAsGuest;
     private int stepInterval, nextStep;
 
-    private static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+    public static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
 
     public enum Stats {
         AGE,
@@ -55,16 +56,18 @@ public class NPC implements Clickable{
         executor.submit(() -> {
             path = Pathfinding.findPath(position, gridTile);
             pathStep = 0;
+            enterAsGuest = false;
             nextStep = stepInterval;
         });
     }
 
-    public void navigateTo(EnterableBuilding building) {
+    public void navigateTo(EnterableBuilding building, boolean... enterAsGuest) {
         executor.submit(() -> {
             if (building != null) {
                 path = Pathfinding.findPath(position, building.getEntrancePosition());
                 path[path.length - 1] = building.getPosition();
                 pathStep = 0;
+                this.enterAsGuest = enterAsGuest.length > 0 && enterAsGuest[0];
             } else {
                 path = null;
             }
@@ -94,7 +97,7 @@ public class NPC implements Clickable{
                     path = null;
                     return false;   //building was probably deleted or moved
                 }
-                enterBuilding(building);
+                enterBuilding(building, enterAsGuest);
                 return true;
             }
             if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
@@ -183,7 +186,7 @@ public class NPC implements Clickable{
 
     public void seekHouse() {
         if (home != null) {
-            home.removeResident();  //similar to seekJob()
+            home.removeResident(this);  //similar to seekJob()
         }
 
         ResidentialBuilding closestHouse = null;
@@ -218,7 +221,7 @@ public class NPC implements Clickable{
                     }
                 }
                 if (closestService != null) {
-                    navigateTo(closestService);
+                    navigateTo(closestService, true);
                     return;
                 }
             }

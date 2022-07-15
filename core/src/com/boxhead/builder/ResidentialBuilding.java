@@ -11,32 +11,31 @@ public class ResidentialBuilding extends EnterableBuilding {
     public ResidentialBuilding(String name, TextureRegion texture, int residentCapacity, Vector2i entrancePosition) {
         super(name, texture, entrancePosition);
         this.residentCapacity = residentCapacity;
+        residents = new NPC[residentCapacity];
     }
 
     public boolean addResident(NPC npc) {
-        /*if (residentCount < residentCapacity) {
-            residentCount++;
-            return true;
-        }
-        return false;*/
-        boolean b = false;
         if (residentCount < residentCapacity) {
-            for (int i = 0; i < residents.length; i++) {
+            for (int i = 0; i < residentCapacity; i++) {
                 if (residents[i] == null) {
                     residents[i] = npc;
                     residentCount++;
-                    b = true;
-                    break;
+                    return true;
                 }
             }
         }
-        return b;
+        return false;
     }
 
-    public boolean removeResident() {
+    public boolean removeResident(NPC npc) {
         if (residentCount > 0) {
-            residentCount--;
-            return true;
+            for (int i = 0; i < residentCapacity; i++) {
+                if (residents[i] == npc) {
+                    residents[i] = null;
+                    residentCount--;
+                    return true;
+                }
+            }
         }
         return false;
     }

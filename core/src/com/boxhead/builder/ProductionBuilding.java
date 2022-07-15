@@ -8,7 +8,7 @@ public class ProductionBuilding extends EnterableBuilding {
     protected int jobQuality = 0;
     protected int employeeCapacity, employeeCount = 0, employeesInside = 0;
     protected NPC[] employees;
-    protected int productionCounter = 0, productionInterval = 100;
+    protected int productionCounter = 0, productionInterval;
 
     public ProductionBuilding(String name, TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(name, texture, entrancePosition);
@@ -24,18 +24,16 @@ public class ProductionBuilding extends EnterableBuilding {
      * @return true if the array of employees changed as a result of the call
      */
     public boolean removeEmployee(NPC npc) {
-        boolean b = false;
         if (employeeCount > 0) {
             for (int i = 0; i < employees.length; i++) {
                 if (employees[i] == npc) {
                     employees[i] = null;
                     employeeCount--;
-                    b = true;
-                    break;
+                    return true;
                 }
             }
         }
-        return b;
+        return false;
     }
 
     /**
@@ -44,18 +42,16 @@ public class ProductionBuilding extends EnterableBuilding {
      * @return true if the array of employees changed as a result of the call
      */
     public boolean addEmployee(NPC npc) {
-        boolean b = false;
         if (employeeCount < employeeCapacity) {
             for (int i = 0; i < employees.length; i++) {
                 if (employees[i] == null) {
                     employees[i] = npc;
                     employeeCount++;
-                    b = true;
-                    break;
+                    return true;
                 }
             }
         }
-        return b;
+        return false;
     }
 
     public boolean employeeEnter(NPC npc) {
@@ -73,10 +69,12 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void produceResources() {
-        productionCounter += employeesInside;
-        if (productionCounter >= productionInterval) {
-            World.resourceStorage[job.getProduct().getIndex()] += 1;
-            productionCounter -= productionInterval;
+        if (Resources.checkStorageAvailability(job)) {
+            productionCounter += employeesInside;
+            if (productionCounter >= productionInterval) {
+                Resources.addProducts(job);
+                productionCounter -= productionInterval;
+            }
         }
     }
 

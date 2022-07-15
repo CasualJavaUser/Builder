@@ -46,8 +46,8 @@ public class BuildingStatWindow extends Window{
         stats = building.getName();
         if(building instanceof ProductionBuilding) {
             stats += "\njob quality: " + ((ProductionBuilding) building).getJobQuality();
-            if(((ProductionBuilding) building).getJob().getProduct() != Resources.NOTHING) {
-                stats += "\nproduct: " + ((ProductionBuilding) building).getJob().getProduct().toString().toLowerCase();
+            if(((ProductionBuilding) building).getJob().getResources()[0] != Resources.NOTHING) {
+                stats += "\nproduct: " + ((ProductionBuilding) building).getJob().getResources()[0].toString().toLowerCase();
             }
         }
     }

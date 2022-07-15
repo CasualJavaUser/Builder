@@ -29,6 +29,7 @@ public class BuilderGame extends Game {
 
     @Override
     public void dispose() {
+        NPC.executor.shutdown();
         batch.dispose();
         gameScreen.dispose();
     }

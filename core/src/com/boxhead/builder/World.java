@@ -1,6 +1,7 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.ArrayList;
@@ -19,8 +20,6 @@ public class World {
     private static Tiles.Types[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
     private static final ArrayList<NPC> npcs = new ArrayList<>();
-
-    public static final int[] resourceStorage = new int[Resources.values().length];
 
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
@@ -45,16 +44,18 @@ public class World {
         }
     }
 
-    public static void makeUnnavigable(int x, int y) {
-        navigableTiles.remove(new Vector2i(x, y));
-    }
-
     public static void makeUnnavigable(Vector2i gridPosition) {
         navigableTiles.remove(gridPosition);
     }
 
-    public static void makeNavigable(int x, int y) {
-        navigableTiles.add(new Vector2i(x, y));
+    public static void makeUnnavigable(BoxCollider area) {
+        Vector2i tile = new Vector2i();
+        for (int y = 0; y < area.getHeight() / World.TILE_SIZE; y++) {
+            for (int x = 0; x < area.getWidth() / World.TILE_SIZE; x++) {
+                tile.set(x + area.getGridPosition().x, y + area.getGridPosition().y);
+                navigableTiles.remove(tile);
+            }
+        }
     }
 
     public static void makeNavigable(Vector2i gridPosition) {
@@ -66,7 +67,7 @@ public class World {
             Building building = Buildings.get(type);
             building.setPosition(gridPosition);
             buildings.add(building);
-            navigableTiles.remove(gridPosition);    //todo
+            makeUnnavigable(building.getCollider());
             return true;
         }
         return false;
