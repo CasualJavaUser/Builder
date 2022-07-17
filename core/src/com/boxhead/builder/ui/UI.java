@@ -93,7 +93,11 @@ public class UI {
         }
     }
 
-    public static void updateUI() {
+    /**
+     * Checks if any "clickable" UI element was clicked.
+     * @return true if a UI element was clicked
+     */
+    public static boolean updateUI() {
         minuteHand.setRotation((float)World.getTime() * 0.1f);
         hourHand.setRotation((float)360/43200 * World.getTime());
         clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
@@ -104,11 +108,18 @@ public class UI {
                     if (element.isHeld() || element.isClicked()) {
                         if (element.isClicked()) element.onClick();
                         if (element.isHeld()) element.onHold();
-                        return;
+                        return true;
                     }
                 }
             }
         }
+        return false;
+    }
+
+    /**
+     * Checks if any NPC or building was clicked.
+     */
+    public static void checkObjects() {
         for (NPC npc : World.getNpcs()) {
             if (npc.isClicked()) {
                 npc.onClick();

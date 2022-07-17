@@ -46,8 +46,15 @@ public class BuildingStatWindow extends Window{
         stats = building.getName();
         if(building instanceof ProductionBuilding) {
             stats += "\njob quality: " + ((ProductionBuilding) building).getJobQuality();
-            if(((ProductionBuilding) building).getJob().getResources()[0] != Resources.NOTHING) {
-                stats += "\nproduct: " + ((ProductionBuilding) building).getJob().getResources()[0].toString().toLowerCase();
+            //Resources[] resources = ((ProductionBuilding) building).getJob().getResources();
+            job = ((ProductionBuilding) building).getJob();
+            if(job.getResources()[0] != Resources.NOTHING) {
+                stats += "\nproduct(s):";
+                for (int i = 0; i < job.getResources().length; i++) {
+                    if(job.getChange()[i] > 0) {
+                        stats += "\n- " + job.getResources()[i].toString().toLowerCase();
+                    }
+                }
             }
         }
     }

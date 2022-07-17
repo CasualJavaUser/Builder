@@ -16,3 +16,6 @@ The World:
 strategic aspect:
 - politics/citizen contentment (?)
 - some kind of enemies from the outside (?)
+
+- StorageBuilding(?)
+- building inventory/storage(?)
