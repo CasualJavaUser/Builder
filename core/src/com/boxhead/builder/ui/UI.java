@@ -94,10 +94,24 @@ public class UI {
     }
 
     /**
-     * Checks if any "clickable" UI element was clicked.
-     * @return true if a UI element was clicked
+     * Check if any "clickable" UI element was clicked.
+     * @return true if any UI element was clicked
      */
-    public static boolean updateUI() {
+    public static boolean isUIClicked() {
+        for (int i = layers.length - 1; i >= 0; i--) {
+            for (int j = 0; j < layers[i].length; j++) {
+                if(layers[i][j].isVisible() && layers[i][j] instanceof Clickable) {
+                    Clickable element = (Clickable) layers[i][j];
+                    if (element.isHeld() || element.isClicked()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void updateUI() {
         minuteHand.setRotation((float)World.getTime() * 0.1f);
         hourHand.setRotation((float)360/43200 * World.getTime());
         clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
@@ -108,12 +122,11 @@ public class UI {
                     if (element.isHeld() || element.isClicked()) {
                         if (element.isClicked()) element.onClick();
                         if (element.isHeld()) element.onHold();
-                        return true;
+                        return;
                     }
                 }
             }
         }
-        return false;
     }
 
     /**

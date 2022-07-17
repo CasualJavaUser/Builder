@@ -61,6 +61,6 @@ public class BuildingStatWindow extends Window{
 
     private void updatePosition() {
         Vector3 buildingPosition = GameScreen.getCamera().project(new Vector3(building.getPosition().x * World.TILE_SIZE, building.getPosition().y * World.TILE_SIZE, 0));
-        position.set((int)(buildingPosition.x + 20/GameScreen.getCamera().zoom), (int)(buildingPosition.y + 10/GameScreen.getCamera().zoom));
+        position.set((int)(buildingPosition.x + 40/GameScreen.getCamera().zoom), (int)(buildingPosition.y + 10/GameScreen.getCamera().zoom));
     }
 }

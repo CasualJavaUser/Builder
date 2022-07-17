@@ -29,8 +29,6 @@ public class GameScreen extends InputAdapter implements Screen {
 
     private final Matrix4 UIProjection;
 
-    private boolean isUIClicked = false;
-
     GameScreen(BuilderGame game) {
         this.game = game;
         int screenWidth = Gdx.graphics.getWidth();
@@ -65,13 +63,13 @@ public class GameScreen extends InputAdapter implements Screen {
 
         drawObjects();
 
-        if(!isUIClicked) UI.checkObjects();
+        if(!UI.isUIClicked()) UI.checkObjects();
         if (isBuilding) {
             placeBuilding(currentBuilding);
             if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) isBuilding = false;
         }
 
-        isUIClicked = UI.updateUI();
+        UI.updateUI();
         drawUI();
 
         game.batch.end();
