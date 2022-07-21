@@ -80,6 +80,7 @@ public class GameScreen extends InputAdapter implements Screen {
         viewport.setWorldSize(width, height);
         viewport.update(width, height, false);
         game.batch.setProjectionMatrix(camera.combined);
+        UI.resizeUI();
     }
 
     @Override

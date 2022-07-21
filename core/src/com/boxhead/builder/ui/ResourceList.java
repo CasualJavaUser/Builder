@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.Resources;
 import com.boxhead.builder.Textures;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
 public class ResourceList extends UIElement {
@@ -20,9 +21,9 @@ public class ResourceList extends UIElement {
     public void updateData() {
         int i = 0, j = labels.length - 1;
         for(Resources resource : Resources.values()) {
-            if (resource.getAmount() != 0) {
+            if (World.getStored(resource) != 0) {
                 labels[i].setTexture(Textures.getResource(resource.toString().toLowerCase()));
-                labels[i].setText(resource.getAmount() + "");
+                labels[i].setText(World.getStored(resource) + " / " + World.getMaxStorage(resource));
                 labels[i].setVisible(true);
                 i++;
             } else {
@@ -36,6 +37,14 @@ public class ResourceList extends UIElement {
     public void draw(SpriteBatch batch) {
         for(Label label : labels) {
             if (label.isVisible()) label.draw(batch);
+        }
+    }
+
+    @Override
+    public void setPosition(int x, int y) {
+        super.setPosition(x, y);
+        for(int i = 0; i < labels.length; i++) {
+            labels[i].setPosition(position.x, position.y + 20 * i);
         }
     }
 }

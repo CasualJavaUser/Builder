@@ -39,7 +39,7 @@ public class BuildingStatWindow extends Window{
         }
         super.draw(batch);
         updateStats();
-        UI.FONT.draw(batch, stats, position.x + 10, position.y + 105);
+        UI.FONT.draw(batch, stats, position.x + 10, position.y + 170);
     }
 
     private void updateStats() {
@@ -55,6 +55,13 @@ public class BuildingStatWindow extends Window{
                         stats += "\n- " + job.getResources()[i].toString().toLowerCase();
                     }
                 }
+            }
+        }
+        if(building instanceof StorageBuilding) {
+            for (Resources resource : Resources.values()) {
+                stats += "\n" + resource.toString().toLowerCase() + ": " +
+                        ((StorageBuilding) building).getStored(resource) + " / " +
+                        ((StorageBuilding) building).getMaxStorage(resource);
             }
         }
     }

@@ -17,6 +17,6 @@ strategic aspect:
 - politics/citizen contentment (?)
 - some kind of enemies from the outside (?)
 
-- StorageBuilding(?)
-- building inventory/storage(?)
-- resource data (amount) in World (?)
+UI:
+- close StatWindow when pinned object is out of screen bounds
+- indicate if ProductionBuilding can't produce

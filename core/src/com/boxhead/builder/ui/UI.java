@@ -15,7 +15,7 @@ public class UI {
 
     public static final BitmapFont FONT = new BitmapFont();
 
-    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, fungusButton;
+    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, fungusButton;
     private static ButtonGroup buildingMenu, mainMenu;
     private static UIElement clock, minuteHand, hourHand;
     private static NPCStatWindow NPCStatWindow;
@@ -23,8 +23,8 @@ public class UI {
 
     private static ResourceList resourceList;
 
-    private static Vector2i clockPos;
     private static TextureRegion clockTexture = Textures.getUI("clock_face");
+    private static Vector2i clockPos;
 
     private static UIElement[][] layers;
 
@@ -68,9 +68,16 @@ public class UI {
                 buildingMenu.setVisible(false);
             }
         };
+        storageButton = new Button(Textures.getUI("workplace"), new Vector2i(232, 84)) {
+            @Override
+            public void onClick() {
+                BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_STORAGE_BUILDING);
+                buildingMenu.setVisible(false);
+            }
+        };
 
         mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton);
-        buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton);
+        buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton, storageButton);
 
         NPCStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();
@@ -78,7 +85,7 @@ public class UI {
         resourceList = new ResourceList();
 
         clockTexture = Textures.getUI("clock_face");
-        clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
+        clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10);
         clock = new UIElement(clockTexture, clockPos, true);
         minuteHand = new UIElement(Textures.getUI("minute_hand"), clockPos, true);
         hourHand = new UIElement(Textures.getUI("hour_hand"), clockPos, true);
@@ -119,7 +126,6 @@ public class UI {
         resourceList.updateData();
         minuteHand.setRotation((float)World.getTime() * 0.1f);
         hourHand.setRotation((float)360/43200 * World.getTime());
-        clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
         for (int i = layers.length - 1; i >= 0; i--) {
             for (int j = 0; j < layers[i].length; j++) {
                 if(layers[i][j].isVisible() && layers[i][j] instanceof Clickable) {
@@ -132,6 +138,12 @@ public class UI {
                 }
             }
         }
+    }
+
+    public static void resizeUI() {
+        clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10,
+                     Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
+        resourceList.setPosition(20, Gdx.graphics.getHeight() - 20);
     }
 
     /**

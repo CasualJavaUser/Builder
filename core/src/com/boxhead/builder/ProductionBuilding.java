@@ -9,6 +9,9 @@ public class ProductionBuilding extends EnterableBuilding {
     protected int employeeCapacity, employeeCount = 0, employeesInside = 0;
     protected NPC[] employees;
     protected int productionCounter = 0, productionInterval;
+    protected StorageBuilding closestStorage = null;
+
+    private final int storageDistance = 18;
 
     public ProductionBuilding(String name, TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(name, texture, entrancePosition);
@@ -69,12 +72,16 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void produceResources() {
-        if (Resources.checkStorageAvailability(job)) {
-            productionCounter += employeesInside;
-            if (productionCounter >= productionInterval) {
-                Resources.addProducts(job);
-                productionCounter -= productionInterval;
+        if(closestStorage != null) {
+            if (closestStorage.checkStorageAvailability(job)) {
+                productionCounter += employeesInside;
+                if (productionCounter >= productionInterval) {
+                    closestStorage.addToStorage(job);
+                    productionCounter -= productionInterval;
+                }
             }
+        } else {
+            closestStorage = getClosestStorage();
         }
     }
 
@@ -92,5 +99,19 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public int getJobQuality() {
         return jobQuality;
+    }
+
+    private StorageBuilding getClosestStorage() {
+        StorageBuilding closest = null;
+        double distance = storageDistance;
+        for (Building storageBuilding : World.getBuildings()) {
+            if(storageBuilding instanceof StorageBuilding) {
+                if(position.distance(storageBuilding.getPosition()) <= distance) {
+                    distance = position.distance(storageBuilding.getPosition());
+                    closest = (StorageBuilding) storageBuilding;
+                }
+            }
+        }
+        return closest;
     }
 }

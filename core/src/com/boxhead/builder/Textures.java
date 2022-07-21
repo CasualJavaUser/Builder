@@ -43,8 +43,8 @@ public class Textures {
         for (TextureAtlas.AtlasRegion ar : npcAtlas.getRegions()) {
             npcs.put(ar.name, ar);
         }
-        for (Resources resource : Resources.values()) {  //TODO temp solution
-            resources.put(resource.toString().toLowerCase(), getTile("dirt"));
+        for (Resources resource : Resources.values()) {
+            resources.put(resource.toString().toLowerCase(), getTile("dirt"));  //TODO temp solution
         }
     }
 

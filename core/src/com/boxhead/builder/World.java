@@ -17,6 +17,9 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
+    private static int[] storage = new int[Resources.values().length];
+    private static int[] maxStorage = new int[Resources.values().length];
+
     private static Tiles.Types[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
     private static final ArrayList<NPC> npcs = new ArrayList<>();
@@ -68,6 +71,7 @@ public class World {
             building.setPosition(gridPosition);
             buildings.add(building);
             makeUnnavigable(building.getCollider());
+            if(building instanceof StorageBuilding) updateMaxStorage();
             return true;
         }
         return false;
@@ -76,6 +80,37 @@ public class World {
     public static void drawMap(SpriteBatch batch) {
         for (int i = 0; i < tiles.length; i++) {
             batch.draw(tiles[i].texture, i % worldSize.x * TILE_SIZE, (float) (i / worldSize.x) * TILE_SIZE);
+        }
+    }
+
+    public static int getMaxStorage(Resources resource) {
+        return maxStorage[resource.ordinal()];
+    }
+
+    public static int getStored(Resources resource) {
+        updateStorage();
+        return storage[resource.ordinal()];
+    }
+
+    public static void updateMaxStorage() {
+        Arrays.fill(maxStorage, 0);
+        for(Building storageBuilding : buildings) {
+            if(storageBuilding instanceof StorageBuilding) {
+                for (int i = 0; i < maxStorage.length; i++) {
+                    maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(i);
+                }
+            }
+        }
+    }
+
+    public static void updateStorage() {
+        Arrays.fill(storage, 0);
+        for(Building storageBuilding : buildings) {
+            if(storageBuilding instanceof StorageBuilding) {
+                for (int i = 0; i < storage.length; i++) {
+                    storage[i] += ((StorageBuilding) storageBuilding).getStored(i);
+                }
+            }
         }
     }
 
@@ -124,7 +159,7 @@ public class World {
     }
 
     public static void debug() {
-        Arrays.fill(tiles, Tiles.Types.DEFAULT);
+        Arrays.fill(tiles, Tiles.Types.GRASS);
     }
 
     private static void initNPCs() {
