@@ -60,6 +60,17 @@ public class Window extends UIElement implements Clickable {
         //and the isDragged variable stayed true despite of the left mouse button not being pressed.
         position.x += Gdx.input.getX() - mouseOnClick.x;
         position.y -= Gdx.input.getY() - mouseOnClick.y;
+
+        if (position.x > Gdx.graphics.getWidth() - texture.getRegionWidth())
+            position.x = Gdx.graphics.getWidth() - texture.getRegionWidth();
+        else if (position.x < 0)
+                 position.x = 0;
+
+        if (position.y > Gdx.graphics.getHeight() - texture.getRegionHeight())
+            position.y = Gdx.graphics.getHeight() - texture.getRegionHeight();
+        else if (position.y < 0)
+                 position.y = 0;
+
         mouseOnClick.set(Gdx.input.getX(), Gdx.input.getY());
     }
 

@@ -21,6 +21,8 @@ public class UI {
     private static NPCStatWindow NPCStatWindow;
     private static BuildingStatWindow buildingStatWindow;
 
+    private static ResourceList resourceList;
+
     private static Vector2i clockPos;
     private static TextureRegion clockTexture = Textures.getUI("clock_face");
 
@@ -73,6 +75,8 @@ public class UI {
         NPCStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();
 
+        resourceList = new ResourceList();
+
         clockTexture = Textures.getUI("clock_face");
         clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);
         clock = new UIElement(clockTexture, clockPos, true);
@@ -81,8 +85,8 @@ public class UI {
 
         mainMenu.setVisible(true);
 
-        layers = new UIElement[][] {{mainMenu, buildingMenu, clock, minuteHand, hourHand},
-                                    {NPCStatWindow, buildingStatWindow}};
+        layers = new UIElement[][] {{NPCStatWindow, buildingStatWindow},
+                                    {mainMenu, buildingMenu, clock, minuteHand, hourHand, resourceList}};
     }
 
     public static void drawUI(SpriteBatch batch) {
@@ -112,6 +116,7 @@ public class UI {
     }
 
     public static void updateUI() {
+        resourceList.updateData();
         minuteHand.setRotation((float)World.getTime() * 0.1f);
         hourHand.setRotation((float)360/43200 * World.getTime());
         clockPos.set(Gdx.graphics.getWidth() - clockTexture.getRegionWidth()-10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight()-10);

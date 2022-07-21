@@ -1,5 +1,7 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
 public enum Resources {
     NOTHING,
     WOOD,
@@ -26,5 +28,10 @@ public enum Resources {
         for (int i = 0; i < recipe.getResources().length; i++) {
             resourceStorage[recipe.getResources()[i].ordinal()] += recipe.getChange()[i];
         }
+    }
+
+    public int getAmount() {
+        if (this != Resources.NOTHING) return resourceStorage[this.ordinal()];
+        return 0;
     }
 }

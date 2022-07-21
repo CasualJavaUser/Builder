@@ -19,3 +19,4 @@ strategic aspect:
 
 - StorageBuilding(?)
 - building inventory/storage(?)
+- resource data (amount) in World (?)

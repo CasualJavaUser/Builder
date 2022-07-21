@@ -32,6 +32,10 @@ public class UIElement {
         return texture;
     }
 
+    public void setTexture(TextureRegion texture) {
+        this.texture = texture;
+    }
+
     public Vector2i getPosition() {
         return position;
     }

@@ -7,50 +7,50 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class BuilderGame extends Game {
 
-    private static GameScreen gameScreen;
-    private InputMultiplexer inputMultiplexer;
-    public SpriteBatch batch;
+	private static GameScreen gameScreen;
+	private InputMultiplexer inputMultiplexer;
+	public SpriteBatch batch;
 
-    @Override
-    public void create() {
-        inputMultiplexer = new InputMultiplexer();
-        batch = new SpriteBatch();
-        gameScreen = new GameScreen(this);
+	@Override
+	public void create() {
+		inputMultiplexer = new InputMultiplexer();
+		batch = new SpriteBatch();
+		gameScreen = new GameScreen(this);
 
-        inputMultiplexer.addProcessor(gameScreen);
-        Gdx.input.setInputProcessor(inputMultiplexer);
-        setScreen(gameScreen);
-    }
+		inputMultiplexer.addProcessor(gameScreen);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		setScreen(gameScreen);
+	}
 
-    @Override
-    public void render() {
-        super.render();
-    }
+	@Override
+	public void render() {
+		super.render();
+	}
 
-    @Override
-    public void dispose() {
-        NPC.executor.shutdown();
-        batch.dispose();
-        gameScreen.dispose();
-    }
+	@Override
+	public void dispose() {
+		NPC.executor.shutdown();
+		batch.dispose();
+		gameScreen.dispose();
+	}
 
-    @Override
-    public void resize(int width, int height) {
-        gameScreen.resize(width, height);
-    }
+	@Override
+	public void resize(int width, int height) {
+		gameScreen.resize(width, height);
+	}
 
-    @Override
-    public void resume() {
-        super.resume();
-        setScreen(gameScreen);
-    }
+	@Override
+	public void resume() {
+		super.resume();
+		setScreen(gameScreen);
+	}
 
-    @Override
-    public void pause() {
-        super.pause();
-    }
+	@Override
+	public void pause() {
+		super.pause();
+	}
 
-    public static GameScreen getGameScreen() {
-        return gameScreen;
-    }
+	public static GameScreen getGameScreen() {
+		return gameScreen;
+	}
 }
