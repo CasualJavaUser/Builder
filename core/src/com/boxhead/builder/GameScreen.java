@@ -20,6 +20,8 @@ public class GameScreen extends InputAdapter implements Screen {
     private Viewport viewport;
 
     private float moveSpeed;
+    private Vector3 mouseScreenPos = new Vector3();
+
     private boolean isBuilding = false;
     private Buildings.Types currentBuilding = null;
 
@@ -55,6 +57,7 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
+        mouseScreenPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         game.batch.begin();
 
 
@@ -136,9 +139,19 @@ public class GameScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
+
+        Vector3 pos1 = camera.unproject(new Vector3(mouseScreenPos));
+
         camera.zoom += amountY / SCROLL_SPEED;
         if (camera.zoom > MAX_ZOOM) camera.zoom = MAX_ZOOM;
         else if (camera.zoom < MIN_ZOOM) camera.zoom = MIN_ZOOM;
+
+        camera.update();
+
+        Vector3 pos2 = camera.unproject(new Vector3(mouseScreenPos));
+        camera.position.set(camera.position.x + (pos1.x - pos2.x), camera.position.y + (pos1.y - pos2.y), 0);
+        //zoom to cursor
+
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         return false;
@@ -151,7 +164,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
     private void placeBuilding(Buildings.Types type) {
         TextureRegion texture = type.getTexture();
-        Vector3 mousePos = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+        Vector3 mousePos = camera.unproject(mouseScreenPos);
 
         int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2,
                 mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;

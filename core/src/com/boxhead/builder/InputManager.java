@@ -1,8 +1,6 @@
 package com.boxhead.builder;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 
 public class InputManager {
     public static int LEFT = Input.Keys.LEFT;

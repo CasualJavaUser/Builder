@@ -159,7 +159,7 @@ public class World {
     }
 
     public static void debug() {
-        Arrays.fill(tiles, Tiles.Types.GRASS);
+        Arrays.fill(tiles, Tiles.Types.DEFAULT);
     }
 
     private static void initNPCs() {
