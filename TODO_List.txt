@@ -19,4 +19,3 @@ strategic aspect:
 
 UI:
 - close StatWindow when pinned object is out of screen bounds
-- indicate if ProductionBuilding can't produce

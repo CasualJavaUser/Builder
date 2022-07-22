@@ -59,14 +59,17 @@ public class StorageBuilding extends Building {
         }
     }
 
-    public boolean checkStorageAvailability(Jobs job) {
+    /**
+     * Check if the resources can be taken from or put into storage.
+     * @param job the job to be done
+     * @return 1 if there is not enough space in storage, -1 if there are not enough resources, 0 if there is enough space and resources
+     */
+    public int checkStorageAvailability(Jobs job) {
         for (int i = 0; i < job.getResources().length; i++) {
-            if (storage[job.getResources()[i].ordinal()] + job.getChange()[i] > maxStorage[job.getResources()[i].ordinal()] ||
-                    storage[job.getResources()[i].ordinal()] + job.getChange()[i] < 0) {
-                return false;
-            }
+            if (storage[job.getResources()[i].ordinal()] + job.getChange()[i] > maxStorage[job.getResources()[i].ordinal()]) return 1;
+            else if (storage[job.getResources()[i].ordinal()] + job.getChange()[i] < 0) return -1;
         }
-        return true;
+        return 0;
     }
 
     public int getStored(Resources resource) {

@@ -177,7 +177,7 @@ public class GameScreen extends InputAdapter implements Screen {
         }
 
         for (Building building : World.getBuildings()) {
-            game.batch.draw(building.getTexture(), building.getGridX() * World.TILE_SIZE, building.getGridY() * World.TILE_SIZE);
+            building.draw(game.batch);
         }
     }
 

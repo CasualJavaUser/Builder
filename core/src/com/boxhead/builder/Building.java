@@ -2,6 +2,7 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.ui.Clickable;
@@ -67,5 +68,9 @@ public class Building implements Clickable {
     @Override
     public void onClick() {
         UI.showBuildingStatWindow(this);
+    }
+
+    public void draw(SpriteBatch batch) {
+        batch.draw(texture, position.x * World.TILE_SIZE, position.y * World.TILE_SIZE);
     }
 }

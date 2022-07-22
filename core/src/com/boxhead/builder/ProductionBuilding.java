@@ -1,6 +1,8 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
 public class ProductionBuilding extends EnterableBuilding {
@@ -9,9 +11,10 @@ public class ProductionBuilding extends EnterableBuilding {
     protected int employeeCapacity, employeeCount = 0, employeesInside = 0;
     protected NPC[] employees;
     protected int productionCounter = 0, productionInterval;
-    protected StorageBuilding closestStorage = null;
+    protected StorageBuilding storage = null;
+    protected UIElement indicator;
 
-    private final int storageDistance = 18;
+    private final static int storageDistance = 20;
 
     public ProductionBuilding(String name, TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(name, texture, entrancePosition);
@@ -19,6 +22,7 @@ public class ProductionBuilding extends EnterableBuilding {
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
         employees = new NPC[employeeCapacity];
+        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth()/2 - 8, texture.getRegionHeight()+10));
     }
 
     /**
@@ -72,16 +76,25 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void produceResources() {
-        if(closestStorage != null) {
-            if (closestStorage.checkStorageAvailability(job)) {
+        if(storage != null) {
+            int availability = storage.checkStorageAvailability(job);
+            if (availability == 0) {
                 productionCounter += employeesInside;
                 if (productionCounter >= productionInterval) {
-                    closestStorage.addToStorage(job);
+                    storage.addToStorage(job);
                     productionCounter -= productionInterval;
                 }
+                indicator.setVisible(false);
+            } else {
+                if (availability == -1) indicator.setTexture(Textures.getTile("grass"));  //TODO temp textures
+                else indicator.setTexture(Textures.getTile("dirt"));
+                indicator.setVisible(true);
+                storage = getClosestStorage();
             }
         } else {
-            closestStorage = getClosestStorage();
+            indicator.setTexture(Textures.getTile("default"));
+            indicator.setVisible(true);
+            storage = getClosestStorage();
         }
     }
 
@@ -101,17 +114,33 @@ public class ProductionBuilding extends EnterableBuilding {
         return jobQuality;
     }
 
+    /**
+     * @return the closest available StorageBuilding. If there StorageBuildings in range but none are available then the closest one is returned.
+     */
     private StorageBuilding getClosestStorage() {
         StorageBuilding closest = null;
         double distance = storageDistance;
+        boolean isAvailable = false;
         for (Building storageBuilding : World.getBuildings()) {
             if(storageBuilding instanceof StorageBuilding) {
-                if(position.distance(storageBuilding.getPosition()) <= distance) {
+                if(position.distance(storageBuilding.getPosition()) <= distance &&
+                        (!isAvailable || (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0))) {
+                        //isAvailable -> (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)
                     distance = position.distance(storageBuilding.getPosition());
                     closest = (StorageBuilding) storageBuilding;
+                    if((((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)) isAvailable = true;
                 }
             }
         }
         return closest;
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+        if(indicator.isVisible()) {
+            batch.draw(indicator.getTexture(), position.x * World.TILE_SIZE + indicator.getPosition().x,
+                                               position.y * World.TILE_SIZE + indicator.getPosition().y);
+        }
     }
 }
