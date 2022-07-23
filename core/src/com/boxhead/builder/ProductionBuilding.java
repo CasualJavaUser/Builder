@@ -13,6 +13,7 @@ public class ProductionBuilding extends EnterableBuilding {
     protected int productionCounter = 0, productionInterval;
     protected StorageBuilding storage = null;
     protected UIElement indicator;
+    protected int availability = 0;
 
     private final static int storageDistance = 20;
 
@@ -76,25 +77,28 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void produceResources() {
-        if(storage != null) {
-            int availability = storage.checkStorageAvailability(job);
-            if (availability == 0) {
-                productionCounter += employeesInside;
-                if (productionCounter >= productionInterval) {
-                    storage.addToStorage(job);
-                    productionCounter -= productionInterval;
+        if (job.getResources()[0] != Resources.NOTHING) {
+            if (storage != null) {
+                availability = storage.checkStorageAvailability(job);
+                if (availability == 0) {
+                    productionCounter += employeesInside;
+                    if (productionCounter >= productionInterval) {
+                        storage.addToStorage(job);
+                        productionCounter -= productionInterval;
+                    }
+                    indicator.setVisible(false);
+                } else {
+                    if (availability == -1) indicator.setTexture(Textures.getTile("grass"));  //TODO temp textures
+                    else indicator.setTexture(Textures.getTile("dirt"));
+                    indicator.setVisible(true);
+                    storage = getClosestStorage();
                 }
-                indicator.setVisible(false);
             } else {
-                if (availability == -1) indicator.setTexture(Textures.getTile("grass"));  //TODO temp textures
-                else indicator.setTexture(Textures.getTile("dirt"));
+                availability = 2;  //availability is set to 2 so that the appropriate information can be displayed in the BuildingStatWindow.
+                indicator.setTexture(Textures.getTile("default"));
                 indicator.setVisible(true);
                 storage = getClosestStorage();
             }
-        } else {
-            indicator.setTexture(Textures.getTile("default"));
-            indicator.setVisible(true);
-            storage = getClosestStorage();
         }
     }
 
@@ -112,6 +116,10 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public int getJobQuality() {
         return jobQuality;
+    }
+
+    public int getAvailability() {
+        return availability;
     }
 
     /**

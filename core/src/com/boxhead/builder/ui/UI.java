@@ -50,28 +50,28 @@ public class UI {
         homeButton = new Button(Textures.getUI("home"), new Vector2i(10, 84)) {
             @Override
             public void onClick() {
-                BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_RESIDENTIAL_BUILDING);
+                Buildings.build(Buildings.Types.DEFAULT_RESIDENTIAL_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
         workplaceButton = new Button(Textures.getUI("workplace"), new Vector2i(84, 84)) {
             @Override
             public void onClick() {
-                BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_PRODUCTION_BUILDING);
+                Buildings.build(Buildings.Types.DEFAULT_PRODUCTION_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
         serviceButton = new Button(Textures.getUI("service"), new Vector2i(158, 84)) {
             @Override
             public void onClick() {
-                BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_SERVICE_BUILDING);
+                Buildings.build(Buildings.Types.DEFAULT_SERVICE_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
         storageButton = new Button(Textures.getUI("workplace"), new Vector2i(232, 84)) {
             @Override
             public void onClick() {
-                BuilderGame.getGameScreen().build(Buildings.Types.DEFAULT_STORAGE_BUILDING);
+                Buildings.build(Buildings.Types.DEFAULT_STORAGE_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };

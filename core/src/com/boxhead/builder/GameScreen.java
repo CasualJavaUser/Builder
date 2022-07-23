@@ -16,11 +16,11 @@ import com.boxhead.builder.utils.Vector2i;
 public class GameScreen extends InputAdapter implements Screen {
 
     private BuilderGame game;
-    private static OrthographicCamera camera;
+    private OrthographicCamera camera;
     private Viewport viewport;
 
     private float moveSpeed;
-    private Vector3 mouseScreenPos = new Vector3();
+    private final Vector3 mouseScreenPos = new Vector3();
 
     private boolean isBuilding = false;
     private Buildings.Types currentBuilding = null;
@@ -64,12 +64,12 @@ public class GameScreen extends InputAdapter implements Screen {
         moveCamera(deltaTime);
         World.drawMap(game.batch);
 
+        if(!UI.isUIClicked()) UI.checkObjects();
         drawObjects();
 
-        if(!UI.isUIClicked()) UI.checkObjects();
-        if (isBuilding) {
-            placeBuilding(currentBuilding);
-            if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) isBuilding = false;
+        if (Buildings.isBuilding()) {
+            Buildings.placeBuilding(game.batch);
+            if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Buildings.setIsBuilding(false);
         }
 
         UI.updateUI();
@@ -157,31 +157,6 @@ public class GameScreen extends InputAdapter implements Screen {
         return false;
     }
 
-    public void build(Buildings.Types type) {
-        currentBuilding = type;
-        isBuilding = true;
-    }
-
-    private void placeBuilding(Buildings.Types type) {
-        TextureRegion texture = type.getTexture();
-        Vector3 mousePos = camera.unproject(mouseScreenPos);
-
-        int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2,
-                mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
-
-        int posX = mouseX - (mouseX % World.TILE_SIZE),
-                posY = mouseY - (mouseY % World.TILE_SIZE);
-
-        game.batch.setColor(UI.SEMI_TRANSPARENT);
-        game.batch.draw(texture, posX, posY);
-        game.batch.setColor(UI.DEFAULT_COLOR);
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            isBuilding = !World.placeBuilding(type, new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE));
-            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) isBuilding = true;
-        }
-    }
-
     private void drawObjects() {
         for (NPC npc : World.getNpcs()) {
             if (!npc.isInBuilding()) {
@@ -202,7 +177,11 @@ public class GameScreen extends InputAdapter implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
     }
 
-    public static OrthographicCamera getCamera() {
+    public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    public Vector3 getMouseScreenPos() {
+        return mouseScreenPos;
     }
 }

@@ -48,8 +48,8 @@ public class NPCStatWindow extends Window{
     }
 
     private void updatePosition() {
-        Vector3 npcPosition = GameScreen.getCamera().project(new Vector3(npc.getSpritePosition().x * World.TILE_SIZE, npc.getSpritePosition().y * World.TILE_SIZE, 0));
-        position.set((int)(npcPosition.x + 20/GameScreen.getCamera().zoom), (int)(npcPosition.y + 10/GameScreen.getCamera().zoom));
+        Vector3 npcPosition = BuilderGame.getGameScreen().getCamera().project(new Vector3(npc.getSpritePosition().x * World.TILE_SIZE, npc.getSpritePosition().y * World.TILE_SIZE, 0));
+        position.set((int)(npcPosition.x + 20/BuilderGame.getGameScreen().getCamera().zoom), (int)(npcPosition.y + 10/BuilderGame.getGameScreen().getCamera().zoom));
     }
 
     private void updateStats() {
