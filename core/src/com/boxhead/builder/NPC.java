@@ -14,12 +14,11 @@ import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class NPC implements Clickable{
+public class NPC extends GameObject implements Clickable{
     public static final int NEED_SATISFACTION = 50;
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
-    private final TextureRegion texture;
     private String name, surname;
     private final int[] stats = new int[Stats.values().length];
     private Jobs job;
@@ -27,8 +26,8 @@ public class NPC implements Clickable{
     private ResidentialBuilding home = null;
     private boolean inBuilding;
 
-    private Vector2i position, prevPosition;
-    private Vector2 spritePosition;
+    private Vector2i prevPosition;
+    private final Vector2 spritePosition;
     private int pathStep;   //how far into Vector2i[] path has been travelled
     private Vector2i[] path = null;
     private boolean enterAsGuest;
@@ -42,8 +41,7 @@ public class NPC implements Clickable{
     }
 
     public NPC(TextureRegion texture, Vector2i position) {
-        this.texture = texture;
-        this.position = position;
+        super(texture, position);
         prevPosition = position;
         spritePosition = position.toVector2();
         job = Jobs.UNEMPLOYED;
@@ -105,7 +103,7 @@ public class NPC implements Clickable{
             }
             pathStep++;
             prevPosition = position.clone();
-            position = path[pathStep];
+            position.set(path[pathStep]);
             nextStep = 0;
         }
         nextStep++;
@@ -138,7 +136,7 @@ public class NPC implements Clickable{
             if (entered) {
                 inBuilding = true;
                 path = null;
-                position = building.getPosition();
+                position.set(building.getPosition());
             }
         }
     }
@@ -148,14 +146,14 @@ public class NPC implements Clickable{
             return;
         } else if (position.equals(workplace.getPosition())) {
             workplace.employeeExit();
-            position = workplace.getEntrancePosition();
+            position.set(workplace.getEntrancePosition());
             inBuilding = false;
             return;
         }
 
         for (Building building : World.getBuildings()) {
             if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
-                position = building.getPosition().clone();
+                position.set(building.getPosition());
                 inBuilding = false;
             }
         }
@@ -226,14 +224,6 @@ public class NPC implements Clickable{
                 }
             }
         }
-    }
-
-    public TextureRegion getTexture() {
-        return texture;
-    }
-
-    public Vector2i getPosition() {
-        return position;
     }
 
     public Vector2 getSpritePosition() {
