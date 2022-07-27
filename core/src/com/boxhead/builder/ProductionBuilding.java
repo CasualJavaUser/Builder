@@ -23,11 +23,12 @@ public class ProductionBuilding extends EnterableBuilding {
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
         employees = new NPC[employeeCapacity];
-        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth()/2 - 8, texture.getRegionHeight()+10));
+        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
     /**
      * Removes the specified employee from the building.
+     *
      * @param npc employee to be removed from the building
      * @return true if the array of employees changed as a result of the call
      */
@@ -46,6 +47,7 @@ public class ProductionBuilding extends EnterableBuilding {
 
     /**
      * Adds the specified employee to the building.
+     *
      * @param npc employee to be added to the building
      * @return true if the array of employees changed as a result of the call
      */
@@ -77,6 +79,14 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void produceResources() {
+        if (job.getPoI() != null) {
+            for (NPC employee : employees) {
+                if (employee != null && employee.isInBuilding() && position.equals(employee.getPosition())) {
+                    sendEmployee(employee);
+                }
+            }
+        }
+
         if (job.getResources()[0] != Resources.NOTHING) {
             if (storage != null) {
                 availability = storage.checkStorageAvailability(job);
@@ -102,6 +112,48 @@ public class ProductionBuilding extends EnterableBuilding {
         }
     }
 
+    protected void sendEmployee(NPC npc) {
+        if (findPoI() != null) {
+            npc.exitBuilding();
+            npc.navigateTo(job.getPoI());
+            npc.setDestination(NPC.Pathfinding.Destination.FIELD_WORK);
+        }
+    }
+
+    protected void recallEmployees() {
+        for (NPC employee : employees) {
+            if (employee == null) continue;
+
+            if (employee.getDestination() == NPC.Pathfinding.Destination.FIELD_WORK) {
+                FieldWork harvestable = Harvestable.getByCoordinates(employee.getDestinationTile());
+                if (harvestable != null) {
+                    harvestable.dissociateWorker(employee);
+                } else {
+                    EnterableBuilding building = EnterableBuilding.getByCoordinates(employee.getDestinationTile());
+                    if (building instanceof FieldWork) {
+                        ((FieldWork) building).dissociateWorker(employee);
+                    }
+                }
+                employee.navigateTo(employee.getHome());
+                employee.setDestination(NPC.Pathfinding.Destination.HOME);
+            }
+        }
+    }
+
+    protected FieldWork findPoI() {
+        for (Building building : World.getBuildings()) {
+            if (building instanceof FieldWork && ((FieldWork) building).isFree() && ((FieldWork) building).getCharacteristic() == job.getPoI()) {
+                return (FieldWork) building;
+            }
+        }
+        for (Harvestable harvestable : World.getHarvestables()) {
+            if (harvestable.isFree() && harvestable.getCharacteristic() == job.getPoI()) {
+                return harvestable;
+            }
+        }
+        return null;    //no FieldWork available
+    }
+
     public int getEmployeeCapacity() {
         return employeeCapacity;
     }
@@ -122,6 +174,10 @@ public class ProductionBuilding extends EnterableBuilding {
         return availability;
     }
 
+    public StorageBuilding getStorage() {
+        return storage;
+    }
+
     /**
      * @return the closest available StorageBuilding. If there StorageBuildings in range but none are available then the closest one is returned.
      */
@@ -130,13 +186,13 @@ public class ProductionBuilding extends EnterableBuilding {
         double distance = storageDistance;
         boolean isAvailable = false;
         for (Building storageBuilding : World.getBuildings()) {
-            if(storageBuilding instanceof StorageBuilding) {
-                if(position.distance(storageBuilding.getPosition()) <= distance &&
-                        (!isAvailable || (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0))) {
-                        //isAvailable -> (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)
+            if (storageBuilding instanceof StorageBuilding) {
+                if (position.distance(storageBuilding.getPosition()) <= distance &&
+                        (!isAvailable || (((StorageBuilding) storageBuilding).checkStorageAvailability(job) == 0))) {
+                    //isAvailable -> (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)
                     distance = position.distance(storageBuilding.getPosition());
                     closest = (StorageBuilding) storageBuilding;
-                    if((((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)) isAvailable = true;
+                    if ((((StorageBuilding) storageBuilding).checkStorageAvailability(job) == 0)) isAvailable = true;
                 }
             }
         }
@@ -146,9 +202,9 @@ public class ProductionBuilding extends EnterableBuilding {
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        if(indicator.isVisible()) {
+        if (indicator.isVisible()) {
             batch.draw(indicator.getTexture(), position.x * World.TILE_SIZE + indicator.getPosition().x,
-                                               position.y * World.TILE_SIZE + indicator.getPosition().y);
+                    position.y * World.TILE_SIZE + indicator.getPosition().y);
         }
     }
 }

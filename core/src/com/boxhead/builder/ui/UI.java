@@ -15,7 +15,7 @@ public class UI {
 
     public static final BitmapFont FONT = new BitmapFont();
 
-    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, fungusButton;
+    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, fungusButton, fungusButton2;
     private static ButtonGroup buildingMenu, mainMenu;
     private static UIElement clock, minuteHand, hourHand;
     private static NPCStatWindow NPCStatWindow;
@@ -47,6 +47,12 @@ public class UI {
                 World.setTime(25170);
             }
         };
+        fungusButton2 = new Button(Textures.getUI("fungus"), new Vector2i(232, 10)) {
+            @Override
+            public void onClick() {
+                World.setTime(57570);
+            }
+        };
         homeButton = new Button(Textures.getUI("home"), new Vector2i(10, 84)) {
             @Override
             public void onClick() {
@@ -76,7 +82,7 @@ public class UI {
             }
         };
 
-        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton);
+        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton, fungusButton2);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton, storageButton);
 
         NPCStatWindow = new NPCStatWindow();

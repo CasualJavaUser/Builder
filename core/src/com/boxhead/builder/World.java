@@ -23,6 +23,7 @@ public class World {
     private static Tiles.Types[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
     private static final ArrayList<NPC> npcs = new ArrayList<>();
+    private static final ArrayList<Harvestable> harvestables = new ArrayList<>();
 
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
@@ -65,16 +66,22 @@ public class World {
         navigableTiles.add(gridPosition);
     }
 
-    public static boolean placeBuilding(Buildings.Types type, Vector2i gridPosition) {
+    public static boolean startConstruction(Buildings.Types type, Vector2i gridPosition) {
         if (navigableTiles.contains(gridPosition)) {
-            Building building = Buildings.get(type);
-            building.setPosition(gridPosition);
-            buildings.add(building);
-            makeUnnavigable(building.getCollider());
-            if(building instanceof StorageBuilding) updateMaxStorage();
+            ConstructionSite site = new ConstructionSite("construction site (" + Buildings.get(type).getName() + ')', type, 100);
+            site.setPosition(gridPosition);
+            buildings.add(site);
+            makeUnnavigable(site.getCollider());
             return true;
         }
         return false;
+    }
+
+    public static void placeBuilding(Buildings.Types type, Vector2i gridPosition) {
+        Building building = Buildings.get(type);
+        building.setPosition(gridPosition);
+        buildings.add(building);
+        if (building instanceof StorageBuilding) updateMaxStorage();
     }
 
     public static void drawMap(SpriteBatch batch) {
@@ -94,8 +101,8 @@ public class World {
 
     public static void updateMaxStorage() {
         Arrays.fill(maxStorage, 0);
-        for(Building storageBuilding : buildings) {
-            if(storageBuilding instanceof StorageBuilding) {
+        for (Building storageBuilding : buildings) {
+            if (storageBuilding instanceof StorageBuilding) {
                 for (int i = 0; i < maxStorage.length; i++) {
                     maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(i);
                 }
@@ -105,8 +112,8 @@ public class World {
 
     public static void updateStorage() {
         Arrays.fill(storage, 0);
-        for(Building storageBuilding : buildings) {
-            if(storageBuilding instanceof StorageBuilding) {
+        for (Building storageBuilding : buildings) {
+            if (storageBuilding instanceof StorageBuilding) {
                 for (int i = 0; i < storage.length; i++) {
                     storage[i] += ((StorageBuilding) storageBuilding).getStored(i);
                 }
@@ -132,6 +139,10 @@ public class World {
 
     public static ArrayList<NPC> getNpcs() {
         return npcs;
+    }
+
+    public static ArrayList<Harvestable> getHarvestables() {
+        return harvestables;
     }
 
     public static int getWidth() {
@@ -163,6 +174,6 @@ public class World {
     }
 
     private static void initNPCs() {
-        spawnNPC(new NPC(Textures.getNPC("funguy"), new Vector2i(worldSize.x / 2,worldSize.y / 2)));
+        spawnNPC(new NPC(Textures.getNPC("funguy"), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
     }
 }

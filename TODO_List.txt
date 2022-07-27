@@ -1,6 +1,5 @@
 game loop:
-- npc being assigned/assigning themselves to jobs/houses
-- proper building system (taking resources/time/labour)
+- proper building system (taking resources)
 - gathering resources from the world
 
 - education
@@ -19,3 +18,4 @@ strategic aspect:
 
 UI:
 - close StatWindow when pinned object is out of screen bounds
+- fix camera zoom centering when placing buildings

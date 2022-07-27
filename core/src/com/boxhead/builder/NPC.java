@@ -14,12 +14,12 @@ import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class NPC extends GameObject implements Clickable{
+public class NPC extends GameObject implements Clickable {
     public static final int NEED_SATISFACTION = 50;
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
-    private String name, surname;
+    private final String name, surname;
     private final int[] stats = new int[Stats.values().length];
     private Jobs job;
     private ProductionBuilding workplace = null;
@@ -30,10 +30,10 @@ public class NPC extends GameObject implements Clickable{
     private final Vector2 spritePosition;
     private int pathStep;   //how far into Vector2i[] path has been travelled
     private Vector2i[] path = null;
-    private boolean enterAsGuest;
+    private Pathfinding.Destination destination = null;
     private int stepInterval, nextStep;
 
-    public static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+    public static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
 
     public enum Stats {
         AGE,
@@ -46,26 +46,26 @@ public class NPC extends GameObject implements Clickable{
         spritePosition = position.toVector2();
         job = Jobs.UNEMPLOYED;
         stepInterval = 50;
-        name = NAMES[(int)(Math.random() * NAMES.length)];
-        surname = SURNAMES[(int)(Math.random() * SURNAMES.length)];
+        name = NAMES[(int) (Math.random() * NAMES.length)];
+        surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
     }
 
     public void navigateTo(Vector2i gridTile) {
+        alignSprite();
         executor.submit(() -> {
             path = Pathfinding.findPath(position, gridTile);
             pathStep = 0;
-            enterAsGuest = false;
             nextStep = stepInterval;
         });
     }
 
-    public void navigateTo(EnterableBuilding building, boolean... enterAsGuest) {
+    public void navigateTo(EnterableBuilding building) {
+        alignSprite();
         executor.submit(() -> {
             if (building != null) {
                 path = Pathfinding.findPath(position, building.getEntrancePosition());
                 path[path.length - 1] = building.getPosition();
                 pathStep = 0;
-                this.enterAsGuest = enterAsGuest.length > 0 && enterAsGuest[0];
             } else {
                 path = null;
             }
@@ -73,10 +73,43 @@ public class NPC extends GameObject implements Clickable{
         });
     }
 
+    public void navigateTo(Object interest) {
+        alignSprite();
+        Vector2i destination = null;
+        EnterableBuilding enterable = null;
+        for (Building building : World.getBuildings()) {
+            if (building instanceof FieldWork && ((FieldWork) building).getCharacteristic() == interest && ((FieldWork) building).isFree()) {
+                ((FieldWork) building).assignWorker(this);
+                destination = ((EnterableBuilding) building).getEntrancePosition();
+                enterable = (EnterableBuilding) building;
+                break;
+            }
+        }
+        for (Harvestable harvestable : World.getHarvestables()) {
+            if (harvestable.getCharacteristic() == interest && harvestable.isFree()) {
+                harvestable.assignWorker(this);
+                destination = harvestable.getPosition();
+                break;
+            }
+        }
+
+        if (destination == null) return;    //no PoI available
+
+        Vector2i finalDestination = destination;   //lambdas require effectively final arguments
+        EnterableBuilding finalEnterable = enterable;
+        executor.submit(() -> {
+            path = Pathfinding.findPath(position, finalDestination);
+            pathStep = 0;
+            if (finalEnterable != null) {
+                path[path.length - 1].set(finalEnterable.getPosition());
+            }
+        });
+    }
+
     /**
      * Follows along a path specified by the {@code navigateTo()} method.
      *
-     * @return true if the NPC moved, false if no path is specified or the end of path is reached
+     * @return <b>true</b> if the NPC moved, <b>false</b> if no path is specified or the end of path is reached
      */
 
     public boolean followPath() {
@@ -89,17 +122,27 @@ public class NPC extends GameObject implements Clickable{
         }
 
         if (nextStep >= stepInterval) {
-            if (pathStep == path.length - 2 && path[path.length - 1] != path[path.length - 2]) {
-                EnterableBuilding building = EnterableBuilding.getByCoordinates(path[path.length - 1]);
-                if (building == null) {
-                    path = null;
-                    return false;   //building was probably deleted or moved
+            if (pathStep == path.length - 2 && path[path.length - 1] != path[path.length - 2]) {    //enter building
+                if (destination == Pathfinding.Destination.SERVICE) {
+                    enterBuilding(EnterableBuilding.getByCoordinates(path[path.length - 1]), true);
+                } else if (destination == Pathfinding.Destination.HOME || destination == Pathfinding.Destination.WORK) {
+                    enterBuilding(EnterableBuilding.getByCoordinates(path[path.length - 1]));
+                } else if (destination == Pathfinding.Destination.FIELD_WORK) {
+                    Harvestable harvestable = Harvestable.getByCoordinates(path[path.length - 1]);
+                    if (harvestable != null) {
+                        harvestable.setWork(this, true);
+                    }
+                    EnterableBuilding building = EnterableBuilding.getByCoordinates(path[path.length - 1]);
+                    if (building != null) {
+                        ((FieldWork) building).setWork(this, true);
+                    }
                 }
-                enterBuilding(building, enterAsGuest);
+                path = null;
+                destination = null;
                 return true;
             }
             if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
-                navigateTo(EnterableBuilding.getByCoordinates(path[path.length - 1]));
+                navigateTo(path[path.length - 1]);
             }
             pathStep++;
             prevPosition = position.clone();
@@ -123,6 +166,8 @@ public class NPC extends GameObject implements Clickable{
      */
 
     public void enterBuilding(EnterableBuilding building, boolean... guest) {
+        if (building == null) return;
+
         boolean entered = true;
         if (position.equals(building.getEntrancePosition())) {
             if (building instanceof ServiceBuilding) {
@@ -144,16 +189,11 @@ public class NPC extends GameObject implements Clickable{
     public void exitBuilding() {
         if (!inBuilding) {
             return;
-        } else if (position.equals(workplace.getPosition())) {
-            workplace.employeeExit();
-            position.set(workplace.getEntrancePosition());
-            inBuilding = false;
-            return;
         }
 
         for (Building building : World.getBuildings()) {
             if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
-                position.set(building.getPosition());
+                position.set(((EnterableBuilding) building).getEntrancePosition());
                 inBuilding = false;
             }
         }
@@ -219,11 +259,16 @@ public class NPC extends GameObject implements Clickable{
                     }
                 }
                 if (closestService != null) {
-                    navigateTo(closestService, true);
+                    navigateTo(closestService);
+                    setDestination(Pathfinding.Destination.SERVICE);
                     return;
                 }
             }
         }
+    }
+
+    public void setDestination(Pathfinding.Destination destination) {
+        this.destination = destination;
     }
 
     public Vector2 getSpritePosition() {
@@ -246,10 +291,6 @@ public class NPC extends GameObject implements Clickable{
         return job;
     }
 
-    public void setHome(ResidentialBuilding house) {
-        home = house;
-    }
-
     public ResidentialBuilding getHome() {
         return home;
     }
@@ -262,9 +303,23 @@ public class NPC extends GameObject implements Clickable{
         return inBuilding;
     }
 
+    public Pathfinding.Destination getDestination() {
+        return destination;
+    }
+
+    public Vector2i getDestinationTile() {
+        if (path == null) return null;
+        return path[path.length - 1];
+    }
+
+    private void alignSprite() {
+        spritePosition.set(position.x, position.y);
+        prevPosition.set(position);
+    }
+
     @Override
     public boolean isClicked() {
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             Vector3 mousePos = BuilderGame.getGameScreen().getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
             return mousePos.x >= position.x * World.TILE_SIZE && mousePos.x < (position.x * World.TILE_SIZE + texture.getRegionWidth()) &&
                     mousePos.y >= position.y * World.TILE_SIZE && mousePos.y < (position.y * World.TILE_SIZE + texture.getRegionHeight());
@@ -281,7 +336,7 @@ public class NPC extends GameObject implements Clickable{
 
         public static Vector2i[] findPath(Vector2i start, Vector2i destination) {     //Dijkstra's algorithm
             if (start.equals(destination) || !World.getNavigableTiles().contains(start)) {
-                return new Vector2i[]{start};
+                return new Vector2i[]{start, start};
             }
             HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
             HashMap<Vector2i, Double> distanceToTile = new HashMap<>();
@@ -324,7 +379,7 @@ public class NPC extends GameObject implements Clickable{
                     }
                 }
                 if (!pathExists) {
-                    return new Vector2i[]{start};   //no path
+                    return new Vector2i[]{start, start};   //no path
                 }
 
                 Vector2i smallestDistanceTile = null;
@@ -341,7 +396,7 @@ public class NPC extends GameObject implements Clickable{
             }
 
             int totalDistance = 1;
-            while (currentTile.hashCode() != start.hashCode()) {
+            while (currentTile.hashCode() != start.hashCode()) {    //todo fix NPE
                 currentTile = parentTree.get(currentTile);
                 totalDistance++;
             }
@@ -368,6 +423,13 @@ public class NPC extends GameObject implements Clickable{
                 parentTree.remove(tempTile);
                 parentTree.put(tempTile, currentTile);
             }
+        }
+
+        public enum Destination {
+            HOME,
+            WORK,
+            FIELD_WORK,
+            SERVICE
         }
     }
 }

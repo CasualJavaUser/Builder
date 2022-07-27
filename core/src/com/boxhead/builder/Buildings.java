@@ -57,7 +57,7 @@ public class Buildings {
         batch.setColor(UI.DEFAULT_COLOR);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            isBuilding = !World.placeBuilding(currentBuilding, new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE));
+            isBuilding = !World.startConstruction(currentBuilding, new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE));
             if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) isBuilding = true;
         }
     }

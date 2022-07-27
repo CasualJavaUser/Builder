@@ -3,24 +3,32 @@ package com.boxhead.builder;
 import com.boxhead.builder.utils.Pair;
 
 public enum Jobs {
-    UNEMPLOYED(new Pair<>(Resources.NOTHING, 0)),
-    LUMBERJACK(new Pair<>(Resources.WOOD, 1)),
-    SMELTER(new Pair<>(Resources.STEEL, 3),
+    UNEMPLOYED(null, new Pair<>(Resources.NOTHING, 0)),
+    LUMBERJACK(Harvestable.Types.TREE,
+            new Pair<>(Resources.WOOD, 1)),
+    MINER_IRON(Harvestable.Types.IRON_ORE,
+            new Pair<>(Resources.IRON, 1)),
+    BUILDER(ConstructionSite.class,
+            new Pair<>(Resources.NOTHING, 0)),
+    SMELTER(null,
+            new Pair<>(Resources.STEEL, 3),
             new Pair<>(Resources.IRON, -3),
             new Pair<>(Resources.COAL, -1)),
-    BLACKSMITH_IRON(
+    BLACKSMITH_IRON(null,
             new Pair<>(Resources.TOOLS, 1),
             new Pair<>(Resources.IRON, -2)),
-    BLACKSMITH_STEEL(
+    BLACKSMITH_STEEL(null,
             new Pair<>(Resources.TOOLS, 1),
             new Pair<>(Resources.STEEL, -1)),
-    DOCTOR(new Pair<>(Resources.NOTHING, 0));
+    DOCTOR(null, new Pair<>(Resources.NOTHING, 0));
 
     private final Resources[] resources;
     private final int[] change;
+    private final Object poi;
 
     @SafeVarargs
-    Jobs(Pair<Resources, Integer>... usedResources) {
+    Jobs(Object interest, Pair<Resources, Integer>... usedResources) {
+        poi = interest;
         resources = new Resources[usedResources.length];
         change = new int[usedResources.length];
         for (int i = 0; i < usedResources.length; i++) {
@@ -35,5 +43,9 @@ public enum Jobs {
 
     public int[] getChange() {
         return change;
+    }
+
+    public Object getPoI() {
+        return poi;
     }
 }

@@ -24,14 +24,22 @@ public class Logic {
                 if (npc.getJob() != Jobs.UNEMPLOYED) {
                     npc.exitBuilding();
                     npc.navigateTo(npc.getWorkplace());
+                    npc.setDestination(NPC.Pathfinding.Destination.WORK);
                 }
             }
         } else if (World.getTime() == 57600) { //16:00
+            for (Building building : World.getBuildings()) {
+                if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null) {
+                    ((ProductionBuilding) building).recallEmployees();
+                }
+            }
+
             for (NPC npc : World.getNpcs()) {
-                if (npc.getJob() != Jobs.UNEMPLOYED) {
+                if (npc.getJob() != Jobs.UNEMPLOYED && npc.getDestination() != NPC.Pathfinding.Destination.HOME) {
                     npc.exitBuilding();
                     if (npc.getHome() != null) {
                         npc.navigateTo(npc.getHome());
+                        npc.setDestination(NPC.Pathfinding.Destination.HOME);
                     }
                 }
             }
@@ -39,13 +47,20 @@ public class Logic {
     }
 
     private static void produceResources() {
-        for (Building building : World.getBuildings()) {
-            if (building instanceof ServiceBuilding) {
-                ((ServiceBuilding) building).provideServices();
+        for (int i = 0; i < World.getBuildings().size(); i++) {
+            if (World.getBuildings().get(i) instanceof ServiceBuilding) {
+                ((ServiceBuilding) World.getBuildings().get(i)).provideServices();
             }
-            if (building instanceof ProductionBuilding) {
-                ((ProductionBuilding) building).produceResources();
+            if (World.getBuildings().get(i) instanceof ProductionBuilding) {
+                ((ProductionBuilding) World.getBuildings().get(i)).produceResources();
             }
+            if (World.getBuildings().get(i) instanceof FieldWork) {
+                ((FieldWork) World.getBuildings().get(i)).work();
+            }
+        }
+
+        for (Harvestable harvestable : World.getHarvestables()) {
+            harvestable.work();
         }
     }
 
@@ -53,7 +68,7 @@ public class Logic {
         for (NPC npc : World.getNpcs()) {
             npc.followPath();
 
-            npc.seekJob();  //todo
+            npc.seekJob();
             npc.seekHouse();
         }
     }
