@@ -54,7 +54,7 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
 
         if (progress >= totalLabour) {
             World.getBuildings().remove(this);
-            World.placeBuilding(buildingType, super.position);
+            World.placeBuilding(buildingType, super.gridPosition);
 
             for (NPC npc : assigned) {
                 if (npc != null) {

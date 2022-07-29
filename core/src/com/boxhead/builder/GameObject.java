@@ -4,24 +4,24 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
 
 public class GameObject {
-    protected final Vector2i position;
+    protected final Vector2i gridPosition;
     protected TextureRegion texture;
 
-    public GameObject(TextureRegion texture, Vector2i position) {
-        this.position = position;
+    public GameObject(TextureRegion texture, Vector2i gridPosition) {
+        this.gridPosition = gridPosition;
         this.texture = texture;
     }
 
-    public Vector2i getPosition() {
-        return position;
+    public Vector2i getGridPosition() {
+        return gridPosition;
     }
 
     public void setPosition(int x, int y) {
-        this.position.set(x, y);
+        this.gridPosition.set(x, y);
     }
 
-    public void setPosition(Vector2i position) {
-        this.position.set(position);
+    public void setGridPosition(Vector2i gridPosition) {
+        this.gridPosition.set(gridPosition);
     }
 
     public TextureRegion getTexture() {

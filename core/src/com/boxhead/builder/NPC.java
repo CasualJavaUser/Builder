@@ -53,7 +53,7 @@ public class NPC extends GameObject implements Clickable {
     public void navigateTo(Vector2i gridTile) {
         alignSprite();
         executor.submit(() -> {
-            path = Pathfinding.findPath(position, gridTile);
+            path = Pathfinding.findPath(gridPosition, gridTile);
             pathStep = 0;
             nextStep = stepInterval;
         });
@@ -63,8 +63,8 @@ public class NPC extends GameObject implements Clickable {
         alignSprite();
         executor.submit(() -> {
             if (building != null) {
-                path = Pathfinding.findPath(position, building.getEntrancePosition());
-                path[path.length - 1] = building.getPosition();
+                path = Pathfinding.findPath(gridPosition, building.getEntrancePosition());
+                path[path.length - 1] = building.getGridPosition();
                 pathStep = 0;
             } else {
                 path = null;
@@ -88,7 +88,7 @@ public class NPC extends GameObject implements Clickable {
         for (Harvestable harvestable : World.getHarvestables()) {
             if (harvestable.getCharacteristic() == interest && harvestable.isFree()) {
                 harvestable.assignWorker(this);
-                destination = harvestable.getPosition();
+                destination = harvestable.getGridPosition();
                 break;
             }
         }
@@ -98,10 +98,10 @@ public class NPC extends GameObject implements Clickable {
         Vector2i finalDestination = destination;   //lambdas require effectively final arguments
         EnterableBuilding finalEnterable = enterable;
         executor.submit(() -> {
-            path = Pathfinding.findPath(position, finalDestination);
+            path = Pathfinding.findPath(gridPosition, finalDestination);
             pathStep = 0;
             if (finalEnterable != null) {
-                path[path.length - 1].set(finalEnterable.getPosition());
+                path[path.length - 1].set(finalEnterable.getGridPosition());
             }
         });
     }
@@ -145,13 +145,13 @@ public class NPC extends GameObject implements Clickable {
                 navigateTo(path[path.length - 1]);
             }
             pathStep++;
-            prevPosition = position.clone();
-            position.set(path[pathStep]);
+            prevPosition = gridPosition.clone();
+            gridPosition.set(path[pathStep]);
             nextStep = 0;
         }
         nextStep++;
-        spritePosition.add((position.x - prevPosition.x) * (1f / (float) stepInterval),
-                (position.y - prevPosition.y) * (1f / (float) stepInterval));
+        spritePosition.add((gridPosition.x - prevPosition.x) * (1f / (float) stepInterval),
+                (gridPosition.y - prevPosition.y) * (1f / (float) stepInterval));
 
         return true;
     }
@@ -169,7 +169,7 @@ public class NPC extends GameObject implements Clickable {
         if (building == null) return;
 
         boolean entered = true;
-        if (position.equals(building.getEntrancePosition())) {
+        if (gridPosition.equals(building.getEntrancePosition())) {
             if (building instanceof ServiceBuilding) {
                 if (guest.length > 0 && guest[0]) {
                     entered = ((ServiceBuilding) building).addGuest(this);
@@ -181,7 +181,7 @@ public class NPC extends GameObject implements Clickable {
             if (entered) {
                 inBuilding = true;
                 path = null;
-                position.set(building.getPosition());
+                gridPosition.set(building.getGridPosition());
             }
         }
     }
@@ -192,8 +192,8 @@ public class NPC extends GameObject implements Clickable {
         }
 
         for (Building building : World.getBuildings()) {
-            if (building.getPosition().equals(position) && building instanceof EnterableBuilding) {
-                position.set(((EnterableBuilding) building).getEntrancePosition());
+            if (building.getGridPosition().equals(gridPosition) && building instanceof EnterableBuilding) {
+                gridPosition.set(((EnterableBuilding) building).getEntrancePosition());
                 inBuilding = false;
             }
         }
@@ -231,9 +231,9 @@ public class NPC extends GameObject implements Clickable {
         double distance = Double.MAX_VALUE;
         for (Building building : World.getBuildings()) {
             if (building instanceof ResidentialBuilding && ((ResidentialBuilding) building).getResidentCount() < ((ResidentialBuilding) building).getResidentCapacity()) {
-                if (position.distance(building.getPosition()) < distance) {
+                if (gridPosition.distance(building.getGridPosition()) < distance) {
                     closestHouse = (ResidentialBuilding) building;
-                    distance = position.distance(building.getPosition());
+                    distance = gridPosition.distance(building.getGridPosition());
                 }
             }
         }
@@ -253,9 +253,9 @@ public class NPC extends GameObject implements Clickable {
                     if (building instanceof ServiceBuilding &&
                             ((ServiceBuilding) building).provides(stat) &&
                             ((ServiceBuilding) building).getGuestsInside() < ((ServiceBuilding) building).getGuestCapacity() &&
-                            position.distance(building.getPosition()) < closestDistance) {
+                            gridPosition.distance(building.getGridPosition()) < closestDistance) {
                         closestService = (ServiceBuilding) building;
-                        closestDistance = position.distance(closestService.getPosition());
+                        closestDistance = gridPosition.distance(closestService.getGridPosition());
                     }
                 }
                 if (closestService != null) {
@@ -313,16 +313,16 @@ public class NPC extends GameObject implements Clickable {
     }
 
     private void alignSprite() {
-        spritePosition.set(position.x, position.y);
-        prevPosition.set(position);
+        spritePosition.set(gridPosition.x, gridPosition.y);
+        prevPosition.set(gridPosition);
     }
 
     @Override
     public boolean isClicked() {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             Vector3 mousePos = BuilderGame.getGameScreen().getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-            return mousePos.x >= position.x * World.TILE_SIZE && mousePos.x < (position.x * World.TILE_SIZE + texture.getRegionWidth()) &&
-                    mousePos.y >= position.y * World.TILE_SIZE && mousePos.y < (position.y * World.TILE_SIZE + texture.getRegionHeight());
+            return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
+                    mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
         }
         return false;
     }

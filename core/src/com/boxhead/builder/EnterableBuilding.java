@@ -15,12 +15,12 @@ public class EnterableBuilding extends Building {
     }
 
     public Vector2i getEntrancePosition() {
-        return position.addScalar(entrancePosition);
+        return gridPosition.addScalar(entrancePosition);
     }
 
     public static EnterableBuilding getByCoordinates(Vector2i gridPosition) {
         for (Building building : World.getBuildings()) {
-            if (building.getPosition().equals(gridPosition)) {
+            if (building.getGridPosition().equals(gridPosition)) {
                 return (EnterableBuilding) building;
             }
         }

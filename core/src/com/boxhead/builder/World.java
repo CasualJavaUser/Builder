@@ -69,7 +69,7 @@ public class World {
     public static boolean startConstruction(Buildings.Types type, Vector2i gridPosition) {
         if (navigableTiles.contains(gridPosition)) {
             ConstructionSite site = new ConstructionSite("construction site (" + Buildings.get(type).getName() + ')', type, 100);
-            site.setPosition(gridPosition);
+            site.setGridPosition(gridPosition);
             buildings.add(site);
             makeUnnavigable(site.getCollider());
             return true;
@@ -79,7 +79,7 @@ public class World {
 
     public static void placeBuilding(Buildings.Types type, Vector2i gridPosition) {
         Building building = Buildings.get(type);
-        building.setPosition(gridPosition);
+        building.setGridPosition(gridPosition);
         buildings.add(building);
         if (building instanceof StorageBuilding) updateMaxStorage();
     }

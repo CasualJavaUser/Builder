@@ -17,7 +17,7 @@ public class Harvestable extends GameObject implements FieldWork {
 
     public static Harvestable getByCoordinates(Vector2i gridPosition) {
         for (Harvestable harvestable : World.getHarvestables()) {
-            if (harvestable.position.equals(gridPosition)) {
+            if (harvestable.gridPosition.equals(gridPosition)) {
                 return harvestable;
             }
         }
@@ -64,7 +64,7 @@ public class Harvestable extends GameObject implements FieldWork {
         }
 
         if (amountLeft <= 0) {
-            World.makeNavigable(position);
+            World.makeNavigable(gridPosition);
             World.getHarvestables().remove(this);
 
             assigned.navigateTo(assigned.getWorkplace());

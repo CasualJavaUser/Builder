@@ -81,7 +81,7 @@ public class ProductionBuilding extends EnterableBuilding {
     public void produceResources() {
         if (job.getPoI() != null) {
             for (NPC employee : employees) {
-                if (employee != null && employee.isInBuilding() && position.equals(employee.getPosition())) {
+                if (employee != null && employee.isInBuilding() && gridPosition.equals(employee.getGridPosition())) {
                     sendEmployee(employee);
                 }
             }
@@ -187,10 +187,10 @@ public class ProductionBuilding extends EnterableBuilding {
         boolean isAvailable = false;
         for (Building storageBuilding : World.getBuildings()) {
             if (storageBuilding instanceof StorageBuilding) {
-                if (position.distance(storageBuilding.getPosition()) <= distance &&
+                if (gridPosition.distance(storageBuilding.getGridPosition()) <= distance &&
                         (!isAvailable || (((StorageBuilding) storageBuilding).checkStorageAvailability(job) == 0))) {
                     //isAvailable -> (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)
-                    distance = position.distance(storageBuilding.getPosition());
+                    distance = gridPosition.distance(storageBuilding.getGridPosition());
                     closest = (StorageBuilding) storageBuilding;
                     if ((((StorageBuilding) storageBuilding).checkStorageAvailability(job) == 0)) isAvailable = true;
                 }
@@ -203,8 +203,8 @@ public class ProductionBuilding extends EnterableBuilding {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
         if (indicator.isVisible()) {
-            batch.draw(indicator.getTexture(), position.x * World.TILE_SIZE + indicator.getPosition().x,
-                    position.y * World.TILE_SIZE + indicator.getPosition().y);
+            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getPosition().x,
+                    gridPosition.y * World.TILE_SIZE + indicator.getPosition().y);
         }
     }
 }
