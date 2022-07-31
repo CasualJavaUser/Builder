@@ -3,13 +3,15 @@ package com.boxhead.builder;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.boxhead.builder.game_objects.Building;
+import com.boxhead.builder.game_objects.Buildings;
+import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -140,6 +142,7 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public boolean scrolled(float amountX, float amountY) {
 
+        mouseScreenPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         Vector3 pos1 = camera.unproject(new Vector3(mouseScreenPos));
 
         camera.zoom += amountY / SCROLL_SPEED;

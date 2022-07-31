@@ -1,5 +1,7 @@
-package com.boxhead.builder;
+package com.boxhead.builder.game_objects;
 
+import com.boxhead.builder.FieldWork;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
 public class ConstructionSite extends EnterableBuilding implements FieldWork {

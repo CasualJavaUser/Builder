@@ -1,6 +1,7 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 

@@ -1,5 +1,6 @@
 package com.boxhead.builder;
 
+import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.utils.Pair;
 
 public enum Services {

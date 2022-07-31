@@ -1,5 +1,7 @@
 package com.boxhead.builder;
 
+import com.boxhead.builder.game_objects.NPC;
+
 public interface FieldWork {
     Object getCharacteristic();
 

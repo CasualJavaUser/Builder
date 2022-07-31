@@ -3,7 +3,7 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
-import com.boxhead.builder.utils.Vector2i;
+import com.boxhead.builder.game_objects.NPC;
 
 public class NPCStatWindow extends StatWindow<NPC> {
     private String job = null, name = null;
@@ -35,12 +35,9 @@ public class NPCStatWindow extends StatWindow<NPC> {
     }
 
     @Override
-    protected void updatePosition() {
-        Vector3 npcPosition = BuilderGame.getGameScreen().getCamera().project(
-                new Vector3(pinnedObject.getSpritePosition().x * World.TILE_SIZE,
-                        pinnedObject.getSpritePosition().y * World.TILE_SIZE, 0));
-        position.set((int)(npcPosition.x + 20/BuilderGame.getGameScreen().getCamera().zoom),
-                     (int)(npcPosition.y + 10/BuilderGame.getGameScreen().getCamera().zoom));
+    protected Vector3 getObjectScreenPosition() {
+        return BuilderGame.getGameScreen().getCamera().project( new Vector3(pinnedObject.getSpritePosition().x * World.TILE_SIZE,
+                                                                            pinnedObject.getSpritePosition().y * World.TILE_SIZE, 0));
     }
 
     @Override

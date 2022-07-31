@@ -1,10 +1,11 @@
-package com.boxhead.builder;
+package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
+import com.boxhead.builder.*;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 

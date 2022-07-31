@@ -3,6 +3,10 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
+import com.boxhead.builder.game_objects.Building;
+import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.game_objects.ProductionBuilding;
+import com.boxhead.builder.game_objects.StorageBuilding;
 
 public class BuildingStatWindow extends StatWindow<Building> {
     private Jobs job;

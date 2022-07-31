@@ -1,5 +1,7 @@
 package com.boxhead.builder;
 
+import com.boxhead.builder.game_objects.ConstructionSite;
+import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.utils.Pair;
 
 public enum Jobs {

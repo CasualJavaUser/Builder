@@ -1,6 +1,7 @@
-package com.boxhead.builder;
+package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
 public class EnterableBuilding extends Building {

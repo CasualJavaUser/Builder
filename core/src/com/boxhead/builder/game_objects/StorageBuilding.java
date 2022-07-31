@@ -1,6 +1,8 @@
-package com.boxhead.builder;
+package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.Jobs;
+import com.boxhead.builder.Resources;
 
 import java.util.Arrays;
 

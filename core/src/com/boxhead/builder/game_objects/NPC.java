@@ -1,18 +1,22 @@
-package com.boxhead.builder;
+package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.boxhead.builder.BuilderGame;
+import com.boxhead.builder.FieldWork;
+import com.boxhead.builder.Jobs;
+import com.boxhead.builder.World;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class NPC extends GameObject implements Clickable {
     public static final int NEED_SATISFACTION = 50;
@@ -33,7 +37,7 @@ public class NPC extends GameObject implements Clickable {
     private Pathfinding.Destination destination = null;
     private int stepInterval, nextStep;
 
-    public static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+    public static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
 
     public enum Stats {
         AGE,
