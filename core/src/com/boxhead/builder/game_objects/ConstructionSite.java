@@ -27,7 +27,7 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
 
     @Override
     public boolean assignWorker(NPC npc) {
-        if (assigned.size() < 4) {
+        if (assigned.size() < capacity) {
             return assigned.add(npc);
         }
         return false;
