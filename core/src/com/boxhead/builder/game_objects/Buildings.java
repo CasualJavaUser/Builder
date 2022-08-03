@@ -18,7 +18,8 @@ public class Buildings {
         DEFAULT_RESIDENTIAL_BUILDING,
         DEFAULT_SERVICE_BUILDING,
         DEFAULT_STORAGE_BUILDING,
-        BIG;
+        BIG,
+        CONSTRUCTION_OFFICE;
 
         public TextureRegion getTexture() {
             switch (this) {
@@ -27,18 +28,20 @@ public class Buildings {
                 case DEFAULT_SERVICE_BUILDING: return Textures.getBuilding("service_fungus");
                 case DEFAULT_STORAGE_BUILDING: return Textures.getBuilding("service_fungus");  //TODO temp texture
                 case BIG: return Textures.getBuilding("fungi");
+                case CONSTRUCTION_OFFICE: return Textures.getBuilding("fungus");
                 default: return Textures.getBuilding("fungus");
             }
         }
     }
 
     public static Building get(Types building) {
-        switch(building) {
-            case DEFAULT_PRODUCTION_BUILDING: return new ProductionBuilding("lumber mill", Textures.getBuilding("work_fungus"), Jobs.LUMBERJACK, 1, new Vector2i(0, -1), 100);
-            case DEFAULT_RESIDENTIAL_BUILDING: return new ResidentialBuilding("house", Textures.getBuilding("house_fungus"), 5, new Vector2i(0, -1));
-            case DEFAULT_SERVICE_BUILDING: return new ServiceBuilding("hospital", Textures.getBuilding("service_fungus"), Jobs.DOCTOR, Services.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
-            case DEFAULT_STORAGE_BUILDING: return new StorageBuilding("storage", Textures.getBuilding("service_fungus"));
-            case BIG: return new Building("fungi", Textures.getBuilding("fungi"));
+        switch (building) {
+            case DEFAULT_PRODUCTION_BUILDING: return new ProductionBuilding("lumber mill", building.getTexture(), Jobs.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+            case DEFAULT_RESIDENTIAL_BUILDING: return new ResidentialBuilding("house", building.getTexture(), 5, new Vector2i(0, -1));
+            case DEFAULT_SERVICE_BUILDING: return new ServiceBuilding("hospital", building.getTexture(), Jobs.DOCTOR, Services.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+            case DEFAULT_STORAGE_BUILDING: return new StorageBuilding("storage", building.getTexture());
+            case BIG: return new Building("fungi", building.getTexture());
+            case CONSTRUCTION_OFFICE: return new ProductionBuilding("construction office", building.getTexture(), Jobs.BUILDER, 5, new Vector2i(0, -1));
             default: return new Building("fungus", Textures.getBuilding("fungus"));
         }
     }

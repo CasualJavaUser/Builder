@@ -18,8 +18,8 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
-    private static int[] storage = new int[Resources.values().length];
-    private static int[] maxStorage = new int[Resources.values().length];
+    private static final int[] storage = new int[Resources.values().length];
+    private static final int[] maxStorage = new int[Resources.values().length];
 
     private static Tiles.Types[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
@@ -33,6 +33,7 @@ public class World {
         World.worldSize = worldSize;
         tiles = new Tiles.Types[worldSize.x * worldSize.y];
         resetNavigable(worldSize);
+        placeBuilding(Buildings.Types.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
         //initNPCs();
     }
 

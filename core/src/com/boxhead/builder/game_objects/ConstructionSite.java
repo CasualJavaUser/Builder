@@ -4,12 +4,15 @@ import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ConstructionSite extends EnterableBuilding implements FieldWork {
     private int progress = 0;
-    private final int totalLabour;
+    private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private final Buildings.Types buildingType;
-    private final NPC[] assigned = new NPC[4];
-    private int assignedCount = 0, currentlyWorking = 0;
+    private int currentlyWorking = 0;
+    private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
     public ConstructionSite(String name, Buildings.Types building, int totalLabour) {
         super(name, building.getTexture(), new Vector2i(0, -1));   //todo add texture to buildings atlas
@@ -24,30 +27,20 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
 
     @Override
     public boolean assignWorker(NPC npc) {
-        for (int i = 0; i < assigned.length; i++) {
-            if (assigned[i] == null) {
-                assigned[i] = npc;
-                assignedCount++;
-                return true;
-            }
+        if (assigned.size() < 4) {
+            return assigned.add(npc);
         }
         return false;
     }
 
     @Override
     public void dissociateWorker(NPC npc) {
-        for (int i = 0; i < assigned.length; i++) {
-            if (assigned[i] == npc) {
-                assigned[i] = null;
-                assignedCount--;
-                return;
-            }
-        }
+        assigned.remove(npc);
     }
 
     @Override
     public boolean isFree() {
-        return assignedCount < assigned.length;
+        return assigned.size() < capacity;
     }
 
     @Override
@@ -69,12 +62,9 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
 
     @Override
     public void setWork(NPC npc, boolean b) {
-        for (NPC employee : assigned) {
-            if (npc == employee) {
-                if (b) currentlyWorking++;
-                else currentlyWorking--;
-                return;
-            }
+        if (assigned.contains(npc)) {
+            if (b) currentlyWorking++;
+            else currentlyWorking--;
         }
     }
 }

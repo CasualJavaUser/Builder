@@ -5,11 +5,14 @@ import com.boxhead.builder.Jobs;
 import com.boxhead.builder.Services;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ServiceBuilding extends ProductionBuilding {
 
     private final Services service;
-    private int guestCapacity, guestsInside;
-    private NPC[] guests;
+    private final int guestCapacity;
+    private final Set<NPC> guests;
     private int serviceCounter, serviceInterval;
 
     public ServiceBuilding(String name, TextureRegion texture, Jobs job, Services service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
@@ -17,7 +20,7 @@ public class ServiceBuilding extends ProductionBuilding {
         this.service = service;
         this.guestCapacity = guestCapacity;
         this.serviceInterval = serviceInterval;
-        guests = new NPC[guestCapacity];
+        guests = new HashSet<>(guestCapacity, 1f);
     }
 
     /**
@@ -27,16 +30,7 @@ public class ServiceBuilding extends ProductionBuilding {
      * @return true if the array of guests changed as a result of the call
      */
     public boolean removeGuest(NPC npc) {
-        if (guestsInside > 0) {
-            for (int i = 0; i < guests.length; i++) {
-                if (guests[i] == npc) {
-                    guests[i] = null;
-                    guestsInside--;
-                    return true;
-                }
-            }
-        }
-        return false;
+        return guests.remove(npc);
     }
 
     /**
@@ -46,14 +40,8 @@ public class ServiceBuilding extends ProductionBuilding {
      * @return true if the array of guests changed as a result of the call
      */
     public boolean addGuest(NPC npc) {
-        if (guestsInside < guestCapacity) {
-            for (int i = 0; i < guests.length; i++) {
-                if (guests[i] == null) {
-                    guests[i] = npc;
-                    guestsInside++;
-                    return true;
-                }
-            }
+        if (guests.size() < guestCapacity) {
+            return guests.add(npc);
         }
         return false;
     }
@@ -61,7 +49,7 @@ public class ServiceBuilding extends ProductionBuilding {
     public void provideServices() {
         for (NPC guest : guests) {
             if (guest != null) {
-                service.applyEffects(guest.getStats(), employeesInside);
+                service.applyEffects(guest.getStats(), super.employeesInside);
             }
         }
     }
@@ -82,6 +70,6 @@ public class ServiceBuilding extends ProductionBuilding {
     }
 
     public int getGuestsInside() {
-        return guestsInside;
+        return guests.size();
     }
 }
