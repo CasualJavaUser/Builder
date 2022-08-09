@@ -55,10 +55,7 @@ public class Vector2i implements Cloneable {
 
     @Override
     public int hashCode() {
-        int result;
-        result = 13 + Float.floatToIntBits((float) x);
-        result = 13 * result + Float.floatToIntBits((float) y);
-        return result;
+        return x << 16 | y;
     }
 
     @Override

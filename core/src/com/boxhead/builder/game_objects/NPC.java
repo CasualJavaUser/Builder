@@ -56,6 +56,7 @@ public class NPC extends GameObject implements Clickable {
 
     public void navigateTo(Vector2i gridTile) {
         alignSprite();
+        path = null;
         executor.submit(() -> {
             path = Pathfinding.findPath(gridPosition, gridTile);
             pathStep = 0;
@@ -65,20 +66,20 @@ public class NPC extends GameObject implements Clickable {
 
     public void navigateTo(EnterableBuilding building) {
         alignSprite();
+        path = null;
         executor.submit(() -> {
             if (building != null) {
                 path = Pathfinding.findPath(gridPosition, building.getEntrancePosition());
                 path[path.length - 1] = building.getGridPosition();
                 pathStep = 0;
-            } else {
-                path = null;
+                nextStep = stepInterval;
             }
-            nextStep = stepInterval;
         });
     }
 
     public void navigateTo(Object interest) {
         alignSprite();
+        path = null;
         Vector2i destination = null;
         EnterableBuilding enterable = null;
         for (Building building : World.getBuildings()) {
@@ -338,21 +339,20 @@ public class NPC extends GameObject implements Clickable {
 
     public static class Pathfinding {
 
-        public static Vector2i[] findPath(Vector2i start, Vector2i destination) {     //Dijkstra's algorithm
+        public static Vector2i[] findPath(final Vector2i start, final Vector2i destination) {     //Dijkstra's algorithm
             if (start.equals(destination) || !World.getNavigableTiles().contains(start)) {
                 return new Vector2i[]{start, start};
             }
             HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
-            HashMap<Vector2i, Double> distanceToTile = new HashMap<>();
+            HashMap<Vector2i, Double> distanceToTile = new HashMap<>(unvisitedTiles.size(), 1f);
             HashMap<Vector2i, Vector2i> parentTree = new HashMap<>();
-            for (Vector2i tile : World.getNavigableTiles()) {
+            for (Vector2i tile : unvisitedTiles) {
                 distanceToTile.put(tile, Double.MAX_VALUE);
             }
-            distanceToTile.remove(start);
-            distanceToTile.put(start, 0d);
+            distanceToTile.replace(start, 0d);
 
             int x = start.x, y = start.y;
-            Vector2i currentTile = new Vector2i(x, y);
+            Vector2i currentTile = start.clone();
             Vector2i tempTile;
 
             while (!currentTile.equals(destination)) {
@@ -400,7 +400,7 @@ public class NPC extends GameObject implements Clickable {
             }
 
             int totalDistance = 1;
-            while (currentTile.hashCode() != start.hashCode()) {    //todo fix NPE
+            while (currentTile.hashCode() != start.hashCode()) {
                 currentTile = parentTree.get(currentTile);
                 totalDistance++;
             }
@@ -422,8 +422,7 @@ public class NPC extends GameObject implements Clickable {
                                          Vector2i tempTile,
                                          double distance) {
             if (unvisitedTiles.contains(tempTile) && distanceToTile.get(tempTile) > distanceToTile.get(currentTile) + distance) {
-                distanceToTile.remove(tempTile);
-                distanceToTile.put(tempTile, distanceToTile.get(currentTile) + distance);
+                distanceToTile.replace(tempTile, distanceToTile.get(currentTile) + distance);
                 parentTree.remove(tempTile);
                 parentTree.put(tempTile, currentTile);
             }
