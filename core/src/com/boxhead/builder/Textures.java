@@ -8,68 +8,68 @@ import java.util.HashMap;
 public class Textures {
     private static TextureAtlas buildingAtlas;
     private static TextureAtlas tileAtlas;
-    private static TextureAtlas UIAtlas;
+    private static TextureAtlas uiAtlas;
     private static TextureAtlas npcAtlas;
     private static TextureAtlas resourceAtlas;
 
-    private static HashMap<String, TextureRegion> buildings;
-    private static HashMap<String, TextureRegion> tiles;
-    private static HashMap<String, TextureRegion> ui;
-    private static HashMap<String, TextureRegion> npcs;
-    private static HashMap<String, TextureRegion> resources;
+    private static final HashMap<TextureId, TextureRegion> textures = new HashMap<>();
 
     public static void initTextures() {
         buildingAtlas = new TextureAtlas("buildings.atlas");
         tileAtlas = new TextureAtlas("tiles.atlas");
-        UIAtlas = new TextureAtlas("ui.atlas");
+        uiAtlas = new TextureAtlas("ui.atlas");
         npcAtlas = new TextureAtlas("npcs.atlas");
         //resourceAtlas = new TextureAtlas("resources.atlas");  //TODO make resource.atlas
 
-        buildings = new HashMap<>();
-        tiles = new HashMap<>();
-        ui = new HashMap<>();
-        npcs = new HashMap<>();
-        resources = new HashMap<>();
+        loadTextures(buildingAtlas, Building.values());
+        loadTextures(tileAtlas, Tile.values());
+        loadTextures(uiAtlas, Ui.values());
+        loadTextures(npcAtlas, Npc.values());
 
-        for (TextureAtlas.AtlasRegion ar : buildingAtlas.getRegions()) {
-            buildings.put(ar.name, ar);
-        }
-        for (TextureAtlas.AtlasRegion ar : tileAtlas.getRegions()) {
-            tiles.put(ar.name, ar);
-        }
-        for (TextureAtlas.AtlasRegion ar : UIAtlas.getRegions()) {
-            ui.put(ar.name, ar);
-        }
-        for (TextureAtlas.AtlasRegion ar : npcAtlas.getRegions()) {
-            npcs.put(ar.name, ar);
-        }
-        for (Resources resource : Resources.values()) {
-            resources.put(resource.toString().toLowerCase(), getTile("dirt"));  //TODO temp solution
+        for (Resource resource : Resource.values()) {
+            textures.put(resource, get(Tile.DIRT));  //TODO temp solution
         }
     }
 
-    public static TextureRegion getBuilding(String name) {
-        if (buildings.get(name) != null) return buildings.get(name);
-        else return buildings.get("fungus");
+    public static TextureRegion get(TextureId textureId) {
+        if (textures.containsKey(textureId)) {
+            return textures.get(textureId);
+        } else {
+            throw new IllegalArgumentException("Texture not found: " + textureId);
+        }
     }
 
-    public static TextureRegion getTile(String name) {
-        if (tiles.get(name) != null) return tiles.get(name);
-        else return tiles.get("default");
+    private static void loadTextures(TextureAtlas textureAtlas, TextureId[] textureIds) {
+        for (TextureId textureId : textureIds) {
+            TextureAtlas.AtlasRegion atlasRegion = textureAtlas.findRegion(textureId.name().toLowerCase());
+            if (atlasRegion == null) {
+                throw new IllegalStateException("Texture '" + textureId.name().toLowerCase() + "' not found in texture atlas");
+            }
+            textures.put(textureId, atlasRegion);
+        }
     }
 
-    public static TextureRegion getUI(String name) {
-        if (ui.get(name) != null) return ui.get(name);
-        else return ui.get("house");
+    private interface TextureId {
+        String name();
     }
 
-    public static TextureRegion getNPC(String name) {
-        if (npcs.get(name) != null) return npcs.get(name);
-        else return npcs.get("funguy");
+    public enum Building implements TextureId {
+        FUNGI, FUNGUS, HOUSE_FUNGUS, SERVICE_FUNGUS, WORK_FUNGUS
     }
 
-    public static TextureRegion getResource(String name) {
-        if (resources.get(name) != null) return resources.get(name);
-        else return npcs.get("funguy");
+    public enum Tile implements TextureId {
+        DEFAULT, DIRT, GRASS
+    }
+
+    public enum Npc implements TextureId {
+        FUNGUY
+    }
+
+    public enum Ui implements TextureId {
+        CLOCK_FACE, CLOSE_BUTTON, FUNGUS, HOME, HOUR_HAND, HOUSE, MINUTE_HAND, NPC, SERVICE, STAT_WINDOW, WORKPLACE
+    }
+
+    public enum Resource implements TextureId {
+        NOTHING, WOOD, IRON, COAL, STEEL, TOOLS
     }
 }

@@ -176,6 +176,6 @@ public class World {
     }
 
     private static void initNPCs() {
-        spawnNPC(new NPC(Textures.getNPC("funguy"), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+        spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
     }
 }

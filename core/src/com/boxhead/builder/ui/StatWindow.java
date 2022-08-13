@@ -9,7 +9,7 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     protected boolean pinned;
 
     public StatWindow() {
-        super(Textures.getUI("stat_window"));
+        super(Textures.get(Textures.Ui.STAT_WINDOW));
     }
 
     public void show(T gameObject) {

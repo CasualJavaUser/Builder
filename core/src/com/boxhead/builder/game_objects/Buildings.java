@@ -14,47 +14,48 @@ public class Buildings {
     private static Types currentBuilding = null;
 
     public enum Types {
-        DEFAULT_PRODUCTION_BUILDING,
-        DEFAULT_RESIDENTIAL_BUILDING,
-        DEFAULT_SERVICE_BUILDING,
-        DEFAULT_STORAGE_BUILDING,
-        BIG,
-        CONSTRUCTION_OFFICE;
+        DEFAULT_PRODUCTION_BUILDING(Textures.get(Textures.Building.WORK_FUNGUS)),
+        DEFAULT_RESIDENTIAL_BUILDING(Textures.get(Textures.Building.HOUSE_FUNGUS)),
+        DEFAULT_SERVICE_BUILDING(Textures.get(Textures.Building.SERVICE_FUNGUS)),
+        DEFAULT_STORAGE_BUILDING(Textures.get(Textures.Building.SERVICE_FUNGUS)), //TODO temp texture
+        BIG(Textures.get(Textures.Building.FUNGI)),
+        CONSTRUCTION_OFFICE(Textures.get(Textures.Building.FUNGUS));
 
-        public TextureRegion getTexture() {
-            switch (this) {
-                case DEFAULT_PRODUCTION_BUILDING: return Textures.getBuilding("work_fungus");
-                case DEFAULT_RESIDENTIAL_BUILDING: return Textures.getBuilding("house_fungus");
-                case DEFAULT_SERVICE_BUILDING: return Textures.getBuilding("service_fungus");
-                case DEFAULT_STORAGE_BUILDING: return Textures.getBuilding("service_fungus");  //TODO temp texture
-                case BIG: return Textures.getBuilding("fungi");
-                case CONSTRUCTION_OFFICE: return Textures.getBuilding("fungus");
-                default: return Textures.getBuilding("fungus");
-            }
+        public final TextureRegion texture;
+
+        Types(TextureRegion texture) {
+            this.texture = texture;
         }
     }
 
     public static Building get(Types building) {
         switch (building) {
-            case DEFAULT_PRODUCTION_BUILDING: return new ProductionBuilding("lumber mill", building.getTexture(), Jobs.LUMBERJACK, 1, new Vector2i(0, -1), 100);
-            case DEFAULT_RESIDENTIAL_BUILDING: return new ResidentialBuilding("house", building.getTexture(), 5, new Vector2i(0, -1));
-            case DEFAULT_SERVICE_BUILDING: return new ServiceBuilding("hospital", building.getTexture(), Jobs.DOCTOR, Services.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
-            case DEFAULT_STORAGE_BUILDING: return new StorageBuilding("storage", building.getTexture());
-            case BIG: return new Building("fungi", building.getTexture());
-            case CONSTRUCTION_OFFICE: return new ProductionBuilding("construction office", building.getTexture(), Jobs.BUILDER, 5, new Vector2i(0, -1));
-            default: return new Building("fungus", Textures.getBuilding("fungus"));
+            case DEFAULT_PRODUCTION_BUILDING:
+                return new ProductionBuilding("lumber mill", building.texture, Jobs.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+            case DEFAULT_RESIDENTIAL_BUILDING:
+                return new ResidentialBuilding("house", building.texture, 5, new Vector2i(0, -1));
+            case DEFAULT_SERVICE_BUILDING:
+                return new ServiceBuilding("hospital", building.texture, Jobs.DOCTOR, Services.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+            case DEFAULT_STORAGE_BUILDING:
+                return new StorageBuilding("storage", building.texture);
+            case BIG:
+                return new Building("fungi", building.texture);
+            case CONSTRUCTION_OFFICE:
+                return new ProductionBuilding("construction office", building.texture, Jobs.BUILDER, 5, new Vector2i(0, -1));
+            default:
+                throw new IllegalArgumentException("Unknown building type: " + building);
         }
     }
 
     public static void placeBuilding(SpriteBatch batch) {
-        TextureRegion texture = currentBuilding.getTexture();
+        TextureRegion texture = currentBuilding.texture;
         Vector3 mousePos = BuilderGame.getGameScreen().getCamera().unproject(BuilderGame.getGameScreen().getMouseScreenPos());
 
-        int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2,
-                mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
+        int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
+        int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
 
-        int posX = mouseX - (mouseX % World.TILE_SIZE),
-                posY = mouseY - (mouseY % World.TILE_SIZE);
+        int posX = mouseX - (mouseX % World.TILE_SIZE);
+        int posY = mouseY - (mouseY % World.TILE_SIZE);
 
         batch.setColor(UI.SEMI_TRANSPARENT);
         batch.draw(texture, posX, posY);

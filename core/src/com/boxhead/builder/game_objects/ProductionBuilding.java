@@ -96,14 +96,14 @@ public class ProductionBuilding extends EnterableBuilding {
                     }
                     indicator.setVisible(false);
                 } else {
-                    if (availability == -1) indicator.setTexture(Textures.getTile("grass"));  //TODO temp textures
-                    else indicator.setTexture(Textures.getTile("dirt"));
+                    if (availability == -1) indicator.setTexture(Textures.get(Textures.Tile.GRASS));  //TODO temp textures
+                    else indicator.setTexture(Textures.get(Textures.Tile.DIRT));
                     indicator.setVisible(true);
                     storage = getClosestStorage();
                 }
             } else {
                 availability = 2;  //availability is set to 2 so that the appropriate information can be displayed in the BuildingStatWindow.
-                indicator.setTexture(Textures.getTile("default"));
+                indicator.setTexture(Textures.get(Textures.Tile.DEFAULT));
                 indicator.setVisible(true);
                 storage = getClosestStorage();
             }
