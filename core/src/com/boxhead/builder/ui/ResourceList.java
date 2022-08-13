@@ -2,6 +2,7 @@ package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Resources;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
@@ -13,16 +14,18 @@ public class ResourceList extends UIElement {
     public ResourceList() {
         super(null, new Vector2i(20, Gdx.graphics.getHeight() - 20), true);
         for (int i = 0; i < labels.length; i++) {
-            labels[i] = new Label(Textures.getResource(Resources.values()[i].toString().toLowerCase()),
-                                  new Vector2i(position.x, position.y + 20 * i));
+            TextureRegion texture = getResourcesTexture(Resources.values()[i]);
+            Vector2i labelPosition = new Vector2i(position.x, position.y + 20 * i);
+
+            labels[i] = new Label(texture, labelPosition);
         }
     }
 
     public void updateData() {
         int i = 0, j = labels.length - 1;
-        for(Resources resource : Resources.values()) {
+        for (Resources resource : Resources.values()) {
             if (World.getStored(resource) != 0) {
-                labels[i].setTexture(Textures.getResource(resource.toString().toLowerCase()));
+                labels[i].setTexture(getResourcesTexture(resource));
                 labels[i].setText(World.getStored(resource) + " / " + World.getMaxStorage(resource));
                 labels[i].setVisible(true);
                 i++;
@@ -35,7 +38,7 @@ public class ResourceList extends UIElement {
 
     @Override
     public void draw(SpriteBatch batch) {
-        for(Label label : labels) {
+        for (Label label : labels) {
             if (label.isVisible()) label.draw(batch);
         }
     }
@@ -43,8 +46,13 @@ public class ResourceList extends UIElement {
     @Override
     public void setPosition(int x, int y) {
         super.setPosition(x, y);
-        for(int i = 0; i < labels.length; i++) {
+        for (int i = 0; i < labels.length; i++) {
             labels[i].setPosition(position.x, position.y + 20 * i);
         }
+    }
+
+    private TextureRegion getResourcesTexture(Resources resources) {
+        String resourceName = resources.toString().toUpperCase();
+        return Textures.get(Textures.Resource.valueOf(resourceName));
     }
 }

@@ -26,58 +26,58 @@ public class UI {
 
     private static ResourceList resourceList;
 
-    private static TextureRegion clockTexture = Textures.getUI("clock_face");
+    private static TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
     private static Vector2i clockPos;
 
     private static UIElement[][] layers;
 
     public static void initUI() {
-        buildingButton = new Button(Textures.getUI("house"), new Vector2i(10, 10)) {
+        buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), new Vector2i(10, 10)) {
             @Override
             public void onClick() {
                 buildingMenu.setVisible(!buildingMenu.isVisible());
             }
         };
-        npcButton = new Button(Textures.getUI("npc"), new Vector2i(84, 10)) {
+        npcButton = new Button(Textures.get(Textures.Ui.NPC), new Vector2i(84, 10)) {
             @Override
             public void onClick() {
-                World.spawnNPC(new NPC(Textures.getNPC("funguy"), new Vector2i(World.getGridWidth()/2, World.getGridHeight()/2)));
+                World.spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), new Vector2i(World.getGridWidth()/2, World.getGridHeight()/2)));
             }
         };
-        fungusButton = new Button(Textures.getUI("fungus"), new Vector2i(158, 10)) {
+        fungusButton = new Button(Textures.get(Textures.Ui.FUNGUS), new Vector2i(158, 10)) {
             @Override
             public void onClick() {
                 World.setTime(25170);
             }
         };
-        fungusButton2 = new Button(Textures.getUI("fungus"), new Vector2i(232, 10)) {
+        fungusButton2 = new Button(Textures.get(Textures.Ui.FUNGUS), new Vector2i(232, 10)) {
             @Override
             public void onClick() {
                 World.setTime(57570);
             }
         };
-        homeButton = new Button(Textures.getUI("home"), new Vector2i(10, 84)) {
+        homeButton = new Button(Textures.get(Textures.Ui.HOME), new Vector2i(10, 84)) {
             @Override
             public void onClick() {
                 Buildings.build(Buildings.Types.DEFAULT_RESIDENTIAL_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
-        workplaceButton = new Button(Textures.getUI("workplace"), new Vector2i(84, 84)) {
+        workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), new Vector2i(84, 84)) {
             @Override
             public void onClick() {
                 Buildings.build(Buildings.Types.DEFAULT_PRODUCTION_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
-        serviceButton = new Button(Textures.getUI("service"), new Vector2i(158, 84)) {
+        serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), new Vector2i(158, 84)) {
             @Override
             public void onClick() {
                 Buildings.build(Buildings.Types.DEFAULT_SERVICE_BUILDING);
                 buildingMenu.setVisible(false);
             }
         };
-        storageButton = new Button(Textures.getUI("workplace"), new Vector2i(232, 84)) {
+        storageButton = new Button(Textures.get(Textures.Ui.WORKPLACE), new Vector2i(232, 84)) {
             @Override
             public void onClick() {
                 Buildings.build(Buildings.Types.DEFAULT_STORAGE_BUILDING);
@@ -93,11 +93,11 @@ public class UI {
 
         resourceList = new ResourceList();
 
-        clockTexture = Textures.getUI("clock_face");
+        clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
         clockPos = new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10, Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10);
         clock = new UIElement(clockTexture, clockPos, true);
-        minuteHand = new UIElement(Textures.getUI("minute_hand"), clockPos, true);
-        hourHand = new UIElement(Textures.getUI("hour_hand"), clockPos, true);
+        minuteHand = new UIElement(Textures.get(Textures.Ui.MINUTE_HAND), clockPos, true);
+        hourHand = new UIElement(Textures.get(Textures.Ui.HOUR_HAND), clockPos, true);
 
         mainMenu.setVisible(true);
 

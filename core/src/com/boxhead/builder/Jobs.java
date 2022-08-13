@@ -5,24 +5,24 @@ import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.utils.Pair;
 
 public enum Jobs {
-    UNEMPLOYED(null, new Pair<>(Resources.NOTHING, 0)),
+    UNEMPLOYED(null, Pair.of(Resources.NOTHING, 0)),
     LUMBERJACK(Harvestable.Types.TREE,
-            new Pair<>(Resources.WOOD, 1)),
+            Pair.of(Resources.WOOD, 1)),
     MINER_IRON(Harvestable.Types.IRON_ORE,
-            new Pair<>(Resources.IRON, 1)),
+            Pair.of(Resources.IRON, 1)),
     BUILDER(ConstructionSite.class,
-            new Pair<>(Resources.NOTHING, 0)),
+            Pair.of(Resources.NOTHING, 0)),
     SMELTER(null,
-            new Pair<>(Resources.STEEL, 3),
-            new Pair<>(Resources.IRON, -3),
-            new Pair<>(Resources.COAL, -1)),
+            Pair.of(Resources.STEEL, 3),
+            Pair.of(Resources.IRON, -3),
+            Pair.of(Resources.COAL, -1)),
     BLACKSMITH_IRON(null,
-            new Pair<>(Resources.TOOLS, 1),
-            new Pair<>(Resources.IRON, -2)),
+            Pair.of(Resources.TOOLS, 1),
+            Pair.of(Resources.IRON, -2)),
     BLACKSMITH_STEEL(null,
-            new Pair<>(Resources.TOOLS, 1),
-            new Pair<>(Resources.STEEL, -1)),
-    DOCTOR(null, new Pair<>(Resources.NOTHING, 0));
+            Pair.of(Resources.TOOLS, 1),
+            Pair.of(Resources.STEEL, -1)),
+    DOCTOR(null, Pair.of(Resources.NOTHING, 0));
 
     private final Resources[] resources;
     private final int[] change;

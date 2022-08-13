@@ -4,7 +4,7 @@ import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.utils.Pair;
 
 public enum Services {
-    HEAL(new Pair<>(NPC.Stats.HEALTH, 1));
+    HEAL(Pair.of(NPC.Stats.HEALTH, 1));
 
     private final NPC.Stats[] stats;
     private final int[] effect;

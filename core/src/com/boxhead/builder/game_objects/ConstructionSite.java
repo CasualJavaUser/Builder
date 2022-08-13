@@ -15,7 +15,7 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
     private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
     public ConstructionSite(String name, Buildings.Types building, int totalLabour) {
-        super(name, building.getTexture(), new Vector2i(0, -1));   //todo add texture to buildings atlas
+        super(name, building.texture, new Vector2i(0, -1));   //todo add texture to buildings atlas
         this.buildingType = building;
         this.totalLabour = totalLabour;
     }
