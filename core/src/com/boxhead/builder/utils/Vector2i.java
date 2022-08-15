@@ -35,6 +35,10 @@ public class Vector2i implements Cloneable {
         return new Vector2i(x + vector.x, y + vector.y);
     }
 
+    public Vector2i addScalar(int x, int y) {
+        return new Vector2i(this.x + x, this.y + y);
+    }
+
     public double distance(Vector2i vector) {
         return Math.sqrt(Math.pow(x - vector.x, 2d) + Math.pow(y - vector.y, 2d));
     }

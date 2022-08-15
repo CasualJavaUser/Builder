@@ -28,11 +28,7 @@ public class ResidentialBuilding extends EnterableBuilding {
         return residents.remove(npc);
     }
 
-    public int getResidentCapacity() {
-        return residentCapacity;
-    }
-
-    public int getResidentCount() {
-        return residents.size();
+    public boolean hasFreePlaces() {
+        return residents.size() < residentCapacity;
     }
 }

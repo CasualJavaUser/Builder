@@ -6,7 +6,9 @@ import com.boxhead.builder.*;
 import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ProductionBuilding extends EnterableBuilding {
@@ -14,6 +16,7 @@ public class ProductionBuilding extends EnterableBuilding {
     protected int jobQuality = 0;
     protected int employeeCapacity, employeesInside = 0;
     protected final Set<NPC> employees;
+    protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
     protected StorageBuilding storage = null;
     protected UIElement indicator;
@@ -27,6 +30,11 @@ public class ProductionBuilding extends EnterableBuilding {
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
         employees = new HashSet<>(employeeCapacity, 1f);
+        if (job.getPoI() != null) {
+            assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
+        } else {
+            assignedFieldWork = null;
+        }
         indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
@@ -38,6 +46,11 @@ public class ProductionBuilding extends EnterableBuilding {
         this.job = job;
         this.employeeCapacity = employeeCapacity;
         employees = new HashSet<>(employeeCapacity, 1f);
+        if (job.getPoI() != null) {
+            assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
+        } else {
+            assignedFieldWork = null;
+        }
         indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
@@ -76,10 +89,14 @@ public class ProductionBuilding extends EnterableBuilding {
         employeesInside--;
     }
 
+    public boolean isHiring() {
+        return employees.size() < employeeCapacity;
+    }
+
     public void produceResources() {
         if (job.getPoI() != null) {
             for (NPC employee : employees) {
-                if (employee != null && employee.isInBuilding() && gridPosition.equals(employee.getGridPosition())) {
+                if (employee != null && gridPosition.equals(employee.getGridPosition())) {
                     sendEmployee(employee);
                 }
             }
@@ -96,7 +113,8 @@ public class ProductionBuilding extends EnterableBuilding {
                     }
                     indicator.setVisible(false);
                 } else {
-                    if (availability == -1) indicator.setTexture(Textures.get(Textures.Tile.GRASS));  //TODO temp textures
+                    if (availability == -1)
+                        indicator.setTexture(Textures.get(Textures.Tile.GRASS));  //TODO temp textures
                     else indicator.setTexture(Textures.get(Textures.Tile.DIRT));
                     indicator.setVisible(true);
                     storage = getClosestStorage();
@@ -111,29 +129,39 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     protected void sendEmployee(NPC npc) {
-        if (findPoI() != null) {
-            npc.exitBuilding();
-            npc.navigateTo(job.getPoI());
-            npc.setDestination(NPC.Pathfinding.Destination.FIELD_WORK);
+        FieldWork fieldWork = findPoI();
+        if (fieldWork != null) {
+            fieldWork.assignWorker(npc);
+            assignedFieldWork.put(npc, fieldWork);
+            npc.giveOrder(NPC.Order.Type.EXIT, this);
+            npc.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
+            npc.giveOrder(NPC.Order.Type.ENTER, fieldWork);
         }
     }
 
-    public void recallEmployees() {
-        for (NPC employee : employees) {
-            if (employee == null) continue;
+    public void dissociateFieldWork(NPC employee) {
+        assignedFieldWork.remove(employee);
+    }
 
-            if (employee.getDestination() == NPC.Pathfinding.Destination.FIELD_WORK) {
-                FieldWork harvestable = Harvestable.getByCoordinates(employee.getDestinationTile());
-                if (harvestable != null) {
-                    harvestable.dissociateWorker(employee);
+    public void endWorkday() {
+        if (job.getPoI() == null) {
+            for (NPC employee : employees) {
+                employee.giveOrder(NPC.Order.Type.EXIT, this);
+                employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());
+            }
+        } else {
+            for (NPC employee : employees) {
+                employee.clearOrderQueue();
+                if (assignedFieldWork.containsKey(employee)) {
+                    employee.giveOrder(NPC.Order.Type.EXIT, assignedFieldWork.get(employee));
+                    assignedFieldWork.remove(employee);
                 } else {
-                    EnterableBuilding building = EnterableBuilding.getByCoordinates(employee.getDestinationTile());
-                    if (building instanceof FieldWork) {
-                        ((FieldWork) building).dissociateWorker(employee);
-                    }
+                    employee.giveOrder(NPC.Order.Type.EXIT, this);
                 }
-                employee.navigateTo(employee.getHome());
-                employee.setDestination(NPC.Pathfinding.Destination.HOME);
+                if (employee.getHome() != null) {
+                    employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());
+                    employee.giveOrder(NPC.Order.Type.ENTER, employee.getHome());
+                }
             }
         }
     }
@@ -150,14 +178,6 @@ public class ProductionBuilding extends EnterableBuilding {
             }
         }
         return null;    //no FieldWork available
-    }
-
-    public int getEmployeeCapacity() {
-        return employeeCapacity;
-    }
-
-    public int getEmployeeCount() {
-        return employees.size();
     }
 
     public Jobs getJob() {

@@ -1,9 +1,10 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.WorldObject;
 import com.boxhead.builder.utils.Vector2i;
 
-public class GameObject {
+public class GameObject implements WorldObject {
     protected final Vector2i gridPosition;
     protected TextureRegion texture;
 
@@ -12,6 +13,7 @@ public class GameObject {
         this.texture = texture;
     }
 
+    @Override
     public Vector2i getGridPosition() {
         return gridPosition;
     }

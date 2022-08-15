@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resources;
 import com.boxhead.builder.World;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 public class Harvestable extends GameObject implements FieldWork {
@@ -11,11 +12,13 @@ public class Harvestable extends GameObject implements FieldWork {
     private int amountLeft;
     private NPC assigned;
     private boolean worked;
+    private final BoxCollider collider;
 
     public Harvestable(TextureRegion texture, Vector2i gridPosition, Harvestable.Types type, int size) {
         super(texture, gridPosition);
         this.type = type;
         amountLeft = size;
+        collider = new BoxCollider(gridPosition, super.texture.getRegionWidth(), super.texture.getRegionHeight());
     }
 
     public static Harvestable getByCoordinates(Vector2i gridPosition) {
@@ -67,11 +70,12 @@ public class Harvestable extends GameObject implements FieldWork {
         }
 
         if (amountLeft <= 0) {
-            World.makeNavigable(gridPosition);
+            World.makeNavigable(collider);
             World.getHarvestables().remove(this);
 
-            assigned.navigateTo(assigned.getWorkplace());
-            assigned.setDestination(NPC.Pathfinding.Destination.WORK);
+            assigned.getWorkplace().dissociateFieldWork(assigned);
+            assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
+            assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
         }
     }
 
@@ -93,5 +97,10 @@ public class Harvestable extends GameObject implements FieldWork {
         public Resources getResource() {
             return resource;
         }
+    }
+
+    @Override
+    public BoxCollider getCollider() {
+        return collider;
     }
 }

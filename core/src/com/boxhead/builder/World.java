@@ -68,6 +68,16 @@ public class World {
         navigableTiles.add(gridPosition);
     }
 
+    public static void makeNavigable(BoxCollider area) {
+        Vector2i tile = new Vector2i();
+        for (int y = 0; y < area.getHeight() / World.TILE_SIZE; y++) {
+            for (int x = 0; x < area.getWidth() / World.TILE_SIZE; x++) {
+                tile.set(x + area.getGridPosition().x, y + area.getGridPosition().y);
+                navigableTiles.add(tile);
+            }
+        }
+    }
+
     public static boolean startConstruction(Buildings.Types type, Vector2i gridPosition) {
         if (navigableTiles.contains(gridPosition)) {
             ConstructionSite site = new ConstructionSite("construction site (" + Buildings.get(type).getName() + ')', type, 100);

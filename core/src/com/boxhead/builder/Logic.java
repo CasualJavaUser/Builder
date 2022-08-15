@@ -23,25 +23,15 @@ public class Logic {
         if (World.getTime() == 25200) {   //7:00
             for (NPC npc : World.getNpcs()) {
                 if (npc.getJob() != Jobs.UNEMPLOYED) {
-                    npc.exitBuilding();
-                    npc.navigateTo(npc.getWorkplace());
-                    npc.setDestination(NPC.Pathfinding.Destination.WORK);
+                    npc.giveOrder(NPC.Order.Type.EXIT);
+                    npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
+                    npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
                 }
             }
         } else if (World.getTime() == 57600) { //16:00
             for (Building building : World.getBuildings()) {
-                if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null) {
-                    ((ProductionBuilding) building).recallEmployees();
-                }
-            }
-
-            for (NPC npc : World.getNpcs()) {
-                if (npc.getJob() != Jobs.UNEMPLOYED && npc.getDestination() != NPC.Pathfinding.Destination.HOME) {
-                    npc.exitBuilding();
-                    if (npc.getHome() != null) {
-                        npc.navigateTo(npc.getHome());
-                        npc.setDestination(NPC.Pathfinding.Destination.HOME);
-                    }
+                if (building instanceof ProductionBuilding) {
+                    ((ProductionBuilding) building).endWorkday();
                 }
             }
         }
@@ -67,7 +57,7 @@ public class Logic {
 
     private static void NPCLife() {
         for (NPC npc : World.getNpcs()) {
-            npc.followPath();
+            npc.executeOrders();
 
             npc.seekJob();
             npc.seekHouse();

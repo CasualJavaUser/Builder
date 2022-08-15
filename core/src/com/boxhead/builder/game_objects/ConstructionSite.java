@@ -2,12 +2,12 @@ package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
-import com.boxhead.builder.utils.Vector2i;
+import com.boxhead.builder.utils.BoxCollider;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ConstructionSite extends EnterableBuilding implements FieldWork {
+public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private final Buildings.Types buildingType;
@@ -15,7 +15,7 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
     private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
     public ConstructionSite(String name, Buildings.Types building, int totalLabour) {
-        super(name, building.texture, new Vector2i(0, -1));   //todo add texture to buildings atlas
+        super(name, building.texture);   //todo add texture to buildings atlas
         this.buildingType = building;
         this.totalLabour = totalLabour;
     }
@@ -53,8 +53,9 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
 
             for (NPC npc : assigned) {
                 if (npc != null) {
-                    npc.navigateTo(npc.getWorkplace());
-                    npc.setDestination(NPC.Pathfinding.Destination.WORK);
+                    npc.getWorkplace().dissociateFieldWork(npc);
+                    npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
+                    npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
                 }
             }
         }
@@ -66,5 +67,10 @@ public class ConstructionSite extends EnterableBuilding implements FieldWork {
             if (b) currentlyWorking++;
             else currentlyWorking--;
         }
+    }
+
+    @Override
+    public BoxCollider getCollider() {
+        return super.collider;
     }
 }
