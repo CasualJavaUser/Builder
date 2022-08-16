@@ -32,8 +32,9 @@ public class World {
     public static void initWorld(Vector2i worldSize) {
         World.worldSize = worldSize;
         tiles = new Tiles.Types[worldSize.x * worldSize.y];
-        resetNavigable(worldSize);
+        resetNavigability(worldSize);
         placeBuilding(Buildings.Types.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
+        makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2 * TILE_SIZE, 2 * TILE_SIZE));
         //initNPCs();
     }
 
@@ -41,7 +42,7 @@ public class World {
         Arrays.fill(tiles, Tiles.Types.DIRT);
     }
 
-    public static void resetNavigable(Vector2i gridDimensions) {
+    public static void resetNavigability(Vector2i gridDimensions) {
         navigableTiles.clear();
         for (int i = 0; i < gridDimensions.x; i++) {
             for (int j = 0; j < gridDimensions.y; j++) {

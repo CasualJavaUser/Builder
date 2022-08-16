@@ -58,31 +58,26 @@ public class ProductionBuilding extends EnterableBuilding {
      * Removes the specified employee from the building.
      *
      * @param npc employee to be removed from the building
-     * @return true if the set of employees changed as a result of the call
      */
-    public boolean removeEmployee(NPC npc) {
-        return employees.remove(npc);
+    public void removeEmployee(NPC npc) {
+        employees.remove(npc);
     }
 
     /**
      * Adds the specified employee to the building.
      *
      * @param npc employee to be added to the building
-     * @return true if the set of employees changed as a result of the call
      */
-    public boolean addEmployee(NPC npc) {
+    public void addEmployee(NPC npc) {
         if (employees.size() < employeeCapacity) {
-            return employees.add(npc);
+            employees.add(npc);
         }
-        return false;
     }
 
-    public boolean employeeEnter(NPC npc) {
+    public void employeeEnter(NPC npc) {
         if (employees.contains(npc)) {
             employeesInside++;
-            return true;
         }
-        return false;
     }
 
     public void employeeExit() {
@@ -96,7 +91,7 @@ public class ProductionBuilding extends EnterableBuilding {
     public void produceResources() {
         if (job.getPoI() != null) {
             for (NPC employee : employees) {
-                if (employee != null && gridPosition.equals(employee.getGridPosition())) {
+                if (employee != null && gridPosition.equals(employee.getGridPosition()) && !assignedFieldWork.containsKey(employee)) {
                     sendEmployee(employee);
                 }
             }

@@ -159,12 +159,12 @@ public class NPC extends GameObject implements Clickable {
         if (path == null || waitingForPath) {
             return false;
         }
-        if (pathStep == path.length - 1) {
-            alignSprite();
-            return true;
-        }
 
         if (nextStep >= STEP_INTERVAL) {
+            if (pathStep == path.length - 1) {
+                alignSprite();
+                return true;
+            }
             if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
                 navigateTo(path[path.length - 1]);
                 return false;

@@ -59,7 +59,7 @@ public class Logic {
         for (NPC npc : World.getNpcs()) {
             npc.executeOrders();
 
-            npc.seekJob();
+            npc.seekJob();  //todo make these into orders
             npc.seekHouse();
         }
     }
