@@ -188,7 +188,7 @@ public class NPC extends GameObject implements Clickable {
     @Override
     public boolean isClicked() {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            Vector3 mousePos = BuilderGame.getGameScreen().getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+            Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
             return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
                     mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
         }

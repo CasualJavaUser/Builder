@@ -10,8 +10,8 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 
 public class Buildings {
-    private static boolean isBuilding = false;
-    private static Types currentBuilding = null;
+    private static boolean isInBuildingMode = false;
+    private static Types currentBuilding;
 
     public enum Types {
         DEFAULT_PRODUCTION_BUILDING(Textures.get(Textures.Building.WORK_FUNGUS)),
@@ -47,9 +47,12 @@ public class Buildings {
         }
     }
 
-    public static void placeBuilding(SpriteBatch batch) {
+    public static void handleBuildingMode(SpriteBatch batch) {
+        if (!isInBuildingMode)
+            throw new IllegalStateException("Not in building mode");
+
         TextureRegion texture = currentBuilding.texture;
-        Vector3 mousePos = BuilderGame.getGameScreen().getCamera().unproject(BuilderGame.getGameScreen().getMouseScreenPos());
+        Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
 
         int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
         int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
@@ -62,21 +65,23 @@ public class Buildings {
         batch.setColor(UI.DEFAULT_COLOR);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            isBuilding = !World.startConstruction(currentBuilding, new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE));
-            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) isBuilding = true;
+            Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
+            boolean constructionStarted = World.startConstruction(currentBuilding, buildingPosition);
+
+            if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                isInBuildingMode = !constructionStarted;
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+            isInBuildingMode = false;
     }
 
-    public static void build(Types building) {
+    public static void toBuildingMode(Types building) {
         currentBuilding = building;
-        isBuilding = true;
+        isInBuildingMode = true;
     }
 
-    public static boolean isBuilding() {
-        return isBuilding;
-    }
-
-    public static void setIsBuilding(boolean isBuilding) {
-        Buildings.isBuilding = isBuilding;
+    public static boolean isInBuildingMode() {
+        return isInBuildingMode;
     }
 }
