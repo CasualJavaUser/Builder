@@ -33,7 +33,7 @@ public class Building extends GameObject implements Clickable {
     @Override
     public boolean isClicked() {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            Vector3 mousePos = BuilderGame.getGameScreen().getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+            Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
             int colliderX = collider.getGridPosition().x;
             int colliderY = collider.getGridPosition().y;
 
