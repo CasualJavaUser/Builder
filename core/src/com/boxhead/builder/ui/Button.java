@@ -6,34 +6,29 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
 
-public abstract class Button extends UIElement implements Clickable {
+public class Button extends UIElement implements Clickable {
 
-    public Button(TextureRegion texture, Vector2i position) {
+    private final OnClick onClick;
+
+    public Button(TextureRegion texture, Vector2i position, OnClick onClick) {
         super(texture, position);
+        this.onClick = onClick;
     }
 
     @Override
     public boolean isClicked() {
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            return x >= position.x && x < (position.x + texture.getRegionWidth()) &&
-                    y >= position.y && y < (position.y) + texture.getRegionHeight();
-        }
-        return false;
+        return Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isMouseOnButton();
     }
 
     @Override
     public boolean isHeld() {
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            return x >= position.x && x < (position.x + texture.getRegionWidth()) &&
-                    y >= position.y && y < (position.y + texture.getRegionHeight());
-        }
-        return false;
+        return Gdx.input.isButtonPressed(Input.Buttons.LEFT) && isMouseOnButton();
     }
 
     @Override
-    public abstract void onClick();
+    public void onClick() {
+        onClick.execute();
+    }
 
     @Override
     public void onHold() {
@@ -46,6 +41,18 @@ public abstract class Button extends UIElement implements Clickable {
         super.draw(batch);
         tint = UI.DEFAULT_COLOR;
         batch.setColor(tint);
+    }
 
+    private boolean isMouseOnButton() {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        return x >= position.x && x < (position.x + texture.getRegionWidth()) &&
+                y >= position.y && y < (position.y + texture.getRegionHeight());
+    }
+
+    @FunctionalInterface
+    public interface OnClick {
+        void execute();
     }
 }
