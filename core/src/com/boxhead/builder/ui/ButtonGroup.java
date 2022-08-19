@@ -4,18 +4,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ButtonGroup extends UIElement implements Clickable {
-    private Button[] buttons;
+    private final Set<Button> buttons;
 
     public ButtonGroup(TextureRegion background, Vector2i position, Button... buttons) {
         super(background, position);
-        this.buttons = buttons;
+        this.buttons = new HashSet<>(Arrays.asList(buttons));
     }
 
     private Button clickedButton() {
         Button clicked = null;
         for (Button button : buttons) {
-            if(button.isClicked()) {
+            if (button.isClicked()) {
                 clicked = button;
                 break;
             }
@@ -26,7 +30,7 @@ public class ButtonGroup extends UIElement implements Clickable {
     private Button buttonHeld() {
         Button held = null;
         for (Button button : buttons) {
-            if(button.isHeld()) {
+            if (button.isHeld()) {
                 held = button;
                 break;
             }

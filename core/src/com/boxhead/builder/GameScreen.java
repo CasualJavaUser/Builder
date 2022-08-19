@@ -17,6 +17,7 @@ import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
+import org.apache.commons.lang3.Range;
 
 public class GameScreen extends InputAdapter implements Screen {
 
@@ -25,10 +26,9 @@ public class GameScreen extends InputAdapter implements Screen {
     private final Viewport viewport;
     private final Matrix4 uiProjection;
 
-    private final float MAX_ZOOM = 1f, MIN_ZOOM = 0.1f,
-            NORMAL_SPEED = 250, FAST_SPEED = 450,
-            SCROLL_SPEED = 50;
-
+    private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
+    private final float NORMAL_SPEED = 250, FAST_SPEED = 450;
+    private final float SCROLL_SPEED = 50;
 
     GameScreen(BuilderGame game) {
         this.game = game;
@@ -72,12 +72,6 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     public void moveCamera(float deltaTime) {
-        final float minCameraX = (float) viewport.getScreenWidth() / 2 * camera.zoom;
-        final float maxCameraX = World.getWidth() - (float) viewport.getScreenWidth() / 2 * camera.zoom;
-
-        final float minCameraY = (float) viewport.getScreenHeight() / 2 * camera.zoom;
-        final float maxCameraY = World.getHeight() - (float) viewport.getScreenHeight() / 2 * camera.zoom;
-
         final float deltaPosition = Gdx.input.isKeyPressed(InputManager.FAST)
                 ? FAST_SPEED * deltaTime
                 : NORMAL_SPEED * deltaTime;
@@ -96,8 +90,8 @@ public class GameScreen extends InputAdapter implements Screen {
             camera.position.y += Gdx.input.getDeltaY() * camera.zoom;
         }
 
-        camera.position.x = inBoundaries(camera.position.x, minCameraX, maxCameraX);
-        camera.position.y = inBoundaries(camera.position.y, minCameraY, maxCameraY);
+        camera.position.x = getCameraXRange().fit(camera.position.x);
+        camera.position.y = getCameraYRange().fit(camera.position.y);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
@@ -122,7 +116,7 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public boolean scrolled(float amountX, float amountY) {
         Vector3 mousePositionBefore = getMousePosition();
-        camera.zoom = inBoundaries(camera.zoom + amountY / SCROLL_SPEED, MIN_ZOOM, MAX_ZOOM);
+        camera.zoom = ZOOM_RANGE.fit(camera.zoom + amountY / SCROLL_SPEED);
         camera.update();
 
         Vector3 mousePositionAfter = getMousePosition();
@@ -178,10 +172,15 @@ public class GameScreen extends InputAdapter implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
     }
 
-    // todo: move to utility class
-    private static float inBoundaries(float value, float min, float max) {
-        float result = Math.min(value, max);
-        result = Math.max(result, min);
-        return result;
+    private Range<Float> getCameraYRange() {
+        final float minCameraY = (float) viewport.getScreenHeight() / 2 * camera.zoom;
+        final float maxCameraY = World.getHeight() - (float) viewport.getScreenHeight() / 2 * camera.zoom;
+        return Range.between(minCameraY, maxCameraY);
+    }
+
+    private Range<Float> getCameraXRange() {
+        final float minCameraX = (float) viewport.getScreenWidth() / 2 * camera.zoom;
+        final float maxCameraX = World.getWidth() - (float) viewport.getScreenWidth() / 2 * camera.zoom;
+        return Range.between(minCameraX, maxCameraX);
     }
 }
