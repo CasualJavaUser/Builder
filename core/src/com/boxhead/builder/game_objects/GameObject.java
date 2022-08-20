@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.WorldObject;
 import com.boxhead.builder.utils.Vector2i;
 
-public class GameObject implements WorldObject {
+public abstract class GameObject implements WorldObject {
     protected final Vector2i gridPosition;
     protected TextureRegion texture;
 

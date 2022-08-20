@@ -14,7 +14,7 @@ public class Textures {
 
     private static final HashMap<TextureId, TextureRegion> textures = new HashMap<>();
 
-    public static void initTextures() {
+    public static void init() {
         buildingAtlas = new TextureAtlas("buildings.atlas");
         tileAtlas = new TextureAtlas("tiles.atlas");
         uiAtlas = new TextureAtlas("ui.atlas");

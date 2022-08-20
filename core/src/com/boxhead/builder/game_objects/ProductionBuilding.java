@@ -60,6 +60,8 @@ public class ProductionBuilding extends EnterableBuilding {
      * @param npc employee to be removed from the building
      */
     public void removeEmployee(NPC npc) {
+        if (!employees.contains(npc))
+            throw new IllegalArgumentException("Employee does not work here");
         employees.remove(npc);
     }
 
@@ -69,6 +71,8 @@ public class ProductionBuilding extends EnterableBuilding {
      * @param npc employee to be added to the building
      */
     public void addEmployee(NPC npc) {
+        if (employees.contains(npc))
+            throw new IllegalArgumentException("Employee already works here");
         if (employees.size() < employeeCapacity) {
             employees.add(npc);
         }

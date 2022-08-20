@@ -29,13 +29,28 @@ public class World {
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
 
-    public static void initWorld(Vector2i worldSize) {
+    public static void init(Vector2i worldSize) {
         World.worldSize = worldSize;
         tiles = new Tiles.Types[worldSize.x * worldSize.y];
         resetNavigability(worldSize);
         placeBuilding(Buildings.Types.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
         makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2 * TILE_SIZE, 2 * TILE_SIZE));
         //initNPCs();
+    }
+
+    public static void handleNpcsAndBuildingsOnClick() {
+        for (NPC npc : npcs) {
+            if (npc.isClicked()) {
+                npc.onClick();
+                return;
+            }
+        }
+        for (Building building : buildings) {
+            if (building.isClicked()) {
+                building.onClick();
+                return;
+            }
+        }
     }
 
     public static void generateMap() {

@@ -2,6 +2,7 @@ package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -14,9 +15,7 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,7 +28,6 @@ public class NPC extends GameObject implements Clickable {
 
     private final String name, surname;
     private final int[] stats = new int[Stats.values().length];
-    private Jobs job;
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
     private boolean inBuilding = false;
@@ -53,33 +51,36 @@ public class NPC extends GameObject implements Clickable {
         super(texture, position);
         prevPosition = position;
         spritePosition = position.toVector2();
-        job = Jobs.UNEMPLOYED;
         name = NAMES[(int) (Math.random() * NAMES.length)];
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
     }
 
-    public void seekJob() {
-        ProductionBuilding bestJob = null;
-        int bestQuality = Integer.MIN_VALUE;
-        for (Building building : World.getBuildings()) {
-            if (building instanceof ProductionBuilding && ((ProductionBuilding) building).isHiring() && ((ProductionBuilding) building).getJobQuality() > bestQuality) {
-                bestJob = (ProductionBuilding) building;
-                bestQuality = bestJob.getJobQuality();
-            }
+    public void draw(SpriteBatch batch) {
+        if (!isInBuilding()) {
+            float x = spritePosition.x * World.TILE_SIZE;
+            float y = spritePosition.y * World.TILE_SIZE;
+            batch.draw(texture, x, y);
         }
+    }
 
-        if (bestJob == null) {
-            return; //no free workplaces
-        }
-        if (workplace == null) {
-            bestJob.addEmployee(this);
-            workplace = bestJob;
-            job = workplace.getJob();
-        } else if (bestQuality > workplace.getJobQuality()) {
-            workplace.removeEmployee(this);
-            bestJob.addEmployee(this);
-            workplace = bestJob;
-            job = workplace.getJob();
+    public void seekJob() {
+        Optional<ProductionBuilding> bestJobOptional = World.getBuildings().stream()
+                .filter(building -> building instanceof ProductionBuilding)
+                .map(building -> (ProductionBuilding) building)
+                .filter(ProductionBuilding::isHiring)
+                .max(Comparator.comparing(ProductionBuilding::getJobQuality));
+
+        if (bestJobOptional.isPresent()) {
+            final ProductionBuilding bestJob = bestJobOptional.get();
+
+            if (workplace == null) {
+                bestJob.addEmployee(this);
+                workplace = bestJob;
+            } else if (bestJob.getJobQuality() > workplace.getJobQuality()) {
+                workplace.removeEmployee(this);
+                bestJob.addEmployee(this);
+                workplace = bestJob;
+            }
         }
     }
 
@@ -187,7 +188,7 @@ public class NPC extends GameObject implements Clickable {
 
     @Override
     public boolean isClicked() {
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        if (!isInBuilding() && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
             return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
                     mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
@@ -511,7 +512,10 @@ public class NPC extends GameObject implements Clickable {
     }
 
     public Jobs getJob() {
-        return job;
+        if (workplace == null)
+            return Jobs.UNEMPLOYED;
+        else
+            return workplace.getJob();
     }
 
     public ResidentialBuilding getHome() {
