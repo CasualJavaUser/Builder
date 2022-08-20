@@ -16,28 +16,6 @@ public class ButtonGroup extends UIElement implements Clickable {
         this.buttons = new HashSet<>(Arrays.asList(buttons));
     }
 
-    private Button clickedButton() {
-        Button clicked = null;
-        for (Button button : buttons) {
-            if (button.isClicked()) {
-                clicked = button;
-                break;
-            }
-        }
-        return clicked;
-    }
-
-    private Button buttonHeld() {
-        Button held = null;
-        for (Button button : buttons) {
-            if (button.isHeld()) {
-                held = button;
-                break;
-            }
-        }
-        return held;
-    }
-
     @Override
     public void draw(SpriteBatch batch) {
         for (Button button : buttons) {
@@ -75,15 +53,37 @@ public class ButtonGroup extends UIElement implements Clickable {
 
     @Override
     public void onClick() {
-        if (clickedButton() != null) {
-            clickedButton().onClick();
+        if (getClickedButton() != null) {
+            getClickedButton().onClick();
         }
     }
 
     @Override
     public void onHold() {
-        if (buttonHeld() != null) {
-            buttonHeld().onHold();
+        if (getHeldButton() != null) {
+            getHeldButton().onHold();
         }
+    }
+
+    private Button getClickedButton() {
+        Button clicked = null;
+        for (Button button : buttons) {
+            if (button.isClicked()) {
+                clicked = button;
+                break;
+            }
+        }
+        return clicked;
+    }
+
+    private Button getHeldButton() {
+        Button held = null;
+        for (Button button : buttons) {
+            if (button.isHeld()) {
+                held = button;
+                break;
+            }
+        }
+        return held;
     }
 }

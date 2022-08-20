@@ -12,25 +12,26 @@ import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.*;
+
 public class UI {
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
-
     public static final BitmapFont FONT = new BitmapFont();
+
+    private static final List<Set<UIElement>> layers = new ArrayList<>();
 
     private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, fungusButton, fungusButton2;
     private static ButtonGroup buildingMenu, mainMenu;
+
     private static NPCStatWindow NPCStatWindow;
     private static BuildingStatWindow buildingStatWindow;
 
     private static ResourceList resourceList;
-
     private static Clock clock;
 
-    private static UIElement[][] layers;
-
-    public static void initUI() {
+    public static void init() {
         buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), new Vector2i(10, 10),
                 () -> buildingMenu.setVisible(!buildingMenu.isVisible()));
         npcButton = new Button(Textures.get(Textures.Ui.NPC), new Vector2i(84, 10),
@@ -79,29 +80,26 @@ public class UI {
 
         mainMenu.setVisible(true);
 
-        layers = new UIElement[][]{{NPCStatWindow, buildingStatWindow},
-                {mainMenu, buildingMenu, clock, resourceList}};
+        layers.add(new HashSet<>(Arrays.asList(mainMenu, buildingMenu, clock, resourceList)));
+        layers.add(new HashSet<>(Arrays.asList(NPCStatWindow, buildingStatWindow)));
     }
 
     public static void drawUI(SpriteBatch batch) {
-        for (UIElement[] layer : layers) {
+        for (Set<UIElement> layer : layers) {
             for (UIElement element : layer) {
-                if (element.isVisible()) element.draw(batch);
+                if (element.isVisible()) {
+                    element.draw(batch);
+                }
             }
         }
     }
 
-    /**
-     * Check if any "clickable" UI element was clicked.
-     *
-     * @return true if any UI element was clicked
-     */
-    public static boolean isUIClicked() {
-        for (int i = layers.length - 1; i >= 0; i--) {
-            for (int j = 0; j < layers[i].length; j++) {
-                if (layers[i][j].isVisible() && layers[i][j] instanceof Clickable) {
-                    Clickable element = (Clickable) layers[i][j];
-                    if (element.isHeld() || element.isClicked()) {
+    public static boolean isAnyClickableElementClickedOrHeld() {
+        for (Set<UIElement> layer : layers) {
+            for (UIElement element : layer) {
+                if (element.isVisible() && element instanceof Clickable) {
+                    Clickable clickableElement = (Clickable) element;
+                    if (clickableElement.isClicked() || clickableElement.isHeld()) {
                         return true;
                     }
                 }
@@ -110,17 +108,15 @@ public class UI {
         return false;
     }
 
-    public static void updateUI() {
-        resourceList.updateData();
-        for (int i = layers.length - 1; i >= 0; i--) {
-            for (int j = 0; j < layers[i].length; j++) {
-                if (layers[i][j].isVisible() && layers[i][j] instanceof Clickable) {
-                    Clickable element = (Clickable) layers[i][j];
-                    if (element.isHeld() || element.isClicked()) {
-                        if (element.isClicked()) element.onClick();
-                        if (element.isHeld()) element.onHold();
-                        return;
-                    }
+    public static void handleClickableElementsOnClickAndOnHold() {
+        for (Set<UIElement> layer : layers) {
+            for (UIElement element : layer) {
+                if (element.isVisible() && element instanceof Clickable) {
+                    Clickable clickableElement = (Clickable) element;
+                    if (clickableElement.isClicked())
+                        clickableElement.onClick();
+                    if (clickableElement.isHeld())
+                        clickableElement.onHold();
                 }
             }
         }
@@ -130,24 +126,6 @@ public class UI {
         clock.setPosition(Gdx.graphics.getWidth() - clock.texture.getRegionWidth() - 10,
                 Gdx.graphics.getHeight() - clock.texture.getRegionHeight() - 10);
         resourceList.setPosition(20, Gdx.graphics.getHeight() - 20);
-    }
-
-    /**
-     * Checks if any NPC or building was clicked.
-     */
-    public static void checkObjects() {
-        for (NPC npc : World.getNpcs()) {
-            if (npc.isClicked()) {
-                npc.onClick();
-                return;
-            }
-        }
-        for (Building building : World.getBuildings()) {
-            if (building.isClicked()) {
-                building.onClick();
-                return;
-            }
-        }
     }
 
     public static void showNPCStatWindow(NPC npc) {

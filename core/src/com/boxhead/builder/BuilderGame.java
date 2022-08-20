@@ -8,50 +8,50 @@ import com.boxhead.builder.game_objects.NPC;
 
 public class BuilderGame extends Game {
 
-	private static GameScreen gameScreen;
-	private InputMultiplexer inputMultiplexer;
-	public SpriteBatch batch;
+    private SpriteBatch batch;
+    private static GameScreen gameScreen;
 
-	@Override
-	public void create() {
-		inputMultiplexer = new InputMultiplexer();
-		batch = new SpriteBatch();
-		gameScreen = new GameScreen(this);
+    @Override
+    public void create() {
+        batch = new SpriteBatch();
+        gameScreen = new GameScreen(batch);
 
-		inputMultiplexer.addProcessor(gameScreen);
-		Gdx.input.setInputProcessor(inputMultiplexer);
-		setScreen(gameScreen);
-	}
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(gameScreen);
+        Gdx.input.setInputProcessor(inputMultiplexer);
 
-	@Override
-	public void render() {
-		super.render();
-	}
+        setScreen(gameScreen);
+    }
 
-	@Override
-	public void dispose() {
-		NPC.executor.shutdown();
-		batch.dispose();
-		gameScreen.dispose();
-	}
+    @Override
+    public void render() {
+        super.render();
+    }
 
-	@Override
-	public void resize(int width, int height) {
-		gameScreen.resize(width, height);
-	}
+    @Override
+    public void dispose() {
+        NPC.executor.shutdown();
+        batch.dispose();
+        gameScreen.dispose();
+    }
 
-	@Override
-	public void resume() {
-		super.resume();
-		setScreen(gameScreen);
-	}
+    @Override
+    public void resize(int width, int height) {
+        gameScreen.resize(width, height);
+    }
 
-	@Override
-	public void pause() {
-		super.pause();
-	}
+    @Override
+    public void resume() {
+        super.resume();
+        setScreen(gameScreen);
+    }
 
-	public static GameScreen getGameScreen() {
-		return gameScreen;
-	}
+    @Override
+    public void pause() {
+        super.pause();
+    }
+
+    public static GameScreen getGameScreen() {
+        return gameScreen;
+    }
 }

@@ -21,7 +21,23 @@ public class ResourceList extends UIElement {
         }
     }
 
-    public void updateData() {
+    @Override
+    public void draw(SpriteBatch batch) {
+        updateData();
+        for (Label label : labels) {
+            if (label.isVisible()) label.draw(batch);
+        }
+    }
+
+    @Override
+    public void setPosition(int x, int y) {
+        super.setPosition(x, y);
+        for (int i = 0; i < labels.length; i++) {
+            labels[i].setPosition(position.x, position.y + 20 * i);
+        }
+    }
+
+    private void updateData() {
         int i = 0, j = labels.length - 1;
         for (Resources resource : Resources.values()) {
             if (World.getStored(resource) != 0) {
@@ -33,21 +49,6 @@ public class ResourceList extends UIElement {
                 labels[j].setVisible(false);
                 j--;
             }
-        }
-    }
-
-    @Override
-    public void draw(SpriteBatch batch) {
-        for (Label label : labels) {
-            if (label.isVisible()) label.draw(batch);
-        }
-    }
-
-    @Override
-    public void setPosition(int x, int y) {
-        super.setPosition(x, y);
-        for (int i = 0; i < labels.length; i++) {
-            labels[i].setPosition(position.x, position.y + 20 * i);
         }
     }
 
