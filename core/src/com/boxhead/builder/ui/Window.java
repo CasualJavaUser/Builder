@@ -13,7 +13,6 @@ public class Window extends UIElement implements Clickable {
     protected boolean isDragged = false;
     protected Button closeButton;
     private final Vector2i mousePositionOnClick = new Vector2i();
-    private int ticksAfterOnClick = 0;
 
     public Window(TextureRegion texture) {
         this(texture, new Vector2i());
@@ -48,7 +47,6 @@ public class Window extends UIElement implements Clickable {
     @Override
     public void onClick() {
         mousePositionOnClick.set(Gdx.input.getX(), Gdx.input.getY());
-        ticksAfterOnClick++;
     }
 
     @Override
@@ -67,7 +65,6 @@ public class Window extends UIElement implements Clickable {
         position.y = rangeY.fit(position.y);
 
         mousePositionOnClick.set(Gdx.input.getX(), Gdx.input.getY());
-        ticksAfterOnClick++;
     }
 
     @Override
@@ -78,10 +75,6 @@ public class Window extends UIElement implements Clickable {
 
         super.draw(batch);
         closeButton.draw(batch);
-    }
-
-    public int getTicksAfterOnClick() {
-        return ticksAfterOnClick;
     }
 
     private void close() {
