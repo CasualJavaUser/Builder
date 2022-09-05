@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Inventory {
 
-    private final Map<Resources, Integer> resources = new HashMap<>();
+    private final Map<Resource, Integer> resources = new HashMap<>();
     private final int resourceTypesCapacity;
     private final int resourceCapacityPerType;
 
@@ -17,66 +17,66 @@ public class Inventory {
         this.resourceCapacityPerType = resourceCapacityPerType;
     }
 
-    public int moveResourcesFrom(Inventory otherInventory, Resources resourceType, int amount) {
-        if (!otherInventory.hasResourceAmount(resourceType, amount))
+    public int moveResourcesFrom(Inventory otherInventory, Resource resource, int amount) {
+        if (!otherInventory.hasResourceAmount(resource, amount))
             throw new IllegalArgumentException();
 
-        int amountToMove = getAvailableCapacityFor(resourceType);
+        int amountToMove = getAvailableCapacityFor(resource);
 
         if (amountToMove > 0) {
-            otherInventory.substract(resourceType, amountToMove);
-            this.add(resourceType, amountToMove);
+            otherInventory.substract(resource, amountToMove);
+            this.add(resource, amountToMove);
         }
 
         return amountToMove;
     }
 
-    public void createNewResources(Resources resourceType, int amount) {
-        if (getAvailableCapacityFor(resourceType) < amount)
+    public void createNewResources(Resource resource, int amount) {
+        if (getAvailableCapacityFor(resource) < amount)
             throw new IllegalArgumentException();
-        add(resourceType, amount);
+        add(resource, amount);
     }
 
-    public int getAvailableCapacityFor(Resources resourceType) {
-        if (!resources.containsKey(resourceType) && resources.size() == resourceTypesCapacity)
+    public int getAvailableCapacityFor(Resource resource) {
+        if (!resources.containsKey(resource) && resources.size() == resourceTypesCapacity)
             return 0;
         else
-            return resourceCapacityPerType - resources.getOrDefault(resourceType, 0);
+            return resourceCapacityPerType - resources.getOrDefault(resource, 0);
     }
 
-    public boolean hasResourceAmount(Resources resourceType, int amount) {
-        return resources.containsKey(resourceType) && resources.get(resourceType) >= amount;
+    public boolean hasResourceAmount(Resource resource, int amount) {
+        return resources.containsKey(resource) && resources.get(resource) >= amount;
     }
 
-    public int getResourceAmount(Resources resourceType) {
-        return resources.getOrDefault(resourceType, 0);
+    public int getResourceAmount(Resource resource) {
+        return resources.getOrDefault(resource, 0);
     }
 
     public int getResourceCapacityPerType() {
         return resourceCapacityPerType;
     }
 
-    private void add(Resources resourceType, int amount) {
-        int currentAmount = resources.getOrDefault(resourceType, 0);
+    private void add(Resource resource, int amount) {
+        int currentAmount = resources.getOrDefault(resource, 0);
 
         if (currentAmount + amount > resourceCapacityPerType)
             throw new IllegalArgumentException();
         if (currentAmount == 0 && resourceTypesCapacity == resources.size())
             throw new IllegalArgumentException();
 
-        resources.put(resourceType, currentAmount + amount);
+        resources.put(resource, currentAmount + amount);
     }
 
-    private void substract(Resources resourceType, int amount) {
-        if (!hasResourceAmount(resourceType, amount))
+    private void substract(Resource resource, int amount) {
+        if (!hasResourceAmount(resource, amount))
             throw new IllegalArgumentException();
 
-        int newAmount = resources.get(resourceType) - amount;
+        int newAmount = resources.get(resource) - amount;
 
         if (newAmount > 0)
-            resources.put(resourceType, newAmount);
+            resources.put(resource, newAmount);
         else {
-            resources.remove(resourceType);
+            resources.remove(resource);
         }
     }
 }

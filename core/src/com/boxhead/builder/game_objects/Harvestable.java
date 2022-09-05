@@ -2,19 +2,19 @@ package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.FieldWork;
-import com.boxhead.builder.Resources;
+import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 public class Harvestable extends GameObject implements FieldWork {
-    private final Harvestable.Types type;
+    private final Type type;
     private int amountLeft;
     private NPC assigned;
     private boolean worked;
     private final BoxCollider collider;
 
-    public Harvestable(TextureRegion texture, Vector2i gridPosition, Harvestable.Types type, int size) {
+    public Harvestable(TextureRegion texture, Vector2i gridPosition, Type type, int size) {
         super(texture, gridPosition);
         this.type = type;
         amountLeft = size;
@@ -84,17 +84,17 @@ public class Harvestable extends GameObject implements FieldWork {
         if (npc == assigned) worked = b;
     }
 
-    public enum Types {
-        TREE(Resources.WOOD),
-        IRON_ORE(Resources.IRON);
+    public enum Type {
+        TREE(Resource.WOOD),
+        IRON_ORE(Resource.IRON);
 
-        private final Resources resource;
+        private final Resource resource;
 
-        Types(Resources resource) {
+        Type(Resource resource) {
             this.resource = resource;
         }
 
-        public Resources getResource() {
+        public Resource getResource() {
             return resource;
         }
     }

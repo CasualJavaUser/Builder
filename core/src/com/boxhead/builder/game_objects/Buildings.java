@@ -11,9 +11,9 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class Buildings {
     private static boolean isInBuildingMode = false;
-    private static Types currentBuilding;
+    private static Type currentBuilding;
 
-    public enum Types {
+    public enum Type {
         DEFAULT_PRODUCTION_BUILDING(Textures.get(Textures.Building.WORK_FUNGUS)),
         DEFAULT_RESIDENTIAL_BUILDING(Textures.get(Textures.Building.HOUSE_FUNGUS)),
         DEFAULT_SERVICE_BUILDING(Textures.get(Textures.Building.SERVICE_FUNGUS)),
@@ -23,25 +23,25 @@ public class Buildings {
 
         public final TextureRegion texture;
 
-        Types(TextureRegion texture) {
+        Type(TextureRegion texture) {
             this.texture = texture;
         }
     }
 
-    public static Building get(Types building) {
+    public static Building get(Type building) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding("lumber mill", building.texture, Jobs.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+                return new ProductionBuilding("lumber mill", building.texture, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
             case DEFAULT_RESIDENTIAL_BUILDING:
                 return new ResidentialBuilding("house", building.texture, 5, new Vector2i(0, -1));
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding("hospital", building.texture, Jobs.DOCTOR, Services.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+                return new ServiceBuilding("hospital", building.texture, Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
             case DEFAULT_STORAGE_BUILDING:
                 return new StorageBuilding("storage", building.texture);
             case BIG:
                 return new Building("fungi", building.texture);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building.texture, Jobs.BUILDER, 5, new Vector2i(0, -1));
+                return new ProductionBuilding("construction office", building.texture, Job.BUILDER, 5, new Vector2i(0, -1));
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }
@@ -76,7 +76,7 @@ public class Buildings {
             isInBuildingMode = false;
     }
 
-    public static void toBuildingMode(Types building) {
+    public static void toBuildingMode(Type building) {
         currentBuilding = building;
         isInBuildingMode = true;
     }

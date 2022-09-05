@@ -9,8 +9,8 @@ import com.boxhead.builder.game_objects.ProductionBuilding;
 import com.boxhead.builder.game_objects.StorageBuilding;
 
 public class BuildingStatWindow extends StatWindow<Building> {
-    private Jobs job;
-    private Services service;
+    private Job job;
+    private Service service;
     private NPC[] npcsInside;
     private int guestsInside, guestCapacity;
     String stats = "";
@@ -48,7 +48,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
             stats += "\njob quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();
             job = ((ProductionBuilding) pinnedObject).getJob();
-            if(job.getResources()[0] != Resources.NOTHING) {
+            if(job.getResources()[0] != Resource.NOTHING) {
                 stats += "\nproduct(s):";
                 for (int i = 0; i < job.getResources().length; i++) {
                     if(job.getChange()[i] > 0) {
@@ -58,10 +58,10 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }
         }
         if(pinnedObject instanceof StorageBuilding) {
-            for (int i = 1; i < Resources.values().length; i++) {
-                stats += "\n" + Resources.values()[i].toString().toLowerCase() + ": " +
-                        ((StorageBuilding) pinnedObject).getStored(Resources.values()[i]) + " / " +
-                        ((StorageBuilding) pinnedObject).getMaxStorage(Resources.values()[i]);
+            for (int i = 1; i < Resource.values().length; i++) {
+                stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
+                        ((StorageBuilding) pinnedObject).getStored(Resource.values()[i]) + " / " +
+                        ((StorageBuilding) pinnedObject).getMaxStorage(Resource.values()[i]);
             }
         }
     }

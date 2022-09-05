@@ -47,22 +47,22 @@ public class UI {
 
         homeButton = new Button(Textures.get(Textures.Ui.HOME), new Vector2i(10, 84),
                 () -> {
-                    Buildings.toBuildingMode(Buildings.Types.DEFAULT_RESIDENTIAL_BUILDING);
+                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_RESIDENTIAL_BUILDING);
                     buildingMenu.setVisible(false);
                 });
         workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), new Vector2i(84, 84),
                 () -> {
-                    Buildings.toBuildingMode(Buildings.Types.DEFAULT_PRODUCTION_BUILDING);
+                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_PRODUCTION_BUILDING);
                     buildingMenu.setVisible(false);
                 });
         serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), new Vector2i(158, 84),
                 () -> {
-                    Buildings.toBuildingMode(Buildings.Types.DEFAULT_SERVICE_BUILDING);
+                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_SERVICE_BUILDING);
                     buildingMenu.setVisible(false);
                 });
         storageButton = new Button(Textures.get(Textures.Ui.WORKPLACE), new Vector2i(232, 84),
                 () -> {
-                    Buildings.toBuildingMode(Buildings.Types.DEFAULT_STORAGE_BUILDING);
+                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_STORAGE_BUILDING);
                     buildingMenu.setVisible(false);
                 });
 

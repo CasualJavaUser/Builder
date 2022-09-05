@@ -3,14 +3,14 @@ package com.boxhead.builder;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.utils.Pair;
 
-public enum Services {
+public enum Service {
     HEAL(Pair.of(NPC.Stats.HEALTH, 1));
 
     private final NPC.Stats[] stats;
     private final int[] effect;
 
     @SafeVarargs
-    Services(Pair<NPC.Stats, Integer>... effects) {
+    Service(Pair<NPC.Stats, Integer>... effects) {
         stats = new NPC.Stats[effects.length];
         effect = new int[effects.length];
         for (int i = 0; i < effects.length; i++) {

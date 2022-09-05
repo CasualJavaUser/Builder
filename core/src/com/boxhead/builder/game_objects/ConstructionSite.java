@@ -10,11 +10,11 @@ import java.util.Set;
 public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
-    private final Buildings.Types buildingType;
+    private final Buildings.Type buildingType;
     private int currentlyWorking = 0;
     private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
-    public ConstructionSite(String name, Buildings.Types building, int totalLabour) {
+    public ConstructionSite(String name, Buildings.Type building, int totalLabour) {
         super(name, building.texture);   //todo add texture to buildings atlas
         this.buildingType = building;
         this.totalLabour = totalLabour;
