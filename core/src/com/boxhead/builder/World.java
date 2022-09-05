@@ -132,7 +132,7 @@ public class World {
         for (Building storageBuilding : buildings) {
             if (storageBuilding instanceof StorageBuilding) {
                 for (int i = 0; i < maxStorage.length; i++) {
-                    maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(i);
+                    maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(Resources.values()[i]);
                 }
             }
         }
@@ -143,7 +143,7 @@ public class World {
         for (Building storageBuilding : buildings) {
             if (storageBuilding instanceof StorageBuilding) {
                 for (int i = 0; i < storage.length; i++) {
-                    storage[i] += ((StorageBuilding) storageBuilding).getStored(i);
+                    storage[i] += ((StorageBuilding) storageBuilding).getStored(Resources.values()[i]);
                 }
             }
         }

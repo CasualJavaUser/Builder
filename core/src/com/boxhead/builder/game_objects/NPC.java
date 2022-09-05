@@ -6,10 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.boxhead.builder.BuilderGame;
-import com.boxhead.builder.FieldWork;
-import com.boxhead.builder.Jobs;
-import com.boxhead.builder.World;
+import com.boxhead.builder.*;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
@@ -41,6 +38,8 @@ public class NPC extends GameObject implements Clickable {
     private boolean waitingForPath = false;
 
     private final LinkedList<NPC.Order> orderList = new LinkedList<>();
+
+    private final Inventory inventory = new Inventory(1, 10);
 
     public enum Stats {
         AGE,
@@ -124,6 +123,10 @@ public class NPC extends GameObject implements Clickable {
             gridPosition.set(building.getEntrancePosition());
         }
         inBuilding = false;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
     private void navigateTo(Vector2i tile) {

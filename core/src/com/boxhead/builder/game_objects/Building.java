@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.BuilderGame;
+import com.boxhead.builder.Inventory;
 import com.boxhead.builder.World;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
@@ -15,6 +16,7 @@ import com.boxhead.builder.utils.Vector2i;
 public class Building extends GameObject implements Clickable {
     protected final String name;
     protected final BoxCollider collider;
+    private final Inventory inventory = new Inventory(1, 100);
 
     public Building(String name, TextureRegion texture) {
         super(texture, new Vector2i());
@@ -28,6 +30,10 @@ public class Building extends GameObject implements Clickable {
 
     public BoxCollider getCollider() {
         return collider;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
     @Override
