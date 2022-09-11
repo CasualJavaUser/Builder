@@ -1,6 +1,6 @@
 package com.boxhead.builder;
 
-public enum Resources {
+public enum Resource {
     NOTHING,
     WOOD,
     IRON,

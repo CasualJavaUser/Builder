@@ -18,10 +18,10 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
-    private static final int[] storage = new int[Resources.values().length];
-    private static final int[] maxStorage = new int[Resources.values().length];
+    private static final int[] storage = new int[Resource.values().length];
+    private static final int[] maxStorage = new int[Resource.values().length];
 
-    private static Tiles.Types[] tiles;
+    private static Tile.Type[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
     private static final ArrayList<NPC> npcs = new ArrayList<>();
     private static final ArrayList<Harvestable> harvestables = new ArrayList<>();
@@ -31,9 +31,9 @@ public class World {
 
     public static void init(Vector2i worldSize) {
         World.worldSize = worldSize;
-        tiles = new Tiles.Types[worldSize.x * worldSize.y];
+        tiles = new Tile.Type[worldSize.x * worldSize.y];
         resetNavigability(worldSize);
-        placeBuilding(Buildings.Types.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
+        placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
         makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2 * TILE_SIZE, 2 * TILE_SIZE));
         //initNPCs();
     }
@@ -54,7 +54,7 @@ public class World {
     }
 
     public static void generateMap() {
-        Arrays.fill(tiles, Tiles.Types.DIRT);
+        Arrays.fill(tiles, Tile.Type.DIRT);
     }
 
     public static void resetNavigability(Vector2i gridDimensions) {
@@ -94,7 +94,7 @@ public class World {
         }
     }
 
-    public static boolean startConstruction(Buildings.Types type, Vector2i gridPosition) {
+    public static boolean startConstruction(Buildings.Type type, Vector2i gridPosition) {
         if (navigableTiles.contains(gridPosition)) {
             ConstructionSite site = new ConstructionSite("construction site (" + Buildings.get(type).getName() + ')', type, 100);
             site.setGridPosition(gridPosition);
@@ -105,7 +105,7 @@ public class World {
         return false;
     }
 
-    public static void placeBuilding(Buildings.Types type, Vector2i gridPosition) {
+    public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
         Building building = Buildings.get(type);
         building.setGridPosition(gridPosition);
         buildings.add(building);
@@ -118,11 +118,11 @@ public class World {
         }
     }
 
-    public static int getMaxStorage(Resources resource) {
+    public static int getMaxStorage(Resource resource) {
         return maxStorage[resource.ordinal()];
     }
 
-    public static int getStored(Resources resource) {
+    public static int getStored(Resource resource) {
         updateStorage();
         return storage[resource.ordinal()];
     }
@@ -132,7 +132,7 @@ public class World {
         for (Building storageBuilding : buildings) {
             if (storageBuilding instanceof StorageBuilding) {
                 for (int i = 0; i < maxStorage.length; i++) {
-                    maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(i);
+                    maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(Resource.values()[i]);
                 }
             }
         }
@@ -143,7 +143,7 @@ public class World {
         for (Building storageBuilding : buildings) {
             if (storageBuilding instanceof StorageBuilding) {
                 for (int i = 0; i < storage.length; i++) {
-                    storage[i] += ((StorageBuilding) storageBuilding).getStored(i);
+                    storage[i] += ((StorageBuilding) storageBuilding).getStored(Resource.values()[i]);
                 }
             }
         }
@@ -198,7 +198,7 @@ public class World {
     }
 
     public static void debug() {
-        Arrays.fill(tiles, Tiles.Types.DEFAULT);
+        Arrays.fill(tiles, Tile.Type.DEFAULT);
     }
 
     private static void initNPCs() {

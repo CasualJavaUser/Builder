@@ -1,8 +1,8 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.Jobs;
-import com.boxhead.builder.Services;
+import com.boxhead.builder.Job;
+import com.boxhead.builder.Service;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashSet;
@@ -10,12 +10,12 @@ import java.util.Set;
 
 public class ServiceBuilding extends ProductionBuilding {
 
-    private final Services service;
+    private final Service service;
     private final int guestCapacity;
     private final Set<NPC> guests;
     private int serviceCounter, serviceInterval;
 
-    public ServiceBuilding(String name, TextureRegion texture, Jobs job, Services service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
+    public ServiceBuilding(String name, TextureRegion texture, Job job, Service service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
         super(name, texture, job, employeeCapacity, entrancePosition, productionInterval);
         this.service = service;
         this.guestCapacity = guestCapacity;

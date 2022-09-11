@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ProductionBuilding extends EnterableBuilding {
-    protected final Jobs job;
+    protected final Job job;
     protected int jobQuality = 0;
     protected int employeeCapacity, employeesInside = 0;
     protected final Set<NPC> employees;
@@ -24,7 +24,7 @@ public class ProductionBuilding extends EnterableBuilding {
 
     private final static int storageDistance = 20;
 
-    public ProductionBuilding(String name, TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
+    public ProductionBuilding(String name, TextureRegion texture, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(name, texture, entrancePosition);
         this.job = job;
         this.employeeCapacity = employeeCapacity;
@@ -38,9 +38,9 @@ public class ProductionBuilding extends EnterableBuilding {
         indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
-    public ProductionBuilding(String name, TextureRegion texture, Jobs job, int employeeCapacity, Vector2i entrancePosition) {
+    public ProductionBuilding(String name, TextureRegion texture, Job job, int employeeCapacity, Vector2i entrancePosition) {
         super(name, texture, entrancePosition);
-        if (job.getResources()[0] != Resources.NOTHING)
+        if (job.producesAnyResources())
             throw new IllegalArgumentException("this constructor requires the building not to produce anything");
 
         this.job = job;
@@ -101,7 +101,7 @@ public class ProductionBuilding extends EnterableBuilding {
             }
         }
 
-        if (job.getResources()[0] != Resources.NOTHING) {
+        if (job.producesAnyResources()) {
             if (storage != null) {
                 availability = storage.checkStorageAvailability(job);
                 if (availability == 0) {
@@ -179,7 +179,7 @@ public class ProductionBuilding extends EnterableBuilding {
         return null;    //no FieldWork available
     }
 
-    public Jobs getJob() {
+    public Job getJob() {
         return job;
     }
 
