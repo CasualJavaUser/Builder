@@ -48,10 +48,10 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
             stats += "\njob quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();
             job = ((ProductionBuilding) pinnedObject).getJob();
-            if(job.getResources()[0] != Resource.NOTHING) {
+            if(job.producesAnyResources()) {
                 stats += "\nproduct(s):";
                 for (int i = 0; i < job.getResources().length; i++) {
-                    if(job.getChange()[i] > 0) {
+                    if(job.getChanges()[i] > 0) {
                         stats += "\n- " + job.getResources()[i].toString().toLowerCase();
                     }
                 }

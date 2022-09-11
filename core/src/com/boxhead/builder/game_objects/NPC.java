@@ -27,7 +27,7 @@ public class NPC extends GameObject implements Clickable {
     private final int[] stats = new int[Stats.values().length];
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
-    private boolean inBuilding = false;
+    private Building buildingIsIn = null;
 
     private Vector2i prevPosition;
     private final Vector2 spritePosition;
@@ -113,7 +113,7 @@ public class NPC extends GameObject implements Clickable {
     public void enterBuilding(EnterableBuilding building) {
         if (gridPosition.equals(building.getEntrancePosition())) {
             gridPosition.set(building.getGridPosition());
-            inBuilding = true;
+            buildingIsIn = building;
         }
     }
 
@@ -122,7 +122,7 @@ public class NPC extends GameObject implements Clickable {
         if (building != null) {
             gridPosition.set(building.getEntrancePosition());
         }
-        inBuilding = false;
+        buildingIsIn = null;
     }
 
     public Inventory getInventory() {
@@ -383,7 +383,9 @@ public class NPC extends GameObject implements Clickable {
         public enum Type {
             GO_TO,
             ENTER,
-            EXIT
+            EXIT,
+            PUT_RESOURCES_TO_BUILDING,
+            TAKE_RESOURCES_FROM_BUILDING
         }
     }
 
@@ -438,7 +440,7 @@ public class NPC extends GameObject implements Clickable {
                                 workplace.employeeExit();
                             }
                             gridPosition.set(building.getEntrancePosition());
-                            inBuilding = false;
+                            buildingIsIn = null;
                         }
                         orderList.removeFirst();
                     }
@@ -498,6 +500,39 @@ public class NPC extends GameObject implements Clickable {
         }
     }
 
+    public void giveResourceOrder(Order.Type type, Resource resource, int amount) {
+        switch (type) {
+            case PUT_RESOURCES_TO_BUILDING:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (buildingIsIn == null)
+                            throw new IllegalStateException();
+                        if (!getInventory().hasResourceAmount(resource, amount))
+                            throw new IllegalArgumentException();
+
+                        getInventory().moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
+                    }
+                });
+                break;
+            case TAKE_RESOURCES_FROM_BUILDING:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (buildingIsIn == null)
+                            throw new IllegalStateException();
+                        if (buildingIsIn.getInventory().hasResourceAmount(resource, amount))
+                            throw new IllegalArgumentException();
+
+                        buildingIsIn.getInventory().moveResourcesTo(getInventory(), resource, amount);
+                    }
+                });
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
     public Vector2 getSpritePosition() {
         return spritePosition;
     }
@@ -530,6 +565,6 @@ public class NPC extends GameObject implements Clickable {
     }
 
     public boolean isInBuilding() {
-        return inBuilding;
+        return buildingIsIn != null;
     }
 }

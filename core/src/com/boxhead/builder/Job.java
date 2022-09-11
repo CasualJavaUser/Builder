@@ -4,7 +4,7 @@ import com.boxhead.builder.game_objects.ConstructionSite;
 import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.utils.Pair;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public enum Job {
@@ -29,7 +29,7 @@ public enum Job {
 
     private final Object poi;
 
-    private final Map<Resource, Integer> resourceChanges = new HashMap<>();
+    private final Map<Resource, Integer> resourceChanges = new EnumMap<>(Resource.class);
 
     @SafeVarargs
     Job(Object interest, Pair<Resource, Integer>... usedResources) {
@@ -51,6 +51,11 @@ public enum Job {
         return resourceChanges;
     }
 
+    public boolean producesAnyResources() {
+        return resourceChanges.entrySet().stream()
+                .anyMatch(entry -> entry.getKey() != Resource.NOTHING && entry.getValue() > 0);
+    }
+
     // todo: refactor to use getResourceChanges instead
     @Deprecated
     public Resource[] getResources() {
@@ -59,7 +64,7 @@ public enum Job {
 
     // todo: refactor to use getResourceChanges instead
     @Deprecated
-    public Integer[] getChange() {
+    public Integer[] getChanges() {
         return resourceChanges.values().toArray(new Integer[]{});
     }
 }
