@@ -63,7 +63,7 @@ public class Harvestable extends GameObject implements FieldWork {
             assigned.getWorkplace().getStorage().addToStorage(assigned.getJob());
             for (int i = 0; i < assigned.getJob().getResources().length; i++) {
                 if (assigned.getJob().getResources()[i] == type.getResource()) {
-                    amountLeft += assigned.getJob().getChange()[i];
+                    amountLeft += assigned.getJob().getChanges()[i];
                     break;
                 }
             }

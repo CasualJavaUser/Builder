@@ -40,7 +40,7 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public ProductionBuilding(String name, TextureRegion texture, Job job, int employeeCapacity, Vector2i entrancePosition) {
         super(name, texture, entrancePosition);
-        if (job.getResources()[0] != Resource.NOTHING)
+        if (job.producesAnyResources())
             throw new IllegalArgumentException("this constructor requires the building not to produce anything");
 
         this.job = job;
@@ -101,7 +101,7 @@ public class ProductionBuilding extends EnterableBuilding {
             }
         }
 
-        if (job.getResources()[0] != Resource.NOTHING) {
+        if (job.producesAnyResources()) {
             if (storage != null) {
                 availability = storage.checkStorageAvailability(job);
                 if (availability == 0) {

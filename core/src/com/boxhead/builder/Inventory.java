@@ -17,15 +17,15 @@ public class Inventory {
         this.resourceCapacityPerType = resourceCapacityPerType;
     }
 
-    public int moveResourcesFrom(Inventory otherInventory, Resource resource, int amount) {
-        if (!otherInventory.hasResourceAmount(resource, amount))
+    public int moveResourcesTo(Inventory otherInventory, Resource resource, int amount) {
+        if (!hasResourceAmount(resource, amount))
             throw new IllegalArgumentException();
 
-        int amountToMove = getAvailableCapacityFor(resource);
+        int amountToMove = otherInventory.getAvailableCapacityFor(resource);
 
         if (amountToMove > 0) {
-            otherInventory.substract(resource, amountToMove);
-            this.add(resource, amountToMove);
+            this.take(resource, amountToMove);
+            otherInventory.add(resource, amountToMove);
         }
 
         return amountToMove;
@@ -67,7 +67,7 @@ public class Inventory {
         resources.put(resource, currentAmount + amount);
     }
 
-    private void substract(Resource resource, int amount) {
+    private void take(Resource resource, int amount) {
         if (!hasResourceAmount(resource, amount))
             throw new IllegalArgumentException();
 
