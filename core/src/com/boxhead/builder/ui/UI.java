@@ -22,7 +22,7 @@ public class UI {
 
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
-    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, fungusButton, fungusButton2;
+    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton, workButton, restButton;
     private static ButtonGroup buildingMenu, mainMenu;
 
     private static NPCStatWindow NPCStatWindow;
@@ -40,9 +40,9 @@ public class UI {
                     World.spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), position));
                 });
 
-        fungusButton = new Button(Textures.get(Textures.Ui.FUNGUS), new Vector2i(158, 10),
+        workButton = new Button(Textures.get(Textures.Ui.WORK), new Vector2i(158, 10),
                 () -> World.setTime(25170));
-        fungusButton2 = new Button(Textures.get(Textures.Ui.FUNGUS), new Vector2i(232, 10),
+        restButton = new Button(Textures.get(Textures.Ui.REST), new Vector2i(232, 10),
                 () -> World.setTime(57570));
 
         homeButton = new Button(Textures.get(Textures.Ui.HOME), new Vector2i(10, 84),
@@ -60,14 +60,19 @@ public class UI {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_SERVICE_BUILDING);
                     buildingMenu.setVisible(false);
                 });
-        storageButton = new Button(Textures.get(Textures.Ui.WORKPLACE), new Vector2i(232, 84),
+        storageButton = new Button(Textures.get(Textures.Ui.STORAGE), new Vector2i(232, 84),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_STORAGE_BUILDING);
                     buildingMenu.setVisible(false);
                 });
+        constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), new Vector2i(306, 84),
+                () -> {
+                    Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
+                    buildingMenu.setVisible(false);
+                });
 
-        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, fungusButton, fungusButton2);
-        buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton, storageButton);
+        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, workButton, restButton);
+        buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton);
 
         NPCStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();

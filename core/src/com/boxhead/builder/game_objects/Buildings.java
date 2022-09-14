@@ -14,34 +14,46 @@ public class Buildings {
     private static Type currentBuilding;
 
     public enum Type {
-        DEFAULT_PRODUCTION_BUILDING(Textures.get(Textures.Building.WORK_FUNGUS)),
-        DEFAULT_RESIDENTIAL_BUILDING(Textures.get(Textures.Building.HOUSE_FUNGUS)),
-        DEFAULT_SERVICE_BUILDING(Textures.get(Textures.Building.SERVICE_FUNGUS)),
-        DEFAULT_STORAGE_BUILDING(Textures.get(Textures.Building.SERVICE_FUNGUS)), //TODO temp texture
-        BIG(Textures.get(Textures.Building.FUNGI)),
-        CONSTRUCTION_OFFICE(Textures.get(Textures.Building.FUNGUS));
+        DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS),
+        DEFAULT_RESIDENTIAL_BUILDING(Textures.Building.HOUSE_FUNGUS),
+        DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS),
+        DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS),
+        BIG(Textures.Building.FUNGI),
+        CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE);
 
-        public final TextureRegion texture;
+        public final Textures.Building texture;
 
-        Type(TextureRegion texture) {
+        Type(Textures.Building texture) {
             this.texture = texture;
+        }
+
+        public TextureRegion getTexture() {
+            return Textures.get(texture);
+        }
+
+        public TextureRegion getConstructionSite() {
+            try {
+                return Textures.get(Textures.Building.valueOf(texture.name() + "_CS"));
+            } catch (IllegalArgumentException e) {
+                return getTexture();
+            }
         }
     }
 
     public static Building get(Type building) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding("lumber mill", building.texture, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+                return new ProductionBuilding("lumber mill", building.getTexture(), Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
             case DEFAULT_RESIDENTIAL_BUILDING:
-                return new ResidentialBuilding("house", building.texture, 5, new Vector2i(0, -1));
+                return new ResidentialBuilding("house", building.getTexture(), 5, new Vector2i(0, -1));
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding("hospital", building.texture, Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+                return new ServiceBuilding("hospital", building.getTexture(), Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
             case DEFAULT_STORAGE_BUILDING:
-                return new StorageBuilding("storage", building.texture);
+                return new StorageBuilding("storage", building.getTexture());
             case BIG:
-                return new Building("fungi", building.texture);
+                return new Building("fungi", building.getTexture());
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building.texture, Job.BUILDER, 5, new Vector2i(0, -1));
+                return new ProductionBuilding("construction office", building.getTexture(), Job.BUILDER, 5, new Vector2i(0, -1));
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }
@@ -51,7 +63,7 @@ public class Buildings {
         if (!isInBuildingMode)
             throw new IllegalStateException("Not in building mode");
 
-        TextureRegion texture = currentBuilding.texture;
+        TextureRegion texture = currentBuilding.getTexture();
         Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
 
         int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;

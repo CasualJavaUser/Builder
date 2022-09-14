@@ -13,9 +13,23 @@ clock_face
   index: -1
 close_button
   rotate: false
-  xy: 320, 96
+  xy: 384, 96
   size: 32, 32
   orig: 32, 32
+  offset: 0, 0
+  index: -1
+construction_office
+  rotate: false
+  xy: 448, 192
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+full_storage
+  rotate: false
+  xy: 384, 80
+  size: 16, 16
+  orig: 16, 16
   offset: 0, 0
   index: -1
 fungus
@@ -27,7 +41,7 @@ fungus
   index: -1
 home
   rotate: false
-  xy: 448, 192
+  xy: 320, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -41,7 +55,7 @@ hour_hand
   index: -1
 house
   rotate: false
-  xy: 256, 64
+  xy: 256, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -53,9 +67,30 @@ minute_hand
   orig: 128, 128
   offset: 0, 0
   index: -1
+no_resources
+  rotate: false
+  xy: 384, 64
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+no_storage
+  rotate: false
+  xy: 416, 112
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 npc
   rotate: false
-  xy: 256, 0
+  xy: 384, 192
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+rest
+  rotate: false
+  xy: 448, 128
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -74,9 +109,23 @@ stat_window
   orig: 128, 192
   offset: 0, 0
   index: -1
+storage
+  rotate: false
+  xy: 256, 64
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+work
+  rotate: false
+  xy: 384, 128
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 workplace
   rotate: false
-  xy: 384, 192
+  xy: 320, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0

@@ -19,16 +19,13 @@ public class Textures {
         tileAtlas = new TextureAtlas("tiles.atlas");
         uiAtlas = new TextureAtlas("ui.atlas");
         npcAtlas = new TextureAtlas("npcs.atlas");
-        //resourceAtlas = new TextureAtlas("resources.atlas");  //TODO make resource.atlas
+        resourceAtlas = new TextureAtlas("resources.atlas");
 
         loadTextures(buildingAtlas, Building.values());
         loadTextures(tileAtlas, Tile.values());
         loadTextures(uiAtlas, Ui.values());
         loadTextures(npcAtlas, Npc.values());
-
-        for (Resource resource : Resource.values()) {
-            textures.put(resource, get(Tile.DIRT));  //TODO temp solution
-        }
+        loadTextures(resourceAtlas, Resource.values());
     }
 
     public static TextureRegion get(TextureId textureId) {
@@ -54,7 +51,8 @@ public class Textures {
     }
 
     public enum Building implements TextureId {
-        FUNGI, FUNGUS, HOUSE_FUNGUS, SERVICE_FUNGUS, WORK_FUNGUS
+        FUNGI, FUNGUS, HOUSE_FUNGUS, WORK_FUNGUS, SERVICE_FUNGUS, STORAGE_FUNGUS, CONSTRUCTION_OFFICE,
+        HOUSE_FUNGUS_CS, WORK_FUNGUS_CS, SERVICE_FUNGUS_CS, STORAGE_FUNGUS_CS, CONSTRUCTION_OFFICE_CS
     }
 
     public enum Tile implements TextureId {
@@ -66,7 +64,7 @@ public class Textures {
     }
 
     public enum Ui implements TextureId {
-        CLOCK_FACE, CLOSE_BUTTON, FUNGUS, HOME, HOUR_HAND, HOUSE, MINUTE_HAND, NPC, SERVICE, STAT_WINDOW, WORKPLACE
+        CLOCK_FACE, CLOSE_BUTTON, FUNGUS, HOME, HOUR_HAND, HOUSE, MINUTE_HAND, NPC, SERVICE, STAT_WINDOW, WORKPLACE, NO_STORAGE, FULL_STORAGE, NO_RESOURCES, WORK, REST, STORAGE, CONSTRUCTION_OFFICE
     }
 
     public enum Resource implements TextureId {

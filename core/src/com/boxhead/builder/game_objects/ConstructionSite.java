@@ -15,7 +15,7 @@ public class ConstructionSite extends Building implements FieldWork {
     private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
     public ConstructionSite(String name, Buildings.Type building, int totalLabour) {
-        super(name, building.texture);   //todo add texture to buildings atlas
+        super(name, building.getConstructionSite());
         this.buildingType = building;
         this.totalLabour = totalLabour;
     }
