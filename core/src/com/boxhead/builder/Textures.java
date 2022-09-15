@@ -11,6 +11,7 @@ public class Textures {
     private static TextureAtlas uiAtlas;
     private static TextureAtlas npcAtlas;
     private static TextureAtlas resourceAtlas;
+    private static TextureAtlas environmentAtlas;
 
     private static final HashMap<TextureId, TextureRegion> textures = new HashMap<>();
 
@@ -20,12 +21,14 @@ public class Textures {
         uiAtlas = new TextureAtlas("ui.atlas");
         npcAtlas = new TextureAtlas("npcs.atlas");
         resourceAtlas = new TextureAtlas("resources.atlas");
+        environmentAtlas = new TextureAtlas("environment.atlas");
 
         loadTextures(buildingAtlas, Building.values());
         loadTextures(tileAtlas, Tile.values());
         loadTextures(uiAtlas, Ui.values());
         loadTextures(npcAtlas, Npc.values());
         loadTextures(resourceAtlas, Resource.values());
+        loadTextures(environmentAtlas, Environment.values());
     }
 
     public static TextureRegion get(TextureId textureId) {
@@ -69,5 +72,9 @@ public class Textures {
 
     public enum Resource implements TextureId {
         NOTHING, WOOD, IRON, COAL, STEEL, TOOLS
+    }
+
+    public enum Environment implements TextureId {
+        SMALL_TREE, BIG_TREE
     }
 }
