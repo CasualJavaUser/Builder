@@ -19,7 +19,6 @@ public class World {
     private static Vector2i worldSize;
 
     private static final int[] storage = new int[Resource.values().length];
-    private static final int[] maxStorage = new int[Resource.values().length];
 
     private static Tile.Type[] tiles;
     private static final ArrayList<Building> buildings = new ArrayList<>();
@@ -109,7 +108,6 @@ public class World {
         Building building = Buildings.get(type);
         building.setGridPosition(gridPosition);
         buildings.add(building);
-        if (building instanceof StorageBuilding) updateMaxStorage();
     }
 
     public static void drawMap(SpriteBatch batch) {
@@ -118,24 +116,9 @@ public class World {
         }
     }
 
-    public static int getMaxStorage(Resource resource) {
-        return maxStorage[resource.ordinal()];
-    }
-
     public static int getStored(Resource resource) {
         updateStorage();
         return storage[resource.ordinal()];
-    }
-
-    public static void updateMaxStorage() {
-        Arrays.fill(maxStorage, 0);
-        for (Building storageBuilding : buildings) {
-            if (storageBuilding instanceof StorageBuilding) {
-                for (int i = 0; i < maxStorage.length; i++) {
-                    maxStorage[i] += ((StorageBuilding) storageBuilding).getMaxStorage(Resource.values()[i]);
-                }
-            }
-        }
     }
 
     public static void updateStorage() {

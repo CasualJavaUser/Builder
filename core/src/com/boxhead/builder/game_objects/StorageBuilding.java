@@ -18,7 +18,7 @@ public class StorageBuilding extends Building {
 
     public void addToStorage(Job recipe) {
         recipe.getResourceChanges()
-                .forEach((resources, amount) -> getInventory().createNewResources(resources, amount));
+                .forEach((resources, amount) -> getInventory().put(resources, amount));  //createNewResources(resources, amount));
     }
 
     /**
@@ -44,7 +44,11 @@ public class StorageBuilding extends Building {
         return getInventory().getResourceAmount(resource);
     }
 
-    public int getMaxStorage(Resource resource) {
-        return getInventory().getResourceCapacityPerType();
+    public int getStoredWeight() {
+        return getInventory().getWeight();
+    }
+
+    public int getMaxWeight() {
+        return getInventory().getMaxWeight();
     }
 }

@@ -42,7 +42,7 @@ public class ResourceList extends UIElement {
         for (Resource resource : Resource.values()) {
             if (World.getStored(resource) != 0) {
                 labels[i].setTexture(getResourcesTexture(resource));
-                labels[i].setText(World.getStored(resource) + " / " + World.getMaxStorage(resource));
+                labels[i].setText(World.getStored(resource) + "");
                 labels[i].setVisible(true);
                 i++;
             } else {

@@ -6,15 +6,18 @@ import java.util.Map;
 public class Inventory {
 
     private final Map<Resource, Integer> resources = new EnumMap<>(Resource.class);
-    private final int resourceTypesCapacity;
-    private final int resourceCapacityPerType;
+    private int weight, maxWeight;
 
-    public Inventory(int resourceTypesCapacity, int resourceCapacityPerType) {
-        if (resourceTypesCapacity < 1 || resourceCapacityPerType < 1)
+    public Inventory(int maxWeight) {
+        if (maxWeight < 1)
             throw new IllegalArgumentException();
 
-        this.resourceTypesCapacity = resourceTypesCapacity;
-        this.resourceCapacityPerType = resourceCapacityPerType;
+        this.maxWeight = maxWeight;
+        weight = 0;
+    }
+
+    public int getWeight() {
+        return weight;
     }
 
     public int moveResourcesTo(Inventory otherInventory, Resource resource, int amount) {
@@ -22,26 +25,18 @@ public class Inventory {
             throw new IllegalArgumentException();
 
         int amountToMove = otherInventory.getAvailableCapacityFor(resource);
+        if(amountToMove > amount) amountToMove = amount;
 
         if (amountToMove > 0) {
             this.take(resource, amountToMove);
-            otherInventory.add(resource, amountToMove);
+            otherInventory.put(resource, amountToMove);
         }
 
         return amountToMove;
     }
 
-    public void createNewResources(Resource resource, int amount) {
-        if (getAvailableCapacityFor(resource) < amount)
-            throw new IllegalArgumentException();
-        add(resource, amount);
-    }
-
     public int getAvailableCapacityFor(Resource resource) {
-        if (!resources.containsKey(resource) && resources.size() == resourceTypesCapacity)
-            return 0;
-        else
-            return resourceCapacityPerType - resources.getOrDefault(resource, 0);
+        return (maxWeight - getWeight()) / resource.getWeight();
     }
 
     public boolean hasResourceAmount(Resource resource, int amount) {
@@ -52,19 +47,14 @@ public class Inventory {
         return resources.getOrDefault(resource, 0);
     }
 
-    public int getResourceCapacityPerType() {
-        return resourceCapacityPerType;
-    }
-
-    private void add(Resource resource, int amount) {
+    public void put(Resource resource, int amount) {
         int currentAmount = resources.getOrDefault(resource, 0);
 
-        if (currentAmount + amount > resourceCapacityPerType)
-            throw new IllegalArgumentException();
-        if (currentAmount == 0 && resourceTypesCapacity == resources.size())
+        if (amount > getAvailableCapacityFor(resource))
             throw new IllegalArgumentException();
 
         resources.put(resource, currentAmount + amount);
+        weight += amount * resource.getWeight();
     }
 
     private void take(Resource resource, int amount) {
@@ -78,5 +68,10 @@ public class Inventory {
         else {
             resources.remove(resource);
         }
+        weight -= amount * resource.getWeight();
+    }
+
+    public int getMaxWeight() {
+        return maxWeight;
     }
 }

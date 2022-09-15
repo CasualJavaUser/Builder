@@ -39,7 +39,7 @@ public class NPC extends GameObject implements Clickable {
 
     private final LinkedList<NPC.Order> orderList = new LinkedList<>();
 
-    private final Inventory inventory = new Inventory(1, 10);
+    private final Inventory inventory = new Inventory(10);
 
     public enum Stats {
         AGE,

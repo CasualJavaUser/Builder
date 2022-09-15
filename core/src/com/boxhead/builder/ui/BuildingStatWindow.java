@@ -57,11 +57,15 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 }
             }
         }
+
         if(pinnedObject instanceof StorageBuilding) {
+            StorageBuilding storage = ((StorageBuilding) pinnedObject);
+            stats += "\n" + storage.getStoredWeight() + " / " + storage.getMaxWeight();
             for (int i = 1; i < Resource.values().length; i++) {
-                stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
-                        ((StorageBuilding) pinnedObject).getStored(Resource.values()[i]) + " / " +
-                        ((StorageBuilding) pinnedObject).getMaxStorage(Resource.values()[i]);
+                if(storage.getStored(Resource.values()[i]) != 0) {
+                    stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
+                            storage.getStored(Resource.values()[i]);
+                }
             }
         }
     }
