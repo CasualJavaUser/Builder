@@ -31,4 +31,12 @@ public class ResidentialBuilding extends EnterableBuilding {
     public boolean hasFreePlaces() {
         return residents.size() < residentCapacity;
     }
+
+    public int getResidentCapacity() {
+        return residentCapacity;
+    }
+
+    public Set<NPC> getResidents() {
+        return residents;
+    }
 }

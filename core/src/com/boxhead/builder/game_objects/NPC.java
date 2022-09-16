@@ -567,4 +567,8 @@ public class NPC extends GameObject implements Clickable {
     public boolean isInBuilding() {
         return buildingIsIn != null;
     }
+
+    public Building getCurrentBuilding() {
+        return buildingIsIn;
+    }
 }

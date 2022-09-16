@@ -10,7 +10,7 @@ import com.boxhead.builder.game_objects.GameObject;
 public abstract class StatWindow<T extends GameObject> extends Window {
     protected T pinnedObject = null;
     protected boolean pinned;
-    protected static final int topPadding = 10, leftPadding = 10;
+    protected static final int topPadding = 12, leftPadding = 10, rightPadding = 20;
     protected String stats = "";
 
     public StatWindow() {
@@ -44,7 +44,7 @@ public abstract class StatWindow<T extends GameObject> extends Window {
             if (c == '\n') sizeY += UI.FONT_SIZE+3;
         }
 
-        sizeX = getLongestLineLength(stats) * 7 + leftPadding * 2;
+        sizeX = (int)(getLongestLineLength(stats) * 6.5f + leftPadding + rightPadding);
     }
 
     protected void updatePosition() {

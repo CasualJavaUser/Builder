@@ -195,6 +195,18 @@ public class ProductionBuilding extends EnterableBuilding {
         return storage;
     }
 
+    public int getEmployeesInside() {
+        return employeesInside;
+    }
+
+    public int getEmployeeCapacity() {
+        return employeeCapacity;
+    }
+
+    public Set<NPC> getEmployees() {
+        return employees;
+    }
+
     /**
      * @return the closest available StorageBuilding. If there StorageBuildings in range but none are available then the closest one is returned.
      */
