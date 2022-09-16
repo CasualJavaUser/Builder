@@ -13,6 +13,8 @@ public class Window extends UIElement implements Clickable {
     protected boolean isDragged = false;
     protected Button closeButton;
     private final Vector2i mousePositionOnClick = new Vector2i();
+    protected int sizeX = 0, sizeY = 0;
+    protected int windowWidth, windowHeight;
 
     public Window(TextureRegion texture) {
         this(texture, new Vector2i());
@@ -29,10 +31,12 @@ public class Window extends UIElement implements Clickable {
 
     @Override
     public boolean isClicked() {
+        /*int windowWidth = sizeX + (texture.getRegionWidth()-1)*2;
+        int windowHeight = sizeY + (texture.getRegionHeight()-1)*2;*/
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            return x >= position.x && x < (position.x + texture.getRegionWidth()) &&
-                    y >= position.y && y < (position.y + texture.getRegionHeight());
+            return x >= position.x && x < (position.x + windowWidth) &&
+                    y <= position.y && y > (position.y - windowHeight);
         }
         return false;
     }
@@ -58,8 +62,8 @@ public class Window extends UIElement implements Clickable {
         position.x += Gdx.input.getX() - mousePositionOnClick.x;
         position.y -= Gdx.input.getY() - mousePositionOnClick.y;
 
-        final Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - texture.getRegionWidth());
-        final Range<Integer> rangeY = Range.between(0, Gdx.graphics.getHeight() - texture.getRegionHeight());
+        final Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - (sizeX + (texture.getRegionWidth()-1)*2));
+        final Range<Integer> rangeY = Range.between(0, Gdx.graphics.getHeight() - (sizeY + (texture.getRegionHeight()-1)*2));
 
         position.x = rangeX.fit(position.x);
         position.y = rangeY.fit(position.y);
@@ -69,16 +73,99 @@ public class Window extends UIElement implements Clickable {
 
     @Override
     public void draw(SpriteBatch batch) {
-        int closeButtonX = position.x + texture.getRegionWidth() - closeButton.getTexture().getRegionWidth();
-        int closeButtonY = position.y + texture.getRegionHeight() - closeButton.getTexture().getRegionHeight();
+        windowWidth = sizeX + (texture.getRegionWidth()-1)*2;
+        windowHeight = sizeY + (texture.getRegionHeight()-1)*2;
+        int closeButtonX = position.x + windowWidth - closeButton.getTexture().getRegionWidth();
+        int closeButtonY = position.y - closeButton.getTexture().getRegionHeight();
         closeButton.setPosition(closeButtonX, closeButtonY);
 
-        super.draw(batch);
+        drawWindow(batch);
         closeButton.draw(batch);
     }
 
     private void close() {
         setVisible(false);
         isDragged = false;
+    }
+
+    private void drawWindow(SpriteBatch batch) {
+        int width = texture.getRegionWidth(), height = texture.getRegionHeight();
+        drawCorner(batch, position.x, position.y, false, false);
+        drawCorner(batch, position.x + sizeX + width-1, position.y, true, false);
+        drawCorner(batch, position.x + sizeX + width-1, position.y - sizeY - height + 1, true, true);
+        drawCorner(batch, position.x, position.y - sizeY - height + 1, false, true);
+
+        for (int i = 0; i < sizeX; i++) {
+            drawEdge(batch, position.x + width - 1 + i, position.y, false, false, false);
+            drawEdge(batch, position.x + width - 1 + i, position.y - sizeY - texture.getRegionHeight() + 1, false, true, false);
+            for (int j = 0; j < sizeY; j++) {
+                drawMiddle(batch, position.x + width - 1 + i, position.y - 1 - j);
+            }
+        }
+
+        for (int i = 0; i < sizeY; i++) {
+            drawEdge(batch, position.x, position.y - 1 - i, false, false, true);
+            drawEdge(batch, position.x + sizeX + texture.getRegionWidth() - 1, position.y - 1 - i, true, false, true);
+        }
+    }
+
+    private void drawCorner(SpriteBatch batch, int x, int y, boolean flipX, boolean flipY) {
+        int width = texture.getRegionWidth(), height = texture.getRegionHeight();
+        batch.draw(texture.getTexture(),
+                x,
+                y - height + 1,
+                (float)width/2,
+                (float)height/2,
+                width-1,
+                height-1,
+                1,
+                1,
+                0,
+                texture.getRegionX(),
+                texture.getRegionY(),
+                width-1,
+                height-1,
+                flipX,
+                flipY);
+    }
+
+    private void drawEdge(SpriteBatch batch, int x, int y, boolean flipX, boolean flipY, boolean flip90) {
+        int width = texture.getRegionWidth(), height = texture.getRegionHeight();
+        batch.draw(texture.getTexture(),
+                x,
+                y - height + 1,
+                (float)width/2,
+                (float)height/2,
+                flip90 ? width - 1 : 1,
+                flip90 ? 1 : height - 1,
+                1,
+                1,
+                0,
+                flip90 ? texture.getRegionX() : texture.getRegionX() + width - 1,
+                flip90 ? texture.getRegionY() + height - 1 : texture.getRegionY(),
+                flip90 ? width - 1 : 1,
+                flip90 ? 1 : height - 1,
+                flipX,
+                flipY);
+    }
+
+    private void drawMiddle(SpriteBatch batch, int x, int y) {
+        int width = texture.getRegionWidth(), height = texture.getRegionHeight();
+        batch.draw(texture.getTexture(),
+                x,
+                y - height + 1,
+                (float)width/2,
+                (float)height/2,
+                1,
+                1,
+                1,
+                1,
+                0,
+                texture.getRegionX() + width - 1,
+                texture.getRegionY() + height - 1,
+                1,
+                1,
+                false,
+                false);
     }
 }

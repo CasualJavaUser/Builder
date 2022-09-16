@@ -13,10 +13,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
     private Service service;
     private NPC[] npcsInside;
     private int guestsInside, guestCapacity;
-    String stats = "";
     String warning = "";
-
-    private final static int rightPadding = 10;
 
     public BuildingStatWindow() {
         super();
@@ -24,15 +21,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
     @Override
     public void draw(SpriteBatch batch) {
-        if(pinned) {
-            updatePosition();
-        }
         super.draw(batch);
-        updateStats();
+
         UI.FONT.setColor(Color.RED);
-        UI.FONT.draw(batch, warning, position.x + rightPadding, position.y + 180);
+        UI.FONT.draw(batch, warning, position.x + leftPadding, position.y - topPadding);
         UI.FONT.setColor(Color.WHITE);
-        UI.FONT.draw(batch, stats, position.x + rightPadding, position.y + 155);
+        UI.FONT.draw(batch, stats, position.x + leftPadding, position.y - topPadding - (warning.equals("") ? 0 : 20));
     }
 
     @Override
@@ -40,9 +34,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
         stats = pinnedObject.getName();
         if(pinnedObject instanceof ProductionBuilding) {
             switch (((ProductionBuilding) pinnedObject).getAvailability()) {
-                case -1: warning = "not enough resources"; break;
-                case 1: warning = "storage full"; break;
-                case 2: warning = "no storage in range"; break;
+                case -1: warning = "not enough resources\n"; break;
+                case 1: warning = "storage full\n"; break;
+                case 2: warning = "no storage in range\n"; break;
                 default: warning = "";
             }
 
@@ -60,13 +54,23 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         if(pinnedObject instanceof StorageBuilding) {
             StorageBuilding storage = ((StorageBuilding) pinnedObject);
-            stats += "\n" + storage.getStoredWeight() + " / " + storage.getMaxWeight();
+            stats += "\n" + storage.getStoredWeight();
             for (int i = 1; i < Resource.values().length; i++) {
                 if(storage.getStored(Resource.values()[i]) != 0) {
                     stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
                             storage.getStored(Resource.values()[i]);
                 }
             }
+        }
+
+    }
+
+    @Override
+    protected void updateWindowSize() {
+        super.updateWindowSize();
+        if(!warning.equals("")) {
+            sizeY += 20;
+            sizeX = warning.length() * 7 + leftPadding * 2;
         }
     }
 }

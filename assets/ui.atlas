@@ -1,61 +1,61 @@
 
 ui.png
-size: 512, 256
+size: 1024, 128
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 clock_face
   rotate: false
-  xy: 128, 128
+  xy: 0, 0
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 close_button
   rotate: false
-  xy: 384, 96
+  xy: 704, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 construction_office
   rotate: false
-  xy: 448, 192
+  xy: 512, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 full_storage
   rotate: false
-  xy: 384, 80
+  xy: 704, 80
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fungus
   rotate: false
-  xy: 0, 0
+  xy: 384, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 home
   rotate: false
-  xy: 320, 0
+  xy: 576, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 hour_hand
   rotate: false
-  xy: 256, 128
+  xy: 256, 0
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 house
   rotate: false
-  xy: 256, 0
+  xy: 448, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -69,63 +69,63 @@ minute_hand
   index: -1
 no_resources
   rotate: false
-  xy: 384, 64
+  xy: 704, 64
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 no_storage
   rotate: false
-  xy: 416, 112
+  xy: 736, 112
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 npc
   rotate: false
-  xy: 384, 192
+  xy: 512, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 rest
   rotate: false
-  xy: 448, 128
+  xy: 640, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 service
   rotate: false
-  xy: 64, 0
+  xy: 384, 0
   size: 64, 64
   orig: 64, 64
-  offset: 0, 0
-  index: -1
-stat_window
-  rotate: false
-  xy: 0, 64
-  size: 128, 192
-  orig: 128, 192
   offset: 0, 0
   index: -1
 storage
   rotate: false
-  xy: 256, 64
+  xy: 448, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
+window
+  rotate: false
+  xy: 720, 89
+  size: 7, 7
+  orig: 7, 7
+  offset: 0, 0
+  index: -1
 work
   rotate: false
-  xy: 384, 128
+  xy: 640, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 workplace
   rotate: false
-  xy: 320, 64
+  xy: 576, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0

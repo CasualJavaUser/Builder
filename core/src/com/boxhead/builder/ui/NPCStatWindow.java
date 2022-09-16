@@ -7,7 +7,8 @@ import com.boxhead.builder.game_objects.NPC;
 
 public class NPCStatWindow extends StatWindow<NPC> {
     private String job = null, name = null;
-    private int[] stats = null;
+    private int[] npcStatList = null;
+    private final int IMAGE_SIZE = 4;
 
     public NPCStatWindow() {
         super();
@@ -15,23 +16,14 @@ public class NPCStatWindow extends StatWindow<NPC> {
 
     @Override
     public void draw(SpriteBatch batch) {
-        if (pinned) {
-            updatePosition();
-        }
         super.draw(batch);
-        batch.draw(pinnedObject.getTexture(),
-                position.x + 10, position.y + 115,
-                pinnedObject.getTexture().getRegionWidth() * 4,
-                pinnedObject.getTexture().getRegionHeight() * 4);
 
-        updateStats();
-        String s = name + "\njob: " + job;
-        String stat;
-        for (int i = 0; i < NPC.Stats.values().length; i++) {
-            stat = NPC.Stats.values()[i].toString().toLowerCase() + ": " + pinnedObject.getStats()[i];
-            s += "\n" + stat;
-        }
-        UI.FONT.draw(batch, s, position.x + 10, position.y + 105);
+        batch.draw(pinnedObject.getTexture(),
+                position.x + leftPadding,
+                position.y - topPadding - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE,
+                pinnedObject.getTexture().getRegionWidth() * IMAGE_SIZE,
+                pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
+        UI.FONT.draw(batch, stats, position.x + leftPadding, position.y - 2*topPadding - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
     }
 
     @Override
@@ -43,8 +35,20 @@ public class NPCStatWindow extends StatWindow<NPC> {
     @Override
     protected void updateStats() {
         name = pinnedObject.getName() + " " + pinnedObject.getSurname();
-        if(name.length() > 15) name = pinnedObject.getName() + "\n" + pinnedObject.getSurname();
         job = pinnedObject.getJob().toString().toLowerCase();
-        stats = pinnedObject.getStats();
+        npcStatList = pinnedObject.getStats();
+
+        stats = name + "\n" + job;
+        String stat;
+        for (int i = 0; i < NPC.Stats.values().length; i++) {
+            stat = NPC.Stats.values()[i].toString().toLowerCase() + ": " + pinnedObject.getStats()[i];
+            stats += "\n" + stat;
+        }
+    }
+
+    @Override
+    protected void updateWindowSize() {
+        super.updateWindowSize();
+        sizeY += topPadding + pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE;
     }
 }

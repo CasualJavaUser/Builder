@@ -19,6 +19,7 @@ public class UI {
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
     public static final BitmapFont FONT = new BitmapFont();
+    public static final int FONT_SIZE = 15;
 
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
