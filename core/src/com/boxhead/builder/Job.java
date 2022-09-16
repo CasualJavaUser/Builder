@@ -55,16 +55,4 @@ public enum Job {
         return resourceChanges.entrySet().stream()
                 .anyMatch(entry -> entry.getKey() != Resource.NOTHING && entry.getValue() > 0);
     }
-
-    // todo: refactor to use getResourceChanges instead
-    @Deprecated
-    public Resource[] getResources() {
-        return resourceChanges.keySet().toArray(new Resource[]{});
-    }
-
-    // todo: refactor to use getResourceChanges instead
-    @Deprecated
-    public Integer[] getChanges() {
-        return resourceChanges.values().toArray(new Integer[]{});
-    }
 }
