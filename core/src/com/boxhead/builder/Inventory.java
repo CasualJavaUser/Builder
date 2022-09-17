@@ -6,18 +6,22 @@ import java.util.Map;
 public class Inventory {
 
     private final Map<Resource, Integer> resources = new EnumMap<>(Resource.class);
-    private int weight, maxWeight;
+    private final int maxWeight;
+    private int currentWeight;
 
     public Inventory(int maxWeight) {
         if (maxWeight < 1)
             throw new IllegalArgumentException();
 
         this.maxWeight = maxWeight;
-        weight = 0;
+        currentWeight = 0;
     }
 
-    public int getWeight() {
-        return weight;
+    public enum Availability {
+        AVAILABLE,
+        FULL,
+        OUTPUT_FULL,
+        LACKS_INPUT
     }
 
     public int moveResourcesTo(Inventory otherInventory, Resource resource, int amount) {
@@ -25,7 +29,7 @@ public class Inventory {
             throw new IllegalArgumentException();
 
         int amountToMove = otherInventory.getAvailableCapacityFor(resource);
-        if(amountToMove > amount) amountToMove = amount;
+        if (amountToMove > amount) amountToMove = amount;
 
         if (amountToMove > 0) {
             this.take(resource, amountToMove);
@@ -35,8 +39,33 @@ public class Inventory {
         return amountToMove;
     }
 
+    /**
+     * Moves as many units of resources as possible
+     *
+     * @return How many units were transferred
+     */
+    public int moveResourcesTo(Inventory otherInventory, Resource resource) {
+        int moved = Math.min(resources.get(resource), otherInventory.getAvailableCapacityFor(resource));
+
+        take(resource, moved);
+        otherInventory.put(resource, moved);
+        return moved;
+    }
+
     public int getAvailableCapacityFor(Resource resource) {
-        return (maxWeight - getWeight()) / resource.getWeight();
+        return (maxWeight - currentWeight) / resource.weight;
+    }
+
+    public Availability checkStorageAvailability(Job recipe) {
+        for (Resource resource : recipe.getResourceChanges().keySet()) {
+            int change = recipe.getResourceChanges().get(resource);
+            if (resources.getOrDefault(resource, 0) + change < 0)
+                return Availability.LACKS_INPUT;
+
+            if (change > getAvailableCapacityFor(resource))
+                return Availability.OUTPUT_FULL;
+        }
+        return Availability.AVAILABLE;
     }
 
     public boolean hasResourceAmount(Resource resource, int amount) {
@@ -47,6 +76,10 @@ public class Inventory {
         return resources.getOrDefault(resource, 0);
     }
 
+    public int getCurrentWeight() {
+        return currentWeight;
+    }
+
     public void put(Resource resource, int amount) {
         int currentAmount = resources.getOrDefault(resource, 0);
 
@@ -54,7 +87,19 @@ public class Inventory {
             throw new IllegalArgumentException();
 
         resources.put(resource, currentAmount + amount);
-        weight += amount * resource.getWeight();
+        currentWeight += amount * resource.weight;
+    }
+
+    public void put(Job recipe) {
+        if (checkStorageAvailability(recipe) != Availability.AVAILABLE) {
+            throw new IllegalArgumentException();
+        }
+        for (Resource resource : recipe.getResourceChanges().keySet()) {
+            int currentAmount = resources.getOrDefault(resource, 0);
+            int change = recipe.getResourceChanges().get(resource);
+            resources.put(resource, currentAmount + change);
+            currentWeight += change * resource.weight;
+        }
     }
 
     private void take(Resource resource, int amount) {
@@ -68,7 +113,7 @@ public class Inventory {
         else {
             resources.remove(resource);
         }
-        weight -= amount * resource.getWeight();
+        currentWeight -= amount * resource.weight;
     }
 
     public int getMaxWeight() {

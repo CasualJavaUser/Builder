@@ -10,7 +10,7 @@ import java.util.Map;
 public enum Job {
     UNEMPLOYED(null, Pair.of(Resource.NOTHING, 0)),
     LUMBERJACK(Harvestable.Type.TREE,
-            Pair.of(Resource.WOOD, 1)),
+            Pair.of(Resource.NOTHING, 0)),
     MINER_IRON(Harvestable.Type.IRON_ORE,
             Pair.of(Resource.IRON, 1)),
     BUILDER(ConstructionSite.class,

@@ -34,6 +34,7 @@ public class World {
         resetNavigability(worldSize);
         placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
         makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2 * TILE_SIZE, 2 * TILE_SIZE));
+        harvestables.add(new Harvestable(Textures.get(Textures.Environment.SMALL_TREE), new Vector2i(45, 35), Harvestable.Type.TREE, 10));
         //initNPCs();
     }
 

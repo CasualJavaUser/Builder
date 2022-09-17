@@ -21,6 +21,7 @@ public class NPC extends GameObject implements Clickable {
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
     public static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+    public static final int INVENTORY_SIZE = 10;
     private static final int STEP_INTERVAL = 50;
 
     private final String name, surname;
@@ -39,7 +40,7 @@ public class NPC extends GameObject implements Clickable {
 
     private final LinkedList<NPC.Order> orderList = new LinkedList<>();
 
-    private final Inventory inventory = new Inventory(10);
+    private final Inventory inventory = new Inventory(INVENTORY_SIZE);
 
     public enum Stats {
         AGE,
@@ -385,6 +386,7 @@ public class NPC extends GameObject implements Clickable {
             ENTER,
             EXIT,
             PUT_RESOURCES_TO_BUILDING,
+            PUT_RESERVED_RESOURCES,
             TAKE_RESOURCES_FROM_BUILDING
         }
     }
@@ -508,10 +510,9 @@ public class NPC extends GameObject implements Clickable {
                     void execute() {
                         if (buildingIsIn == null)
                             throw new IllegalStateException();
-                        if (!getInventory().hasResourceAmount(resource, amount))
-                            throw new IllegalArgumentException();
 
                         getInventory().moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
+                        orderList.removeFirst();
                     }
                 });
                 break;
@@ -525,6 +526,39 @@ public class NPC extends GameObject implements Clickable {
                             throw new IllegalArgumentException();
 
                         buildingIsIn.getInventory().moveResourcesTo(getInventory(), resource, amount);
+                        orderList.removeFirst();
+                    }
+                });
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public void giveResourceOrder(Order.Type type, Resource resource) {
+        switch (type) {
+            case PUT_RESOURCES_TO_BUILDING:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (buildingIsIn == null)
+                            throw new IllegalStateException();
+
+                        getInventory().moveResourcesTo(buildingIsIn.getInventory(), resource);
+                        orderList.removeFirst();
+                    }
+                });
+                break;
+            case PUT_RESERVED_RESOURCES:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (buildingIsIn == null)
+                            throw new IllegalStateException();
+
+                        buildingIsIn.getInventory().put(Resource.NOTHING, -NPC.INVENTORY_SIZE);
+                        inventory.moveResourcesTo(buildingIsIn.getInventory(), resource);
+                        orderList.removeFirst();
                     }
                 });
                 break;

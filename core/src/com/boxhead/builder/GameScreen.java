@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
+import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
@@ -158,6 +159,10 @@ public class GameScreen extends InputAdapter implements Screen {
 
         for (Building building : World.getBuildings()) {
             building.draw(batch);
+        }
+
+        for (Harvestable harvestable : World.getHarvestables()) {
+            harvestable.draw(batch);
         }
     }
 

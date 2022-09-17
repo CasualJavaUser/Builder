@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resource;
@@ -9,6 +10,8 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class Harvestable extends GameObject implements FieldWork {
     private final Type type;
+    private final int productionInterval = 50;
+    private int productionCounter = 0;
     private int amountLeft;
     private NPC assigned;
     private boolean worked;
@@ -59,23 +62,30 @@ public class Harvestable extends GameObject implements FieldWork {
 
     @Override
     public void work() {
-        if (worked && assigned.getWorkplace().getStorage().checkStorageAvailability(assigned.getJob()) == 0) {
-            assigned.getWorkplace().getStorage().addToStorage(assigned.getJob());
-            for (Resource resource : assigned.getJob().getResourceChanges().keySet()) {
-                if (resource == type.getResource()) {
-                    amountLeft += assigned.getJob().getResourceChanges().get(resource);
-                    break;
+        if (worked) {
+            boolean exit = false;
+            if (assigned.getInventory().getAvailableCapacityFor(type.resource) > 0) {
+                productionCounter++;
+                if (productionCounter == productionInterval) {
+                    productionCounter = 0;
+                    amountLeft--;
+                    assigned.getInventory().put(type.resource, 1);
                 }
+            } else exit = true;
+
+            if (amountLeft <= 0) {
+                World.makeNavigable(collider);
+                World.getHarvestables().remove(this);
+                exit = true;
             }
-        }
-
-        if (amountLeft <= 0) {
-            World.makeNavigable(collider);
-            World.getHarvestables().remove(this);
-
-            assigned.getWorkplace().dissociateFieldWork(assigned);
-            assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-            assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
+            if (exit) {
+                assigned.getWorkplace().dissociateFieldWork(assigned);
+                assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
+                assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
+                assigned.giveResourceOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, type.resource);
+                worked = false;
+                assigned = null;
+            }
         }
     }
 
@@ -88,19 +98,19 @@ public class Harvestable extends GameObject implements FieldWork {
         TREE(Resource.WOOD),
         IRON_ORE(Resource.IRON);
 
-        private final Resource resource;
+        public final Resource resource;
 
         Type(Resource resource) {
             this.resource = resource;
-        }
-
-        public Resource getResource() {
-            return resource;
         }
     }
 
     @Override
     public BoxCollider getCollider() {
         return collider;
+    }
+
+    public void draw(SpriteBatch batch) {
+        batch.draw(texture, gridPosition.x * World.TILE_SIZE, gridPosition.y * World.TILE_SIZE);
     }
 }

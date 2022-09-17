@@ -16,7 +16,7 @@ import com.boxhead.builder.utils.Vector2i;
 public class Building extends GameObject implements Clickable {
     protected final String name;
     protected final BoxCollider collider;
-    private final Inventory inventory = new Inventory(200);
+    protected final Inventory inventory = new Inventory(200);
 
     public Building(String name, TextureRegion texture) {
         super(texture, new Vector2i());

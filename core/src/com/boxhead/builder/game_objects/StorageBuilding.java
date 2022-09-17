@@ -45,7 +45,7 @@ public class StorageBuilding extends Building {
     }
 
     public int getStoredWeight() {
-        return getInventory().getWeight();
+        return getInventory().getCurrentWeight();
     }
 
     public int getMaxWeight() {

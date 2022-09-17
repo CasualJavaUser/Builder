@@ -18,7 +18,6 @@ public class ProductionBuilding extends EnterableBuilding {
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
-    protected StorageBuilding storage = null;
     protected UIElement indicator;
     protected int availability = 0;
 
@@ -95,34 +94,28 @@ public class ProductionBuilding extends EnterableBuilding {
     public void produceResources() {
         if (job.getPoI() != null) {
             for (NPC employee : employees) {
-                if (employee != null && gridPosition.equals(employee.getGridPosition()) && !assignedFieldWork.containsKey(employee)) {
+                if (gridPosition.equals(employee.getGridPosition()) && !assignedFieldWork.containsKey(employee)
+                        && inventory.getAvailableCapacityFor(Resource.NOTHING) >= NPC.INVENTORY_SIZE) {
                     sendEmployee(employee);
                 }
             }
         }
 
         if (job.producesAnyResources()) {
-            if (storage != null) {
-                availability = storage.checkStorageAvailability(job);
-                if (availability == 0) {
-                    productionCounter += employeesInside;
-                    if (productionCounter >= productionInterval) {
-                        storage.addToStorage(job);
-                        productionCounter -= productionInterval;
-                    }
-                    indicator.setVisible(false);
-                } else {
-                    if (availability == -1)
-                        indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
-                    else indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
-                    indicator.setVisible(true);
-                    storage = getClosestStorage();
+            Inventory.Availability availability = inventory.checkStorageAvailability(job);
+
+            if (availability == Inventory.Availability.AVAILABLE) {
+                productionCounter += employeesInside;
+                if (productionCounter >= productionInterval) {
+                    inventory.put(job);
+                    productionCounter -= productionInterval;
                 }
+                indicator.setVisible(false);
             } else {
-                availability = 2;  //availability is set to 2 so that the appropriate information can be displayed in the BuildingStatWindow.
-                indicator.setTexture(Textures.get(Textures.Ui.NO_STORAGE));
+                if (availability == Inventory.Availability.LACKS_INPUT)
+                    indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
+                else indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
                 indicator.setVisible(true);
-                storage = getClosestStorage();
             }
         }
     }
@@ -130,6 +123,9 @@ public class ProductionBuilding extends EnterableBuilding {
     protected void sendEmployee(NPC npc) {
         FieldWork fieldWork = findPoI();
         if (fieldWork != null) {
+            if (fieldWork instanceof Harvestable) {
+                inventory.put(Resource.NOTHING, NPC.INVENTORY_SIZE);    //reserve space for whatever the employee brings back
+            }
             fieldWork.assignWorker(npc);
             assignedFieldWork.put(npc, fieldWork);
             npc.giveOrder(NPC.Order.Type.EXIT, this);
@@ -189,14 +185,6 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public int getAvailability() {
         return availability;
-    }
-
-    public StorageBuilding getStorage() {
-        return storage;
-    }
-
-    public int getEmployeesInside() {
-        return employeesInside;
     }
 
     public int getEmployeeCapacity() {
