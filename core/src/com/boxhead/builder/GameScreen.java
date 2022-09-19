@@ -48,7 +48,7 @@ public class GameScreen extends InputAdapter implements Screen {
         camera.update();
 
         //World.generateMap();
-        World.debug();
+        //World.debug();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class GameScreen extends InputAdapter implements Screen {
             World.handleNpcsAndBuildingsOnClick();
         }
 
-        drawObjects();
+        World.drawObjects(batch);
         drawUI();
 
         batch.end();
@@ -150,20 +150,6 @@ public class GameScreen extends InputAdapter implements Screen {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-    }
-
-    private void drawObjects() {
-        for (NPC npc : World.getNpcs()) {
-            npc.draw(batch);
-        }
-
-        for (Building building : World.getBuildings()) {
-            building.draw(batch);
-        }
-
-        for (Harvestable harvestable : World.getHarvestables()) {
-            harvestable.draw(batch);
-        }
     }
 
     private void drawUI() {

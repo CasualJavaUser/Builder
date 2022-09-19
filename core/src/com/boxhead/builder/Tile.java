@@ -5,16 +5,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class Tile {
 
     public enum Type {
-        GRASS(1f, Textures.get(Textures.Tile.GRASS)),
+        GRASS(1f, Textures.get(Textures.Tile.GRASS1), Textures.get(Textures.Tile.GRASS2), Textures.get(Textures.Tile.GRASS3)),
         DIRT(0.8f, Textures.get(Textures.Tile.DIRT)),
         DEFAULT(1f, Textures.get(Textures.Tile.DEFAULT));
 
         public final float speed;
-        public final TextureRegion texture;
+        public final TextureRegion[] textures;
 
-        Type(float speed, TextureRegion texture) {
+        Type(float speed, TextureRegion... textures) {
             this.speed = speed;
-            this.texture = texture;
+            this.textures = textures;
         }
     }
 }
