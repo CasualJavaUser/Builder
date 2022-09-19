@@ -1,8 +1,5 @@
 package com.boxhead.builder.utils;
 
-import com.boxhead.builder.game_objects.GameObject;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class SortedList<T> implements Collection<T> {
@@ -56,7 +53,6 @@ public class SortedList<T> implements Collection<T> {
             list.set(j, list.get(j-1));
         }
         list.set(i, t);
-        System.out.println(debug((ArrayList<GameObject>)list));
         return true;
     }
 
@@ -137,14 +133,5 @@ public class SortedList<T> implements Collection<T> {
 
     public List<T> subList(int fromIndex, int toIndex) {
         return list.subList(fromIndex, toIndex);
-    }
-
-    private String debug(List<GameObject> list) {
-        String result = "{";
-        for (GameObject o : list) {
-            result += " (" + o.getGridPosition().x + "," + o.getGridPosition().y + ")";
-        }
-        result += " }";
-        return result;
     }
 }

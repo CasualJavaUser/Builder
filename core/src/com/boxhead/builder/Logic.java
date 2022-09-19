@@ -50,12 +50,8 @@ public class Logic {
             }
         }
 
-        /*for (int i = 0; i < World.getHarvestables().size(); i++) {
+        for (int i = 0; i < World.getHarvestables().size(); i++) {
             World.getHarvestables().get(i).work();
-        }*/
-
-        for (Harvestable harvestable : World.getHarvestables()) {
-            harvestable.work();
         }
     }
 
