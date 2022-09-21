@@ -23,8 +23,8 @@ public class ProductionBuilding extends EnterableBuilding {
 
     private final static int storageDistance = 20;
 
-    public ProductionBuilding(String name, TextureRegion texture, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
-        super(name, texture, entrancePosition);
+    public ProductionBuilding(String name, TextureRegion texture, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
+        super(name, texture, gridPosition, entrancePosition);
         this.job = job;
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
@@ -37,8 +37,8 @@ public class ProductionBuilding extends EnterableBuilding {
         indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
-    public ProductionBuilding(String name, TextureRegion texture, Job job, int employeeCapacity, Vector2i entrancePosition) {
-        super(name, texture, entrancePosition);
+    public ProductionBuilding(String name, TextureRegion texture, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition) {
+        super(name, texture, gridPosition, entrancePosition);
         if (job.producesAnyResources())
             throw new IllegalArgumentException("this constructor requires the building not to produce anything");
 

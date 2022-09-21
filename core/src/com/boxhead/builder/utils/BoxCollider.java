@@ -1,7 +1,5 @@
 package com.boxhead.builder.utils;
 
-import com.boxhead.builder.World;
-
 public class BoxCollider {
     private Vector2i lowerLeftCorner;
     private int width, height;
@@ -10,8 +8,8 @@ public class BoxCollider {
      * Creates a 2D rectangular collider with the lower left corner at v1.
      *
      * @param lowerLeftCorner lower left corner of the collider (grid)
-     * @param width           the width of the collider (pixel)
-     * @param height          the height of the collider (pixel)
+     * @param width           the width of the collider (tiles)
+     * @param height          the height of the collider (tiles)
      */
     public BoxCollider(Vector2i lowerLeftCorner, int width, int height) {
         this.lowerLeftCorner = lowerLeftCorner;
@@ -20,8 +18,8 @@ public class BoxCollider {
     }
 
     public boolean overlap(Vector2i gridPosition) {
-        return gridPosition.x >= lowerLeftCorner.x && gridPosition.x < lowerLeftCorner.x + (width / World.TILE_SIZE) &&
-                gridPosition.y >= lowerLeftCorner.y && gridPosition.y < lowerLeftCorner.y + (height / World.TILE_SIZE);
+        return gridPosition.x >= lowerLeftCorner.x && gridPosition.x < lowerLeftCorner.x + width &&
+                gridPosition.y >= lowerLeftCorner.y && gridPosition.y < lowerLeftCorner.y + height;
     }
 
     public double distance(Vector2i gridPosition) {
@@ -31,22 +29,22 @@ public class BoxCollider {
         if (gridPosition.x < lowerLeftCorner.x) {
             if (gridPosition.y < lowerLeftCorner.y)
                 closestTile = lowerLeftCorner;
-            else if (gridPosition.y > lowerLeftCorner.y + (height / World.TILE_SIZE))
-                closestTile = lowerLeftCorner.addScalar(0, height / World.TILE_SIZE);
+            else if (gridPosition.y > lowerLeftCorner.y + height)
+                closestTile = lowerLeftCorner.add(0, height);
             else
                 closestTile = new Vector2i(lowerLeftCorner.x, gridPosition.y);
-        } else if (gridPosition.x < lowerLeftCorner.x + (width / World.TILE_SIZE)) {
+        } else if (gridPosition.x < lowerLeftCorner.x + width) {
             if (gridPosition.y < lowerLeftCorner.y)
                 closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y);
             else
-                closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y + (height / World.TILE_SIZE));
+                closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y + height);
         } else {
             if (gridPosition.y < lowerLeftCorner.y)
-                closestTile = new Vector2i(lowerLeftCorner.x + (width / World.TILE_SIZE), lowerLeftCorner.y);
-            else if (gridPosition.y > lowerLeftCorner.y + (height / World.TILE_SIZE))
-                closestTile = new Vector2i(lowerLeftCorner.x + (width / World.TILE_SIZE), lowerLeftCorner.y + (height / World.TILE_SIZE));
+                closestTile = new Vector2i(lowerLeftCorner.x + width, lowerLeftCorner.y);
+            else if (gridPosition.y > lowerLeftCorner.y + height)
+                closestTile = new Vector2i(lowerLeftCorner.x + width, lowerLeftCorner.y + height);
             else
-                closestTile = new Vector2i(lowerLeftCorner.x + (width / World.TILE_SIZE), gridPosition.y);
+                closestTile = new Vector2i(lowerLeftCorner.x + width, gridPosition.y);
         }
         return gridPosition.distance(closestTile);
     }
@@ -61,5 +59,9 @@ public class BoxCollider {
 
     public int getHeight() {
         return height;
+    }
+
+    public void setGridPosition(Vector2i gridPosition) {
+        lowerLeftCorner.set(gridPosition);
     }
 }

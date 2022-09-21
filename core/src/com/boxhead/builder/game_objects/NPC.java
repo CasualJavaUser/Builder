@@ -55,6 +55,7 @@ public class NPC extends GameObject implements Clickable {
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
     }
 
+    @Override
     public void draw(SpriteBatch batch) {
         if (!isInBuilding()) {
             float x = spritePosition.x * World.TILE_SIZE;
@@ -287,8 +288,8 @@ public class NPC extends GameObject implements Clickable {
             }
             HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
             Vector2i colliderTile = new Vector2i();
-            for (int y = 0; y < area.getHeight() / World.TILE_SIZE; y++) {
-                for (int x = 0; x < area.getWidth() / World.TILE_SIZE; x++) {
+            for (int y = 0; y < area.getHeight(); y++) {
+                for (int x = 0; x < area.getWidth(); x++) {
                     colliderTile.set(x + area.getGridPosition().x, y + area.getGridPosition().y);
                     unvisitedTiles.add(colliderTile.clone());
                 }

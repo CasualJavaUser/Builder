@@ -10,13 +10,13 @@ public class EnterableBuilding extends Building {
      */
     protected Vector2i entrancePosition;
 
-    protected EnterableBuilding(String name, TextureRegion texture, Vector2i entrancePosition) {
-        super(name, texture);
+    protected EnterableBuilding(String name, TextureRegion texture, Vector2i gridPosition, Vector2i entrancePosition) {
+        super(name, texture, gridPosition);
         this.entrancePosition = entrancePosition;
     }
 
     public Vector2i getEntrancePosition() {
-        return gridPosition.addScalar(entrancePosition);
+        return gridPosition.add(entrancePosition);
     }
 
     public static EnterableBuilding getByCoordinates(Vector2i gridPosition) {

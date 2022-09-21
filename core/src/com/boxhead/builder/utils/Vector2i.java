@@ -31,11 +31,11 @@ public class Vector2i implements Cloneable {
         y = v.y;
     }
 
-    public Vector2i addScalar(Vector2i vector) {
+    public Vector2i add(Vector2i vector) {
         return new Vector2i(x + vector.x, y + vector.y);
     }
 
-    public Vector2i addScalar(int x, int y) {
+    public Vector2i add(int x, int y) {
         return new Vector2i(this.x + x, this.y + y);
     }
 

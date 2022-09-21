@@ -27,7 +27,7 @@ public class World {
 
     private static Tile.Type[] tiles;
     private static TextureRegion[] tileTextures;
-    private static  SortedList<Building> buildings;
+    private static SortedList<Building> buildings;
     private static SortedList<NPC> npcs;
     private static SortedList<Harvestable> harvestables;
 
@@ -46,13 +46,15 @@ public class World {
 
         random = new Random(SEED);
 
+        resetNavigability(worldSize);
+
         generateTiles();
         generateTrees();
 
-        resetNavigability(worldSize);
+        //temp
         placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
-        makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2 * TILE_SIZE, 2 * TILE_SIZE));
-        harvestables.add(new Harvestable(Textures.get(Textures.Environment.SMALL_TREE), new Vector2i(45, 35), Harvestable.Type.TREE, 10));
+        makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2, 2));
+        //harvestables.add(Harvestables.get(Harvestables.Type.BIG_TREE));
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
@@ -77,7 +79,7 @@ public class World {
         }
     }
 
-    private static void generateTrees() {
+    private static void generateTrees() {  //todo trees generate outside of map bounds
         for (int y = 0; y < worldSize.y; y++) {
             for (int x = 0; x < worldSize.x; x++) {
                 double dx = (double) x / worldSize.x;
@@ -86,7 +88,7 @@ public class World {
                 double bigNoise = PerlinNoise.noise(dx * treeNoiseFrequency * 100, dy * treeNoiseFrequency * 100, SEED);
 
                 if(smallNoise > 0.1f && bigNoise > .2f) {
-                    harvestables.add(new Harvestable(Textures.get(Textures.Environment.SMALL_TREE), new Vector2i(x, y), Harvestable.Type.TREE, 10));
+                    placeHarvestable(Harvestables.get(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
                 }
             }
         }
@@ -107,8 +109,8 @@ public class World {
 
     public static void makeUnnavigable(BoxCollider area) {
         Vector2i tile = new Vector2i();
-        for (int y = 0; y < area.getHeight() / World.TILE_SIZE; y++) {
-            for (int x = 0; x < area.getWidth() / World.TILE_SIZE; x++) {
+        for (int y = 0; y < area.getHeight(); y++) {
+            for (int x = 0; x < area.getWidth(); x++) {
                 tile.set(x + area.getGridPosition().x, y + area.getGridPosition().y);
                 navigableTiles.remove(tile);
             }
@@ -121,8 +123,8 @@ public class World {
 
     public static void makeNavigable(BoxCollider area) {
         Vector2i tile = new Vector2i();
-        for (int y = 0; y < area.getHeight() / World.TILE_SIZE; y++) {
-            for (int x = 0; x < area.getWidth() / World.TILE_SIZE; x++) {
+        for (int y = 0; y < area.getHeight(); y++) {
+            for (int x = 0; x < area.getWidth(); x++) {
                 tile.set(x + area.getGridPosition().x, y + area.getGridPosition().y);
                 navigableTiles.add(tile);
             }
@@ -131,8 +133,7 @@ public class World {
 
     public static boolean startConstruction(Buildings.Type type, Vector2i gridPosition) {
         if (navigableTiles.contains(gridPosition)) {
-            ConstructionSite site = new ConstructionSite("construction site (" + Buildings.get(type).getName() + ')', type, 100);
-            site.setGridPosition(gridPosition);
+            ConstructionSite site = new ConstructionSite("construction site", gridPosition, type, 100);
             buildings.add(site);
             makeUnnavigable(site.getCollider());
             return true;
@@ -140,10 +141,20 @@ public class World {
         return false;
     }
 
-    public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
-        Building building = Buildings.get(type);
-        building.setGridPosition(gridPosition);
+    public static Building placeBuilding(Buildings.Type type, Vector2i gridPosition) {
+        Building building = Buildings.get(type, gridPosition);
         buildings.add(building);
+        return building;
+    }
+
+    public static Building placeBuilding(Building building) {
+        buildings.add(building);
+        return building;
+    }
+
+    public static void placeHarvestable(Harvestable harvestable) {
+        makeUnnavigable(harvestable.getCollider());
+        harvestables.add(harvestable);
     }
 
     public static void drawMap(SpriteBatch batch) {

@@ -3,13 +3,14 @@ package com.boxhead.builder.game_objects;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Job;
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.util.Map;
 
 public class StorageBuilding extends Building {
 
-    public StorageBuilding(String name, TextureRegion texture) {
-        super(name, texture);
+    public StorageBuilding(String name, TextureRegion texture, Vector2i gridPosition) {
+        super(name, texture, gridPosition);
     }
 
     public boolean isFull(Resource resource) {

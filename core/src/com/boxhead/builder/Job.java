@@ -2,6 +2,7 @@ package com.boxhead.builder;
 
 import com.boxhead.builder.game_objects.ConstructionSite;
 import com.boxhead.builder.game_objects.Harvestable;
+import com.boxhead.builder.game_objects.Harvestables;
 import com.boxhead.builder.utils.Pair;
 
 import java.util.EnumMap;
@@ -9,9 +10,9 @@ import java.util.Map;
 
 public enum Job {
     UNEMPLOYED(null, Pair.of(Resource.NOTHING, 0)),
-    LUMBERJACK(Harvestable.Type.TREE,
+    LUMBERJACK(Harvestable.Characteristic.TREE,
             Pair.of(Resource.NOTHING, 0)),
-    MINER_IRON(Harvestable.Type.IRON_ORE,
+    MINER_IRON(Harvestables.Type.IRON_ORE,
             Pair.of(Resource.IRON, 1)),
     BUILDER(ConstructionSite.class,
             Pair.of(Resource.NOTHING, 0)),

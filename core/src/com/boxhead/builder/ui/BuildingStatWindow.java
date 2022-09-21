@@ -35,7 +35,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
     @Override
     protected void updateStats() {
-        stats = pinnedObject.getName();
+        stats = pinnedObject.getName() + "\n";
         if(pinnedObject instanceof ResidentialBuilding) {
             npcCapacity = ((ResidentialBuilding) pinnedObject).getResidentCapacity();
             npcs = ((ResidentialBuilding) pinnedObject).getResidents();
@@ -53,7 +53,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 default: warning = "";
             }
 
-            stats += "\njob quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();  //job quality and products
+            stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();  //job quality and products
             job = ((ProductionBuilding) pinnedObject).getJob();
             if(job.producesAnyResources()) {
                 stats += "\nproduct(s):";
@@ -67,7 +67,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         if(pinnedObject instanceof StorageBuilding) {
             StorageBuilding storage = (StorageBuilding) pinnedObject;
-            stats += "\n" + storage.getStoredWeight() + " / " + storage.getMaxWeight();
+            stats += storage.getStoredWeight() + " / " + storage.getMaxWeight();
             for (int i = 1; i < Resource.values().length; i++) {
                 if(storage.getStored(Resource.values()[i]) != 0) {
                     stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
@@ -76,6 +76,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }
         }
 
+        if(pinnedObject instanceof ConstructionSite) {
+            stats += '(' + ((ConstructionSite) pinnedObject).getBuilding().getName() + ')';
+        }
     }
 
     @Override

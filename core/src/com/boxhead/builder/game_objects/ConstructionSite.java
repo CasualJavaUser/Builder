@@ -3,6 +3,7 @@ package com.boxhead.builder.game_objects;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,14 +11,19 @@ import java.util.Set;
 public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
-    private final Buildings.Type buildingType;
+    private Building building;
     private int currentlyWorking = 0;
     private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
-    public ConstructionSite(String name, Buildings.Type building, int totalLabour) {
-        super(name, building.getConstructionSite());
-        this.buildingType = building;
+    public ConstructionSite(String name, Vector2i gridPosition, Buildings.Type buildingType, int totalLabour) {
+        super(name, buildingType.getConstructionSite(), gridPosition);
+        building = Buildings.get(buildingType, gridPosition);
+        building.setCollider(collider);
         this.totalLabour = totalLabour;
+
+        switch (buildingType) {
+            default: collider = getDefaultCollider();
+        }
     }
 
     @Override
@@ -49,7 +55,7 @@ public class ConstructionSite extends Building implements FieldWork {
 
         if (progress >= totalLabour) {
             World.getBuildings().remove(this);
-            World.placeBuilding(buildingType, super.gridPosition);
+            World.placeBuilding(building);
 
             for (NPC npc : assigned) {
                 if (npc != null) {
@@ -69,8 +75,7 @@ public class ConstructionSite extends Building implements FieldWork {
         }
     }
 
-    @Override
-    public BoxCollider getCollider() {
-        return super.collider;
+    public Building getBuilding() {
+        return building;
     }
 }

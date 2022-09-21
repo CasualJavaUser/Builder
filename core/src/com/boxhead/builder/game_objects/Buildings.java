@@ -40,20 +40,20 @@ public class Buildings {
         }
     }
 
-    public static Building get(Type building) {
+    public static Building get(Type building, Vector2i gridPosition) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding("lumber mill", building.getTexture(), Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+                return new ProductionBuilding("lumber mill", building.getTexture(), gridPosition, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
             case DEFAULT_RESIDENTIAL_BUILDING:
-                return new ResidentialBuilding("house", building.getTexture(), 5, new Vector2i(0, -1));
+                return new ResidentialBuilding("house", building.getTexture(), gridPosition, 5, new Vector2i(0, -1));
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding("hospital", building.getTexture(), Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+                return new ServiceBuilding("hospital", building.getTexture(), gridPosition, Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
             case DEFAULT_STORAGE_BUILDING:
-                return new StorageBuilding("storage", building.getTexture());
+                return new StorageBuilding("storage", building.getTexture(), gridPosition);
             case BIG:
-                return new Building("fungi", building.getTexture());
+                return new Building("fungi", building.getTexture(), gridPosition);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building.getTexture(), Job.BUILDER, 5, new Vector2i(0, -1));
+                return new ProductionBuilding("construction office", building.getTexture(), gridPosition, Job.BUILDER, 5, new Vector2i(0, -1));
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }

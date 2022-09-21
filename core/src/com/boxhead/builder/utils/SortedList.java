@@ -12,8 +12,6 @@ public class SortedList<T> implements Collection<T> {
         list = new ArrayList<>();
     }
 
-    private SortedList() {}
-
     @Override
     public int size() {
         return list.size();
