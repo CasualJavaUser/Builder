@@ -88,7 +88,7 @@ public class World {
                 double bigNoise = PerlinNoise.noise(dx * treeNoiseFrequency * 100, dy * treeNoiseFrequency * 100, SEED);
 
                 if(smallNoise > 0.1f && bigNoise > .2f) {
-                    placeHarvestable(Harvestables.get(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
+                    placeHarvestable(Harvestables.create(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
                 }
             }
         }
@@ -142,7 +142,7 @@ public class World {
     }
 
     public static Building placeBuilding(Buildings.Type type, Vector2i gridPosition) {
-        Building building = Buildings.get(type, gridPosition);
+        Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
         return building;
     }

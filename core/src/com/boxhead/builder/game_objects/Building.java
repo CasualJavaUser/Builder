@@ -17,9 +17,16 @@ public class Building extends GameObject implements Clickable {
     protected final Inventory inventory = new Inventory(200);
     protected BoxCollider collider;
 
+    public Building(String name, TextureRegion texture, Vector2i gridPosition, BoxCollider collider) {
+        super(texture, gridPosition);
+        this.name = name;
+        this.collider = collider;
+    }
+
     public Building(String name, TextureRegion texture, Vector2i gridPosition) {
         super(texture, gridPosition);
         this.name = name;
+        collider = getDefaultCollider();
     }
 
     public String getName() {
@@ -27,13 +34,7 @@ public class Building extends GameObject implements Clickable {
     }
 
     public BoxCollider getCollider() {
-        if (collider == null)
-            collider = getDefaultCollider();
         return collider;
-    }
-
-    public void setCollider(BoxCollider collider) {
-        this.collider = collider;
     }
 
     public Inventory getInventory() {
@@ -44,8 +45,8 @@ public class Building extends GameObject implements Clickable {
     public boolean isClicked() {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
-            int colliderX = getCollider().getGridPosition().x;
-            int colliderY = getCollider().getGridPosition().y;
+            int colliderX = collider.getGridPosition().x;
+            int colliderY = collider.getGridPosition().y;
 
             return mousePos.x >= colliderX * World.TILE_SIZE && mousePos.x < (colliderX * World.TILE_SIZE + collider.getWidth() * World.TILE_SIZE)
                     && mousePos.y >= colliderY * World.TILE_SIZE && mousePos.y < (colliderY * World.TILE_SIZE + collider.getHeight() * World.TILE_SIZE);

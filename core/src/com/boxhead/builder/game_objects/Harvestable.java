@@ -22,7 +22,15 @@ public class Harvestable extends GameObject implements FieldWork {
         super(texture, gridPosition);
         this.characteristic = characteristic;
         amountLeft = size;
-        collider = Harvestables.getCollider(this);
+        if(characteristic != Characteristic.TREE) collider = getDefaultCollider();
+        else collider = new BoxCollider(new Vector2i(gridPosition.x + texture.getRegionWidth()/ World.TILE_SIZE/2, gridPosition.y), 1, 1);
+    }
+
+    public Harvestable(TextureRegion texture, Vector2i gridPosition, BoxCollider collider, Characteristic characteristic, int size) {
+        super(texture, gridPosition);
+        this.collider = collider;
+        this.characteristic = characteristic;
+        amountLeft = size;
     }
 
     public static Harvestable getByCoordinates(Vector2i gridPosition) {

@@ -2,7 +2,6 @@ package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
-import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashSet;
@@ -11,19 +10,15 @@ import java.util.Set;
 public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
-    private Building building;
+    private final Building building;
     private int currentlyWorking = 0;
     private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
 
     public ConstructionSite(String name, Vector2i gridPosition, Buildings.Type buildingType, int totalLabour) {
-        super(name, buildingType.getConstructionSite(), gridPosition);
-        building = Buildings.get(buildingType, gridPosition);
-        building.setCollider(collider);
+        super(name, buildingType.getConstructionSite(), gridPosition, null);
+        building = Buildings.create(buildingType, gridPosition);
         this.totalLabour = totalLabour;
-
-        switch (buildingType) {
-            default: collider = getDefaultCollider();
-        }
+        collider = building.getCollider();
     }
 
     @Override

@@ -40,7 +40,7 @@ public class Buildings {
         }
     }
 
-    public static Building get(Type building, Vector2i gridPosition) {
+    public static Building create(Type building, Vector2i gridPosition) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
                 return new ProductionBuilding("lumber mill", building.getTexture(), gridPosition, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
