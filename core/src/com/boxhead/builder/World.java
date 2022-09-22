@@ -31,7 +31,7 @@ public class World {
     private static SortedList<NPC> npcs;
     private static SortedList<Harvestable> harvestables;
 
-    private static final Comparator<? extends GameObject> comparator = Comparator.comparingInt(o -> (o.getGridPosition().x + o.getGridPosition().y * worldSize.x));
+    private static final Comparator<? extends WorldObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
 
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
@@ -54,7 +54,6 @@ public class World {
         //temp
         placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
         makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2, 2));
-        //harvestables.add(Harvestables.get(Harvestables.Type.BIG_TREE));
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
