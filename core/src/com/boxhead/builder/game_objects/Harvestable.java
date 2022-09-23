@@ -116,4 +116,9 @@ public class Harvestable extends GameObject implements FieldWork {
     public BoxCollider getCollider() {
         return collider;
     }
+
+    @Override
+    public String toString() {
+        return characteristic.toString() + " " + gridPosition.toString();
+    }
 }
