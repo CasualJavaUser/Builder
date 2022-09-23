@@ -12,7 +12,7 @@ public enum Job {
     UNEMPLOYED(null, Pair.of(Resource.NOTHING, 0)),
     LUMBERJACK(Harvestable.Characteristic.TREE,
             Pair.of(Resource.NOTHING, 0)),
-    MINER_IRON(Harvestables.Type.IRON_ORE,
+    MINER_IRON(Harvestable.Characteristic.IRON_ORE,
             Pair.of(Resource.IRON, 1)),
     BUILDER(ConstructionSite.class,
             Pair.of(Resource.NOTHING, 0)),

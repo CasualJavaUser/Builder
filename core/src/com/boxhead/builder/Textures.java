@@ -59,7 +59,7 @@ public class Textures {
     }
 
     public enum Tile implements TextureId {
-        DEFAULT, DIRT, GRASS, GRASS1, GRASS2, GRASS3
+        DEFAULT, DIRT, GRASS, GRASS1, GRASS2, GRASS3, WATER
     }
 
     public enum Npc implements TextureId {

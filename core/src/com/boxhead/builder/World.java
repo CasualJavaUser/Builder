@@ -19,9 +19,8 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
-    private static final int SEED = 45;
+    private static final int SEED = 60;
     private static Random random;
-    private static final int treeNoiseFrequency = 6;
 
     private static final int[] storage = new int[Resource.values().length];
 
@@ -54,7 +53,6 @@ public class World {
         //temp
         placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
         makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2, 2));
-        //harvestables.add(Harvestables.get(Harvestables.Type.BIG_TREE));
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
@@ -74,21 +72,56 @@ public class World {
 
     private static void generateTiles() {
         Arrays.fill(tiles, Tile.Type.GRASS);
+        generateRiver();
+
         for (int i = 0; i < tiles.length; i++) {
             tileTextures[i] = tiles[i].textures[random.nextInt(tiles[i].textures.length)];
         }
     }
 
-    private static void generateTrees() {  //todo trees generate outside of map bounds
-        for (int y = 0; y < worldSize.y; y++) {
-            for (int x = 0; x < worldSize.x; x++) {
+    private static void generateTrees() {
+        int smallNoiseFrequency = 6;
+        int bigNoiseFrequency = 100;
+        Harvestables.Type type;
+
+        for (int y = worldSize.y-1; y >= 0; y--) {
+            for (int x = worldSize.x-1; x >= 0; x--) {
                 double dx = (double) x / worldSize.x;
                 double dy = (double) y / worldSize.y;
-                double smallNoise = PerlinNoise.noise(dx * treeNoiseFrequency, dy * treeNoiseFrequency, SEED);
-                double bigNoise = PerlinNoise.noise(dx * treeNoiseFrequency * 100, dy * treeNoiseFrequency * 100, SEED);
+                double smallNoise = PerlinNoise.noise3D(dx * smallNoiseFrequency, dy * smallNoiseFrequency, SEED);
+                double bigNoise = PerlinNoise.noise3D(dx * bigNoiseFrequency, dy * bigNoiseFrequency, SEED);
 
-                if(smallNoise > 0.1f && bigNoise > .2f) {
+                type = Harvestables.Type.BIG_TREE;  //todo randomize tree types
+                int width = type.getTexture().getRegionWidth()/TILE_SIZE;
+                int height = type.getTexture().getRegionHeight()/TILE_SIZE;
+                int trunkX = x + width/2;
+                boolean isLocationValid = x+width <= worldSize.x && y+height <= worldSize.y && tiles[y * worldSize.y + trunkX] != Tile.Type.WATER;
+                if(isLocationValid && smallNoise > 0.1f && bigNoise > .2f) {
                     placeHarvestable(Harvestables.create(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
+                }
+            }
+        }
+    }
+
+    private static void generateRiver() {
+        double noiseFrequency = random.nextDouble() * 2 + 3;    //amount of curves (3 <= x < 5)
+        double curveMultiplier = random.nextDouble() * 4 + 16;  //curve size (16 <= x < 20)
+        int width = 2;                                          //river width
+        double bias = random.nextDouble() - 0.5f;               //the general direction in which the river is going (positive - right, negative - left) (-0.5 <= x < 0.5)
+        float minDistanceFromEdge = 0.3f;
+
+        int[] steps = new int[worldSize.y];
+        double startX = random.nextInt((int)(worldSize.x * (1-2*minDistanceFromEdge))) + (int)(worldSize.x * minDistanceFromEdge);
+        for (int i = 0; i < steps.length; i++) {
+            double di = (double) i / worldSize.y;
+            double noise = PerlinNoise.noise2D(di * noiseFrequency, SEED) * curveMultiplier;
+            steps[i] = (int)startX + (int)noise;
+            startX += bias;
+        }
+        for (int y = 0; y < worldSize.y; y++) {
+            for (int x = 0; x < worldSize.x; x++) {
+                if(x >= steps[y] - width && x <= steps[y] + width) {
+                    tiles[y * worldSize.y + x] = Tile.Type.WATER;
                 }
             }
         }
