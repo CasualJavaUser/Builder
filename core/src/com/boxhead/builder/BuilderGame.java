@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.utils.Vector2i;
 
 public class BuilderGame extends Game {
 

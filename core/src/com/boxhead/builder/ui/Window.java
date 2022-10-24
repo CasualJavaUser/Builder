@@ -26,7 +26,7 @@ public class Window extends UIElement implements Clickable {
 
     public Window(TextureRegion texture, Vector2i position, boolean visible) {
         super(texture, position, visible);
-        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), new Vector2i(), this::close);
+        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), new Vector2i(), this::hide);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class Window extends UIElement implements Clickable {
         closeButton.draw(batch);
     }
 
-    private void close() {
+    protected void hide() {
         setVisible(false);
         isDragged = false;
     }

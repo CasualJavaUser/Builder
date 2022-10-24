@@ -13,10 +13,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
-import com.boxhead.builder.game_objects.Harvestable;
-import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 import org.apache.commons.lang3.Range;
@@ -46,9 +43,6 @@ public class GameScreen extends InputAdapter implements Screen {
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
         camera.update();
-
-        //World.generateMap();
-        //World.debug();
     }
 
     @Override
@@ -158,6 +152,10 @@ public class GameScreen extends InputAdapter implements Screen {
         batch.setProjectionMatrix(uiProjection);
         UI.drawUI(batch);
         batch.setProjectionMatrix(camera.combined);
+    }
+
+    public Viewport getViewport() {
+        return viewport;
     }
 
     private Range<Float> getCameraYRange() {

@@ -55,12 +55,19 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
             stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();  //job quality and products
             job = ((ProductionBuilding) pinnedObject).getJob();
-            if(job.producesAnyResources()) {
+            /*if(job.producesAnyResources()) {
                 stats += "\nproduct(s):";
                 for (Resource resource : job.getResourceChanges().keySet()) {
                     if(job.getResourceChanges().get(resource) > 0) {
                         stats += "\n- " + resource.name().toLowerCase();
                     }
+                }
+            }*/
+            stats += "\n" + building.getInventory().getCurrentWeight() + " / " + building.getInventory().getMaxWeight();  //todo temporary solution (until job system overhaul)
+            for (int i = 1; i < Resource.values().length; i++) {
+                if(building.getInventory().getResourceAmount(Resource.values()[i]) != 0) {
+                    stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
+                            building.getInventory().getResourceAmount(Resource.values()[i]);
                 }
             }
         }

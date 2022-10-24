@@ -174,15 +174,13 @@ public class World {
         return false;
     }
 
-    public static Building placeBuilding(Buildings.Type type, Vector2i gridPosition) {
+    public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
-        return building;
     }
 
-    public static Building placeBuilding(Building building) {
+    public static void placeBuilding(Building building) {
         buildings.add(building);
-        return building;
     }
 
     public static void placeHarvestable(Harvestable harvestable) {

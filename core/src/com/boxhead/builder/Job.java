@@ -9,7 +9,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public enum Job {
-    UNEMPLOYED(null, Pair.of(Resource.NOTHING, 0)),
+    UNEMPLOYED(null,
+            Pair.of(Resource.NOTHING, 0)),
     LUMBERJACK(Harvestable.Characteristic.TREE,
             Pair.of(Resource.NOTHING, 0)),
     MINER_IRON(Harvestable.Characteristic.IRON_ORE,
@@ -26,7 +27,8 @@ public enum Job {
     BLACKSMITH_STEEL(null,
             Pair.of(Resource.TOOLS, 1),
             Pair.of(Resource.STEEL, -1)),
-    DOCTOR(null, Pair.of(Resource.NOTHING, 0));
+    DOCTOR(null,
+            Pair.of(Resource.NOTHING, 0));
 
     private final Object poi;
 
