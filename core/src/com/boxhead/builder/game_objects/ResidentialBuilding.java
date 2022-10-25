@@ -11,8 +11,8 @@ public class ResidentialBuilding extends EnterableBuilding {
     private final int residentCapacity;
     private final Set<NPC> residents;
 
-    public ResidentialBuilding(String name, TextureRegion texture, Vector2i gridPosition, int residentCapacity, Vector2i entrancePosition) {
-        super(name, texture, gridPosition, entrancePosition);
+    public ResidentialBuilding(String name, Buildings.Type type, Vector2i gridPosition, int residentCapacity, Vector2i entrancePosition) {
+        super(name, type, gridPosition, entrancePosition);
         this.residentCapacity = residentCapacity;
         residents = new HashSet<>(residentCapacity, 1f);
     }

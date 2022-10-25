@@ -165,7 +165,7 @@ public class World {
     }
 
     public static boolean startConstruction(Buildings.Type type, Vector2i gridPosition) {
-        if (navigableTiles.contains(gridPosition)) {
+        if (navigableTiles.containsAll(type.getRelativeCollider().cloneAndTranslate(gridPosition).toVector2iList())) {
             ConstructionSite site = new ConstructionSite("construction site", gridPosition, type, 100);
             buildings.add(site);
             makeUnnavigable(site.getCollider());

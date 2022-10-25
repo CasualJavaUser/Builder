@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 public class Buildings {
@@ -22,9 +23,23 @@ public class Buildings {
         CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE);
 
         public final Textures.Building texture;
+        public final BoxCollider relativeCollider;
+
+        Type(Textures.Building texture, BoxCollider relativeCollider) {
+            this.texture = texture;
+            this.relativeCollider = relativeCollider;
+        }
 
         Type(Textures.Building texture) {
             this.texture = texture;
+            TextureRegion tex = Textures.get(texture);
+            this.relativeCollider = new BoxCollider(Vector2i.zero(),
+                    tex.getRegionWidth() / World.TILE_SIZE,
+                    tex.getRegionHeight() / World.TILE_SIZE);
+        }
+
+        public BoxCollider getRelativeCollider() {
+            return relativeCollider;
         }
 
         public TextureRegion getTexture() {
@@ -43,17 +58,17 @@ public class Buildings {
     public static Building create(Type building, Vector2i gridPosition) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding("lumber mill", building.getTexture(), gridPosition, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+                return new ProductionBuilding("lumber mill", building, gridPosition, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
             case DEFAULT_RESIDENTIAL_BUILDING:
-                return new ResidentialBuilding("house", building.getTexture(), gridPosition, 5, new Vector2i(0, -1));
+                return new ResidentialBuilding("house", building, gridPosition, 5, new Vector2i(0, -1));
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding("hospital", building.getTexture(), gridPosition, Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+                return new ServiceBuilding("hospital", building, gridPosition, Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
             case DEFAULT_STORAGE_BUILDING:
-                return new StorageBuilding("storage", building.getTexture(), gridPosition);
+                return new StorageBuilding("storage", building, gridPosition);
             case BIG:
-                return new Building("fungi", building.getTexture(), gridPosition);
+                return new Building("fungi", building, gridPosition);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building.getTexture(), gridPosition, Job.BUILDER, 5, new Vector2i(0, -1));
+                return new ProductionBuilding("construction office", building, gridPosition, Job.BUILDER, 5, new Vector2i(0, -1));
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }
@@ -72,6 +87,7 @@ public class Buildings {
         int posX = mouseX - (mouseX % World.TILE_SIZE);
         int posY = mouseY - (mouseY % World.TILE_SIZE);
 
+        showTileAvailability(batch, posX, posY);
         batch.setColor(UI.SEMI_TRANSPARENT);
         batch.draw(texture, posX, posY);
         batch.setColor(UI.DEFAULT_COLOR);
@@ -95,5 +111,17 @@ public class Buildings {
 
     public static boolean isInBuildingMode() {
         return isInBuildingMode;
+    }
+
+    private static void showTileAvailability(SpriteBatch batch, int posX, int posY) {
+        for (int y = 0; y < currentBuilding.getRelativeCollider().getHeight(); y++) {
+            for (int x = 0; x < currentBuilding.getRelativeCollider().getWidth(); x++) {
+                if(World.getNavigableTiles().contains(new Vector2i(posX/World.TILE_SIZE + x, posY/World.TILE_SIZE + y)))
+                    batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
+                else
+                    batch.setColor(UI.SEMI_TRANSPARENT_RED);
+                batch.draw(Textures.get(Textures.Tile.DEFAULT), posX + x * World.TILE_SIZE, posY + y * World.TILE_SIZE);
+            }
+        }
     }
 }

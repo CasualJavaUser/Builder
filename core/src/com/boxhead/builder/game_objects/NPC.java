@@ -283,7 +283,7 @@ public class NPC extends GameObject implements Clickable {
         }
 
         public static Vector2i[] findPath(final Vector2i start, final BoxCollider area) {
-            if (area.overlap(start) || !World.getNavigableTiles().contains(start)) {
+            if (area.overlaps(start) || !World.getNavigableTiles().contains(start)) {
                 return new Vector2i[]{start};
             }
             HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
@@ -305,7 +305,7 @@ public class NPC extends GameObject implements Clickable {
             Vector2i currentTile = start.clone();
             Vector2i tempTile;
 
-            while (!area.overlap(currentTile)) {
+            while (!area.overlaps(currentTile)) {
                 tempTile = new Vector2i(x + 1, y);
                 calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
                 tempTile = new Vector2i(x - 1, y);

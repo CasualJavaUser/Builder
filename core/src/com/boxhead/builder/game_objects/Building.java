@@ -23,10 +23,10 @@ public class Building extends GameObject implements Clickable {
         this.collider = collider;
     }
 
-    public Building(String name, TextureRegion texture, Vector2i gridPosition) {
-        super(texture, gridPosition);
+    public Building(String name, Buildings.Type type, Vector2i gridPosition) {
+        super(type.getTexture(), gridPosition);
         this.name = name;
-        collider = getDefaultCollider();
+        collider = type.getRelativeCollider().cloneAndTranslate(gridPosition);
     }
 
     public String getName() {

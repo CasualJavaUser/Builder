@@ -10,8 +10,8 @@ public class EnterableBuilding extends Building {
      */
     protected Vector2i entrancePosition;
 
-    protected EnterableBuilding(String name, TextureRegion texture, Vector2i gridPosition, Vector2i entrancePosition) {
-        super(name, texture, gridPosition);
+    protected EnterableBuilding(String name, Buildings.Type type, Vector2i gridPosition, Vector2i entrancePosition) {
+        super(name, type, gridPosition);
         this.entrancePosition = entrancePosition;
     }
 

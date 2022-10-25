@@ -1,5 +1,8 @@
 package com.boxhead.builder.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BoxCollider {
     private Vector2i lowerLeftCorner;
     private int width, height;
@@ -17,13 +20,13 @@ public class BoxCollider {
         this.height = height;
     }
 
-    public boolean overlap(Vector2i gridPosition) {
+    public boolean overlaps(Vector2i gridPosition) {
         return gridPosition.x >= lowerLeftCorner.x && gridPosition.x < lowerLeftCorner.x + width &&
                 gridPosition.y >= lowerLeftCorner.y && gridPosition.y < lowerLeftCorner.y + height;
     }
 
     public double distance(Vector2i gridPosition) {
-        if (overlap(gridPosition)) return 0d;
+        if (overlaps(gridPosition)) return 0d;
 
         Vector2i closestTile;
         if (gridPosition.x < lowerLeftCorner.x) {
@@ -63,5 +66,17 @@ public class BoxCollider {
 
     public void setGridPosition(Vector2i gridPosition) {
         lowerLeftCorner.set(gridPosition);
+    }
+
+    public BoxCollider cloneAndTranslate(Vector2i gridPosition) {
+        return new BoxCollider(lowerLeftCorner.add(gridPosition), width, height);
+    }
+
+    public List<Vector2i> toVector2iList() {
+        List<Vector2i> list = new ArrayList<>();
+        for (int i = 0; i < width * height; i++) {
+            list.add(new Vector2i(lowerLeftCorner.x + i%width, lowerLeftCorner.y + i/width));
+        }
+        return list;
     }
 }

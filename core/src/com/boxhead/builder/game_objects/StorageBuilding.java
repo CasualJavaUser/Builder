@@ -9,8 +9,8 @@ import java.util.Map;
 
 public class StorageBuilding extends Building {
 
-    public StorageBuilding(String name, TextureRegion texture, Vector2i gridPosition) {
-        super(name, texture, gridPosition);
+    public StorageBuilding(String name, Buildings.Type type, Vector2i gridPosition) {
+        super(name, type, gridPosition);
     }
 
     public boolean isFull(Resource resource) {

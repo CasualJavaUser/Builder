@@ -74,4 +74,8 @@ public class Vector2i implements Cloneable {
     public Vector2 toVector2() {
         return new Vector2(x, y);
     }
+
+    public static Vector2i zero() {
+        return new Vector2i(0, 0);
+    }
 }
