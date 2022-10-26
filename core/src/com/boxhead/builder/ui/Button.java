@@ -23,11 +23,6 @@ public class Button extends UIElement implements Clickable {
         else onUp = action;
     }
 
-    public Button(TextureRegion texture, Vector2i position, OnClick onClick, boolean visible) {
-        super(texture, position, visible);
-        this.onClick = onClick;
-    }
-
     @Override
     public boolean isClicked() {
         return Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isMouseOnButton();

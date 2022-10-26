@@ -54,7 +54,6 @@ public class GameScreen extends InputAdapter implements Screen {
         batch.begin();
         World.drawMap(batch);
         World.drawObjects(batch);
-        drawUI();
 
         if (!UI.handleClickableElementsInteractions()) {
             if (Buildings.isInBuildingMode()) {
@@ -63,6 +62,8 @@ public class GameScreen extends InputAdapter implements Screen {
                 World.handleNpcsAndBuildingsOnClick();
             }
         }
+
+        drawUI();
 
         batch.end();
     }

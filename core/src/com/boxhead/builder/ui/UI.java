@@ -84,9 +84,11 @@ public class UI {
                 }, false);
         //endregion
 
+        //region clock
         TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
         clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
                 Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
+        //endregion
 
         //region timeButtons
         pauseButton = new Button(Textures.get(Textures.Ui.PAUSE),
@@ -117,7 +119,7 @@ public class UI {
 
         layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton,
                 homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
-                clock, resourceList)));
+                clock, pauseButton, playButton, x2Button, x3Button, resourceList)));
         layers.add(new HashSet<>(Arrays.asList(NPCStatWindow, buildingStatWindow)));
     }
 
@@ -131,6 +133,7 @@ public class UI {
         }
     }
 
+    @Deprecated
     public static boolean isAnyClickableElementClickedOrHeld() {
         for (Set<UIElement> layer : layers) {
             for (UIElement element : layer) {
