@@ -19,10 +19,6 @@ public class Logic {
         }
     };
 
-    public static Timer.Task getTask() {
-        return task;
-    }
-
     private static void dailyCycle() {
         if (World.getTime() == 25200) {   //7:00
             for (NPC npc : World.getNpcs()) {

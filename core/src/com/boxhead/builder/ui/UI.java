@@ -92,22 +92,22 @@ public class UI {
         pauseButton = new Button(Textures.get(Textures.Ui.PAUSE),
                 new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 9,
                         Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(0));
+                () -> Logic.setTickSpeed(0), true);
 
         playButton = new Button(Textures.get(Textures.Ui.PLAY),
                 new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 23,
                         Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(Logic.NORMAL_SPEED));
+                () -> Logic.setTickSpeed(Logic.NORMAL_SPEED), true);
 
         x2Button = new Button(Textures.get(Textures.Ui.X2SPEED),
                 new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 55,
                         Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(Logic.SPEED_X2));
+                () -> Logic.setTickSpeed(Logic.SPEED_X2), true);
 
         x3Button= new Button(Textures.get(Textures.Ui.X3SPEED),
                 new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 87,
                         Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(Logic.SPEED_X3));
+                () -> Logic.setTickSpeed(Logic.SPEED_X3), true);
         //endregion
 
         NPCStatWindow = new NPCStatWindow();
