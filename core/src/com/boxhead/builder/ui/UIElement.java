@@ -7,21 +7,31 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
     protected TextureRegion texture;
+    protected UIElement parent;
     protected final Vector2i position;
     protected float rotation;
     protected boolean isVisible;
     protected Color tint;
 
     public UIElement(TextureRegion texture, Vector2i position) {
-        this(texture, position, 0, false);
+        this(texture, null, position, 0, false);
     }
 
     public UIElement(TextureRegion texture, Vector2i position, boolean visible) {
-        this(texture, position, 0, visible);
+        this(texture, null, position, 0, visible);
     }
 
-    public UIElement(TextureRegion texture, Vector2i position, float rotation, boolean visible) {
+    public UIElement(TextureRegion texture, UIElement parent, Vector2i position) {
+        this(texture, parent, position, 0, true);
+    }
+
+    public UIElement(TextureRegion texture, UIElement parent, Vector2i position, boolean visible) {
+        this(texture, parent, position, 0, visible);
+    }
+
+    public UIElement(TextureRegion texture, UIElement parent, Vector2i position, float rotation, boolean visible) {
         this.texture = texture;
+        this.parent = parent;
         this.position = position;
         this.rotation = rotation;
         isVisible = visible;
@@ -36,16 +46,32 @@ public class UIElement {
         this.texture = texture;
     }
 
-    public Vector2i getPosition() {
+    public Vector2i getLocalPosition() {
         return position;
     }
 
-    public void setPosition(int x, int y) {
+    public Vector2i getGlobalPosition() {
+        if (parent != null)
+            return new Vector2i(parent.getGlobalPosition().x + position.x,
+                    parent.getGlobalPosition().y + position.y);
+        else
+            return position;
+    }
+
+    public void setLocalPosition(int x, int y) {
         position.set(x, y);
     }
 
+    public void setGlobalPosition(int x, int y) {
+        if (parent != null)
+            position.set(x - parent.getGlobalPosition().x, y - parent.getGlobalPosition().y);
+        else
+            position.set(x, y);
+    }
+
     public boolean isVisible() {
-        return isVisible;
+        if(parent == null) return isVisible;
+        else return isVisible && parent.isVisible();
     }
 
     public void setVisible(boolean visible) {
@@ -61,6 +87,11 @@ public class UIElement {
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, position.x, position.y, (float)texture.getRegionWidth()/2, (float)texture.getRegionHeight()/2, texture.getRegionWidth(), texture.getRegionHeight(), 1, 1, -rotation);
+        if (texture != null)
+            batch.draw(texture, getGlobalPosition().x, getGlobalPosition().y, (float)texture.getRegionWidth()/2, (float)texture.getRegionHeight()/2, texture.getRegionWidth(), texture.getRegionHeight(), 1, 1, -rotation);
+    }
+
+    public UIElement getParent() {
+        return parent;
     }
 }

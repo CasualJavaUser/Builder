@@ -24,9 +24,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
         super.draw(batch);
 
         UI.FONT.setColor(Color.RED);
-        UI.FONT.draw(batch, warning, position.x + leftPadding, position.y - topPadding);
+        UI.FONT.draw(batch, warning, getGlobalPosition().x + leftPadding, getGlobalPosition().y - topPadding);
         UI.FONT.setColor(Color.WHITE);
-        UI.FONT.draw(batch, stats, position.x + leftPadding, position.y - topPadding - (warning.equals("") ? 0 : 20));
+        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y - topPadding - (warning.equals("") ? 0 : 20));
 
         if(pinnedObject instanceof EnterableBuilding) {
             drawNPCCounter(batch);

@@ -26,8 +26,8 @@ public class UI {
 
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
-    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton, workButton, restButton;
-    private static ButtonGroup buildingMenu, mainMenu;
+    private static Button buildingButton, npcButton, workButton, restButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton;
+    private static UIElement buildingMenu, mainMenu;
 
     private static NPCStatWindow NPCStatWindow;
     private static BuildingStatWindow buildingStatWindow;
@@ -36,47 +36,47 @@ public class UI {
     private static Clock clock;
 
     public static void init() {
-        buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), new Vector2i(10, 10),
-                () -> buildingMenu.setVisible(!buildingMenu.isVisible()));
-        npcButton = new Button(Textures.get(Textures.Ui.NPC), new Vector2i(84, 10),
+        mainMenu = new UIElement(null, new Vector2i(0, 10), true);
+        buildingMenu = new UIElement(null, new Vector2i(0, 84), false);
+
+        buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), mainMenu, new Vector2i(10, 0),
+                () -> buildingMenu.setVisible(!buildingMenu.isVisible()), false);
+        npcButton = new Button(Textures.get(Textures.Ui.NPC), mainMenu, new Vector2i(84, 0),
                 () -> {
                     Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
                     World.spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), position));
-                });
+                }, false);
 
-        workButton = new Button(Textures.get(Textures.Ui.WORK), new Vector2i(158, 10),
-                () -> World.setTime(25170));
-        restButton = new Button(Textures.get(Textures.Ui.REST), new Vector2i(232, 10),
-                () -> World.setTime(57570));
+        workButton = new Button(Textures.get(Textures.Ui.WORK), mainMenu, new Vector2i(158, 0),
+                () -> World.setTime(25170), false);
+        restButton = new Button(Textures.get(Textures.Ui.REST), mainMenu, new Vector2i(232, 0),
+                () -> World.setTime(57570), false);
 
-        homeButton = new Button(Textures.get(Textures.Ui.HOME), new Vector2i(10, 84),
+        homeButton = new Button(Textures.get(Textures.Ui.HOME), buildingMenu, new Vector2i(10, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_RESIDENTIAL_BUILDING);
                     buildingMenu.setVisible(false);
-                });
-        workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), new Vector2i(84, 84),
+                }, false);
+        workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), buildingMenu, new Vector2i(84, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_PRODUCTION_BUILDING);
                     buildingMenu.setVisible(false);
-                });
-        serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), new Vector2i(158, 84),
+                }, false);
+        serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), buildingMenu, new Vector2i(158, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_SERVICE_BUILDING);
                     buildingMenu.setVisible(false);
-                });
-        storageButton = new Button(Textures.get(Textures.Ui.STORAGE), new Vector2i(232, 84),
+                }, false);
+        storageButton = new Button(Textures.get(Textures.Ui.STORAGE), buildingMenu, new Vector2i(232, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_STORAGE_BUILDING);
                     buildingMenu.setVisible(false);
-                });
-        constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), new Vector2i(306, 84),
+                }, false);
+        constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingMenu, new Vector2i(306, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
                     buildingMenu.setVisible(false);
-                });
-
-        mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, workButton, restButton);
-        buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton);
+                }, false);
 
         NPCStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();
@@ -87,9 +87,9 @@ public class UI {
         clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
                 Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
 
-        mainMenu.setVisible(true);
-
-        layers.add(new HashSet<>(Arrays.asList(mainMenu, buildingMenu, clock, resourceList)));
+        layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton,
+                homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
+                clock, resourceList)));
         layers.add(new HashSet<>(Arrays.asList(NPCStatWindow, buildingStatWindow)));
     }
 
@@ -103,12 +103,13 @@ public class UI {
         }
     }
 
-    public static boolean isAnyClickableElementClickedOrHeld() {
+    @Deprecated
+    public static boolean isAnyClickableElementInteractedWith() {
         for (Set<UIElement> layer : layers) {
             for (UIElement element : layer) {
                 if (element.isVisible() && element instanceof Clickable) {
                     Clickable clickableElement = (Clickable) element;
-                    if (clickableElement.isClicked() || clickableElement.isHeld()) {
+                    if (clickableElement.isClicked() || clickableElement.isUp() || clickableElement.isHeld()) {
                         return true;
                     }
                 }
@@ -117,24 +118,34 @@ public class UI {
         return false;
     }
 
-    public static void handleClickableElementsOnClickAndOnHold() {
+    public static boolean handleClickableElementsInteractions() {
+        boolean b = false;
         for (Set<UIElement> layer : layers) {
             for (UIElement element : layer) {
                 if (element.isVisible() && element instanceof Clickable) {
                     Clickable clickableElement = (Clickable) element;
-                    if (clickableElement.isClicked())
+                    if (clickableElement.isClicked()) {
                         clickableElement.onClick();
-                    if (clickableElement.isHeld())
+                        b = true;
+                    }
+                    if (clickableElement.isUp()) {
+                        clickableElement.onUp();
+                        b = true;
+                    }
+                    if (clickableElement.isHeld()) {
                         clickableElement.onHold();
+                        b = true;
+                    }
                 }
             }
         }
+        return b;
     }
 
     public static void resizeUI() {
-        clock.setPosition(Gdx.graphics.getWidth() - clock.texture.getRegionWidth() - 10,
+        clock.setGlobalPosition(Gdx.graphics.getWidth() - clock.texture.getRegionWidth() - 10,
                 Gdx.graphics.getHeight() - clock.texture.getRegionHeight() - 10);
-        resourceList.setPosition(20, Gdx.graphics.getHeight() - 20);
+        resourceList.setGlobalPosition(20, Gdx.graphics.getHeight() - 20);
     }
 
     public static void showNPCStatWindow(NPC npc) {

@@ -26,7 +26,7 @@ public class Window extends UIElement implements Clickable {
 
     public Window(TextureRegion texture, Vector2i position, boolean visible) {
         super(texture, position, visible);
-        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), new Vector2i(), this::hide);
+        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), new Vector2i(), this::hide, true);
     }
 
     @Override
@@ -75,9 +75,9 @@ public class Window extends UIElement implements Clickable {
     public void draw(SpriteBatch batch) {
         windowWidth = sizeX + (texture.getRegionWidth()-1)*2;
         windowHeight = sizeY + (texture.getRegionHeight()-1)*2;
-        int closeButtonX = position.x + windowWidth - closeButton.getTexture().getRegionWidth();
-        int closeButtonY = position.y - closeButton.getTexture().getRegionHeight();
-        closeButton.setPosition(closeButtonX, closeButtonY);
+        int closeButtonX = getGlobalPosition().x + windowWidth - closeButton.getTexture().getRegionWidth();
+        int closeButtonY = getGlobalPosition().y - closeButton.getTexture().getRegionHeight();
+        closeButton.setLocalPosition(closeButtonX, closeButtonY);
 
         drawWindow(batch);
         closeButton.draw(batch);

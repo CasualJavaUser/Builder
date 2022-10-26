@@ -15,9 +15,9 @@ public class ResourceList extends UIElement {
         super(null, new Vector2i(20, Gdx.graphics.getHeight() - 20), true);
         for (int i = 0; i < labels.length; i++) {
             TextureRegion texture = getResourcesTexture(Resource.values()[i]);
-            Vector2i labelPosition = new Vector2i(position.x, position.y + 20 * i);
+            Vector2i labelPosition = new Vector2i(0, 20 * i);
 
-            labels[i] = new Label(texture, labelPosition);
+            labels[i] = new Label(texture, this, labelPosition);
         }
     }
 
@@ -26,14 +26,6 @@ public class ResourceList extends UIElement {
         updateData();
         for (Label label : labels) {
             if (label.isVisible()) label.draw(batch);
-        }
-    }
-
-    @Override
-    public void setPosition(int x, int y) {
-        super.setPosition(x, y);
-        for (int i = 0; i < labels.length; i++) {
-            labels[i].setPosition(position.x, position.y + 20 * i);
         }
     }
 

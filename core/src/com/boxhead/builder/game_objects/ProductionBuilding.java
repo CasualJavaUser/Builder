@@ -1,7 +1,6 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
@@ -220,8 +219,8 @@ public class ProductionBuilding extends EnterableBuilding {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
         if (indicator.isVisible()) {
-            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getPosition().x,
-                    gridPosition.y * World.TILE_SIZE + indicator.getPosition().y);
+            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
+                    gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
         }
     }
 }

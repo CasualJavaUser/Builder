@@ -52,17 +52,16 @@ public class GameScreen extends InputAdapter implements Screen {
 
         batch.begin();
         World.drawMap(batch);
-
-        if (UI.isAnyClickableElementClickedOrHeld()) {
-            UI.handleClickableElementsOnClickAndOnHold();
-        } else if (Buildings.isInBuildingMode()) {
-            Buildings.handleBuildingMode(batch);
-        } else {
-            World.handleNpcsAndBuildingsOnClick();
-        }
-
         World.drawObjects(batch);
         drawUI();
+
+        if (!UI.handleClickableElementsInteractions()) {
+            if (Buildings.isInBuildingMode()) {
+                Buildings.handleBuildingMode(batch);
+            } else {
+                World.handleNpcsAndBuildingsOnClick();
+            }
+        }
 
         batch.end();
     }

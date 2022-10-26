@@ -19,11 +19,11 @@ public class NPCStatWindow extends StatWindow<NPC> {
         super.draw(batch);
 
         batch.draw(pinnedObject.getTexture(),
-                position.x + leftPadding,
-                position.y - topPadding - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE,
+                getGlobalPosition().x + leftPadding,
+                getGlobalPosition().y - topPadding - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE,
                 pinnedObject.getTexture().getRegionWidth() * IMAGE_SIZE,
                 pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
-        UI.FONT.draw(batch, stats, position.x + leftPadding, position.y - 2*topPadding - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
+        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y - 2*topPadding - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
     }
 
     @Override

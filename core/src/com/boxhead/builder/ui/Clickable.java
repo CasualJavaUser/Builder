@@ -1,8 +1,10 @@
 package com.boxhead.builder.ui;
 
 public interface Clickable {
-    boolean isClicked();
+    default boolean isClicked() {return false;};
     default boolean isHeld() {return false;}
-    void onClick();
+    default boolean isUp() {return false;}
+    default void onClick() {};
     default void onHold() {}
+    default void onUp() {}
 }
