@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.Logic;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.Building;
@@ -26,8 +27,9 @@ public class UI {
 
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
-    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton, workButton, restButton;
-    private static ButtonGroup buildingMenu, mainMenu;
+    private static Button buildingButton, npcButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton, workButton, restButton,
+                          pauseButton, playButton, x2Button, x3Button;
+    private static ButtonGroup buildingMenu, mainMenu, timeButtons;
 
     private static NPCStatWindow NPCStatWindow;
     private static BuildingStatWindow buildingStatWindow;
@@ -36,6 +38,7 @@ public class UI {
     private static Clock clock;
 
     public static void init() {
+        //region mainMenu
         buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), new Vector2i(10, 10),
                 () -> buildingMenu.setVisible(!buildingMenu.isVisible()));
         npcButton = new Button(Textures.get(Textures.Ui.NPC), new Vector2i(84, 10),
@@ -48,7 +51,9 @@ public class UI {
                 () -> World.setTime(25170));
         restButton = new Button(Textures.get(Textures.Ui.REST), new Vector2i(232, 10),
                 () -> World.setTime(57570));
+        //endregion
 
+        //region buildingMenu
         homeButton = new Button(Textures.get(Textures.Ui.HOME), new Vector2i(10, 84),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_RESIDENTIAL_BUILDING);
@@ -74,22 +79,47 @@ public class UI {
                     Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
                     buildingMenu.setVisible(false);
                 });
+        //endregion
+
+        TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
+        clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
+                Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
+
+        //region timeButtons
+        pauseButton = new Button(Textures.get(Textures.Ui.PAUSE),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 9,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(0));
+
+        playButton = new Button(Textures.get(Textures.Ui.PLAY),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 23,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(Logic.NORMAL_SPEED));
+
+        x2Button = new Button(Textures.get(Textures.Ui.X2SPEED),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 55,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(Logic.SPEED_X2));
+
+        x3Button= new Button(Textures.get(Textures.Ui.X3SPEED),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 87,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(Logic.SPEED_X3));
+        //endregion
 
         mainMenu = new ButtonGroup(null, new Vector2i(), buildingButton, npcButton, workButton, restButton);
         buildingMenu = new ButtonGroup(null, new Vector2i(), homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton);
+        timeButtons = new ButtonGroup(null, new Vector2i(), pauseButton, playButton, x2Button, x3Button);
 
         NPCStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();
 
         resourceList = new ResourceList();
 
-        TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
-        clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
-                Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
-
         mainMenu.setVisible(true);
+        timeButtons.setVisible(true);
 
-        layers.add(new HashSet<>(Arrays.asList(mainMenu, buildingMenu, clock, resourceList)));
+        layers.add(new HashSet<>(Arrays.asList(mainMenu, buildingMenu, clock, timeButtons, resourceList)));
         layers.add(new HashSet<>(Arrays.asList(NPCStatWindow, buildingStatWindow)));
     }
 

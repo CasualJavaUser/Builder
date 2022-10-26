@@ -38,8 +38,9 @@ public class GameScreen extends InputAdapter implements Screen {
         Textures.init();
         World.init(new Vector2i(101, 101));
         UI.init();
+        Logic.init();
 
-        Timer.schedule(Logic.getTask(), 0, .005f);
+        //Timer.schedule(Logic.getTask(), 0, Logic.getTickSpeed());
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
         camera.update();

@@ -5,6 +5,10 @@ import com.boxhead.builder.game_objects.*;
 
 public class Logic {
 
+    public static final float NORMAL_SPEED = .005f;
+    public static final float SPEED_X2 = .0025f;
+    public static final float SPEED_X3 = .00125f;
+
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
@@ -62,5 +66,19 @@ public class Logic {
             npc.seekJob();  //todo make these into orders
             npc.seekHouse();
         }
+    }
+
+    public static void init() {
+        Timer.instance().scheduleTask(task, 0, NORMAL_SPEED);
+    }
+
+    public static void setTickSpeed(float tickSpeed) {
+        if(tickSpeed == 0) {
+            Timer.instance().stop();
+            return;
+        }
+        Timer.instance().clear();
+        Timer.instance().scheduleTask(task, 0, tickSpeed);
+        Timer.instance().start();
     }
 }
