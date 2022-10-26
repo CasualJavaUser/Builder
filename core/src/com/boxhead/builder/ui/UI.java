@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.Logic;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.Building;
@@ -26,7 +27,8 @@ public class UI {
 
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
-    private static Button buildingButton, npcButton, workButton, restButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton;
+    private static Button buildingButton, npcButton, workButton, restButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
+                          pauseButton, playButton, x2Button, x3Button;
     private static UIElement buildingMenu, mainMenu;
 
     private static NPCStatWindow NPCStatWindow;
@@ -36,6 +38,7 @@ public class UI {
     private static Clock clock;
 
     public static void init() {
+        //region mainMenu
         mainMenu = new UIElement(null, new Vector2i(0, 10), true);
         buildingMenu = new UIElement(null, new Vector2i(0, 84), false);
 
@@ -51,7 +54,9 @@ public class UI {
                 () -> World.setTime(25170), false);
         restButton = new Button(Textures.get(Textures.Ui.REST), mainMenu, new Vector2i(232, 0),
                 () -> World.setTime(57570), false);
+        //endregion
 
+        //region buildingMenu
         homeButton = new Button(Textures.get(Textures.Ui.HOME), buildingMenu, new Vector2i(10, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_RESIDENTIAL_BUILDING);
@@ -77,15 +82,38 @@ public class UI {
                     Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
                     buildingMenu.setVisible(false);
                 }, false);
+        //endregion
+
+        TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
+        clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
+                Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
+
+        //region timeButtons
+        pauseButton = new Button(Textures.get(Textures.Ui.PAUSE),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 9,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(0));
+
+        playButton = new Button(Textures.get(Textures.Ui.PLAY),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 23,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(Logic.NORMAL_SPEED));
+
+        x2Button = new Button(Textures.get(Textures.Ui.X2SPEED),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 55,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(Logic.SPEED_X2));
+
+        x3Button= new Button(Textures.get(Textures.Ui.X3SPEED),
+                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 87,
+                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+                () -> Logic.setTickSpeed(Logic.SPEED_X3));
+        //endregion
 
         NPCStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();
 
         resourceList = new ResourceList();
-
-        TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
-        clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
-                Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
 
         layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton,
                 homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
@@ -103,13 +131,12 @@ public class UI {
         }
     }
 
-    @Deprecated
-    public static boolean isAnyClickableElementInteractedWith() {
+    public static boolean isAnyClickableElementClickedOrHeld() {
         for (Set<UIElement> layer : layers) {
             for (UIElement element : layer) {
                 if (element.isVisible() && element instanceof Clickable) {
                     Clickable clickableElement = (Clickable) element;
-                    if (clickableElement.isClicked() || clickableElement.isUp() || clickableElement.isHeld()) {
+                    if (clickableElement.isClicked() || clickableElement.isHeld()) {
                         return true;
                     }
                 }

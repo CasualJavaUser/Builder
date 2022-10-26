@@ -27,7 +27,7 @@ construction_office
   index: -1
 full_storage
   rotate: false
-  xy: 704, 80
+  xy: 734, 80
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -69,14 +69,14 @@ minute_hand
   index: -1
 no_resources
   rotate: false
-  xy: 704, 64
+  xy: 704, 48
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 no_storage
   rotate: false
-  xy: 736, 112
+  xy: 766, 112
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -86,6 +86,20 @@ npc
   xy: 512, 0
   size: 64, 64
   orig: 64, 64
+  offset: 0, 0
+  index: -1
+pause
+  rotate: false
+  xy: 704, 64
+  size: 30, 16
+  orig: 30, 16
+  offset: 0, 0
+  index: -1
+play
+  rotate: false
+  xy: 704, 80
+  size: 30, 16
+  orig: 30, 16
   offset: 0, 0
   index: -1
 rest
@@ -111,7 +125,7 @@ storage
   index: -1
 window
   rotate: false
-  xy: 720, 89
+  xy: 734, 73
   size: 7, 7
   orig: 7, 7
   offset: 0, 0
@@ -128,5 +142,19 @@ workplace
   xy: 576, 64
   size: 64, 64
   orig: 64, 64
+  offset: 0, 0
+  index: -1
+x2speed
+  rotate: false
+  xy: 736, 112
+  size: 30, 16
+  orig: 30, 16
+  offset: 0, 0
+  index: -1
+x3speed
+  rotate: false
+  xy: 736, 96
+  size: 30, 16
+  orig: 30, 16
   offset: 0, 0
   index: -1
