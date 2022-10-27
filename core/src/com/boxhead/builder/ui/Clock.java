@@ -18,8 +18,8 @@ public class Clock extends UIElement {
 
     @Override
     public void draw(SpriteBatch batch) {
-        minuteHand.setRotation((float) World.getTime() * 0.1f);
-        hourHand.setRotation((float) 360 / 43200 * World.getTime());
+        minuteHand.setLocalRotation((float) World.getTime() * 0.1f);
+        hourHand.setLocalRotation((float) 360 / 43200 * World.getTime());
 
         super.draw(batch);
         minuteHand.draw(batch);

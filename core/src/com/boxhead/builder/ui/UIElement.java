@@ -78,8 +78,22 @@ public class UIElement {
         isVisible = visible;
     }
 
-    public void setRotation(float rotation) {
+    public void setLocalRotation(float rotation) {
         this.rotation = rotation;
+    }
+
+    public void setGlobalRotation(float rotation) {
+        if (parent != null) this.rotation = rotation - parent.getGlobalRotation();
+        else this.rotation = rotation;
+    }
+
+    public float getLocalRotation() {
+        return rotation;
+    }
+
+    public float getGlobalRotation() {
+        if (parent != null) return parent.getGlobalRotation() + rotation;
+        else return rotation;
     }
 
     public Color getTint() {
@@ -88,7 +102,7 @@ public class UIElement {
 
     public void draw(SpriteBatch batch) {
         if (texture != null)
-            batch.draw(texture, getGlobalPosition().x, getGlobalPosition().y, (float)texture.getRegionWidth()/2, (float)texture.getRegionHeight()/2, texture.getRegionWidth(), texture.getRegionHeight(), 1, 1, -rotation);
+            batch.draw(texture, getGlobalPosition().x, getGlobalPosition().y, (float)texture.getRegionWidth()/2, (float)texture.getRegionHeight()/2, texture.getRegionWidth(), texture.getRegionHeight(), 1, 1, -getGlobalRotation());
     }
 
     public UIElement getParent() {
