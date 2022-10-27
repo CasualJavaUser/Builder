@@ -10,10 +10,10 @@ public class Clock extends UIElement {
     private final UIElement minuteHand;
     private final UIElement hourHand;
 
-    Clock(Vector2i position) {
-        super(Textures.get(Textures.Ui.CLOCK_FACE), position, true);
-        minuteHand = new UIElement(Textures.get(Textures.Ui.MINUTE_HAND), position, true);
-        hourHand = new UIElement(Textures.get(Textures.Ui.HOUR_HAND), position, true);
+    Clock(UIElement parent, Vector2i position) {
+        super(Textures.get(Textures.Ui.CLOCK_FACE), parent, position, true);
+        minuteHand = new UIElement(Textures.get(Textures.Ui.MINUTE_HAND), this, Vector2i.zero(), true);
+        hourHand = new UIElement(Textures.get(Textures.Ui.HOUR_HAND), this, Vector2i.zero(), true);
     }
 
     @Override

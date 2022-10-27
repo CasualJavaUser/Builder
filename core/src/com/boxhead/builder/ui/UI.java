@@ -29,7 +29,7 @@ public class UI {
 
     private static Button buildingButton, npcButton, workButton, restButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
                           pauseButton, playButton, x2Button, x3Button;
-    private static UIElement buildingMenu, mainMenu;
+    private static UIElement buildingMenu, mainMenu, timeMenu;
 
     private static NPCStatWindow NPCStatWindow;
     private static BuildingStatWindow buildingStatWindow;
@@ -38,10 +38,11 @@ public class UI {
     private static Clock clock;
 
     public static void init() {
-        //region mainMenu
         mainMenu = new UIElement(null, new Vector2i(0, 10), true);
         buildingMenu = new UIElement(null, new Vector2i(0, 84), false);
+        timeMenu = new UIElement(null, new Vector2i(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), true);
 
+        //region mainMenu
         buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), mainMenu, new Vector2i(10, 0),
                 () -> buildingMenu.setVisible(!buildingMenu.isVisible()), false);
         npcButton = new Button(Textures.get(Textures.Ui.NPC), mainMenu, new Vector2i(84, 0),
@@ -84,31 +85,33 @@ public class UI {
                 }, false);
         //endregion
 
-        //region clock
+        //region timeMenu
         TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
-        clock = new Clock(new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 10,
-                Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 10));
-        //endregion
+        clock = new Clock(timeMenu,
+                new Vector2i(- clockTexture.getRegionWidth() - 10, - clockTexture.getRegionHeight() - 10));
 
-        //region timeButtons
-        pauseButton = new Button(Textures.get(Textures.Ui.PAUSE),
-                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() - 9,
-                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+        pauseButton = new Button(
+                Textures.get(Textures.Ui.PAUSE),
+                timeMenu,
+                new Vector2i(- clockTexture.getRegionWidth() - 9, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(0), true);
 
-        playButton = new Button(Textures.get(Textures.Ui.PLAY),
-                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 23,
-                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+        playButton = new Button(
+                Textures.get(Textures.Ui.PLAY),
+                timeMenu,
+                new Vector2i(- clockTexture.getRegionWidth() + 23, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(Logic.NORMAL_SPEED), true);
 
-        x2Button = new Button(Textures.get(Textures.Ui.X2SPEED),
-                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 55,
-                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+        x2Button = new Button(
+                Textures.get(Textures.Ui.X2SPEED),
+                timeMenu,
+                new Vector2i(- clockTexture.getRegionWidth() + 55, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(Logic.SPEED_X2), true);
 
-        x3Button= new Button(Textures.get(Textures.Ui.X3SPEED),
-                new Vector2i(Gdx.graphics.getWidth() - clockTexture.getRegionWidth() + 87,
-                        Gdx.graphics.getHeight() - clockTexture.getRegionHeight() - 36),
+        x3Button= new Button(
+                Textures.get(Textures.Ui.X3SPEED),
+                timeMenu,
+                new Vector2i(- clockTexture.getRegionWidth() + 87, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(Logic.SPEED_X3), true);
         //endregion
 
@@ -173,8 +176,7 @@ public class UI {
     }
 
     public static void resizeUI() {
-        clock.setGlobalPosition(Gdx.graphics.getWidth() - clock.texture.getRegionWidth() - 10,
-                Gdx.graphics.getHeight() - clock.texture.getRegionHeight() - 10);
+        timeMenu.setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         resourceList.setGlobalPosition(20, Gdx.graphics.getHeight() - 20);
     }
 
