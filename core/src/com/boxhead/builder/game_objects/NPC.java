@@ -86,30 +86,25 @@ public class NPC extends GameObject implements Clickable {
     }
 
     public void seekHouse() {
-        Vector2i location;
-        if (workplace == null) {
-            location = gridPosition;
-        } else {
-            location = workplace.getEntrancePosition();
-        }
+        Optional<ResidentialBuilding> bestHouseOptional = World.getBuildings().stream()
+                .filter(building -> building instanceof ResidentialBuilding)
+                .map(building -> (ResidentialBuilding) building)
+                .filter(ResidentialBuilding::hasFreePlaces)
+                .min(Comparator.comparingDouble(building -> building.getGridPosition().distance(this.gridPosition)));
 
-        ResidentialBuilding closest = null;
-        double smallestDistance = Double.MAX_VALUE;
-        for (Building building : World.getBuildings()) {
-            if (building instanceof ResidentialBuilding && ((ResidentialBuilding) building).hasFreePlaces() && building.getGridPosition().distance(location) < smallestDistance) {
-                closest = (ResidentialBuilding) building;
-                smallestDistance = building.getGridPosition().distance(location);
+        if (bestHouseOptional.isPresent()) {
+            ResidentialBuilding bestHouse = bestHouseOptional.get();
+
+            if (home == null) {
+                bestHouse.addResident(this);
+                home = bestHouse;
+            } else if (workplace != null &&
+                    home.getGridPosition().distance(workplace.getGridPosition()) < bestHouse.getGridPosition().distance(workplace.getGridPosition())) {
+                home.removeResident(this);
+                bestHouse.addResident(this);
+                home = bestHouse;
             }
         }
-
-        if (closest == null) {
-            return; //no free houses
-        }
-        if (home != null) {
-            home.removeResident(this);
-        }
-        closest.addResident(this);
-        home = closest;
     }
 
     public void enterBuilding(EnterableBuilding building) {
