@@ -161,7 +161,8 @@ public class NPC extends GameObject implements Clickable {
             return false;
         }
 
-        if (nextStep >= STEP_INTERVAL) {
+        float speedModifier = World.getTile(gridPosition).speed;
+        if (nextStep >= STEP_INTERVAL / speedModifier) {
             if (pathStep == path.length - 1) {
                 alignSprite();
                 return true;
@@ -176,8 +177,8 @@ public class NPC extends GameObject implements Clickable {
             nextStep = 0;
         }
         nextStep++;
-        spritePosition.add((gridPosition.x - prevPosition.x) * (1f / (float) STEP_INTERVAL),
-                (gridPosition.y - prevPosition.y) * (1f / (float) STEP_INTERVAL));
+        spritePosition.add(((gridPosition.x - prevPosition.x) / (float) STEP_INTERVAL) * speedModifier,
+                ((gridPosition.y - prevPosition.y) / (float) STEP_INTERVAL) * speedModifier);
         return false;
     }
 
@@ -219,22 +220,24 @@ public class NPC extends GameObject implements Clickable {
             Vector2i tempTile;
 
             while (!currentTile.equals(destination)) {
+                float distanceModifier = 1f / World.getTile(currentTile).speed;
+
                 tempTile = new Vector2i(x + 1, y);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x - 1, y);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x, y + 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x, y - 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x + 1, y + 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
                 tempTile = new Vector2i(x - 1, y + 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
                 tempTile = new Vector2i(x + 1, y - 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
                 tempTile = new Vector2i(x - 1, y - 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
 
                 unvisitedTiles.remove(currentTile);
 
@@ -301,22 +304,24 @@ public class NPC extends GameObject implements Clickable {
             Vector2i tempTile;
 
             while (!area.overlaps(currentTile)) {
+                float distanceModifier = 1f / World.getTile(currentTile).speed;
+
                 tempTile = new Vector2i(x + 1, y);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x - 1, y);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x, y + 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x, y - 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, 1);
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
                 tempTile = new Vector2i(x + 1, y + 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
                 tempTile = new Vector2i(x - 1, y + 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
                 tempTile = new Vector2i(x + 1, y - 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
                 tempTile = new Vector2i(x - 1, y - 1);
-                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2));
+                calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
 
                 unvisitedTiles.remove(currentTile);
 

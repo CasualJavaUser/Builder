@@ -24,7 +24,7 @@ public class World {
 
     private static final int[] storage = new int[Resource.values().length];
 
-    private static Tile.Type[] tiles;
+    private static Tile[] tiles;
     private static TextureRegion[] tileTextures;
     private static SortedList<Building> buildings;
     private static SortedList<NPC> npcs;
@@ -37,7 +37,7 @@ public class World {
 
     public static void init(Vector2i worldSize) {
         World.worldSize = worldSize;
-        tiles = new Tile.Type[worldSize.x * worldSize.y];
+        tiles = new Tile[worldSize.x * worldSize.y];
         tileTextures = new TextureRegion[tiles.length];
         buildings = new SortedList<>((Comparator<Building>) comparator);
         npcs = new SortedList<>((Comparator<NPC>) comparator);
@@ -71,7 +71,7 @@ public class World {
     }
 
     private static void generateTiles() {
-        Arrays.fill(tiles, Tile.Type.GRASS);
+        Arrays.fill(tiles, Tile.GRASS);
         generateRiver();
 
         for (int i = 0; i < tiles.length; i++) {
@@ -84,19 +84,19 @@ public class World {
         int bigNoiseFrequency = 100;
         Harvestables.Type type;
 
-        for (int y = worldSize.y-1; y >= 0; y--) {
-            for (int x = worldSize.x-1; x >= 0; x--) {
+        for (int y = worldSize.y - 1; y >= 0; y--) {
+            for (int x = worldSize.x - 1; x >= 0; x--) {
                 double dx = (double) x / worldSize.x;
                 double dy = (double) y / worldSize.y;
                 double smallNoise = PerlinNoise.noise3D(dx * smallNoiseFrequency, dy * smallNoiseFrequency, SEED);
                 double bigNoise = PerlinNoise.noise3D(dx * bigNoiseFrequency, dy * bigNoiseFrequency, SEED);
 
                 type = Harvestables.Type.BIG_TREE;  //todo randomize tree types
-                int width = type.getTexture().getRegionWidth()/TILE_SIZE;
-                int height = type.getTexture().getRegionHeight()/TILE_SIZE;
-                int trunkX = x + width/2;
-                boolean isLocationValid = x+width <= worldSize.x && y+height <= worldSize.y && tiles[y * worldSize.y + trunkX] != Tile.Type.WATER;
-                if(isLocationValid && smallNoise > 0.1f && bigNoise > .2f) {
+                int width = type.getTexture().getRegionWidth() / TILE_SIZE;
+                int height = type.getTexture().getRegionHeight() / TILE_SIZE;
+                int trunkX = x + width / 2;
+                boolean isLocationValid = x + width <= worldSize.x && y + height <= worldSize.y && tiles[y * worldSize.y + trunkX] != Tile.WATER;
+                if(isLocationValid && smallNoise > 0.1f && bigNoise > 0.2f) {
                     placeHarvestable(Harvestables.create(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
                 }
             }
@@ -121,7 +121,7 @@ public class World {
         for (int y = 0; y < worldSize.y; y++) {
             for (int x = 0; x < worldSize.x; x++) {
                 if(x >= steps[y] - width && x <= steps[y] + width) {
-                    tiles[y * worldSize.y + x] = Tile.Type.WATER;
+                    tiles[y * worldSize.y + x] = Tile.WATER;
                 }
             }
         }
@@ -272,8 +272,12 @@ public class World {
         return navigableTiles;
     }
 
+    public static Tile getTile(Vector2i gridPosition) {
+        return tiles[worldSize.x * gridPosition.y + gridPosition.x];
+    }
+
     private static void debug() {
-        Arrays.fill(tiles, Tile.Type.DEFAULT);
+        Arrays.fill(tiles, Tile.DEFAULT);
     }
 
     private static void initNPCs() {
