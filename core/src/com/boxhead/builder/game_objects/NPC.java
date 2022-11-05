@@ -472,8 +472,8 @@ public class NPC extends GameObject implements Clickable {
                     void execute() {
                         if (fieldWork.getCollider().distance(gridPosition) <= Math.sqrt(2d)) {
                             fieldWork.setWork(NPC.this, true);
-                            orderList.removeFirst();
                         }
+                        orderList.removeFirst();
                     }
                 });
                 break;
@@ -605,5 +605,9 @@ public class NPC extends GameObject implements Clickable {
 
     public Building getCurrentBuilding() {
         return buildingIsIn;
+    }
+
+    public boolean hasOrders() {
+        return !orderList.isEmpty();
     }
 }

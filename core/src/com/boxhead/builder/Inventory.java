@@ -56,7 +56,7 @@ public class Inventory {
         return (maxWeight - currentWeight) / resource.weight;
     }
 
-    public Availability checkStorageAvailability(Job recipe) {
+    /*public Availability checkStorageAvailability(Job recipe) {
         for (Resource resource : recipe.getResourceChanges().keySet()) {
             int change = recipe.getResourceChanges().get(resource);
             if (resources.getOrDefault(resource, 0) + change < 0)
@@ -66,7 +66,7 @@ public class Inventory {
                 return Availability.OUTPUT_FULL;
         }
         return Availability.AVAILABLE;
-    }
+    }*/
 
     public boolean hasResourceAmount(Resource resource, int amount) {
         return resources.containsKey(resource) && resources.get(resource) >= amount;
@@ -80,6 +80,10 @@ public class Inventory {
         return currentWeight;
     }
 
+    public boolean isEmpty() {
+        return currentWeight == 0;
+    }
+
     public void put(Resource resource, int amount) {
         int currentAmount = resources.getOrDefault(resource, 0);
 
@@ -90,7 +94,7 @@ public class Inventory {
         currentWeight += amount * resource.weight;
     }
 
-    public void put(Job recipe) {
+    /*public void put(Job recipe) {
         if (checkStorageAvailability(recipe) != Availability.AVAILABLE) {
             throw new IllegalArgumentException();
         }
@@ -100,7 +104,7 @@ public class Inventory {
             resources.put(resource, currentAmount + change);
             currentWeight += change * resource.weight;
         }
-    }
+    }*/
 
     private void take(Resource resource, int amount) {
         if (!hasResourceAmount(resource, amount))
@@ -118,5 +122,9 @@ public class Inventory {
 
     public int getMaxWeight() {
         return maxWeight;
+    }
+
+    public int remainingCapacity() {
+        return maxWeight - currentWeight;
     }
 }

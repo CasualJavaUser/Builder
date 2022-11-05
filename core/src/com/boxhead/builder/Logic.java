@@ -5,9 +5,9 @@ import com.boxhead.builder.game_objects.*;
 
 public class Logic {
 
-    public static final float NORMAL_SPEED = .005f;
-    public static final float SPEED_X2 = .0025f;
-    public static final float SPEED_X3 = .00125f;
+    public static final float NORMAL_SPEED = 0.005f;
+    public static final float SPEED_X2 = 0.0025f;
+    public static final float SPEED_X3 = 0.00125f;
 
     private static final Timer.Task task = new Timer.Task() {
         @Override
@@ -43,7 +43,7 @@ public class Logic {
                 ((ServiceBuilding) World.getBuildings().get(i)).provideServices();
             }
             if (World.getBuildings().get(i) instanceof ProductionBuilding) {
-                ((ProductionBuilding) World.getBuildings().get(i)).produceResources();
+                ((ProductionBuilding) World.getBuildings().get(i)).business();
             }
             if (World.getBuildings().get(i) instanceof FieldWork) {
                 ((FieldWork) World.getBuildings().get(i)).work();

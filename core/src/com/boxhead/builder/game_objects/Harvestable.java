@@ -20,8 +20,9 @@ public class Harvestable extends GameObject implements FieldWork {
         super(texture, gridPosition);
         this.characteristic = characteristic;
         amountLeft = size;
-        if(characteristic != Characteristic.TREE) collider = getDefaultCollider();
-        else collider = new BoxCollider(new Vector2i(gridPosition.x + texture.getRegionWidth()/ World.TILE_SIZE/2, gridPosition.y), 1, 1);
+        if (characteristic != Characteristic.TREE) collider = getDefaultCollider();
+        else
+            collider = new BoxCollider(new Vector2i(gridPosition.x + texture.getRegionWidth() / World.TILE_SIZE / 2, gridPosition.y), 1, 1);
     }
 
     public Harvestable(TextureRegion texture, Vector2i gridPosition, BoxCollider collider, Characteristic characteristic, int size) {
@@ -57,12 +58,10 @@ public class Harvestable extends GameObject implements FieldWork {
     }
 
     @Override
-    public boolean assignWorker(NPC npc) {
+    public void assignWorker(NPC npc) {
         if (assigned == null) {
             assigned = npc;
-            return true;
         }
-        return false;
     }
 
     @Override

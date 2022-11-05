@@ -68,7 +68,7 @@ public class Buildings {
             case BIG:
                 return new Building("fungi", building, gridPosition);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building, gridPosition, Job.BUILDER, 5, new Vector2i(0, -1));
+                return new ProductionBuilding("construction office", building, gridPosition, Job.BUILDER, 5, new Vector2i(0, -1), 0);
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }

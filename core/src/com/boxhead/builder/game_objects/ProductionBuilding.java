@@ -20,29 +20,11 @@ public class ProductionBuilding extends EnterableBuilding {
     protected UIElement indicator;
     protected int availability = 0;
 
-    private final static int storageDistance = 20;
-
     public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(name, type, gridPosition, entrancePosition);
         this.job = job;
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
-        employees = new HashSet<>(employeeCapacity, 1f);
-        if (job.getPoI() != null) {
-            assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
-        } else {
-            assignedFieldWork = null;
-        }
-        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
-    }
-
-    public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition) {
-        super(name, type, gridPosition, entrancePosition);
-        if (job.producesAnyResources())
-            throw new IllegalArgumentException("this constructor requires the building not to produce anything");
-
-        this.job = job;
-        this.employeeCapacity = employeeCapacity;
         employees = new HashSet<>(employeeCapacity, 1f);
         if (job.getPoI() != null) {
             assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
@@ -90,46 +72,11 @@ public class ProductionBuilding extends EnterableBuilding {
         return employees.size() < employeeCapacity;
     }
 
-    public void produceResources() {
-        if (job.getPoI() != null) {
-            for (NPC employee : employees) {
-                if (gridPosition.equals(employee.getGridPosition()) && !assignedFieldWork.containsKey(employee)
-                        && inventory.getAvailableCapacityFor(Resource.NOTHING) >= NPC.INVENTORY_SIZE) {
-                    sendEmployee(employee);
-                }
+    public void business() {
+        for (NPC employee : employees) {
+            if (employee.getCurrentBuilding() == this && !employee.hasOrders()) {
+                job.sequence.assign(employee, this);
             }
-        }
-
-        if (job.producesAnyResources()) {
-            Inventory.Availability availability = inventory.checkStorageAvailability(job);
-
-            if (availability == Inventory.Availability.AVAILABLE) {
-                productionCounter += employeesInside;
-                if (productionCounter >= productionInterval) {
-                    inventory.put(job);
-                    productionCounter -= productionInterval;
-                }
-                indicator.setVisible(false);
-            } else {
-                if (availability == Inventory.Availability.LACKS_INPUT)
-                    indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
-                else indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
-                indicator.setVisible(true);
-            }
-        }
-    }
-
-    protected void sendEmployee(NPC npc) {
-        FieldWork fieldWork = findPoI();
-        if (fieldWork != null) {
-            if (fieldWork instanceof Harvestable) {
-                inventory.put(Resource.NOTHING, NPC.INVENTORY_SIZE);    //reserve space for whatever the employee brings back
-            }
-            fieldWork.assignWorker(npc);
-            assignedFieldWork.put(npc, fieldWork);
-            npc.giveOrder(NPC.Order.Type.EXIT, this);
-            npc.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
-            npc.giveOrder(NPC.Order.Type.ENTER, fieldWork);
         }
     }
 
@@ -138,40 +85,15 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void endWorkday() {
-        if (job.getPoI() == null) {
-            for (NPC employee : employees) {
-                employee.giveOrder(NPC.Order.Type.EXIT, this);
+        for (NPC employee : employees) {
+            employee.clearOrderQueue();
+            job.sequence.onExit(employee, this);
+            employee.giveOrder(NPC.Order.Type.EXIT, this);
+            if (employee.getHome() != null) {
                 employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());
-            }
-        } else {
-            for (NPC employee : employees) {
-                employee.clearOrderQueue();
-                if (assignedFieldWork.containsKey(employee)) {
-                    employee.giveOrder(NPC.Order.Type.EXIT, assignedFieldWork.get(employee));
-                    assignedFieldWork.remove(employee);
-                } else {
-                    employee.giveOrder(NPC.Order.Type.EXIT, this);
-                }
-                if (employee.getHome() != null) {
-                    employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());
-                    employee.giveOrder(NPC.Order.Type.ENTER, employee.getHome());
-                }
+                employee.giveOrder(NPC.Order.Type.ENTER, employee.getHome());
             }
         }
-    }
-
-    protected FieldWork findPoI() {
-        for (Building building : World.getBuildings()) {
-            if (building instanceof FieldWork && ((FieldWork) building).isFree() && ((FieldWork) building).getCharacteristic() == job.getPoI()) {
-                return (FieldWork) building;
-            }
-        }
-        for (Harvestable harvestable : World.getHarvestables()) {
-            if (harvestable.isFree() && harvestable.getCharacteristic() == job.getPoI()) {
-                return harvestable;
-            }
-        }
-        return null;    //no FieldWork available
     }
 
     public Job getJob() {
@@ -194,25 +116,8 @@ public class ProductionBuilding extends EnterableBuilding {
         return employees;
     }
 
-    /**
-     * @return the closest available StorageBuilding. If there StorageBuildings in range but none are available then the closest one is returned.
-     */
-    private StorageBuilding getClosestStorage() {
-        StorageBuilding closest = null;
-        double distance = storageDistance;
-        boolean isAvailable = false;
-        for (Building storageBuilding : World.getBuildings()) {
-            if (storageBuilding instanceof StorageBuilding) {
-                if (gridPosition.distance(storageBuilding.getGridPosition()) <= distance &&
-                        (!isAvailable || (((StorageBuilding) storageBuilding).checkStorageAvailability(job) == 0))) {
-                    //isAvailable -> (((StorageBuilding)storageBuilding).checkStorageAvailability(job) == 0)
-                    distance = gridPosition.distance(storageBuilding.getGridPosition());
-                    closest = (StorageBuilding) storageBuilding;
-                    if ((((StorageBuilding) storageBuilding).checkStorageAvailability(job) == 0)) isAvailable = true;
-                }
-            }
-        }
-        return closest;
+    public Map<NPC, FieldWork> getAssignedFieldWork() {
+        return assignedFieldWork;
     }
 
     @Override

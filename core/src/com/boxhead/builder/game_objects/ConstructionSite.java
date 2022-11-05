@@ -4,15 +4,15 @@ import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private final Building building;
     private int currentlyWorking = 0;
-    private final Set<NPC> assigned = new HashSet<>(capacity, 1f);
+    private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
 
     public ConstructionSite(String name, Vector2i gridPosition, Buildings.Type buildingType, int totalLabour) {
         super(name, buildingType.getConstructionSite(), gridPosition, null);
@@ -27,16 +27,16 @@ public class ConstructionSite extends Building implements FieldWork {
     }
 
     @Override
-    public boolean assignWorker(NPC npc) {
+    public void assignWorker(NPC npc) {
         if (assigned.size() < capacity) {
-            return assigned.add(npc);
+            assigned.put(npc, false);
         }
-        return false;
     }
 
     @Override
     public void dissociateWorker(NPC npc) {
         assigned.remove(npc);
+        updateCurrentlyWorking();
     }
 
     @Override
@@ -52,21 +52,27 @@ public class ConstructionSite extends Building implements FieldWork {
             World.getBuildings().remove(this);
             World.placeBuilding(building);
 
-            for (NPC npc : assigned) {
-                if (npc != null) {
-                    npc.getWorkplace().dissociateFieldWork(npc);
-                    npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
-                    npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
-                }
+            for (NPC npc : assigned.keySet()) {
+                npc.getWorkplace().dissociateFieldWork(npc);
+                npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
+                npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
             }
         }
     }
 
     @Override
     public void setWork(NPC npc, boolean b) {
-        if (assigned.contains(npc)) {
-            if (b) currentlyWorking++;
-            else currentlyWorking--;
+        if (assigned.containsKey(npc)) {
+            assigned.replace(npc, b);
+            updateCurrentlyWorking();
+        }
+    }
+
+    private void updateCurrentlyWorking() {
+        currentlyWorking = 0;
+        for (Boolean working : assigned.values()) {
+            if (working)
+                currentlyWorking++;
         }
     }
 
