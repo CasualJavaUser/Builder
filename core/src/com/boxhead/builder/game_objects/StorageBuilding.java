@@ -17,15 +17,17 @@ public class StorageBuilding extends Building {
         return getInventory().getResourceAmount(resource);
     }
 
-    public int getStoredWeight() {
-        return getInventory().getCurrentWeight();
+    @Deprecated
+    public int getStoredMass() {
+        return getInventory().getCurrentMass();
     }
 
-    public int getMaxWeight() {
-        return getInventory().getMaxWeight();
+    @Deprecated
+    public int getMaxMass() {
+        return getInventory().getMaxMass();
     }
 
     public int getRemainingCapacity() {
-        return inventory.getMaxWeight() - inventory.getCurrentWeight();
+        return getInventory().getMaxMass() - getInventory().getCurrentMass();
     }
 }

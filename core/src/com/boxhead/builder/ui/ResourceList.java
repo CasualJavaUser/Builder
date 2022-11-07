@@ -15,9 +15,7 @@ public class ResourceList extends UIElement {
         super(null, new Vector2i(20, Gdx.graphics.getHeight() - 20), true);
         for (int i = 0; i < labels.length; i++) {
             TextureRegion texture = getResourcesTexture(Resource.values()[i]);
-            Vector2i labelPosition = new Vector2i(0, 20 * i);
-
-            labels[i] = new Label(texture, this, labelPosition);
+            labels[i] = new Label(texture, this, Vector2i.zero());
         }
     }
 
@@ -32,8 +30,9 @@ public class ResourceList extends UIElement {
     private void updateData() {
         int i = 0, j = labels.length - 1;
         for (Resource resource : Resource.values()) {
-            if (World.getStored(resource) != 0) {
+            if (resource != Resource.NOTHING && World.getStored(resource) != 0) {
                 labels[i].setTexture(getResourcesTexture(resource));
+                labels[i].setLocalPosition(0, -25 * i);
                 labels[i].setText(World.getStored(resource) + "");
                 labels[i].setVisible(true);
                 i++;

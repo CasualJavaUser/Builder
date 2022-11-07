@@ -8,9 +8,9 @@ public enum Resource {
     STEEL(3),
     TOOLS(2);
 
-    public final int weight;
+    public final int mass;
 
-    Resource(int weight) {
-        this.weight = weight;
+    Resource(int mass) {
+        this.mass = mass;
     }
 }

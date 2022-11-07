@@ -72,12 +72,10 @@ public enum Job {
 
     private static final Sequence DESK_JOB = new Sequence() {
         @Override
-        public void assign(NPC assignee, ProductionBuilding workplace) {
-        }
+        public void assign(NPC assignee, ProductionBuilding workplace) {}
 
         @Override
-        public void onExit(NPC assignee, ProductionBuilding workplace) {
-        }
+        public void onExit(NPC assignee, ProductionBuilding workplace) {}
     };
 
     Job(Sequence sequence, Object poi) {

@@ -1,8 +1,6 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
-import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashMap;
@@ -17,7 +15,6 @@ public class ProductionBuilding extends EnterableBuilding {
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
-    protected UIElement indicator;
     protected int availability = 0;
 
     public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
@@ -31,7 +28,6 @@ public class ProductionBuilding extends EnterableBuilding {
         } else {
             assignedFieldWork = null;
         }
-        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
     /**
@@ -118,14 +114,5 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public Map<NPC, FieldWork> getAssignedFieldWork() {
         return assignedFieldWork;
-    }
-
-    @Override
-    public void draw(SpriteBatch batch) {
-        super.draw(batch);
-        if (indicator.isVisible()) {
-            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
-                    gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
-        }
     }
 }

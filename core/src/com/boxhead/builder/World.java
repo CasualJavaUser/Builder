@@ -22,7 +22,7 @@ public class World {
     private static final int SEED = 60;
     private static Random random;
 
-    private static final int[] storage = new int[Resource.values().length];
+    private static final int[] storedResources = new int[Resource.values().length];
 
     private static Tile[] tiles;
     private static TextureRegion[] tileTextures;
@@ -209,17 +209,15 @@ public class World {
     }
 
     public static int getStored(Resource resource) {
-        updateStorage();
-        return storage[resource.ordinal()];
+        updateStoredResources();
+        return storedResources[resource.ordinal()];
     }
 
-    public static void updateStorage() {
-        Arrays.fill(storage, 0);
-        for (Building storageBuilding : buildings) {
-            if (storageBuilding instanceof StorageBuilding) {
-                for (int i = 0; i < storage.length; i++) {
-                    storage[i] += ((StorageBuilding) storageBuilding).getStored(Resource.values()[i]);
-                }
+    public static void updateStoredResources() {
+        Arrays.fill(storedResources, 0);
+        for (Building building : buildings) {
+            for (int i = 0; i < storedResources.length; i++) {
+                storedResources[i] += building.getInventory().getResourceAmount(Resource.values()[i]);
             }
         }
     }

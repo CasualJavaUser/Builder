@@ -6,15 +6,17 @@ import java.util.Map;
 public class Inventory {
 
     private final Map<Resource, Integer> resources = new EnumMap<>(Resource.class);
-    private final int maxWeight;
-    private int currentWeight;
+    private final int maxMass;
+    private int currentMass;
+    private int displayedMass;
 
     public Inventory(int maxWeight) {
         if (maxWeight < 1)
             throw new IllegalArgumentException();
 
-        this.maxWeight = maxWeight;
-        currentWeight = 0;
+        this.maxMass = maxWeight;
+        currentMass = 0;
+        displayedMass = 0;
     }
 
     public enum Availability {
@@ -53,7 +55,7 @@ public class Inventory {
     }
 
     public int getAvailableCapacityFor(Resource resource) {
-        return (maxWeight - currentWeight) / resource.weight;
+        return (maxMass - currentMass) / resource.mass;
     }
 
     /*public Availability checkStorageAvailability(Job recipe) {
@@ -76,12 +78,12 @@ public class Inventory {
         return resources.getOrDefault(resource, 0);
     }
 
-    public int getCurrentWeight() {
-        return currentWeight;
+    public boolean isEmpty() {
+        return currentMass == 0;
     }
 
-    public boolean isEmpty() {
-        return currentWeight == 0;
+    public boolean isFull() {
+        return displayedMass >= maxMass;
     }
 
     public void put(Resource resource, int amount) {
@@ -91,7 +93,7 @@ public class Inventory {
             throw new IllegalArgumentException();
 
         resources.put(resource, currentAmount + amount);
-        currentWeight += amount * resource.weight;
+        updateMass(resource, amount);
     }
 
     /*public void put(Job recipe) {
@@ -117,14 +119,27 @@ public class Inventory {
         else {
             resources.remove(resource);
         }
-        currentWeight -= amount * resource.weight;
+        updateMass(resource, -amount);
     }
 
-    public int getMaxWeight() {
-        return maxWeight;
+    public int getMaxMass() {
+        return maxMass;
+    }
+
+    public int getCurrentMass() {
+        return currentMass;
+    }
+
+    public int getDisplayedMass() {
+        return displayedMass;
     }
 
     public int remainingCapacity() {
-        return maxWeight - currentWeight;
+        return maxMass - currentMass;
+    }
+
+    private void updateMass(Resource resource, int amount) {
+        currentMass += amount * resource.mass;
+        if(resource != Resource.NOTHING) displayedMass += amount * resource.mass;
     }
 }

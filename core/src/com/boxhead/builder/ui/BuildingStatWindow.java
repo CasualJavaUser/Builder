@@ -46,7 +46,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
             npcCapacity = building.getEmployeeCapacity();
             npcs = building.getEmployees();
 
-            switch (((ProductionBuilding) pinnedObject).getAvailability()) {  //warning
+            switch (((ProductionBuilding) pinnedObject).getAvailability()) {  //warning  TODO
                 case -1: warning = "not enough resources\n"; break;
                 case 1: warning = "storage full\n"; break;
                 case 2: warning = "no storage in range\n"; break;
@@ -63,7 +63,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
                     }
                 }
             }*/
-            stats += "\n" + building.getInventory().getCurrentWeight() + " / " + building.getInventory().getMaxWeight();  //todo temporary solution (until job system overhaul)
+            stats += "\n" + building.getInventory().getDisplayedMass() + " / " + building.getInventory().getMaxMass();  //todo temporary solution (until job system overhaul)
             for (int i = 1; i < Resource.values().length; i++) {
                 if(building.getInventory().getResourceAmount(Resource.values()[i]) != 0) {
                     stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
@@ -74,7 +74,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         if(pinnedObject instanceof StorageBuilding) {
             StorageBuilding storage = (StorageBuilding) pinnedObject;
-            stats += storage.getStoredWeight() + " / " + storage.getMaxWeight();
+            stats += storage.getStoredMass() + " / " + storage.getMaxMass();
             for (int i = 1; i < Resource.values().length; i++) {
                 if(storage.getStored(Resource.values()[i]) != 0) {
                     stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
