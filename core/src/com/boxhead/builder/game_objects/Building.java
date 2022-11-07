@@ -69,7 +69,7 @@ public class Building extends GameObject implements Clickable {
         if(inventory.isFull()) {
             indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
             indicator.setVisible(true);
-        } else {
+        } else {  //TODO indicate when not enough resources
             indicator.setVisible(false);
         }
         if (indicator.isVisible()) {

@@ -41,17 +41,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
             npcs = ((ResidentialBuilding) pinnedObject).getResidents();
         }
 
+        if(pinnedObject.getInventory().isFull()) warning = "inventory full\n";  //TODO display warning when not enough resources
+
         if(pinnedObject instanceof ProductionBuilding) {
             ProductionBuilding building = (ProductionBuilding) pinnedObject;
             npcCapacity = building.getEmployeeCapacity();
             npcs = building.getEmployees();
-
-            switch (((ProductionBuilding) pinnedObject).getAvailability()) {  //warning  TODO
-                case -1: warning = "not enough resources\n"; break;
-                case 1: warning = "storage full\n"; break;
-                case 2: warning = "no storage in range\n"; break;
-                default: warning = "";
-            }
 
             stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();  //job quality and products
             job = ((ProductionBuilding) pinnedObject).getJob();
@@ -65,20 +60,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }*/
             stats += "\n" + building.getInventory().getDisplayedMass() + " / " + building.getInventory().getMaxMass();  //todo temporary solution (until job system overhaul)
             for (int i = 1; i < Resource.values().length; i++) {
-                if(building.getInventory().getResourceAmount(Resource.values()[i]) != 0) {
+                if (building.getInventory().getResourceAmount(Resource.values()[i]) != 0) {
                     stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
                             building.getInventory().getResourceAmount(Resource.values()[i]);
-                }
-            }
-        }
-
-        if(pinnedObject instanceof StorageBuilding) {
-            StorageBuilding storage = (StorageBuilding) pinnedObject;
-            stats += storage.getStoredMass() + " / " + storage.getMaxMass();
-            for (int i = 1; i < Resource.values().length; i++) {
-                if(storage.getStored(Resource.values()[i]) != 0) {
-                    stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
-                            storage.getStored(Resource.values()[i]);
                 }
             }
         }
