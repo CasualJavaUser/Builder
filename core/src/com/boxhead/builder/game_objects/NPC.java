@@ -586,7 +586,7 @@ public class NPC extends GameObject implements Clickable {
 
     public Job getJob() {
         if (workplace == null)
-            return Job.UNEMPLOYED;
+            return Jobs.UNEMPLOYED;
         else
             return workplace.getJob();
     }

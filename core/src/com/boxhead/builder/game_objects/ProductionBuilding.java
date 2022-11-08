@@ -71,7 +71,7 @@ public class ProductionBuilding extends EnterableBuilding {
     public void business() {
         for (NPC employee : employees) {
             if (employee.getCurrentBuilding() == this && !employee.hasOrders()) {
-                job.sequence.assign(employee, this);
+                job.assign(employee, this);
             }
         }
     }
@@ -83,7 +83,7 @@ public class ProductionBuilding extends EnterableBuilding {
     public void endWorkday() {
         for (NPC employee : employees) {
             employee.clearOrderQueue();
-            job.sequence.onExit(employee, this);
+            job.onExit(employee, this);
             employee.giveOrder(NPC.Order.Type.EXIT, this);
             if (employee.getHome() != null) {
                 employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());

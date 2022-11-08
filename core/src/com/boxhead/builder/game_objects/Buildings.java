@@ -58,17 +58,17 @@ public class Buildings {
     public static Building create(Type building, Vector2i gridPosition) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding("lumber mill", building, gridPosition, Job.LUMBERJACK, 1, new Vector2i(0, -1), 100);
+                return new ProductionBuilding("lumber mill", building, gridPosition, Jobs.LUMBERJACK, 1, new Vector2i(0, -1), 100);
             case DEFAULT_RESIDENTIAL_BUILDING:
                 return new ResidentialBuilding("house", building, gridPosition, 5, new Vector2i(0, -1));
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding("hospital", building, gridPosition, Job.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
+                return new ServiceBuilding("hospital", building, gridPosition, Jobs.DOCTOR, Service.HEAL, 5, 10, new Vector2i(0, -1), 100, 100);
             case DEFAULT_STORAGE_BUILDING:
                 return new StorageBuilding("storage", building, gridPosition);
             case BIG:
                 return new Building("fungi", building, gridPosition);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building, gridPosition, Job.BUILDER, 5, new Vector2i(0, -1), 0);
+                return new ProductionBuilding("construction office", building, gridPosition, Jobs.BUILDER, 5, new Vector2i(0, -1), 0);
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }

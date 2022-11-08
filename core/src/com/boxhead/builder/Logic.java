@@ -22,7 +22,7 @@ public class Logic {
     private static void dailyCycle() {
         if (World.getTime() == 25200) {   //7:00
             for (NPC npc : World.getNpcs()) {
-                if (npc.getJob() != Job.UNEMPLOYED) {
+                if (npc.getJob() != Jobs.UNEMPLOYED) {
                     npc.giveOrder(NPC.Order.Type.EXIT);
                     npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
                     npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
