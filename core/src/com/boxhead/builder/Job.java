@@ -3,7 +3,7 @@ package com.boxhead.builder;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.game_objects.ProductionBuilding;
 
-public abstract class Job {
+public class Job {
     public void assign(NPC assignee, ProductionBuilding workplace) {}
 
     public void onExit(NPC assignee, ProductionBuilding workplace) {}

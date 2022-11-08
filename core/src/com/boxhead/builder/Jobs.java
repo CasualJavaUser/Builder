@@ -8,8 +8,8 @@ import com.boxhead.builder.game_objects.ProductionBuilding;
 import java.util.Optional;
 
 public class Jobs {
-    public static final Job UNEMPLOYED = new Job() {};
-    public static final Job DOCTOR = new Job() {};
+    public static final Job UNEMPLOYED = new Job();
+    public static final Job DOCTOR = new Job();
     public static final Job LUMBERJACK = new Job() {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
