@@ -21,6 +21,7 @@ public class UI {
     public static final Color SEMI_TRANSPARENT_RED = new Color(.86f, .25f, .25f, .4f);
     public static final Color SEMI_TRANSPARENT_GREEN = new Color(.25f, .86f, .25f, .4f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
+    public static final Color VERY_TRANSPARENT = new Color(1, 1, 1, .2f);
 
     public static final BitmapFont FONT = new BitmapFont();
     public static final int FONT_SIZE = 15;
@@ -31,11 +32,13 @@ public class UI {
                           pauseButton, playButton, x2Button, x3Button;
     private static UIElement buildingMenu, mainMenu, timeMenu;
 
-    private static NPCStatWindow NPCStatWindow;
+    private static NPCStatWindow npcStatWindow;
     private static BuildingStatWindow buildingStatWindow;
 
     private static ResourceList resourceList;
     private static Clock clock;
+
+    private static List<UIElement> closables;
 
     public static void init() {
         mainMenu = new UIElement(null, new Vector2i(0, 10), true);
@@ -115,7 +118,7 @@ public class UI {
                 () -> Logic.setTickSpeed(Logic.SPEED_X3), true);
         //endregion
 
-        NPCStatWindow = new NPCStatWindow();
+        npcStatWindow = new NPCStatWindow();
         buildingStatWindow = new BuildingStatWindow();
 
         resourceList = new ResourceList();
@@ -123,7 +126,9 @@ public class UI {
         layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton,
                 homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
                 clock, pauseButton, playButton, x2Button, x3Button, resourceList)));
-        layers.add(new HashSet<>(Arrays.asList(NPCStatWindow, buildingStatWindow)));
+        layers.add(new HashSet<>(Arrays.asList(npcStatWindow, buildingStatWindow)));
+
+        closables = Arrays.asList(npcStatWindow, buildingStatWindow, buildingMenu);
     }
 
     public static void drawUI(SpriteBatch batch) {
@@ -134,21 +139,6 @@ public class UI {
                 }
             }
         }
-    }
-
-    @Deprecated
-    public static boolean isAnyClickableElementClickedOrHeld() {
-        for (Set<UIElement> layer : layers) {
-            for (UIElement element : layer) {
-                if (element.isVisible() && element instanceof Clickable) {
-                    Clickable clickableElement = (Clickable) element;
-                    if (clickableElement.isClicked() || clickableElement.isHeld()) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     public static boolean handleClickableElementsInteractions() {
@@ -181,10 +171,23 @@ public class UI {
     }
 
     public static void showNPCStatWindow(NPC npc) {
-        NPCStatWindow.show(npc);
+        npcStatWindow.show(npc);
     }
 
     public static void showBuildingStatWindow(Building building) {
         buildingStatWindow.show(building);
+    }
+
+    public static void onEscape() {
+        if (Buildings.isInBuildingMode()) {
+            Buildings.turnOffBuildingMode();
+            return;
+        }
+        for (UIElement closable : closables) {
+            if(closable.isVisible()) {
+                closable.hide();
+                return;
+            }
+        }
     }
 }

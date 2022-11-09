@@ -87,6 +87,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
         }
     }
 
+    @Override
+    public void hide() {
+        super.hide();
+        if (pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();
+    }
+
     private void drawNPCCounter(SpriteBatch batch) {
         int i = 0;
         for (NPC npc : npcs) {

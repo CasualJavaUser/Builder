@@ -16,7 +16,7 @@ public class Jobs {
             if (workplace.getInventory().remainingCapacity() < NPC.INVENTORY_SIZE)
                 return;
 
-            Optional<FieldWork> optional = FieldWork.findFieldWork(Harvestable.Characteristic.TREE, workplace.getEntrancePosition());
+            Optional<FieldWork> optional = FieldWork.findFieldWorkInRange(Harvestable.Characteristic.TREE, workplace.getEntrancePosition(), getRange());
             if (optional.isPresent()) {
                 FieldWork fieldWork = optional.get();
                 fieldWork.assignWorker(assignee);

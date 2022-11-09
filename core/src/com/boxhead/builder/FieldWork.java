@@ -40,4 +40,25 @@ public interface FieldWork extends WorldObject {
 
         return fieldWork;
     }
+
+    static Optional<FieldWork> findFieldWorkInRange(Object characteristic, Vector2i gridPosition, int range) {
+        Optional<FieldWork> fieldWork = World.getBuildings().stream()
+                .filter(building -> building instanceof FieldWork)
+                .map(FieldWork.class::cast)
+                .filter(fw -> fw.getCharacteristic().equals(characteristic))
+                .filter(FieldWork::isFree)
+                .filter(building -> building.getGridPosition().distance(gridPosition) <= range)
+                .min(Comparator.comparingDouble(building -> building.getGridPosition().distance(gridPosition)));
+        if (fieldWork.isPresent()) {
+            return fieldWork;
+        }
+        fieldWork = World.getHarvestables().stream()
+                .filter(fw -> fw.getCharacteristic().equals(characteristic))
+                .filter(FieldWork::isFree)
+                .filter(harvestable -> harvestable.getCollider().getGridPosition().distance(gridPosition) <= range)
+                .min(Comparator.comparingDouble(harvestable -> harvestable.getCollider().getGridPosition().distance(gridPosition)))
+                .map(FieldWork.class::cast);
+
+        return fieldWork;
+    }
 }

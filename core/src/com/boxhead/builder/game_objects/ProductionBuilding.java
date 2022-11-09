@@ -1,6 +1,9 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
+import com.boxhead.builder.ui.TileCircle;
+import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashMap;
@@ -15,7 +18,7 @@ public class ProductionBuilding extends EnterableBuilding {
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
-    protected int availability = 0;
+    protected TileCircle rangeVisualiser;
 
     public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
         super(name, type, gridPosition, entrancePosition);
@@ -23,6 +26,12 @@ public class ProductionBuilding extends EnterableBuilding {
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
         employees = new HashSet<>(employeeCapacity, 1f);
+        rangeVisualiser = new TileCircle(
+                Textures.get(Textures.Tile.DEFAULT),
+                gridPosition.add(entrancePosition).multiply(World.TILE_SIZE),
+                job.getRange() * World.TILE_SIZE,
+                false);
+        rangeVisualiser.setTint(UI.VERY_TRANSPARENT);
         if (job.getPoI() != null) {
             assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
         } else {
@@ -100,10 +109,6 @@ public class ProductionBuilding extends EnterableBuilding {
         return jobQuality;
     }
 
-    public int getAvailability() {
-        return availability;
-    }
-
     public int getEmployeeCapacity() {
         return employeeCapacity;
     }
@@ -114,5 +119,21 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public Map<NPC, FieldWork> getAssignedFieldWork() {
         return assignedFieldWork;
+    }
+
+    public void hideRangeVisualiser() {
+        rangeVisualiser.setVisible(false);
+    }
+
+    @Override
+    public void onClick() {
+        super.onClick();
+        rangeVisualiser.setVisible(true);
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+        if(rangeVisualiser.isVisible()) rangeVisualiser.draw(batch);
     }
 }

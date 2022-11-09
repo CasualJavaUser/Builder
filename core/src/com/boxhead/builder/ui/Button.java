@@ -44,24 +44,13 @@ public class Button extends UIElement implements Clickable {
     @Override
     public void onClick() {
         onClick.execute();
-    }
-
-    @Override
-    public void onHold() {
         tint = UI.PRESSED_COLOR;
     }
 
     @Override
     public void onUp() {
         onUp.execute();
-    }
-
-    @Override
-    public void draw(SpriteBatch batch) {
-        batch.setColor(tint);
-        super.draw(batch);
         tint = UI.DEFAULT_COLOR;
-        batch.setColor(tint);
     }
 
     private boolean isMouseOnButton() {

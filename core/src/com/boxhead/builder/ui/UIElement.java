@@ -78,6 +78,10 @@ public class UIElement {
         isVisible = visible;
     }
 
+    public void hide() {
+        setVisible(false);
+    }
+
     public void setLocalRotation(float rotation) {
         this.rotation = rotation;
     }
@@ -100,9 +104,25 @@ public class UIElement {
         return tint;
     }
 
+    public void setTint(Color tint) {
+        this.tint = tint;
+    }
+
     public void draw(SpriteBatch batch) {
-        if (texture != null)
-            batch.draw(texture, getGlobalPosition().x, getGlobalPosition().y, (float)texture.getRegionWidth()/2, (float)texture.getRegionHeight()/2, texture.getRegionWidth(), texture.getRegionHeight(), 1, 1, -getGlobalRotation());
+        if (texture != null) {
+            batch.setColor(tint);
+            batch.draw(
+                    texture,
+                    getGlobalPosition().x,
+                    getGlobalPosition().y,
+                    (float) texture.getRegionWidth() / 2,
+                    (float) texture.getRegionHeight() / 2,
+                    texture.getRegionWidth(), texture.getRegionHeight(),
+                    1,
+                    1,
+                    -getGlobalRotation());
+            batch.setColor(UI.DEFAULT_COLOR);
+        }
     }
 
     public UIElement getParent() {

@@ -58,7 +58,7 @@ public class Window extends UIElement implements Clickable {
         if (closeButton.isClicked())
             closeButton.onClick();
         //closeButton.onClick() is called here instead of in the onClick() function because onClick() is called before onHold()
-        //and the isDragged variable stayed true despite of the left mouse button not being pressed.
+        //and the isDragged variable stayed true in spite of the left mouse button not being pressed.
         position.x += Gdx.input.getX() - mousePositionOnClick.x;
         position.y -= Gdx.input.getY() - mousePositionOnClick.y;
 
@@ -83,7 +83,8 @@ public class Window extends UIElement implements Clickable {
         closeButton.draw(batch);
     }
 
-    protected void hide() {
+    @Override
+    public void hide() {
         setVisible(false);
         isDragged = false;
     }

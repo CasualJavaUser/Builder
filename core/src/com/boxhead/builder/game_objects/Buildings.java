@@ -99,14 +99,15 @@ public class Buildings {
             if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
                 isInBuildingMode = !constructionStarted;
         }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
-            isInBuildingMode = false;
     }
 
     public static void toBuildingMode(Type building) {
         currentBuilding = building;
         isInBuildingMode = true;
+    }
+
+    public static void turnOffBuildingMode() {
+        isInBuildingMode = false;
     }
 
     public static boolean isInBuildingMode() {

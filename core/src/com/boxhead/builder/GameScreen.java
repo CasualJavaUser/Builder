@@ -62,6 +62,8 @@ public class GameScreen extends InputAdapter implements Screen {
             }
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) UI.onEscape();
+
         drawUI();
 
         batch.end();
