@@ -18,20 +18,14 @@ public class ProductionBuilding extends EnterableBuilding {
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
-    protected TileCircle rangeVisualiser;
+    protected boolean showRange = false;
 
-    public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, Job job, int employeeCapacity, Vector2i entrancePosition, int productionInterval) {
-        super(name, type, gridPosition, entrancePosition);
-        this.job = job;
+    public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
+        super(name, type, gridPosition);
+        job = type.getJob();
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
         employees = new HashSet<>(employeeCapacity, 1f);
-        rangeVisualiser = new TileCircle(
-                Textures.get(Textures.Tile.DEFAULT),
-                gridPosition.add(entrancePosition).multiply(World.TILE_SIZE),
-                job.getRange() * World.TILE_SIZE,
-                false);
-        rangeVisualiser.setTint(UI.VERY_TRANSPARENT);
         if (job.getPoI() != null) {
             assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
         } else {
@@ -122,18 +116,24 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public void hideRangeVisualiser() {
-        rangeVisualiser.setVisible(false);
+        showRange = false;
     }
 
     @Override
     public void onClick() {
         super.onClick();
-        rangeVisualiser.setVisible(true);
+        showRange = true;
     }
 
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        if(rangeVisualiser.isVisible()) rangeVisualiser.draw(batch);
+        batch.setColor(UI.VERY_TRANSPARENT);
+        if(showRange) TileCircle.draw(
+                batch,
+                Textures.get(Textures.Tile.DEFAULT),  //todo temp texture
+                gridPosition.add(entrancePosition).multiply(World.TILE_SIZE),
+                job.getRange() * World.TILE_SIZE);
+        batch.setColor(UI.DEFAULT_COLOR);
     }
 }

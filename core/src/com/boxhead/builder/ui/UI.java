@@ -38,6 +38,7 @@ public class UI {
     private static ResourceList resourceList;
     private static Clock clock;
 
+    /**List of UIElements that can be closed (hidden) using the escape key*/
     private static List<UIElement> closables;
 
     public static void init() {

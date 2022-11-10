@@ -47,6 +47,10 @@ public class Vector2i implements Cloneable {
         return Math.sqrt(Math.pow(x - vector.x, 2d) + Math.pow(y - vector.y, 2d));
     }
 
+    public double distance(int x, int y) {
+        return Math.sqrt(Math.pow(this.x - x, 2d) + Math.pow(this.y - y, 2d));
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ')';

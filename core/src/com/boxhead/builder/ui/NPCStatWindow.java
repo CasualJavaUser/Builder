@@ -35,7 +35,7 @@ public class NPCStatWindow extends StatWindow<NPC> {
     @Override
     protected void updateStats() {
         name = pinnedObject.getName() + " " + pinnedObject.getSurname();
-        job = pinnedObject.getJob().toString().toLowerCase();
+        job = pinnedObject.getJob().toString();
         npcStatList = pinnedObject.getStats();
 
         stats = name + "\n" + job;

@@ -8,8 +8,18 @@ import com.boxhead.builder.game_objects.ProductionBuilding;
 import java.util.Optional;
 
 public class Jobs {
-    public static final Job UNEMPLOYED = new Job();
-    public static final Job DOCTOR = new Job();
+    public static final Job UNEMPLOYED = new Job() {
+        @Override
+        public String toString() {
+            return "unemployed";
+        }
+    };
+    public static final Job DOCTOR = new Job() {
+        @Override
+        public String toString() {
+            return "doctor";
+        }
+    };
     public static final Job LUMBERJACK = new Job() {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
@@ -52,6 +62,11 @@ public class Jobs {
         public int getRange() {
             return 10;
         }
+
+        @Override
+        public String toString() {
+            return "lumberjack";
+        }
     };
     public static final Job BUILDER = new Job() {
         @Override
@@ -79,6 +94,11 @@ public class Jobs {
         @Override
         public Object getPoI() {
             return ConstructionSite.class;
+        }
+
+        @Override
+        public String toString() {
+            return "builder";
         }
     };
 }

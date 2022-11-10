@@ -15,8 +15,8 @@ public class ServiceBuilding extends ProductionBuilding {
     private final Set<NPC> guests;
     private int serviceCounter, serviceInterval;
 
-    public ServiceBuilding(String name, Buildings.Type type, Vector2i gridPosition, Job job, Service service, int employeeCapacity, int guestCapacity, Vector2i entrancePosition, int productionInterval, int serviceInterval) {
-        super(name, type, gridPosition, job, employeeCapacity, entrancePosition, productionInterval);
+    public ServiceBuilding(String name, Buildings.Type type, Vector2i gridPosition, Service service, int employeeCapacity, int guestCapacity, int productionInterval, int serviceInterval) {
+        super(name, type, gridPosition, employeeCapacity, productionInterval);
         this.service = service;
         this.guestCapacity = guestCapacity;
         this.serviceInterval = serviceInterval;

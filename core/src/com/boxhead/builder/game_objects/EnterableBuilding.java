@@ -10,9 +10,9 @@ public class EnterableBuilding extends Building {
      */
     protected Vector2i entrancePosition;
 
-    protected EnterableBuilding(String name, Buildings.Type type, Vector2i gridPosition, Vector2i entrancePosition) {
+    protected EnterableBuilding(String name, Buildings.Type type, Vector2i gridPosition) {
         super(name, type, gridPosition);
-        this.entrancePosition = entrancePosition;
+        entrancePosition = type.getEntrancePosition();
     }
 
     public Vector2i getEntrancePosition() {
