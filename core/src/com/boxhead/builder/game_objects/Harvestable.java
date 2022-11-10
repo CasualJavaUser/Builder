@@ -91,8 +91,7 @@ public class Harvestable extends GameObject implements FieldWork {
             } else exit = true;
 
             if (amountLeft <= 0) {
-                World.makeNavigable(collider);
-                World.getHarvestables().remove(this);
+                World.removeHarvestable(this);
                 exit = true;
             }
             if (exit) {

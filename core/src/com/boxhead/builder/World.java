@@ -199,6 +199,12 @@ public class World {
         gameObjects.add(harvestable);
     }
 
+    public static void removeHarvestable(Harvestable harvestable) {
+        makeNavigable(harvestable.getCollider());
+        harvestables.remove(harvestable);
+        gameObjects.remove(harvestable);
+    }
+
     public static void spawnNPC(NPC npc) {
         npcs.add(npc);
         gameObjects.add(npc);
