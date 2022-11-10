@@ -1,7 +1,5 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -189,8 +187,8 @@ public class NPC extends GameObject implements Clickable {
 
     @Override
     public boolean isClicked() {
-        if (!isInBuilding() && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
+        if (!isInBuilding() && InputManager.isButtonDown(InputManager.LEFT_MOUSE)) {
+            Vector3 mousePos = BuilderGame.getGameScreen().getMouseWorldPosition();
             return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
                     mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
         }

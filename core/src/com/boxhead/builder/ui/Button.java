@@ -3,6 +3,7 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.InputManager;
 import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Action;
 
@@ -24,12 +25,12 @@ public class Button extends UIElement implements Clickable {
 
     @Override
     public boolean isClicked() {
-        return Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isMouseOnButton();
+        return InputManager.isButtonDown(InputManager.LEFT_MOUSE) && isMouseOnButton();
     }
 
     @Override
     public boolean isHeld() {
-        isPrevHeld = Gdx.input.isButtonPressed(Input.Buttons.LEFT) && isMouseOnButton();
+        isPrevHeld = InputManager.isButton(InputManager.LEFT_MOUSE) && isMouseOnButton();
         return isPrevHeld;
     }
 

@@ -1,9 +1,9 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.InputManager;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Vector2i;
 import org.apache.commons.lang3.Range;
@@ -31,9 +31,7 @@ public class Window extends UIElement implements Clickable {
 
     @Override
     public boolean isClicked() {
-        /*int windowWidth = sizeX + (texture.getRegionWidth()-1)*2;
-        int windowHeight = sizeY + (texture.getRegionHeight()-1)*2;*/
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) {
             int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
             return x >= position.x && x < (position.x + windowWidth) &&
                     y <= position.y && y > (position.y - windowHeight);
@@ -44,7 +42,7 @@ public class Window extends UIElement implements Clickable {
     @Override
     public boolean isHeld() {
         if (isClicked()) isDragged = true;
-        if (isDragged) isDragged = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+        if (isDragged) isDragged = InputManager.isButton(InputManager.LEFT_MOUSE);
         return isDragged;
     }
 

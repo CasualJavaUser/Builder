@@ -62,7 +62,7 @@ public class GameScreen extends InputAdapter implements Screen {
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) UI.onEscape();
+        if (InputManager.isKeyDown(Input.Keys.ESCAPE)) UI.onEscape();
 
         drawUI();
 
@@ -73,7 +73,7 @@ public class GameScreen extends InputAdapter implements Screen {
         return camera;
     }
 
-    public Vector3 getMousePosition() {
+    public Vector3 getMouseWorldPosition() {
         return camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     }
 
@@ -87,11 +87,11 @@ public class GameScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        Vector3 mousePositionBefore = getMousePosition();
+        Vector3 mousePositionBefore = getMouseWorldPosition();
         camera.zoom = ZOOM_RANGE.fit(camera.zoom + amountY / SCROLL_SPEED);
         camera.update();
 
-        Vector3 mousePositionAfter = getMousePosition();
+        Vector3 mousePositionAfter = getMouseWorldPosition();
         final float cameraX = camera.position.x + (mousePositionBefore.x - mousePositionAfter.x);
         final float cameraY = camera.position.y + (mousePositionBefore.y - mousePositionAfter.y);
         camera.position.set(cameraX, cameraY, 0);
@@ -123,20 +123,20 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     private void moveCamera(float deltaTime) {
-        final float deltaPosition = Gdx.input.isKeyPressed(InputManager.FAST)
+        final float deltaPosition = InputManager.isKey(InputManager.FAST)
                 ? FAST_SPEED * deltaTime
                 : NORMAL_SPEED * deltaTime;
 
-        if (Gdx.input.isKeyPressed(InputManager.RIGHT))
+        if (InputManager.isKey(InputManager.RIGHT))
             camera.position.x += deltaPosition;
-        if (Gdx.input.isKeyPressed(InputManager.LEFT))
+        if (InputManager.isKey(InputManager.LEFT))
             camera.position.x -= deltaPosition;
-        if (Gdx.input.isKeyPressed(InputManager.UP))
+        if (InputManager.isKey(InputManager.UP))
             camera.position.y += deltaPosition;
-        if (Gdx.input.isKeyPressed(InputManager.DOWN))
+        if (InputManager.isKey(InputManager.DOWN))
             camera.position.y -= deltaPosition;
 
-        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        if (InputManager.isButton(InputManager.RIGHT_MOUSE)) {
             camera.position.x -= Gdx.input.getDeltaX() * camera.zoom;
             camera.position.y += Gdx.input.getDeltaY() * camera.zoom;
         }

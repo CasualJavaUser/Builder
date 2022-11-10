@@ -102,7 +102,7 @@ public class Buildings {
             throw new IllegalStateException("Not in building mode");
 
         TextureRegion texture = currentBuilding.getTexture();
-        Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
+        Vector3 mousePos = BuilderGame.getGameScreen().getMouseWorldPosition();
 
         int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
         int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;

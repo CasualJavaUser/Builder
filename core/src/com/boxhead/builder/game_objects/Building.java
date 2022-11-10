@@ -1,14 +1,9 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
-import com.boxhead.builder.BuilderGame;
-import com.boxhead.builder.Inventory;
-import com.boxhead.builder.Textures;
-import com.boxhead.builder.World;
+import com.boxhead.builder.*;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.ui.UIElement;
@@ -47,8 +42,8 @@ public class Building extends GameObject implements Clickable {
 
     @Override
     public boolean isClicked() {
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            Vector3 mousePos = BuilderGame.getGameScreen().getMousePosition();
+        if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) {
+            Vector3 mousePos = BuilderGame.getGameScreen().getMouseWorldPosition();
             int colliderX = collider.getGridPosition().x;
             int colliderY = collider.getGridPosition().y;
 
