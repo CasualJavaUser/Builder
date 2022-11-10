@@ -72,10 +72,15 @@ public class BoxCollider {
         return new BoxCollider(lowerLeftCorner.add(gridPosition), width, height);
     }
 
+    public BoxCollider extended() {
+        return new BoxCollider(lowerLeftCorner.add(-1, -1), width + 2, height + 2);
+    }
+
     public List<Vector2i> toVector2iList() {
-        List<Vector2i> list = new ArrayList<>();
-        for (int i = 0; i < width * height; i++) {
-            list.add(new Vector2i(lowerLeftCorner.x + i%width, lowerLeftCorner.y + i/width));
+        int area = width * height;
+        List<Vector2i> list = new ArrayList<>(area);
+        for (int i = 0; i < area; i++) {
+            list.add(new Vector2i(lowerLeftCorner.x + i % width, lowerLeftCorner.y + i / width));
         }
         return list;
     }
