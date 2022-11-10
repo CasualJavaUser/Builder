@@ -26,11 +26,12 @@ public class World {
 
     private static Tile[] tiles;
     private static TextureRegion[] tileTextures;
-    private static SortedList<Building> buildings;
-    private static SortedList<NPC> npcs;
-    private static SortedList<Harvestable> harvestables;
+    private static List<Building> buildings;
+    private static List<NPC> npcs;
+    private static List<Harvestable> harvestables;
+    private static SortedList<GameObject> gameObjects;
 
-    private static final Comparator<? extends WorldObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
+    private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
 
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
@@ -39,9 +40,10 @@ public class World {
         World.worldSize = worldSize;
         tiles = new Tile[worldSize.x * worldSize.y];
         tileTextures = new TextureRegion[tiles.length];
-        buildings = new SortedList<>((Comparator<Building>) comparator);
-        npcs = new SortedList<>((Comparator<NPC>) comparator);
-        harvestables = new SortedList<>((Comparator<Harvestable>) comparator);
+        buildings = new ArrayList<>();
+        npcs = new ArrayList<>();
+        harvestables = new ArrayList<>();
+        gameObjects = new SortedList<>(comparator);
 
         random = new Random(SEED);
 
@@ -165,9 +167,10 @@ public class World {
     }
 
     public static boolean startConstruction(Buildings.Type type, Vector2i gridPosition) {
-        if (navigableTiles.containsAll(type.getRelativeCollider().cloneAndTranslate(gridPosition).toVector2iList())) {
+        if (navigableTiles.containsAll(type.getRelativeCollider().cloneAndTranslate(gridPosition).toVector2iList()) &&
+                (type.getEntrancePosition() == null || navigableTiles.contains(gridPosition.add(type.getEntrancePosition())))) {
             ConstructionSite site = new ConstructionSite("construction site", gridPosition, type, 100);
-            buildings.add(site);
+            placeBuilding(site);
             makeUnnavigable(site.getCollider());
             return true;
         }
@@ -177,15 +180,28 @@ public class World {
     public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
+        gameObjects.add(building);
     }
 
     public static void placeBuilding(Building building) {
         buildings.add(building);
+        gameObjects.add(building);
+    }
+
+    public static void removeBuilding(Building building) {
+        buildings.remove(building);
+        gameObjects.remove(building);
     }
 
     public static void placeHarvestable(Harvestable harvestable) {
         makeUnnavigable(harvestable.getCollider());
         harvestables.add(harvestable);
+        gameObjects.add(harvestable);
+    }
+
+    public static void spawnNPC(NPC npc) {
+        npcs.add(npc);
+        gameObjects.add(npc);
     }
 
     public static void drawMap(SpriteBatch batch) {
@@ -195,16 +211,8 @@ public class World {
     }
 
     public static void drawObjects(SpriteBatch batch) {
-        for (NPC npc : npcs) {
-            npc.draw(batch);
-        }
-
-        for (Harvestable harvestable : harvestables) {
-            harvestable.draw(batch);
-        }
-
-        for (Building building : buildings) {
-            building.draw(batch);
+        for (GameObject o : gameObjects) {
+            o.draw(batch);
         }
     }
 
@@ -222,10 +230,6 @@ public class World {
         }
     }
 
-    public static boolean spawnNPC(NPC npc) {
-        return npcs.add(npc);
-    }
-
     public static void setTime(int time) {
         World.time = time;
     }
@@ -234,15 +238,15 @@ public class World {
         time = (time + shift) % FULL_DAY;
     }
 
-    public static SortedList<Building> getBuildings() {
+    public static List<Building> getBuildings() {
         return buildings;
     }
 
-    public static SortedList<NPC> getNpcs() {
+    public static List<NPC> getNpcs() {
         return npcs;
     }
 
-    public static SortedList<Harvestable> getHarvestables() {
+    public static List<Harvestable> getHarvestables() {
         return harvestables;
     }
 

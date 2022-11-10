@@ -150,8 +150,21 @@ public class Buildings {
                     batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
                 else
                     batch.setColor(UI.SEMI_TRANSPARENT_RED);
+
                 batch.draw(Textures.get(Textures.Tile.DEFAULT), posX + x * World.TILE_SIZE, posY + y * World.TILE_SIZE);
             }
+        }
+        if(currentBuilding.getEntrancePosition() != null) {
+            if(World.getNavigableTiles().contains(new Vector2i(
+                    posX/World.TILE_SIZE + currentBuilding.getEntrancePosition().x,
+                    posY/World.TILE_SIZE + currentBuilding.getEntrancePosition().y)))
+                batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
+            else
+                batch.setColor(UI.SEMI_TRANSPARENT_RED);
+
+            batch.draw(Textures.get(Textures.Tile.DEFAULT),
+                    posX + currentBuilding.getEntrancePosition().x * World.TILE_SIZE,
+                    posY + currentBuilding.getEntrancePosition().y * World.TILE_SIZE);
         }
     }
 

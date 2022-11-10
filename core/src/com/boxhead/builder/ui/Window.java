@@ -61,7 +61,7 @@ public class Window extends UIElement implements Clickable {
         position.y -= Gdx.input.getY() - mousePositionOnClick.y;
 
         final Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - (sizeX + (texture.getRegionWidth()-1)*2));
-        final Range<Integer> rangeY = Range.between(0, Gdx.graphics.getHeight() - (sizeY + (texture.getRegionHeight()-1)*2));
+        final Range<Integer> rangeY = Range.between(sizeY + (texture.getRegionHeight()-1)*2, Gdx.graphics.getHeight());
 
         position.x = rangeX.fit(position.x);
         position.y = rangeY.fit(position.y);

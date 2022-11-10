@@ -49,7 +49,7 @@ public class ConstructionSite extends Building implements FieldWork {
         progress += currentlyWorking;
 
         if (progress >= totalLabour) {
-            World.getBuildings().remove(this);
+            World.removeBuilding(this);
             World.placeBuilding(building);
 
             for (NPC npc : assigned.keySet()) {
