@@ -43,6 +43,11 @@ public class Button extends UIElement implements Clickable {
     @Override
     public void onClick() {
         onClick.execute();
+    }
+
+    @Override
+    public void onHold() {
+        Clickable.super.onHold();
         tint = UI.PRESSED_COLOR;
     }
 
