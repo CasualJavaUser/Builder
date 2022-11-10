@@ -127,7 +127,6 @@ public class ProductionBuilding extends EnterableBuilding {
 
     @Override
     public void draw(SpriteBatch batch) {
-        super.draw(batch);
         batch.setColor(UI.VERY_TRANSPARENT);
         if(showRange) TileCircle.draw(
                 batch,
@@ -135,5 +134,6 @@ public class ProductionBuilding extends EnterableBuilding {
                 gridPosition.add(entrancePosition).multiply(World.TILE_SIZE),
                 job.getRange() * World.TILE_SIZE);
         batch.setColor(UI.DEFAULT_COLOR);
+        super.draw(batch);
     }
 }

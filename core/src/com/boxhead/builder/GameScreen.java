@@ -19,8 +19,8 @@ import org.apache.commons.lang3.Range;
 
 public class GameScreen extends InputAdapter implements Screen {
 
+    public static final OrthographicCamera camera = new OrthographicCamera();
     private final SpriteBatch batch;
-    private final OrthographicCamera camera;
     private final Viewport viewport;
     private final Matrix4 uiProjection;
 
@@ -30,7 +30,6 @@ public class GameScreen extends InputAdapter implements Screen {
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
-        this.camera = new OrthographicCamera();
         this.viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         this.uiProjection = new Matrix4();
 
@@ -67,10 +66,6 @@ public class GameScreen extends InputAdapter implements Screen {
         drawUI();
 
         batch.end();
-    }
-
-    public OrthographicCamera getCamera() {
-        return camera;
     }
 
     public Vector3 getMouseWorldPosition() {

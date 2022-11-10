@@ -88,6 +88,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
     }
 
     @Override
+    public void show(Building gameObject) {
+        if (pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();
+        super.show(gameObject);
+    }
+
+    @Override
     public void hide() {
         super.hide();
         if (pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();

@@ -28,7 +28,7 @@ public class NPCStatWindow extends StatWindow<NPC> {
 
     @Override
     protected Vector3 getObjectScreenPosition() {
-        return BuilderGame.getGameScreen().getCamera().project( new Vector3(pinnedObject.getSpritePosition().x * World.TILE_SIZE,
+        return GameScreen.camera.project( new Vector3(pinnedObject.getSpritePosition().x * World.TILE_SIZE,
                                                                             pinnedObject.getSpritePosition().y * World.TILE_SIZE, 0));
     }
 

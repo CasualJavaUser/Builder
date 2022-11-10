@@ -1,10 +1,9 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
-import com.boxhead.builder.BuilderGame;
+import com.boxhead.builder.GameScreen;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.GameObject;
@@ -15,14 +14,12 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     protected boolean pinned;
     protected static final int topPadding = 12, leftPadding = 10, rightPadding = 20;
     protected String stats = "";
-    private OrthographicCamera camera = null;
 
     public StatWindow() {
         super(Textures.get(Textures.Ui.WINDOW));
     }
 
     public void show(T gameObject) {
-        camera = BuilderGame.getGameScreen().getCamera();
         this.pinnedObject = gameObject;
         pinned = true;
         updateStats();
@@ -58,7 +55,7 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     protected void updatePosition() {
         Vector3 objectPosition = getObjectScreenPosition();
 
-        float cameraZoom = camera.zoom;
+        float cameraZoom = GameScreen.camera.zoom;
         int x = (int) (objectPosition.x + pinnedObject.getTexture().getRegionWidth() / cameraZoom);
         int y = (int) (objectPosition.y + (pinnedObject.getTexture().getRegionHeight()) / cameraZoom) + sizeY;
         x = getStatWindowXRange().fit(x);
@@ -68,7 +65,7 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     }
 
     protected Vector3 getObjectScreenPosition() {
-        return BuilderGame.getGameScreen().getCamera().project(new Vector3(
+        return GameScreen.camera.project(new Vector3(
                 pinnedObject.getGridPosition().x * World.TILE_SIZE,
                 pinnedObject.getGridPosition().y * World.TILE_SIZE, 0));
     }
@@ -96,10 +93,10 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     }
 
     private Range<Float> getPinnedObjectBoundsX() {
-        return Range.between(-pinnedObject.getTexture().getRegionWidth() / camera.zoom, (float)Gdx.graphics.getWidth());
+        return Range.between(-pinnedObject.getTexture().getRegionWidth() / GameScreen.camera.zoom, (float)Gdx.graphics.getWidth());
     }
 
     private Range<Float> getPinnedObjectBoundsY() {
-        return Range.between(-pinnedObject.getTexture().getRegionHeight() / camera.zoom, (float)Gdx.graphics.getHeight());
+        return Range.between(-pinnedObject.getTexture().getRegionHeight() / GameScreen.camera.zoom, (float)Gdx.graphics.getHeight());
     }
 }
