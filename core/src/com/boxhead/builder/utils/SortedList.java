@@ -82,20 +82,17 @@ public class SortedList<T> implements Collection<T> {
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
+        boolean changed = false;
         for (T t : c) {
-            add(t);
+            if (add(t))
+                changed = true;
         }
-        return true;
+        return changed;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        boolean changed = false;
-        for (Object o : c) {
-            if (remove(o))
-                changed = true;
-        }
-        return changed;
+        return list.removeAll(c);
     }
 
     @Override
@@ -159,7 +156,7 @@ public class SortedList<T> implements Collection<T> {
      * Returns an index (<b>i</b>) such that list[<b>i</b>].equals(t) is true. If there are multiple equal elements in the list,
      * no guarantees are gives as to which index will be returned.
      *
-     * @return index ranging [0, size] inclusive, or <b>0</b> if the list's empty.
+     * @return index ranging [0, size] inclusive, or <b>-1</b> if the list doesn't contain the argument or is empty.
      */
     private int binarySearchEquals(T t) {
         int size = list.size();
@@ -181,7 +178,7 @@ public class SortedList<T> implements Collection<T> {
             prevComp = comp;
             comp = comparator.compare(t, list.get(seek));
 
-            if (step == 1 && comp >> 31 != prevComp >> 31)
+            if (step == 1 && comp != 0 && comp >> 31 != prevComp >> 31)
                 return -1;
 
             step /= 2;
@@ -189,8 +186,10 @@ public class SortedList<T> implements Collection<T> {
 
             if (comp < 0)
                 seek += step;
-            else
+            else if (comp > 0)
                 seek -= step;
+            else
+                return linearSearchEqual(t, seek);
         }
         return -1;
     }
@@ -208,10 +207,37 @@ public class SortedList<T> implements Collection<T> {
     }
 
     /**
+     * Performs a linear search around the given index, but only within one comparability bracket - that is values which return 0 when compared using the list comparator.
+     */
+    private int linearSearchEqual(T t, int index) {
+        boolean searchUp = true;
+        boolean searchDown = true;
+        int iterator = 0;
+
+        while (searchUp || searchDown) {
+            if (searchUp) {
+                if (index + iterator >= list.size() || comparator.compare(list.get(index + iterator), t) != 0) {
+                    searchUp = false;
+                } else if (list.get(index + iterator).equals(t))
+                    return index + iterator;
+            }
+
+            if (searchDown) {
+                if (index - iterator < 0 || comparator.compare(list.get(index - iterator), t) != 0) {
+                    searchDown = false;
+                } else if (list.get(index - iterator).equals(t))
+                    return index - iterator;
+            }
+            iterator++;
+        }
+        return -1;
+    }
+
+    /**
      * Returns an index (<b>i</b>) such that list[<b>i</b> - 1] >= t >= list[<b>i</b>]
      * based on the provided comparator {@code compare()} method.
      *
-     * @return index ranging [0, size] inclusive, or <b>0</b> if the list's empty.
+     * @return index ranging [0, size] inclusive, or <b>-1</b> if the list's empty.
      */
     private int binarySearchComparable(T t) {
         int size = list.size();

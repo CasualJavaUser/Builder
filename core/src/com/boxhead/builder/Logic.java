@@ -45,14 +45,12 @@ public class Logic {
             if (World.getBuildings().get(i) instanceof ProductionBuilding) {
                 ((ProductionBuilding) World.getBuildings().get(i)).business();
             }
-            if (World.getBuildings().get(i) instanceof FieldWork) {
-                ((FieldWork) World.getBuildings().get(i)).work();
-            }
         }
 
-        for (int i = 0; i < World.getHarvestables().size(); i++) {
-            World.getHarvestables().get(i).work();
+        for (FieldWork fieldWork : World.getFieldWorks()) {
+            fieldWork.work();
         }
+        World.removeFieldWorks();
     }
 
     private static void NPCLife() {
@@ -69,7 +67,7 @@ public class Logic {
     }
 
     public static void setTickSpeed(float tickSpeed) {
-        if(tickSpeed == 0) {
+        if (tickSpeed == 0) {
             Timer.instance().stop();
             return;
         }

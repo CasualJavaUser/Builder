@@ -26,12 +26,12 @@ public class Inventory {
         LACKS_INPUT
     }
 
-    public int moveResourcesTo(Inventory otherInventory, Resource resource, int amount) {
-        if (!hasResourceAmount(resource, amount))
+    public int moveResourcesTo(Inventory otherInventory, Resource resource, int units) {
+        if (!hasResourceAmount(resource, units))
             throw new IllegalArgumentException();
 
         int amountToMove = otherInventory.getAvailableCapacityFor(resource);
-        if (amountToMove > amount) amountToMove = amount;
+        if (amountToMove > units) amountToMove = units;
 
         if (amountToMove > 0) {
             this.take(resource, amountToMove);
@@ -58,20 +58,21 @@ public class Inventory {
         return (maxMass - currentMass) / resource.mass;
     }
 
-    /*public Availability checkStorageAvailability(Job recipe) {
-        for (Resource resource : recipe.getResourceChanges().keySet()) {
-            int change = recipe.getResourceChanges().get(resource);
-            if (resources.getOrDefault(resource, 0) + change < 0)
+    public Availability checkStorageAvailability(Recipe recipe) {
+        for (Resource resource : recipe.changedResources()) {
+            int inStorage = resources.getOrDefault(resource, 0);
+            int change = recipe.getChange(resource);
+            if (inStorage + change < 0)
                 return Availability.LACKS_INPUT;
 
             if (change > getAvailableCapacityFor(resource))
                 return Availability.OUTPUT_FULL;
         }
         return Availability.AVAILABLE;
-    }*/
+    }
 
-    public boolean hasResourceAmount(Resource resource, int amount) {
-        return resources.containsKey(resource) && resources.get(resource) >= amount;
+    public boolean hasResourceAmount(Resource resource, int units) {
+        return resources.containsKey(resource) && resources.get(resource) >= units;
     }
 
     public int getResourceAmount(Resource resource) {
@@ -86,40 +87,40 @@ public class Inventory {
         return displayedMass >= maxMass;
     }
 
-    public void put(Resource resource, int amount) {
-        int currentAmount = resources.getOrDefault(resource, 0);
+    public void put(Resource resource, int units) {
+        int currentUnits = resources.getOrDefault(resource, 0);
 
-        if (amount > getAvailableCapacityFor(resource))
+        if (units > getAvailableCapacityFor(resource))
             throw new IllegalArgumentException();
 
-        resources.put(resource, currentAmount + amount);
-        updateMass(resource, amount);
+        resources.put(resource, currentUnits + units);
+        updateMass(resource, units);
     }
 
-    /*public void put(Job recipe) {
+    public void put(Recipe recipe) {
         if (checkStorageAvailability(recipe) != Availability.AVAILABLE) {
             throw new IllegalArgumentException();
         }
-        for (Resource resource : recipe.getResourceChanges().keySet()) {
-            int currentAmount = resources.getOrDefault(resource, 0);
-            int change = recipe.getResourceChanges().get(resource);
-            resources.put(resource, currentAmount + change);
-            currentWeight += change * resource.weight;
+        for (Resource resource : recipe.changedResources()) {
+            int inStorage = resources.getOrDefault(resource, 0);
+            int change = recipe.getChange(resource);
+            resources.put(resource, inStorage + change);
+            updateMass(resource, change);
         }
-    }*/
+    }
 
-    private void take(Resource resource, int amount) {
-        if (!hasResourceAmount(resource, amount))
+    private void take(Resource resource, int units) {
+        if (!hasResourceAmount(resource, units))
             throw new IllegalArgumentException();
 
-        int newAmount = resources.get(resource) - amount;
+        int newAmount = resources.get(resource) - units;
 
         if (newAmount > 0)
             resources.put(resource, newAmount);
         else {
             resources.remove(resource);
         }
-        updateMass(resource, -amount);
+        updateMass(resource, -units);
     }
 
     public int getMaxMass() {
@@ -138,8 +139,8 @@ public class Inventory {
         return maxMass - currentMass;
     }
 
-    private void updateMass(Resource resource, int amount) {
-        currentMass += amount * resource.mass;
-        if(resource != Resource.NOTHING) displayedMass += amount * resource.mass;
+    private void updateMass(Resource resource, int units) {
+        currentMass += units * resource.mass;
+        if (resource != Resource.NOTHING) displayedMass += units * resource.mass;
     }
 }

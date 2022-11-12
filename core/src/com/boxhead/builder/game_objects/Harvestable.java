@@ -32,15 +32,6 @@ public class Harvestable extends GameObject implements FieldWork {
         amountLeft = size;
     }
 
-    public static Harvestable getByCoordinates(Vector2i gridPosition) {
-        for (Harvestable harvestable : World.getHarvestables()) {
-            if (harvestable.gridPosition.equals(gridPosition)) {
-                return harvestable;
-            }
-        }
-        return null;
-    }
-
     public enum Characteristic {
         TREE(Resource.WOOD),
         IRON_ORE(Resource.IRON);
@@ -78,6 +69,11 @@ public class Harvestable extends GameObject implements FieldWork {
     }
 
     @Override
+    public boolean isRemoved() {
+        return amountLeft <= 0;
+    }
+
+    @Override
     public void work() {
         if (worked) {
             boolean exit = false;
@@ -90,10 +86,9 @@ public class Harvestable extends GameObject implements FieldWork {
                 }
             } else exit = true;
 
-            if (amountLeft <= 0) {
-                World.removeHarvestable(this);
+            if (amountLeft <= 0)
                 exit = true;
-            }
+
             if (exit) {
                 assigned.getWorkplace().dissociateFieldWork(assigned);
                 assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());

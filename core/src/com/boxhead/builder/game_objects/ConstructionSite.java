@@ -45,11 +45,15 @@ public class ConstructionSite extends Building implements FieldWork {
     }
 
     @Override
+    public boolean isRemoved() {
+        return progress >= totalLabour;
+    }
+
+    @Override
     public void work() {
         progress += currentlyWorking;
 
         if (progress >= totalLabour) {
-            World.removeBuilding(this);
             World.placeBuilding(building);
 
             for (NPC npc : assigned.keySet()) {

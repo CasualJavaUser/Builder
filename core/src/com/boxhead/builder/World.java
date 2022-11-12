@@ -28,7 +28,7 @@ public class World {
     private static TextureRegion[] tileTextures;
     private static List<Building> buildings;
     private static List<NPC> npcs;
-    private static List<Harvestable> harvestables;
+    private static Set<FieldWork> fieldWorks;
     private static SortedList<GameObject> gameObjects;
 
     private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
@@ -42,7 +42,7 @@ public class World {
         tileTextures = new TextureRegion[tiles.length];
         buildings = new ArrayList<>();
         npcs = new ArrayList<>();
-        harvestables = new ArrayList<>();
+        fieldWorks = new HashSet<>();
         gameObjects = new SortedList<>(comparator);
 
         random = new Random(SEED);
@@ -53,8 +53,9 @@ public class World {
         generateTrees();
 
         //temp
-        placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, new Vector2i(45, 45));
-        makeUnnavigable(new BoxCollider(new Vector2i(45, 45), 2, 2));
+        Vector2i constructionOfficePos = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
+        placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, constructionOfficePos);
+        makeUnnavigable(new BoxCollider(constructionOfficePos, 2, 2));
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
@@ -99,7 +100,7 @@ public class World {
                 int trunkX = x + width / 2;
                 boolean isLocationValid = x + width <= worldSize.x && y + height <= worldSize.y && tiles[y * worldSize.y + trunkX] != Tile.WATER;
                 if(isLocationValid && smallNoise > 0.1f && bigNoise > 0.2f) {
-                    placeHarvestable(Harvestables.create(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
+                    placeFieldWork(Harvestables.create(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
                 }
             }
         }
@@ -170,7 +171,7 @@ public class World {
         if (navigableTiles.containsAll(type.getRelativeCollider().cloneAndTranslate(gridPosition).toVector2iList()) &&
                 (type.getEntrancePosition() == null || navigableTiles.contains(gridPosition.add(type.getEntrancePosition())))) {
             ConstructionSite site = new ConstructionSite("construction site", gridPosition, type, 100);
-            placeBuilding(site);
+            placeFieldWork(site);
             makeUnnavigable(site.getCollider());
             return true;
         }
@@ -193,21 +194,24 @@ public class World {
         gameObjects.remove(building);
     }
 
-    public static void placeHarvestable(Harvestable harvestable) {
-        makeUnnavigable(harvestable.getCollider());
-        harvestables.add(harvestable);
-        gameObjects.add(harvestable);
+    public static void placeFieldWork(FieldWork fieldWork) {
+        makeUnnavigable(fieldWork.getCollider());
+        fieldWorks.add(fieldWork);
+        gameObjects.add((GameObject) fieldWork);
     }
 
-    public static void removeHarvestable(Harvestable harvestable) {
-        makeNavigable(harvestable.getCollider());
-        harvestables.remove(harvestable);
-        gameObjects.remove(harvestable);
+    public static void removeFieldWorks() {
+        for (FieldWork fieldWork : fieldWorks) {
+            if (fieldWork.isRemoved()) {
+                makeNavigable(fieldWork.getCollider());
+                gameObjects.remove((GameObject) fieldWork);
+            }
+        }
+        fieldWorks.removeIf(FieldWork::isRemoved);
     }
 
     public static void spawnNPC(NPC npc) {
         npcs.add(npc);
-        gameObjects.add(npc);
     }
 
     public static void drawMap(SpriteBatch batch) {
@@ -217,6 +221,9 @@ public class World {
     }
 
     public static void drawObjects(SpriteBatch batch) {
+        for (NPC npc : npcs) {
+            npc.draw(batch);
+        }
         for (GameObject o : gameObjects) {
             o.draw(batch);
         }
@@ -252,8 +259,8 @@ public class World {
         return npcs;
     }
 
-    public static List<Harvestable> getHarvestables() {
-        return harvestables;
+    public static Set<FieldWork> getFieldWorks() {
+        return fieldWorks;
     }
 
     public static int getWidth() {

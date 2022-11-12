@@ -16,6 +16,8 @@ public interface FieldWork extends WorldObject {
 
     boolean isFree();
 
+    boolean isRemoved();
+
     void work();
 
     void setWork(NPC npc, boolean b);
@@ -23,42 +25,19 @@ public interface FieldWork extends WorldObject {
     BoxCollider getCollider();
 
     static Optional<FieldWork> findFieldWork(Object characteristic, Vector2i gridPosition) {
-        Optional<FieldWork> fieldWork = World.getBuildings().stream()
-                .filter(building -> building instanceof FieldWork)
-                .map(FieldWork.class::cast)
-                .filter(fw -> fw.getCharacteristic().equals(characteristic))
-                .filter(FieldWork::isFree)
-                .min(Comparator.comparingDouble(building -> building.getGridPosition().distance(gridPosition)));
-        if (fieldWork.isPresent()) {
-            return fieldWork;
-        }
-        fieldWork = World.getHarvestables().stream()
+        return World.getFieldWorks().stream()
                 .filter(fw -> fw.getCharacteristic().equals(characteristic))
                 .filter(FieldWork::isFree)
                 .min(Comparator.comparingDouble(harvestable -> harvestable.getGridPosition().distance(gridPosition)))
                 .map(FieldWork.class::cast);
-
-        return fieldWork;
     }
 
     static Optional<FieldWork> findFieldWorkInRange(Object characteristic, Vector2i gridPosition, int range) {
-        Optional<FieldWork> fieldWork = World.getBuildings().stream()
-                .filter(building -> building instanceof FieldWork)
-                .map(FieldWork.class::cast)
-                .filter(fw -> fw.getCharacteristic().equals(characteristic))
-                .filter(FieldWork::isFree)
-                .filter(building -> building.getGridPosition().distance(gridPosition) <= range)
-                .min(Comparator.comparingDouble(building -> building.getGridPosition().distance(gridPosition)));
-        if (fieldWork.isPresent()) {
-            return fieldWork;
-        }
-        fieldWork = World.getHarvestables().stream()
+        return World.getFieldWorks().stream()
                 .filter(fw -> fw.getCharacteristic().equals(characteristic))
                 .filter(FieldWork::isFree)
                 .filter(harvestable -> harvestable.getCollider().getGridPosition().distance(gridPosition) <= range)
                 .min(Comparator.comparingDouble(harvestable -> harvestable.getCollider().getGridPosition().distance(gridPosition)))
                 .map(FieldWork.class::cast);
-
-        return fieldWork;
     }
 }
