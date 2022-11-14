@@ -3,6 +3,7 @@ package com.boxhead.builder;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.PerlinNoise;
 import com.boxhead.builder.utils.SortedList;
@@ -29,11 +30,9 @@ public class World {
     private static List<Building> buildings;
     private static List<NPC> npcs;
     private static Set<FieldWork> fieldWorks;
-    private static SortedSet<GameObject> gameObjects;
+    private static SortedList<GameObject> gameObjects;
 
-    private static final Comparator<GameObject> comparator = (o1, o2) ->
-            Integer.compare(((worldSize.x - o2.getGridPosition().x) + o2.getGridPosition().y * worldSize.x),
-                    ((worldSize.x - o1.getGridPosition().x) + o1.getGridPosition().y * worldSize.x));
+    private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
 
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
@@ -45,7 +44,7 @@ public class World {
         buildings = new ArrayList<>();
         npcs = new ArrayList<>();
         fieldWorks = new HashSet<>();
-        gameObjects = new TreeSet<>(comparator);
+        gameObjects = new SortedList<>(comparator);
 
         random = new Random(SEED);
 
@@ -169,17 +168,6 @@ public class World {
         }
     }
 
-    public static boolean startConstruction(Buildings.Type type, Vector2i gridPosition) {
-        if (navigableTiles.containsAll(type.getRelativeCollider().cloneAndTranslate(gridPosition).toVector2iList()) &&
-                (type.getEntrancePosition() == null || navigableTiles.contains(gridPosition.add(type.getEntrancePosition())))) {
-            ConstructionSite site = new ConstructionSite("construction site", gridPosition, type, 100);
-            placeFieldWork(site);
-            makeUnnavigable(site.getCollider());
-            return true;
-        }
-        return false;
-    }
-
     public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
@@ -212,6 +200,10 @@ public class World {
         fieldWorks.removeIf(FieldWork::isRemoved);
     }
 
+    public static void removeGameObject(GameObject gameObject) {
+        gameObjects.remove(gameObject);
+    }
+
     public static void spawnNPC(NPC npc) {
         npcs.add(npc);
     }
@@ -229,6 +221,23 @@ public class World {
         for (GameObject o : gameObjects) {
             o.draw(batch);
         }
+    }
+
+    public static void showBuildableTiles(SpriteBatch batch) {
+        Vector2i pos = new Vector2i();
+        for (int y = 0; y < worldSize.y; y++) {
+            for (int x = 0; x < worldSize.x; x++) {
+                pos.set(x, y);
+                batch.setColor(UI.SEMI_TRANSPARENT_RED);
+                if(!isBuildable(pos)) batch.draw(Textures.get(Textures.Tile.DEFAULT), x * TILE_SIZE, y * TILE_SIZE);
+                batch.setColor(UI.DEFAULT_COLOR);
+            }
+        }
+    }
+
+    public static boolean isBuildable(Vector2i position) {
+        Tile tile = getTile(position);
+        return tile != Tile.WATER && navigableTiles.contains(position);
     }
 
     public static int getStored(Resource resource) {

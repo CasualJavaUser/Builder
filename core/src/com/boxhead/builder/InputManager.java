@@ -16,11 +16,11 @@ public class InputManager {
     public static final int RIGHT_MOUSE = Input.Buttons.RIGHT;
 
     public static boolean isKeyDown(Pair<Integer, Integer> key) {
-        return Gdx.input.isKeyJustPressed(key.first) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));
+        return (key.first != null && Gdx.input.isKeyJustPressed(key.first)) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));
     }
 
     public static boolean isKey(Pair<Integer, Integer> key) {
-        return Gdx.input.isKeyPressed(key.first) || (key.second != null && Gdx.input.isKeyPressed(key.second));
+        return (key.first != null && Gdx.input.isKeyPressed(key.first)) || (key.second != null && Gdx.input.isKeyPressed(key.second));
     }
 
     public static boolean isKeyDown(int key) {

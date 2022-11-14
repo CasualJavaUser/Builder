@@ -13,12 +13,14 @@ public class ConstructionSite extends Building implements FieldWork {
     private final Building building;
     private int currentlyWorking = 0;
     private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
+    private Buildings.Type type;
 
     public ConstructionSite(String name, Vector2i gridPosition, Buildings.Type buildingType, int totalLabour) {
         super(name, buildingType.getConstructionSite(), gridPosition, null);
         building = Buildings.create(buildingType, gridPosition);
         this.totalLabour = totalLabour;
         collider = building.getCollider();
+        type = buildingType;
     }
 
     @Override

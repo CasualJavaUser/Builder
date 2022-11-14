@@ -116,17 +116,17 @@ public class Buildings {
                     posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
                     currentBuilding.job.getRange());
         }
-        showTileAvailability(batch, posX, posY);
+        boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
         batch.setColor(UI.SEMI_TRANSPARENT);
         batch.draw(texture, posX, posY);
         batch.setColor(UI.DEFAULT_COLOR);
 
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)  && isBuildable) {
             Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-            boolean constructionStarted = World.startConstruction(currentBuilding, buildingPosition);
+            World.placeFieldWork(new ConstructionSite("construction site", buildingPosition, currentBuilding, 100));
 
             if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                isInBuildingMode = !constructionStarted;
+                isInBuildingMode = false;
         }
     }
 
@@ -143,29 +143,34 @@ public class Buildings {
         return isInBuildingMode;
     }
 
-    private static void showTileAvailability(SpriteBatch batch, int posX, int posY) {
+    private static boolean checkAndShowTileAvailability(SpriteBatch batch, int posX, int posY) {
+        boolean isBuildable = true;
         for (int y = 0; y < currentBuilding.getRelativeCollider().getHeight(); y++) {
             for (int x = 0; x < currentBuilding.getRelativeCollider().getWidth(); x++) {
-                if(World.getNavigableTiles().contains(new Vector2i(posX/World.TILE_SIZE + x, posY/World.TILE_SIZE + y)))
+                if(World.isBuildable(new Vector2i(posX/World.TILE_SIZE + x, posY/World.TILE_SIZE + y)))
                     batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
-                else
+                else {
                     batch.setColor(UI.SEMI_TRANSPARENT_RED);
-
+                    isBuildable = false;
+                }
                 batch.draw(Textures.get(Textures.Tile.DEFAULT), posX + x * World.TILE_SIZE, posY + y * World.TILE_SIZE);
             }
         }
         if(currentBuilding.getEntrancePosition() != null) {
-            if(World.getNavigableTiles().contains(new Vector2i(
+            if(World.isBuildable(new Vector2i(
                     posX/World.TILE_SIZE + currentBuilding.getEntrancePosition().x,
                     posY/World.TILE_SIZE + currentBuilding.getEntrancePosition().y)))
                 batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
-            else
+            else {
                 batch.setColor(UI.SEMI_TRANSPARENT_RED);
+                isBuildable = false;
+            }
 
             batch.draw(Textures.get(Textures.Tile.DEFAULT),
                     posX + currentBuilding.getEntrancePosition().x * World.TILE_SIZE,
                     posY + currentBuilding.getEntrancePosition().y * World.TILE_SIZE);
         }
+        return isBuildable;
     }
 
     private static void showBuildingRange(SpriteBatch batch, int posX, int posY, int range) {
