@@ -41,29 +41,21 @@ public class BuildingStatWindow extends StatWindow<Building> {
             npcs = ((ResidentialBuilding) pinnedObject).getResidents();
         }
 
-        if(pinnedObject.getInventory().isFull()) warning = "inventory full\n";  //TODO display warning when not enough resources
-
         if(pinnedObject instanceof ProductionBuilding) {
             ProductionBuilding building = (ProductionBuilding) pinnedObject;
             npcCapacity = building.getEmployeeCapacity();
             npcs = building.getEmployees();
-
-            stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();  //job quality and products
             job = ((ProductionBuilding) pinnedObject).getJob();
-            /*if(job.producesAnyResources()) {
-                stats += "\nproduct(s):";
-                for (Resource resource : job.getResourceChanges().keySet()) {
-                    if(job.getResourceChanges().get(resource) > 0) {
-                        stats += "\n- " + resource.name().toLowerCase();
-                    }
-                }
-            }*/
-            stats += "\n" + building.getInventory().getDisplayedMass() + " / " + building.getInventory().getMaxMass();  //todo temporary solution (until job system overhaul)
-            for (int i = 1; i < Resource.values().length; i++) {
-                if (building.getInventory().getResourceAmount(Resource.values()[i]) != 0) {
-                    stats += "\n" + Resource.values()[i].toString().toLowerCase() + ": " +
-                            building.getInventory().getResourceAmount(Resource.values()[i]);
-                }
+
+            if(pinnedObject.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
+            else if(pinnedObject.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
+            else warning = "";
+
+            stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();
+            stats += "\n" + building.getInventory().getDisplayedMass() + " / " + building.getInventory().getMaxMass();
+            for (Resource resource : job.getRecipe().changedResources()) {
+                stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
+                        building.getInventory().getResourceAmount(resource));
             }
         }
 

@@ -8,6 +8,8 @@ public class Job {
 
     public void onExit(NPC assignee, ProductionBuilding workplace) {}
 
+    public Recipe getRecipe() {return new Recipe();}
+
     public Object getPoI() {return null;}
 
     public int getRange() {return 0;}

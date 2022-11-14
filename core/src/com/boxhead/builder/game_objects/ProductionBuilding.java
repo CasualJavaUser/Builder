@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashMap;
@@ -19,6 +20,7 @@ public class ProductionBuilding extends EnterableBuilding {
     protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
     protected boolean showRange = false;
+    protected UIElement indicator;
 
     public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
         super(name, type, gridPosition);
@@ -31,6 +33,7 @@ public class ProductionBuilding extends EnterableBuilding {
         } else {
             assignedFieldWork = null;
         }
+        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
     }
 
     /**
@@ -128,12 +131,29 @@ public class ProductionBuilding extends EnterableBuilding {
     @Override
     public void draw(SpriteBatch batch) {
         batch.setColor(UI.VERY_TRANSPARENT);
-        if(showRange) TileCircle.draw(
+        if (showRange) TileCircle.draw(
                 batch,
                 Textures.get(Textures.Tile.DEFAULT),  //todo temp texture
                 gridPosition.add(entrancePosition).multiply(World.TILE_SIZE),
                 job.getRange() * World.TILE_SIZE);
         batch.setColor(UI.DEFAULT_COLOR);
+
         super.draw(batch);
+
+        if (inventory.checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) {
+            indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
+            indicator.setVisible(true);
+        }
+        else if (inventory.checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) {
+            indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
+            indicator.setVisible(true);
+        }
+        else {
+            indicator.setVisible(false);
+        }
+        if (indicator.isVisible()) {
+            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
+                    gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
+        }
     }
 }

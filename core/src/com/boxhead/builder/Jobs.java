@@ -4,6 +4,7 @@ import com.boxhead.builder.game_objects.ConstructionSite;
 import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.game_objects.ProductionBuilding;
+import com.boxhead.builder.utils.Pair;
 
 import java.util.Optional;
 
@@ -51,6 +52,11 @@ public class Jobs {
                 assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
                 assignee.giveResourceOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, Resource.WOOD);
             }
+        }
+
+        @Override
+        public Recipe getRecipe() {
+            return new Recipe(Pair.of(Resource.WOOD, 5));
         }
 
         @Override
