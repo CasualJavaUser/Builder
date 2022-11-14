@@ -29,9 +29,11 @@ public class World {
     private static List<Building> buildings;
     private static List<NPC> npcs;
     private static Set<FieldWork> fieldWorks;
-    private static SortedList<GameObject> gameObjects;
+    private static SortedSet<GameObject> gameObjects;
 
-    private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
+    private static final Comparator<GameObject> comparator = (o1, o2) ->
+            Integer.compare(((worldSize.x - o2.getGridPosition().x) + o2.getGridPosition().y * worldSize.x),
+                    ((worldSize.x - o1.getGridPosition().x) + o1.getGridPosition().y * worldSize.x));
 
     private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
 
@@ -43,7 +45,7 @@ public class World {
         buildings = new ArrayList<>();
         npcs = new ArrayList<>();
         fieldWorks = new HashSet<>();
-        gameObjects = new SortedList<>(comparator);
+        gameObjects = new TreeSet<>(comparator);
 
         random = new Random(SEED);
 

@@ -25,8 +25,7 @@ public class GameScreen extends InputAdapter implements Screen {
     private final Matrix4 uiProjection;
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
-    private final float NORMAL_SPEED = 250, FAST_SPEED = 450;
-    private final float SCROLL_SPEED = 50;
+    private final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 50;
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
@@ -37,8 +36,6 @@ public class GameScreen extends InputAdapter implements Screen {
         World.init(new Vector2i(101, 101));
         UI.init();
         Logic.init();
-
-        //Timer.schedule(Logic.getTask(), 0, Logic.getTickSpeed());
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
         camera.update();
