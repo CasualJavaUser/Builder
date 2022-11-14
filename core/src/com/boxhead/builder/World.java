@@ -83,8 +83,8 @@ public class World {
     }
 
     private static void generateTrees() {
-        int smallNoiseFrequency = 6;
-        int bigNoiseFrequency = 100;
+        float smallNoiseFrequency = 5.9f;
+        float bigNoiseFrequency = 99.5f;
         Harvestables.Type type;
 
         for (int y = worldSize.y - 1; y >= 0; y--) {

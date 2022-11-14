@@ -14,7 +14,7 @@ public class Harvestable extends GameObject implements FieldWork {
     private int amountLeft;
     private NPC assigned;
     private boolean worked;
-    private BoxCollider collider;
+    private final BoxCollider collider;
 
     public Harvestable(TextureRegion texture, Vector2i gridPosition, Characteristic characteristic, int size) {
         super(texture, gridPosition);
