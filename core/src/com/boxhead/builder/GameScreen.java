@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
@@ -49,10 +50,13 @@ public class GameScreen extends InputAdapter implements Screen {
         batch.begin();
         World.drawMap(batch);
         World.drawObjects(batch);
+        World.showBuildableTiles(batch);
 
         if (!UI.handleClickableElementsInteractions()) {
             if (Buildings.isInBuildingMode()) {
                 Buildings.handleBuildingMode(batch);
+            } else if (Buildings.isDemolishing()) {
+                Buildings.demolish();
             } else {
                 World.handleNpcsAndBuildingsOnClick();
             }
@@ -65,7 +69,7 @@ public class GameScreen extends InputAdapter implements Screen {
         batch.end();
     }
 
-    public Vector3 getMouseWorldPosition() {
+    public static Vector3 getMouseWorldPosition() {
         return camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     }
 

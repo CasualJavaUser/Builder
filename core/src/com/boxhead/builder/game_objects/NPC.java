@@ -189,7 +189,7 @@ public class NPC extends GameObject implements Clickable {
     @Override
     public boolean isClicked() {
         if (!isInBuilding() && InputManager.isButtonDown(InputManager.LEFT_MOUSE)) {
-            Vector3 mousePos = BuilderGame.getGameScreen().getMouseWorldPosition();
+            Vector3 mousePos = GameScreen.getMouseWorldPosition();
             return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
                     mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
         }

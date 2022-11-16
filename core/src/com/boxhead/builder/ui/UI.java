@@ -28,7 +28,7 @@ public class UI {
 
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
-    private static Button buildingButton, npcButton, workButton, restButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
+    private static Button buildingButton, npcButton, workButton, restButton, demolishButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
                           pauseButton, playButton, x2Button, x3Button;
     private static UIElement buildingMenu, mainMenu, timeMenu;
 
@@ -59,6 +59,8 @@ public class UI {
                 () -> World.setTime(25170), false);
         restButton = new Button(Textures.get(Textures.Ui.REST), mainMenu, new Vector2i(232, 0),
                 () -> World.setTime(57570), false);
+        demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainMenu, new Vector2i(306, 0),
+                Buildings::switchDemolishingMode, false);
         //endregion
 
         //region buildingMenu
@@ -124,7 +126,7 @@ public class UI {
 
         resourceList = new ResourceList();
 
-        layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton,
+        layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton, demolishButton,
                 homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
                 clock, pauseButton, playButton, x2Button, x3Button, resourceList)));
         layers.add(new HashSet<>(Arrays.asList(npcStatWindow, buildingStatWindow)));

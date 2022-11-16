@@ -39,7 +39,7 @@ public class Building extends GameObject implements Clickable {
     @Override
     public boolean isClicked() {
         if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) {
-            Vector3 mousePos = BuilderGame.getGameScreen().getMouseWorldPosition();
+            Vector3 mousePos = GameScreen.getMouseWorldPosition();
             int colliderX = collider.getGridPosition().x;
             int colliderY = collider.getGridPosition().y;
 

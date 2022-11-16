@@ -180,6 +180,7 @@ public class World {
     }
 
     public static void removeBuilding(Building building) {
+        makeNavigable(building.getCollider());
         buildings.remove(building);
         gameObjects.remove(building);
     }
@@ -198,10 +199,6 @@ public class World {
             }
         }
         fieldWorks.removeIf(FieldWork::isRemoved);
-    }
-
-    public static void removeGameObject(GameObject gameObject) {
-        gameObjects.remove(gameObject);
     }
 
     public static void spawnNPC(NPC npc) {

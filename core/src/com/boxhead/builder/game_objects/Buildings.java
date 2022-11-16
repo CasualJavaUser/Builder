@@ -10,10 +10,13 @@ import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
+import org.apache.commons.lang3.Range;
 
 public class Buildings {
     private static boolean isInBuildingMode = false;
+    private static boolean isDemolishing = false;
     private static Type currentBuilding;
+    private static Range<Integer> rangeX, rangeY;
 
     public enum Type {
         DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS, Jobs.LUMBERJACK, new Vector2i(0, -1)),
@@ -98,17 +101,20 @@ public class Buildings {
     }
 
     public static void handleBuildingMode(SpriteBatch batch) {
-        if (!isInBuildingMode)
+        if (!isInBuildingMode || isDemolishing)
             throw new IllegalStateException("Not in building mode");
 
         TextureRegion texture = currentBuilding.getTexture();
-        Vector3 mousePos = BuilderGame.getGameScreen().getMouseWorldPosition();
+        Vector3 mousePos = GameScreen.getMouseWorldPosition();
 
         int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
         int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
 
         int posX = mouseX - (mouseX % World.TILE_SIZE);
         int posY = mouseY - (mouseY % World.TILE_SIZE);
+
+        posX = rangeX.fit(posX);
+        posY = rangeY.fit(posY);
 
         if (currentBuilding.getJob() != null && currentBuilding.getJob().getRange() > 0) {
             showBuildingRange(batch,
@@ -130,8 +136,29 @@ public class Buildings {
         }
     }
 
+    public static void demolish() {
+        if (!isDemolishing || isInBuildingMode)
+            throw new IllegalStateException("Not in demolishing mode");
+
+        for(Building building : World.getBuildings()) {
+            if(building.isClicked()) {
+                World.removeBuilding(building);
+                if(!InputManager.isKey(Input.Keys.CONTROL_LEFT)) isDemolishing = false;
+                break;
+            }
+        }
+    }
+
+    public static void switchDemolishingMode() {
+        isDemolishing = !isDemolishing;
+        isInBuildingMode = false;
+    }
+
     public static void toBuildingMode(Type building) {
         currentBuilding = building;
+        rangeX = Range.between(0, World.getWidth() - currentBuilding.getTexture().getRegionWidth());
+        rangeY = Range.between(0, World.getHeight() - currentBuilding.getTexture().getRegionHeight());
+        isDemolishing = false;
         isInBuildingMode = true;
     }
 
@@ -141,6 +168,10 @@ public class Buildings {
 
     public static boolean isInBuildingMode() {
         return isInBuildingMode;
+    }
+
+    public static boolean isDemolishing() {
+        return isDemolishing;
     }
 
     private static boolean checkAndShowTileAvailability(SpriteBatch batch, int posX, int posY) {
@@ -157,9 +188,9 @@ public class Buildings {
             }
         }
         if(currentBuilding.getEntrancePosition() != null) {
-            if(World.isBuildable(new Vector2i(
-                    posX/World.TILE_SIZE + currentBuilding.getEntrancePosition().x,
-                    posY/World.TILE_SIZE + currentBuilding.getEntrancePosition().y)))
+            Vector2i entrancePos = new Vector2i(posX/World.TILE_SIZE + currentBuilding.getEntrancePosition().x,
+                                                posY/World.TILE_SIZE + currentBuilding.getEntrancePosition().y);
+            if(rangeX.contains(entrancePos.x * World.TILE_SIZE) && rangeY.contains(entrancePos.y * World.TILE_SIZE) && World.isBuildable(entrancePos))
                 batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
             else {
                 batch.setColor(UI.SEMI_TRANSPARENT_RED);
