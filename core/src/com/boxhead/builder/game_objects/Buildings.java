@@ -19,10 +19,10 @@ public class Buildings {
     private static Range<Integer> rangeX, rangeY;
 
     public enum Type {
-        DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS, Jobs.LUMBERJACK, new Vector2i(0, -1)),
-        DEFAULT_RESIDENTIAL_BUILDING(Textures.Building.HOUSE_FUNGUS, new Vector2i(0, -1)),
-        DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS, Jobs.DOCTOR, new Vector2i(0, -1)),
-        DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS),
+        DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS, Jobs.LUMBERJACK, new Vector2i(0, -1), "lumber mill"),
+        DEFAULT_RESIDENTIAL_BUILDING(Textures.Building.HOUSE_FUNGUS, new Vector2i(0, -1), "house"),
+        DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS, Jobs.DOCTOR, new Vector2i(0, -1), "hospital"),
+        DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS, "storage"),
         BIG(Textures.Building.FUNGI),
         CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1));
 
@@ -31,29 +31,43 @@ public class Buildings {
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, BoxCollider relativeCollider) {
+        public String name;
+
+        Type(Textures.Building texture, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, String name) {
             this.texture = texture;
             this.job = job;
             this.entrancePosition = entrancePosition;
             this.relativeCollider = relativeCollider;
+            this.name = name;
         }
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition) {
+        Type(Textures.Building texture, Job job, Vector2i entrancePosition, String name) {
             this.texture = texture;
             this.job = job;
             this.entrancePosition = entrancePosition;
+            this.name = name;
             TextureRegion tex = Textures.get(texture);
             this.relativeCollider = new BoxCollider(Vector2i.zero(),
                     tex.getRegionWidth() / World.TILE_SIZE,
                     tex.getRegionHeight() / World.TILE_SIZE);
         }
 
-        Type(Textures.Building texture, Vector2i entrancePosition) {
-            this(texture, null, entrancePosition);
+        Type(Textures.Building texture, Job job, Vector2i entrancePosition) {
+            this(texture, job, entrancePosition, null);
+            name = defaultName(this);
+        }
+
+        Type(Textures.Building texture, Vector2i entrancePosition, String name) {
+            this(texture, null, entrancePosition, name);
+        }
+
+        Type(Textures.Building texture, String name) {
+            this(texture, null, null, name);
         }
 
         Type(Textures.Building texture) {
-            this(texture, null, null);
+            this(texture, null);
+            name = defaultName(this);
         }
 
         public BoxCollider getRelativeCollider() {
@@ -84,17 +98,17 @@ public class Buildings {
     public static Building create(Type building, Vector2i gridPosition) {
         switch (building) {
             case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding("lumber mill", building, gridPosition, 1, 100);
+                return new ProductionBuilding(building, gridPosition, 1, 100);
             case DEFAULT_RESIDENTIAL_BUILDING:
-                return new ResidentialBuilding("house", building, gridPosition, 5);
+                return new ResidentialBuilding(building, gridPosition, 5);
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding("hospital", building, gridPosition, Service.HEAL, 5, 10, 100, 100);
+                return new ServiceBuilding(building, gridPosition, Service.HEAL, 5, 10, 100, 100);
             case DEFAULT_STORAGE_BUILDING:
-                return new StorageBuilding("storage", building, gridPosition);
+                return new StorageBuilding(building, gridPosition);
             case BIG:
-                return new Building("fungi", building, gridPosition);
+                return new Building(building, gridPosition);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding("construction office", building, gridPosition, 5, 0);
+                return new ProductionBuilding(building, gridPosition, 5, 0);
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }
@@ -213,5 +227,9 @@ public class Buildings {
                 posY,
                 range * World.TILE_SIZE);
         batch.setColor(UI.DEFAULT_COLOR);
+    }
+
+    private static String defaultName(Type type) {
+        return type.toString().toLowerCase().replace('_', ' ');
     }
 }

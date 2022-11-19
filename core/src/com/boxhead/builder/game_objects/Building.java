@@ -19,8 +19,8 @@ public class Building extends GameObject implements Clickable {
         this.collider = collider;
     }
 
-    public Building(String name, Buildings.Type type, Vector2i gridPosition) {
-        this(name, type.getTexture(), gridPosition,
+    public Building(Buildings.Type type, Vector2i gridPosition) {
+        this(type.name, type.getTexture(), gridPosition,
                 type.getRelativeCollider().cloneAndTranslate(gridPosition));
     }
 

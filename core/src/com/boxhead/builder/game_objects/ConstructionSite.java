@@ -10,17 +10,15 @@ import java.util.Map;
 public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
-    private final Building building;
     private int currentlyWorking = 0;
     private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
-    private Buildings.Type type;
+    private final Buildings.Type buildingType;
 
     public ConstructionSite(String name, Vector2i gridPosition, Buildings.Type buildingType, int totalLabour) {
         super(name, buildingType.getConstructionSite(), gridPosition, null);
-        building = Buildings.create(buildingType, gridPosition);
         this.totalLabour = totalLabour;
-        collider = building.getCollider();
-        type = buildingType;
+        collider = buildingType.relativeCollider.cloneAndTranslate(gridPosition);
+        this.buildingType = buildingType;
     }
 
     @Override
@@ -56,7 +54,7 @@ public class ConstructionSite extends Building implements FieldWork {
         progress += currentlyWorking;
 
         if (progress >= totalLabour) {
-            World.placeBuilding(building);
+            World.placeBuilding(buildingType, gridPosition);
 
             for (NPC npc : assigned.keySet()) {
                 npc.getWorkplace().dissociateFieldWork(npc);
@@ -82,7 +80,7 @@ public class ConstructionSite extends Building implements FieldWork {
         }
     }
 
-    public Building getBuilding() {
-        return building;
+    public Buildings.Type getBuildingType() {
+        return buildingType;
     }
 }

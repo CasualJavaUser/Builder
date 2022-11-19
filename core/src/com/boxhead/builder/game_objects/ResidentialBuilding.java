@@ -1,6 +1,5 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.HashSet;
@@ -11,8 +10,8 @@ public class ResidentialBuilding extends EnterableBuilding {
     private final int residentCapacity;
     private final Set<NPC> residents;
 
-    public ResidentialBuilding(String name, Buildings.Type type, Vector2i gridPosition, int residentCapacity) {
-        super(name, type, gridPosition);
+    public ResidentialBuilding(Buildings.Type type, Vector2i gridPosition, int residentCapacity) {
+        super(type, gridPosition);
         this.residentCapacity = residentCapacity;
         residents = new HashSet<>(residentCapacity, 1f);
     }

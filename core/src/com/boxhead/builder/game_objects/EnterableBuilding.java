@@ -1,6 +1,5 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -10,8 +9,8 @@ public class EnterableBuilding extends Building {
      */
     protected Vector2i entrancePosition;
 
-    protected EnterableBuilding(String name, Buildings.Type type, Vector2i gridPosition) {
-        super(name, type, gridPosition);
+    protected EnterableBuilding(Buildings.Type type, Vector2i gridPosition) {
+        super(type, gridPosition);
         entrancePosition = type.getEntrancePosition();
     }
 

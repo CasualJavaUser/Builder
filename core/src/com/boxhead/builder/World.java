@@ -34,7 +34,7 @@ public class World {
 
     private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
 
-    private static final HashSet<Vector2i> navigableTiles = new HashSet<>();
+    private static final Set<Vector2i> navigableTiles = new HashSet<>();
 
 
     public static void init(Vector2i worldSize) {
@@ -163,18 +163,13 @@ public class World {
         for (int y = 0; y < area.getHeight(); y++) {
             for (int x = 0; x < area.getWidth(); x++) {
                 tile.set(x + area.getGridPosition().x, y + area.getGridPosition().y);
-                navigableTiles.add(tile);
+                navigableTiles.add(tile.clone());
             }
         }
     }
 
     public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
-        buildings.add(building);
-        gameObjects.add(building);
-    }
-
-    public static void placeBuilding(Building building) {
         buildings.add(building);
         gameObjects.add(building);
     }
@@ -194,7 +189,9 @@ public class World {
     public static void removeFieldWorks() {
         for (FieldWork fieldWork : fieldWorks) {
             if (fieldWork.isRemoved()) {
-                makeNavigable(fieldWork.getCollider());
+                if (fieldWork instanceof Harvestable) {
+                    makeNavigable(fieldWork.getCollider());
+                }
                 gameObjects.remove((GameObject) fieldWork);
             }
         }
@@ -291,7 +288,7 @@ public class World {
         return time;
     }
 
-    public static HashSet<Vector2i> getNavigableTiles() {
+    public static Set<Vector2i> getNavigableTiles() {
         return navigableTiles;
     }
 

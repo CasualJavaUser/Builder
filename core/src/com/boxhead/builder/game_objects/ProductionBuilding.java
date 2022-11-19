@@ -22,8 +22,8 @@ public class ProductionBuilding extends EnterableBuilding {
     protected boolean showRange = false;
     protected UIElement indicator;
 
-    public ProductionBuilding(String name, Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
-        super(name, type, gridPosition);
+    public ProductionBuilding(Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
+        super(type, gridPosition);
         job = type.getJob();
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;

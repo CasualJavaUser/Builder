@@ -5,13 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class BuildingStatWindow extends StatWindow<Building> {
     private Job job;
     private Service service;
     private int npcCapacity;
-    protected Set<NPC> npcs;
+    protected Set<NPC> npcs = new HashSet<>();
     private int guestsInside, guestCapacity;
     String warning = "";
 
@@ -59,8 +60,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }
         }
 
-        if(pinnedObject instanceof ConstructionSite) {
-            stats += '(' + ((ConstructionSite) pinnedObject).getBuilding().getName() + ')';
+        if (pinnedObject instanceof ConstructionSite) {
+            stats += '(' + ((ConstructionSite) pinnedObject).getBuildingType().name + ')';
         }
     }
 

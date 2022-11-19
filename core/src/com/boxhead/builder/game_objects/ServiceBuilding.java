@@ -1,7 +1,5 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.Job;
 import com.boxhead.builder.Service;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -15,8 +13,8 @@ public class ServiceBuilding extends ProductionBuilding {
     private final Set<NPC> guests;
     private int serviceCounter, serviceInterval;
 
-    public ServiceBuilding(String name, Buildings.Type type, Vector2i gridPosition, Service service, int employeeCapacity, int guestCapacity, int productionInterval, int serviceInterval) {
-        super(name, type, gridPosition, employeeCapacity, productionInterval);
+    public ServiceBuilding(Buildings.Type type, Vector2i gridPosition, Service service, int employeeCapacity, int guestCapacity, int productionInterval, int serviceInterval) {
+        super(type, gridPosition, employeeCapacity, productionInterval);
         this.service = service;
         this.guestCapacity = guestCapacity;
         this.serviceInterval = serviceInterval;

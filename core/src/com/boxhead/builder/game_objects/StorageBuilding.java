@@ -5,8 +5,8 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class StorageBuilding extends Building {
 
-    public StorageBuilding(String name, Buildings.Type type, Vector2i gridPosition) {
-        super(name, type, gridPosition);
+    public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
+        super(type, gridPosition);
     }
 
     public boolean isFull(Resource resource) {
