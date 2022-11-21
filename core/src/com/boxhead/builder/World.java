@@ -36,7 +36,6 @@ public class World {
 
     private static final Set<Vector2i> navigableTiles = new HashSet<>();
 
-
     public static void init(Vector2i worldSize) {
         World.worldSize = worldSize;
         tiles = new Tile[worldSize.x * worldSize.y];
@@ -51,7 +50,7 @@ public class World {
         resetNavigability(worldSize);
 
         generateTiles();
-        generateTrees();
+        generateObjects();
 
         //temp
         Vector2i constructionOfficePos = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
@@ -83,27 +82,47 @@ public class World {
         }
     }
 
-    private static void generateTrees() {
-        float smallNoiseFrequency = 5.9f;
-        float bigNoiseFrequency = 99.5f;
-        Harvestables.Type type;
+    private static void generateObjects() {
+        Vector2i pos = new Vector2i();
+        float treeSmallNoiseFreq = 5.9f, treeBigNoiseFreq = 99.2f;
+        float stoneSmallNoiseFreq = 5.9f, stoneBigNoiseFreq = 199.2f;
 
         for (int y = worldSize.y - 1; y >= 0; y--) {
             for (int x = worldSize.x - 1; x >= 0; x--) {
-                double dx = (double) x / worldSize.x;
-                double dy = (double) y / worldSize.y;
-                double smallNoise = PerlinNoise.noise3D(dx * smallNoiseFrequency, dy * smallNoiseFrequency, SEED);
-                double bigNoise = PerlinNoise.noise3D(dx * bigNoiseFrequency, dy * bigNoiseFrequency, SEED);
-
-                type = Harvestables.Type.BIG_TREE;  //todo randomize tree types
-                int width = type.getTexture().getRegionWidth() / TILE_SIZE;
-                int height = type.getTexture().getRegionHeight() / TILE_SIZE;
-                int trunkX = x + width / 2;
-                boolean isLocationValid = x + width <= worldSize.x && y + height <= worldSize.y && tiles[y * worldSize.y + trunkX] != Tile.WATER;
-                if(isLocationValid && smallNoise > 0.1f && bigNoise > 0.2f) {
-                    placeFieldWork(Harvestables.create(Harvestables.Type.BIG_TREE, new Vector2i(x, y)));
-                }
+                pos.set(x, y);
+                generateTree(pos.clone(), treeSmallNoiseFreq, treeBigNoiseFreq);
+                generateStone(pos.clone(), stoneSmallNoiseFreq, stoneBigNoiseFreq);
             }
+        }
+    }
+
+    private static void generateTree(Vector2i pos, float smallFreq, float bigFreq) {
+        Harvestables.Type type = Harvestables.Type.BIG_TREE;  //TODO randomise tree types
+        double dx = (double) pos.x / worldSize.x;
+        double dy = (double) pos.y / worldSize.y;
+        double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
+        double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
+        int textureId = random.nextInt(type.getTextures().length);
+
+        int width = type.getTextures()[textureId].getRegionWidth() / TILE_SIZE;
+        int height = type.getTextures()[textureId].getRegionHeight() / TILE_SIZE;
+        int trunkX = pos.x + width / 2;
+        boolean isLocationValid = pos.x + width <= worldSize.x && pos.y + height <= worldSize.y && tiles[pos.y * worldSize.y + trunkX] != Tile.WATER;
+        if(isLocationValid && smallNoise > 0.1f && bigNoise > 0.21f) {
+            placeFieldWork(Harvestables.create(type, pos, textureId));
+        }
+    }
+
+    private static void generateStone(Vector2i pos, float smallFreq, float bigFreq) {
+        Harvestables.Type type = Harvestables.Type.STONE;
+        double dx = (double) pos.x / worldSize.x;
+        double dy = (double) pos.y / worldSize.y;
+        double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
+        double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
+        int textureId = random.nextInt(type.getTextures().length);
+
+        if(isBuildable(pos) && smallNoise > -0.05f && bigNoise > 0.35f) {
+            placeFieldWork(Harvestables.create(type, pos, textureId));
         }
     }
 
@@ -176,12 +195,14 @@ public class World {
 
     public static void removeBuilding(Building building) {
         makeNavigable(building.getCollider());
+        if (building instanceof ConstructionSite) fieldWorks.remove(building);
         buildings.remove(building);
         gameObjects.remove(building);
     }
 
     public static void placeFieldWork(FieldWork fieldWork) {
         makeUnnavigable(fieldWork.getCollider());
+        if (fieldWork instanceof Building) buildings.add((Building) fieldWork);
         fieldWorks.add(fieldWork);
         gameObjects.add((GameObject) fieldWork);
     }
@@ -189,9 +210,8 @@ public class World {
     public static void removeFieldWorks() {
         for (FieldWork fieldWork : fieldWorks) {
             if (fieldWork.isRemoved()) {
-                if (fieldWork instanceof Harvestable) {
-                    makeNavigable(fieldWork.getCollider());
-                }
+                if (fieldWork instanceof Harvestable) makeNavigable(fieldWork.getCollider());
+                else if (fieldWork instanceof ConstructionSite) buildings.remove(fieldWork);
                 gameObjects.remove((GameObject) fieldWork);
             }
         }

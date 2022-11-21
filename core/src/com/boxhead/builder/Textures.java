@@ -76,6 +76,6 @@ public class Textures {
     }
 
     public enum Environment implements TextureId {
-        SMALL_TREE, BIG_TREE
+        SMALL_TREE, BIG_TREE, BUSH, STONE1, STONE2
     }
 }
