@@ -25,7 +25,7 @@ public class Harvestables {
     public static Harvestable create(Type type, Vector2i gridPosition, int textureId) {
         switch (type) {
             case BIG_TREE: return new Harvestable(type.getTextures()[textureId], gridPosition, Harvestable.Characteristic.TREE, 10);
-            case STONE: return new Harvestable(type.getTextures()[textureId], gridPosition, Harvestable.Characteristic.TREE, 5);
+            case STONE: return new Harvestable(type.getTextures()[textureId], gridPosition, Harvestable.Characteristic.STONE, 5);
             case IRON_ORE: return new Harvestable(type.getTextures()[textureId], gridPosition, Harvestable.Characteristic.IRON_ORE, 10);
             default: throw new IllegalArgumentException();
         }

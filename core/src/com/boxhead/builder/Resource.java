@@ -3,6 +3,7 @@ package com.boxhead.builder;
 public enum Resource {
     NOTHING(1),
     WOOD(2),
+    STONE(2),
     IRON(3),
     COAL(1),
     STEEL(3),

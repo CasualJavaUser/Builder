@@ -105,10 +105,8 @@ public class World {
         int textureId = random.nextInt(type.getTextures().length);
 
         int width = type.getTextures()[textureId].getRegionWidth() / TILE_SIZE;
-        int height = type.getTextures()[textureId].getRegionHeight() / TILE_SIZE;
-        int trunkX = pos.x + width / 2;
-        boolean isLocationValid = pos.x + width <= worldSize.x && pos.y + height <= worldSize.y && tiles[pos.y * worldSize.y + trunkX] != Tile.WATER;
-        if(isLocationValid && smallNoise > 0.1f && bigNoise > 0.21f) {
+        Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
+        if(smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
         }
     }
@@ -121,7 +119,7 @@ public class World {
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
         int textureId = random.nextInt(type.getTextures().length);
 
-        if(isBuildable(pos) && smallNoise > -0.05f && bigNoise > 0.35f) {
+        if(smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
         }
     }
