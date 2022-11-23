@@ -44,7 +44,7 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        moveCamera(deltaTime);
+        if(!Logic.isPaused()) moveCamera(deltaTime);
 
         batch.begin();
         World.drawMap(batch);
@@ -82,6 +82,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
+        if(Logic.isPaused()) return false;
         Vector3 mousePositionBefore = getMouseWorldPosition();
         camera.zoom = ZOOM_RANGE.fit(camera.zoom + amountY / SCROLL_SPEED);
         camera.update();
@@ -94,7 +95,7 @@ public class GameScreen extends InputAdapter implements Screen {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-        return false;
+        return true;
     }
 
     @Override
