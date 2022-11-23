@@ -1,110 +1,56 @@
 package com.boxhead.builder.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.InputManager;
-import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Vector2i;
-import org.apache.commons.lang3.Range;
 
-public class Window extends UIElement implements Clickable {
+public class Window extends UIElement {
+    private int contentWidth = 0, contentHeight = 0;
+    private int windowWidth, windowHeight;
 
-    protected boolean isDragged = false;
-    protected Button closeButton;
-    private final Vector2i mousePositionOnClick = new Vector2i();
-    protected int sizeX = 0, sizeY = 0;
-    protected int windowWidth, windowHeight;
-
-    public Window(TextureRegion texture) {
-        this(texture, new Vector2i());
+    public Window(TextureRegion texture, UIElement parent, Vector2i position) {
+        this(texture, parent, position, true);
     }
 
-    public Window(TextureRegion texture, Vector2i position) {
-        this(texture, position, false);
-    }
-
-    public Window(TextureRegion texture, Vector2i position, boolean visible) {
-        super(texture, position, visible);
-        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), new Vector2i(), this::hide, true);
-    }
-
-    @Override
-    public boolean isClicked() {
-        if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) {
-            int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            return x >= position.x && x < (position.x + windowWidth) &&
-                    y <= position.y && y > (position.y - windowHeight);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isHeld() {
-        if (isClicked()) isDragged = true;
-        if (isDragged) isDragged = InputManager.isButton(InputManager.LEFT_MOUSE);
-        return isDragged;
-    }
-
-    @Override
-    public void onClick() {
-        mousePositionOnClick.set(Gdx.input.getX(), Gdx.input.getY());
-    }
-
-    @Override
-    public void onHold() {
-        if (closeButton.isClicked())
-            closeButton.onClick();
-        //closeButton.onClick() is called here instead of in the onClick() function because onClick() is called before onHold()
-        //and the isDragged variable stayed true in spite of the left mouse button not being pressed.
-        position.x += Gdx.input.getX() - mousePositionOnClick.x;
-        position.y -= Gdx.input.getY() - mousePositionOnClick.y;
-
-        final Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - (sizeX + (texture.getRegionWidth()-1)*2));
-        final Range<Integer> rangeY = Range.between(sizeY + (texture.getRegionHeight()-1)*2, Gdx.graphics.getHeight());
-
-        position.x = rangeX.fit(position.x);
-        position.y = rangeY.fit(position.y);
-
-        mousePositionOnClick.set(Gdx.input.getX(), Gdx.input.getY());
+    public Window(TextureRegion texture, UIElement parent, Vector2i position, boolean visible) {
+        super(texture, parent, position, visible);
     }
 
     @Override
     public void draw(SpriteBatch batch) {
-        windowWidth = sizeX + (texture.getRegionWidth()-1)*2;
-        windowHeight = sizeY + (texture.getRegionHeight()-1)*2;
-        int closeButtonX = getGlobalPosition().x + windowWidth - closeButton.getTexture().getRegionWidth();
-        int closeButtonY = getGlobalPosition().y - closeButton.getTexture().getRegionHeight();
-        closeButton.setLocalPosition(closeButtonX, closeButtonY);
-
+        batch.setColor(currentTint);
         drawWindow(batch);
-        closeButton.draw(batch);
+        batch.setColor(UI.DEFAULT_COLOR);
     }
 
-    @Override
-    public void hide() {
-        setVisible(false);
-        isDragged = false;
-    }
+    protected void drawWindow(SpriteBatch batch) {
+        Vector2i position = getGlobalPosition();
+        int width = texture.getRegionWidth() - 1, height = texture.getRegionHeight() - 1;
+        //top left
+        drawCorner(batch, position.x, position.y + contentHeight + height + height, false, true);
+        //top right
+        drawCorner(batch, position.x + contentWidth + width, position.y + contentHeight + height + height, true, true);
+        //bottom right
+        drawCorner(batch, position.x + contentWidth + width, position.y + height, true, false);
+        //bottom left
+        drawCorner(batch, position.x, position.y + height, false, false);
 
-    private void drawWindow(SpriteBatch batch) {
-        int width = texture.getRegionWidth(), height = texture.getRegionHeight();
-        drawCorner(batch, position.x, position.y, false, false);
-        drawCorner(batch, position.x + sizeX + width-1, position.y, true, false);
-        drawCorner(batch, position.x + sizeX + width-1, position.y - sizeY - height + 1, true, true);
-        drawCorner(batch, position.x, position.y - sizeY - height + 1, false, true);
+        for (int i = 0; i < contentWidth; i++) {
 
-        for (int i = 0; i < sizeX; i++) {
-            drawEdge(batch, position.x + width - 1 + i, position.y, false, false, false);
-            drawEdge(batch, position.x + width - 1 + i, position.y - sizeY - texture.getRegionHeight() + 1, false, true, false);
-            for (int j = 0; j < sizeY; j++) {
-                drawMiddle(batch, position.x + width - 1 + i, position.y - 1 - j);
+            //top edge
+            drawEdge(batch, position.x + width + i, position.y + contentHeight + height + height, false, true, false);
+            //botom edge
+            drawEdge(batch, position.x + width + i, position.y + height, false, false, false);
+            for (int j = 0; j < contentHeight; j++) {
+                drawMiddle(batch, position.x + width + i, position.y + height + j + height);
             }
         }
 
-        for (int i = 0; i < sizeY; i++) {
-            drawEdge(batch, position.x, position.y - 1 - i, false, false, true);
-            drawEdge(batch, position.x + sizeX + texture.getRegionWidth() - 1, position.y - 1 - i, true, false, true);
+        for (int i = 0; i < contentHeight; i++) {
+            //left edge
+            drawEdge(batch, position.x, position.y + height + i + height, false, false, true);
+            //right edge
+            drawEdge(batch, position.x + contentWidth + texture.getRegionWidth() - 1, position.y + height + i + height, true, false, true);
         }
     }
 
@@ -121,7 +67,7 @@ public class Window extends UIElement implements Clickable {
                 1,
                 0,
                 texture.getRegionX(),
-                texture.getRegionY(),
+                texture.getRegionY() + 1,
                 width-1,
                 height-1,
                 flipX,
@@ -141,7 +87,7 @@ public class Window extends UIElement implements Clickable {
                 1,
                 0,
                 flip90 ? texture.getRegionX() : texture.getRegionX() + width - 1,
-                flip90 ? texture.getRegionY() + height - 1 : texture.getRegionY(),
+                flip90 ? texture.getRegionY() : texture.getRegionY() + 1,
                 flip90 ? width - 1 : 1,
                 flip90 ? 1 : height - 1,
                 flipX,
@@ -161,10 +107,36 @@ public class Window extends UIElement implements Clickable {
                 1,
                 0,
                 texture.getRegionX() + width - 1,
-                texture.getRegionY() + height - 1,
+                texture.getRegionY(),
                 1,
                 1,
                 false,
                 false);
+    }
+
+    public void setWidth(int width) {
+        contentWidth = width;
+        windowWidth = contentWidth + (texture.getRegionWidth()-1)*2;
+    }
+
+    public void setHeight(int height) {
+        contentHeight = height;
+        windowHeight = contentHeight + (texture.getRegionHeight()-1)*2;
+    }
+
+    public int getContentHeight() {
+        return contentHeight;
+    }
+
+    public int getContentWidth() {
+        return contentWidth;
+    }
+
+    public int getWindowHeight() {
+        return windowHeight;
+    }
+
+    public int getWindowWidth() {
+        return windowWidth;
     }
 }

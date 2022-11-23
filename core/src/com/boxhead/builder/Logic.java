@@ -9,6 +9,9 @@ public class Logic {
     public static final float SPEED_X2 = 0.0025f;
     public static final float SPEED_X3 = 0.00125f;
 
+    private static boolean isPaused = false;
+    private static float tickSpeed = NORMAL_SPEED;
+
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
@@ -71,8 +74,18 @@ public class Logic {
             Timer.instance().stop();
             return;
         }
+        Logic.tickSpeed = tickSpeed;
         Timer.instance().clear();
         Timer.instance().scheduleTask(task, 0, tickSpeed);
         Timer.instance().start();
+    }
+
+    public static void pause(boolean pause) {
+        setTickSpeed(pause ? 0 : tickSpeed);
+        isPaused = pause;
+    }
+
+    public static boolean isPaused() {
+        return isPaused;
     }
 }

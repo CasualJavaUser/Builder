@@ -22,6 +22,8 @@ public class UI {
     public static final Color SEMI_TRANSPARENT_GREEN = new Color(.25f, .86f, .25f, .4f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
     public static final Color VERY_TRANSPARENT = new Color(1, 1, 1, .2f);
+    public static final Color WHITE = new Color(1, 1, 1, 1);
+    public static final Color DARK = new Color(.5f, .5f, .5f, 1);
 
     public static final BitmapFont FONT = new BitmapFont();
     public static final int FONT_SIZE = 15;
@@ -29,8 +31,11 @@ public class UI {
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
     private static Button buildingButton, npcButton, workButton, restButton, demolishButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
-                          pauseButton, playButton, x2Button, x3Button;
-    private static UIElement buildingMenu, mainMenu, timeMenu;
+                          pauseButton, playButton, x2Button, x3Button, resumeButton, loadButton, saveButton, quitButton;
+
+    private static UIElement buildingMenu, mainMenu, timeMenu, pauseMenu;
+
+    private static Window pauseMenuWindow;
 
     private static NPCStatWindow npcStatWindow;
     private static BuildingStatWindow buildingStatWindow;
@@ -38,29 +43,50 @@ public class UI {
     private static ResourceList resourceList;
     private static Clock clock;
 
-    /**List of UIElements that can be closed (hidden) using the escape key*/
-    private static List<UIElement> closables;
-
     public static void init() {
+        pauseMenu = new UIElement(null, new Vector2i(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2), false);
         mainMenu = new UIElement(null, new Vector2i(0, 10), true);
         buildingMenu = new UIElement(null, new Vector2i(0, 84), false);
         timeMenu = new UIElement(null, new Vector2i(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), true);
 
+        //region pauseMenu
+        int menuWidth = 120, menuHeight = 163;
+        pauseMenuWindow = new Window(Textures.get(Textures.Ui.WINDOW), pauseMenu, new Vector2i());
+        pauseMenuWindow.setWidth(menuWidth);
+        pauseMenuWindow.setHeight(menuHeight);
+        pauseMenuWindow.setLocalPosition(-pauseMenuWindow.getWindowWidth()/2, -pauseMenuWindow.getWindowHeight()/2);
+        pauseMenuWindow.setTint(WHITE);
+
+        resumeButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, 40), "Resume",
+                () -> showPauseMenu(false));
+        loadButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, 3), "Load",
+                () -> {});
+        saveButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, -34), "Save",
+                () -> {});
+        quitButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, -71), "Quit",
+                () -> Gdx.app.exit());
+
+        resumeButton.setTint(WHITE);
+        loadButton.setTint(WHITE);
+        saveButton.setTint(WHITE);
+        quitButton.setTint(WHITE);
+        //endregion
+
         //region mainMenu
         buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), mainMenu, new Vector2i(10, 0),
-                () -> buildingMenu.setVisible(!buildingMenu.isVisible()), false);
+                () -> buildingMenu.setVisible(!buildingMenu.isVisible()));
         npcButton = new Button(Textures.get(Textures.Ui.NPC), mainMenu, new Vector2i(84, 0),
                 () -> {
                     Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
                     World.spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), position));
-                }, false);
+                });
 
         workButton = new Button(Textures.get(Textures.Ui.WORK), mainMenu, new Vector2i(158, 0),
-                () -> World.setTime(25170), false);
+                () -> World.setTime(25170));
         restButton = new Button(Textures.get(Textures.Ui.REST), mainMenu, new Vector2i(232, 0),
-                () -> World.setTime(57570), false);
+                () -> World.setTime(57570));
         demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainMenu, new Vector2i(306, 0),
-                Buildings::switchDemolishingMode, false);
+                Buildings::switchDemolishingMode);
         //endregion
 
         //region buildingMenu
@@ -126,17 +152,17 @@ public class UI {
 
         resourceList = new ResourceList();
 
+        layers.add(new HashSet<>(Arrays.asList(resumeButton, loadButton, saveButton, quitButton)));
+        layers.add(new HashSet<>(Arrays.asList(pauseMenuWindow)));
+        layers.add(new HashSet<>(Arrays.asList(npcStatWindow, buildingStatWindow)));
         layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton, demolishButton,
                 homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
                 clock, pauseButton, playButton, x2Button, x3Button, resourceList)));
-        layers.add(new HashSet<>(Arrays.asList(npcStatWindow, buildingStatWindow)));
-
-        closables = Arrays.asList(npcStatWindow, buildingStatWindow, buildingMenu);
     }
 
     public static void drawUI(SpriteBatch batch) {
-        for (Set<UIElement> layer : layers) {
-            for (UIElement element : layer) {
+        for (int i = layers.size()-1; i >= 0; i--) {
+            for (UIElement element : layers.get(i)) {
                 if (element.isVisible()) {
                     element.draw(batch);
                 }
@@ -145,32 +171,51 @@ public class UI {
     }
 
     public static boolean handleClickableElementsInteractions() {
-        boolean b = false;
-        for (Set<UIElement> layer : layers) {
-            for (UIElement element : layer) {
+        if(!Logic.isPaused()) {
+            for (Set<UIElement> layer : layers) {
+                for (UIElement element : layer) {
+                    if (element.isVisible() && element instanceof Clickable) {
+                        Clickable clickableElement = (Clickable) element;
+                        if (clickableElement.isClicked()) {
+                            clickableElement.onClick();
+                        }
+                        if (clickableElement.isUp()) {
+                            clickableElement.onUp();
+                            return true;
+                        }
+                        if (clickableElement.isHeld()) {
+                            clickableElement.onHold();
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            for (UIElement element : layers.get(0)) {
                 if (element.isVisible() && element instanceof Clickable) {
                     Clickable clickableElement = (Clickable) element;
                     if (clickableElement.isClicked()) {
                         clickableElement.onClick();
-                        b = true;
                     }
                     if (clickableElement.isUp()) {
                         clickableElement.onUp();
-                        b = true;
+                        return true;
                     }
                     if (clickableElement.isHeld()) {
                         clickableElement.onHold();
-                        b = true;
+                        return true;
                     }
                 }
             }
+            return true;
         }
-        return b;
+        return false;
     }
 
     public static void resizeUI() {
         timeMenu.setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         resourceList.setGlobalPosition(20, Gdx.graphics.getHeight() - 20);
+        pauseMenu.setGlobalPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
     }
 
     public static void showNPCStatWindow(NPC npc) {
@@ -182,15 +227,28 @@ public class UI {
     }
 
     public static void onEscape() {
-        if (Buildings.isInBuildingMode()) {
-            Buildings.turnOffBuildingMode();
-            return;
-        }
-        for (UIElement closable : closables) {
-            if(closable.isVisible()) {
-                closable.hide();
+        if(!Logic.isPaused()) {
+            if (Buildings.isInBuildingMode()) {
+                Buildings.turnOffBuildingMode();
                 return;
             }
+            if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
+                buildingStatWindow.setVisible(false);
+                npcStatWindow.setVisible(false);
+                return;
+            }
+            if(buildingMenu.isVisible()) {
+                buildingMenu.setVisible(false);
+                return;
+            }
+            showPauseMenu(true);
         }
+        else showPauseMenu(false);
+    }
+
+    public static void showPauseMenu(boolean open) {
+        Logic.pause(open);
+        DEFAULT_COLOR.set(open ? DARK : WHITE);
+        pauseMenu.setVisible(open);
     }
 }

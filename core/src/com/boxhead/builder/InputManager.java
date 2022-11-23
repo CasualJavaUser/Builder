@@ -15,27 +15,27 @@ public class InputManager {
     public static final int LEFT_MOUSE = Input.Buttons.LEFT;
     public static final int RIGHT_MOUSE = Input.Buttons.RIGHT;
 
-    public static boolean isKeyDown(Pair<Integer, Integer> key) {
+    public static boolean isKeyPressed(Pair<Integer, Integer> key) {
         return (key.first != null && Gdx.input.isKeyJustPressed(key.first)) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));
     }
 
-    public static boolean isKey(Pair<Integer, Integer> key) {
+    public static boolean isKeyDown(Pair<Integer, Integer> key) {
         return (key.first != null && Gdx.input.isKeyPressed(key.first)) || (key.second != null && Gdx.input.isKeyPressed(key.second));
     }
 
-    public static boolean isKeyDown(int key) {
+    public static boolean isKeyPressed(int key) {
         return Gdx.input.isKeyJustPressed(key);
     }
 
-    public static boolean isKey(int key) {
+    public static boolean isKeyDown(int key) {
         return Gdx.input.isKeyPressed(key);
     }
 
-    public static boolean isButtonDown(int button) {
+    public static boolean isButtonPressed(int button) {
         return Gdx.input.isButtonJustPressed(button);
     }
 
-    public static boolean isButton(int button) {
+    public static boolean isButtonDown(int button) {
         return Gdx.input.isButtonPressed(button);
     }
 }

@@ -1,5 +1,6 @@
 package com.boxhead.builder.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,7 +12,7 @@ public class UIElement {
     protected final Vector2i position;
     protected float rotation;
     protected boolean isVisible;
-    protected Color tint;
+    protected Color tint, currentTint;
 
     public UIElement(TextureRegion texture, Vector2i position) {
         this(texture, null, position, 0, false);
@@ -36,6 +37,7 @@ public class UIElement {
         this.rotation = rotation;
         isVisible = visible;
         tint = UI.DEFAULT_COLOR;
+        currentTint = UI.DEFAULT_COLOR;
     }
 
     public TextureRegion getTexture() {
@@ -78,10 +80,6 @@ public class UIElement {
         isVisible = visible;
     }
 
-    public void hide() {
-        setVisible(false);
-    }
-
     public void setLocalRotation(float rotation) {
         this.rotation = rotation;
     }
@@ -100,17 +98,18 @@ public class UIElement {
         else return rotation;
     }
 
-    public Color getTint() {
-        return tint;
-    }
-
     public void setTint(Color tint) {
         this.tint = tint;
+        currentTint = tint;
+    }
+
+    public UIElement getParent() {
+        return parent;
     }
 
     public void draw(SpriteBatch batch) {
         if (texture != null) {
-            batch.setColor(tint);
+            batch.setColor(currentTint);
             batch.draw(
                     texture,
                     getGlobalPosition().x,
@@ -125,7 +124,11 @@ public class UIElement {
         }
     }
 
-    public UIElement getParent() {
-        return parent;
+    protected boolean isMouseOnElement() {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
+                y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
     }
 }

@@ -9,14 +9,14 @@ import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.GameObject;
 import org.apache.commons.lang3.Range;
 
-public abstract class StatWindow<T extends GameObject> extends Window {
+public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected T pinnedObject = null;
     protected boolean pinned;
-    protected static final int topPadding = 12, leftPadding = 10, rightPadding = 20;
+    protected static final int verticalPadding = 6, leftPadding = 10, rightPadding = 20;
     protected String stats = "";
 
     public StatWindow() {
-        super(Textures.get(Textures.Ui.WINDOW));
+        super(Textures.get(Textures.Ui.WINDOW), false);
     }
 
     public void show(T gameObject) {
@@ -34,7 +34,7 @@ public abstract class StatWindow<T extends GameObject> extends Window {
             updatePosition();
             if(!(getPinnedObjectBoundsX().contains(getObjectScreenPosition().x) &&
                     getPinnedObjectBoundsY().contains(getObjectScreenPosition().y)))
-                hide();
+                setVisible(false);
         }
         super.draw(batch);
         updateStats();
@@ -44,12 +44,12 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     protected abstract void updateStats();
 
     protected void updateWindowSize() {
-        sizeY = 30;
+        setHeight(30);
         for(char c : stats.toCharArray()) {
-            if (c == '\n') sizeY += UI.FONT_SIZE+3;
+            if (c == '\n') setHeight(getContentHeight() + UI.FONT_SIZE +3);
         }
 
-        sizeX = (int)(getLongestLineLength(stats) * 6.5f + leftPadding + rightPadding);
+        setWidth((int)(getLongestLineLength(stats) * 6.5f + leftPadding + rightPadding));
     }
 
     protected void updatePosition() {
@@ -57,7 +57,7 @@ public abstract class StatWindow<T extends GameObject> extends Window {
 
         float cameraZoom = GameScreen.camera.zoom;
         int x = (int) (objectPosition.x + pinnedObject.getTexture().getRegionWidth() / cameraZoom);
-        int y = (int) (objectPosition.y + (pinnedObject.getTexture().getRegionHeight()) / cameraZoom) + sizeY;
+        int y = (int) (objectPosition.y + (pinnedObject.getTexture().getRegionHeight()) / cameraZoom);
         x = getStatWindowXRange().fit(x);
         y = getStatWindowYRange().fit(y);
 
@@ -85,11 +85,11 @@ public abstract class StatWindow<T extends GameObject> extends Window {
     }
 
     private Range<Integer> getStatWindowXRange() {
-        return Range.between(0, Gdx.graphics.getWidth() - windowWidth);
+        return Range.between(0, Gdx.graphics.getWidth() - getWindowWidth());
     }
 
     private Range<Integer> getStatWindowYRange() {
-        return Range.between(windowHeight, Gdx.graphics.getHeight());
+        return Range.between(getWindowWidth(), Gdx.graphics.getHeight());
     }
 
     private Range<Float> getPinnedObjectBoundsX() {

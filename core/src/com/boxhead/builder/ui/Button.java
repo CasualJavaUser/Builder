@@ -1,7 +1,6 @@
 package com.boxhead.builder.ui;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.InputManager;
 import com.boxhead.builder.utils.Vector2i;
@@ -12,25 +11,39 @@ public class Button extends UIElement implements Clickable {
     private Action onClick = () -> {};
     private Action onUp = () -> {};
     private boolean isPrevHeld = false;
+    private String text;
 
     public Button(TextureRegion texture, Vector2i position, Action action, boolean onDown) {
-        this(texture, null, position, action, onDown);
+        this(texture, null, position, null, action, onDown);
+    }
+
+    public Button(TextureRegion texture, UIElement parent, Vector2i position, Action action) {
+        this(texture, parent, position, null, action, false);
+    }
+
+    public Button(TextureRegion texture, UIElement parent, Vector2i position, String text, Action action) {
+        this(texture, parent, position, text, action, false);
     }
 
     public Button(TextureRegion texture, UIElement parent, Vector2i position, Action action, boolean onDown) {
+        this(texture, parent, position, null, action, onDown);
+    }
+
+    public Button(TextureRegion texture, UIElement parent, Vector2i position, String text, Action action, boolean onDown) {
         super(texture, parent, position);
         if(onDown) onClick = action;
         else onUp = action;
+        this.text = text;
     }
 
     @Override
     public boolean isClicked() {
-        return InputManager.isButtonDown(InputManager.LEFT_MOUSE) && isMouseOnButton();
+        return InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && isMouseOnElement();
     }
 
     @Override
     public boolean isHeld() {
-        isPrevHeld = InputManager.isButton(InputManager.LEFT_MOUSE) && isMouseOnButton();
+        isPrevHeld = InputManager.isButtonDown(InputManager.LEFT_MOUSE) && isMouseOnElement();
         return isPrevHeld;
     }
 
@@ -49,20 +62,27 @@ public class Button extends UIElement implements Clickable {
     @Override
     public void onHold() {
         Clickable.super.onHold();
-        tint = UI.PRESSED_COLOR;
+        currentTint = UI.PRESSED_COLOR;
     }
 
     @Override
     public void onUp() {
         onUp.execute();
-        tint = UI.DEFAULT_COLOR;
+        currentTint = tint;
     }
 
-    private boolean isMouseOnButton() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
-                y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+        batch.setColor(currentTint);
+        if(text != null) UI.FONT.draw(
+                batch,
+                text,
+                getGlobalPosition().x,
+                getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT_SIZE/2),
+                80,
+                1,
+                false);
+        batch.setColor(UI.DEFAULT_COLOR);
     }
 }

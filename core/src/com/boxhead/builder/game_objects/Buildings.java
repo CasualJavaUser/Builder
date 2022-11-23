@@ -157,7 +157,7 @@ public class Buildings {
         for(Building building : World.getBuildings()) {
             if(building.isClicked()) {
                 World.removeBuilding(building);
-                if(!InputManager.isKey(Input.Keys.CONTROL_LEFT)) isDemolishing = false;
+                if(!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT)) isDemolishing = false;
                 break;
             }
         }

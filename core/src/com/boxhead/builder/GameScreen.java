@@ -61,7 +61,7 @@ public class GameScreen extends InputAdapter implements Screen {
             }
         }
 
-        if (InputManager.isKeyDown(Input.Keys.ESCAPE)) UI.onEscape();
+        if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
 
         drawUI();
 
@@ -118,20 +118,20 @@ public class GameScreen extends InputAdapter implements Screen {
     }
 
     private void moveCamera(float deltaTime) {
-        final float deltaPosition = InputManager.isKey(InputManager.FAST)
+        final float deltaPosition = InputManager.isKeyDown(InputManager.FAST)
                 ? FAST_SPEED * deltaTime
                 : NORMAL_SPEED * deltaTime;
 
-        if (InputManager.isKey(InputManager.RIGHT))
+        if (InputManager.isKeyDown(InputManager.RIGHT))
             camera.position.x += deltaPosition;
-        if (InputManager.isKey(InputManager.LEFT))
+        if (InputManager.isKeyDown(InputManager.LEFT))
             camera.position.x -= deltaPosition;
-        if (InputManager.isKey(InputManager.UP))
+        if (InputManager.isKeyDown(InputManager.UP))
             camera.position.y += deltaPosition;
-        if (InputManager.isKey(InputManager.DOWN))
+        if (InputManager.isKeyDown(InputManager.DOWN))
             camera.position.y -= deltaPosition;
 
-        if (InputManager.isButton(InputManager.RIGHT_MOUSE)) {
+        if (InputManager.isButtonDown(InputManager.RIGHT_MOUSE)) {
             camera.position.x -= Gdx.input.getDeltaX() * camera.zoom;
             camera.position.y += Gdx.input.getDeltaY() * camera.zoom;
         }

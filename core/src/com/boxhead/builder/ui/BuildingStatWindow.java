@@ -25,9 +25,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
         super.draw(batch);
 
         UI.FONT.setColor(Color.RED);
-        UI.FONT.draw(batch, warning, getGlobalPosition().x + leftPadding, getGlobalPosition().y - topPadding);
+        UI.FONT.draw(batch, warning, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getContentHeight());
         UI.FONT.setColor(Color.WHITE);
-        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y - topPadding - (warning.equals("") ? 0 : 20));
+        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getContentHeight() - (warning.equals("") ? 0 : 20));
 
         if(pinnedObject instanceof EnterableBuilding) {
             drawNPCCounter(batch);
@@ -69,14 +69,14 @@ public class BuildingStatWindow extends StatWindow<Building> {
     protected void updateWindowSize() {
         super.updateWindowSize();
         if(!warning.equals("")) {
-            sizeY += 20;
-            sizeX = warning.length() * 7 + leftPadding + rightPadding;
+            setHeight(getContentHeight() + 20);
+            setWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
         if(pinnedObject instanceof EnterableBuilding) {
-            sizeY += Textures.get(Textures.Npc.FUNGUY).getRegionHeight();
+            setHeight(getContentHeight() + Textures.get(Textures.Npc.FUNGUY).getRegionHeight());
             int counterWidth = leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * npcCapacity;
-            if(sizeX < counterWidth)
-                sizeX = counterWidth;
+            if(getContentHeight() < counterWidth)
+                setWidth(counterWidth);
         }
     }
 
@@ -87,9 +87,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
     }
 
     @Override
-    public void hide() {
-        super.hide();
-        if (pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if(!visible && pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();
     }
 
     private void drawNPCCounter(SpriteBatch batch) {
@@ -98,13 +98,13 @@ public class BuildingStatWindow extends StatWindow<Building> {
             if (npc.getCurrentBuilding() == pinnedObject)
                 batch.draw(npc.getTexture(),
                         position.x + leftPadding + (npc.getTexture().getRegionWidth() + leftPadding) * i++,
-                        position.y - sizeY);
+                        position.y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
         }
         batch.setColor(Color.BLACK);
         while (i < npcCapacity) {
             batch.draw(Textures.get(Textures.Npc.FUNGUY),
                     position.x + leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * i++,
-                    position.y - sizeY);
+                    position.y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
         }
         batch.setColor(UI.DEFAULT_COLOR);
     }
