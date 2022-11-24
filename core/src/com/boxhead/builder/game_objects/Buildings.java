@@ -154,11 +154,13 @@ public class Buildings {
         if (!isDemolishing || isInBuildingMode)
             throw new IllegalStateException("Not in demolishing mode");
 
-        for(Building building : World.getBuildings()) {
-            if(building.isClicked()) {
-                World.removeBuilding(building);
-                if(!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT)) isDemolishing = false;
-                break;
+        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
+            for (Building building : World.getBuildings()) {
+                if (building.isMouseOver()) {
+                    World.removeBuilding(building);
+                    if (!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT)) isDemolishing = false;
+                    break;
+                }
             }
         }
     }

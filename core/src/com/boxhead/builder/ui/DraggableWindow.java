@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.InputManager;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Vector2i;
 import org.apache.commons.lang3.Range;
@@ -12,7 +11,7 @@ import org.apache.commons.lang3.Range;
 public class DraggableWindow extends Window implements Clickable {
     protected boolean isDragged = false;
     protected Button closeButton;
-    private final Vector2i mousePositionOnClick = new Vector2i();
+    private final Vector2i prevMousePos = new Vector2i();
 
     public DraggableWindow(TextureRegion texture, boolean isVisible) {
         this(texture, null, new Vector2i(), isVisible);
@@ -28,41 +27,36 @@ public class DraggableWindow extends Window implements Clickable {
     }
 
     @Override
-    public boolean isClicked() {
-        return InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && isMouseOnElement();
-    }
-
-    @Override
     public void onClick() {
-        mousePositionOnClick.set(Gdx.input.getX(), Gdx.input.getY());
-    }
-
-    @Override
-    public boolean isHeld() {
-        if (isClicked()) isDragged = true;
-        if (isDragged) isDragged = InputManager.isButtonDown(InputManager.LEFT_MOUSE);
-        return isDragged;
+        if (closeButton.isMouseOver()) closeButton.onClick();
+        prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
     }
 
     @Override
     public void onHold() {
-        if (closeButton.isClicked())
-            closeButton.onClick();
-        //closeButton.onClick() is called here instead of in the onClick() function because onClick() is called before onHold()
-        //and the isDragged variable stayed true in spite of the left mouse button not being pressed.
-        position.x += Gdx.input.getX() - mousePositionOnClick.x;
-        position.y -= Gdx.input.getY() - mousePositionOnClick.y;
+        isDragged = true;
+        position.x += Gdx.input.getX() - prevMousePos.x;
+        position.y -= Gdx.input.getY() - prevMousePos.y;
 
         Vector2i parentPos;
         if(parent != null) parentPos = parent.position;
         else parentPos = Vector2i.zero();
-        final Range<Integer> rangeX = Range.between(-parentPos.x, Gdx.graphics.getWidth() - (getContentWidth() + (texture.getRegionWidth()-1)*2) - parentPos.x);
-        final Range<Integer> rangeY = Range.between(getContentHeight() + (texture.getRegionHeight()-1)*2 - parentPos.y, Gdx.graphics.getHeight() - parentPos.y);
+        final Range<Integer> rangeX = Range.between(
+                -parentPos.x,
+                Gdx.graphics.getWidth() - (getContentWidth() + (texture.getRegionWidth()-1)*2) - parentPos.x);
+        final Range<Integer> rangeY = Range.between(
+                getContentHeight() + (texture.getRegionHeight()-1)*2 - parentPos.y - getWindowHeight(),
+                Gdx.graphics.getHeight() - parentPos.y - getWindowHeight());
 
         position.x = rangeX.fit(position.x);
         position.y = rangeY.fit(position.y);
 
-        mousePositionOnClick.set(Gdx.input.getX(), Gdx.input.getY());
+        prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
+    }
+
+    @Override
+    public void onUp() {
+        isDragged = false;
     }
 
     @Override
@@ -87,7 +81,7 @@ public class DraggableWindow extends Window implements Clickable {
     }
 
     @Override
-    protected boolean isMouseOnElement() {
+    public boolean isMouseOver() {
         int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
         return x >= getGlobalPosition().x && x < (getGlobalPosition().x + getWindowWidth()) &&
                 y >= getGlobalPosition().y && y < (getGlobalPosition().y + getWindowHeight());

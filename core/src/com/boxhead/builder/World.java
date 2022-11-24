@@ -59,16 +59,18 @@ public class World {
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
-        for (NPC npc : npcs) {
-            if (npc.isClicked()) {
-                npc.onClick();
-                return;
+        if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
+            for (Building building : buildings) {
+                if (building.isMouseOver()) {
+                    building.onClick();
+                    return;
+                }
             }
-        }
-        for (Building building : buildings) {
-            if (building.isClicked()) {
-                building.onClick();
-                return;
+            for (NPC npc : npcs) {
+                if (npc.isMouseOver()) {
+                    npc.onClick();
+                    return;
+                }
             }
         }
     }

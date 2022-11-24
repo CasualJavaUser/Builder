@@ -123,12 +123,4 @@ public class UIElement {
             batch.setColor(UI.DEFAULT_COLOR);
         }
     }
-
-    protected boolean isMouseOnElement() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
-                y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
-    }
 }

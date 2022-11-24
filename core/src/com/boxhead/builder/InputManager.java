@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.boxhead.builder.utils.Pair;
 
+import java.util.Arrays;
+
 public class InputManager extends InputAdapter {
     public static Pair<Integer, Integer> LEFT = Pair.of(Input.Keys.LEFT, Input.Keys.A);
     public static Pair<Integer, Integer> RIGHT = Pair.of(Input.Keys.RIGHT, Input.Keys.D);
@@ -17,9 +19,15 @@ public class InputManager extends InputAdapter {
 
     private static float scrollDelta = 0;
 
+    private static final boolean[] buttonsUp = new boolean[5];
+    private static final boolean[] keysUp = new boolean[Input.Keys.MAX_KEYCODE];
+
     private static InputManager instance = null;
 
-    private InputManager() {}
+    private InputManager() {
+        Arrays.fill(buttonsUp, true);
+        Arrays.fill(keysUp, true);
+    }
 
     public static boolean isKeyPressed(Pair<Integer, Integer> key) {
         return (key.first != null && Gdx.input.isKeyJustPressed(key.first)) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));
@@ -37,6 +45,12 @@ public class InputManager extends InputAdapter {
         return Gdx.input.isKeyPressed(key);
     }
 
+    public static boolean isKeyUp(int key) {
+        boolean isKeyUp = !isKeyDown(key) && !keysUp[key];
+        keysUp[key] = !isKeyDown(key);
+        return isKeyUp;
+    }
+
     public static boolean isButtonPressed(int button) {
         return Gdx.input.isButtonJustPressed(button);
     }
@@ -45,10 +59,16 @@ public class InputManager extends InputAdapter {
         return Gdx.input.isButtonPressed(button);
     }
 
+    public static boolean isButtonUp(int button) {
+        boolean isButtonUp = !isButtonDown(button) && !buttonsUp[button];
+        buttonsUp[button] = !isButtonDown(button);
+        return isButtonUp;
+    }
+
     @Override
     public boolean scrolled(float amountX, float amountY) {
         scrollDelta = amountY;
-        return amountY != 0f || amountX != 0f;
+        return amountY != 0 || amountX != 0;
     }
 
     public static float getScroll() {

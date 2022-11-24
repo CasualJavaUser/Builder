@@ -154,7 +154,6 @@ public class NPC extends GameObject implements Clickable {
      *
      * @return <b>true</b> if destination is reached, <b>false</b> otherwise.
      */
-
     private boolean followPath() {
         if (path == null || waitingForPath) {
             return false;
@@ -187,13 +186,10 @@ public class NPC extends GameObject implements Clickable {
     }
 
     @Override
-    public boolean isClicked() {
-        if (!isInBuilding() && InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
-            Vector3 mousePos = GameScreen.getMouseWorldPosition();
-            return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
-                    mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
-        }
-        return false;
+    public boolean isMouseOver() {
+        Vector3 mousePos = GameScreen.getMouseWorldPosition();
+        return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
+                mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
     }
 
     @Override

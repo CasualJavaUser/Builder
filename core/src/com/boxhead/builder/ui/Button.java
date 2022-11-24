@@ -1,8 +1,8 @@
 package com.boxhead.builder.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.InputManager;
 import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Action;
 
@@ -37,21 +37,12 @@ public class Button extends UIElement implements Clickable {
     }
 
     @Override
-    public boolean isClicked() {
-        return InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && isMouseOnElement();
-    }
+    public boolean isMouseOver() {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-    @Override
-    public boolean isHeld() {
-        isPrevHeld = InputManager.isButtonDown(InputManager.LEFT_MOUSE) && isMouseOnElement();
-        return isPrevHeld;
-    }
-
-    @Override
-    public boolean isUp() {
-        boolean b = isPrevHeld && !isHeld();
-        isPrevHeld = false;
-        return b;
+        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
+                y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
     }
 
     @Override

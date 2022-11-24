@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.InputManager;
 import com.boxhead.builder.Logic;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
@@ -33,9 +34,9 @@ public class UI {
     private static Button buildingButton, npcButton, workButton, restButton, demolishButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
                           pauseButton, playButton, x2Button, x3Button, resumeButton, loadButton, saveButton, quitButton;
 
-    private static UIElement buildingMenu, mainMenu, timeMenu, pauseMenu;
+    private static UIElement buildingButtonGroup, mainButtonGroup, timeElementGroup, pauseMenu;
 
-    private static Window pauseMenuWindow;
+    private static Window pauseMenuWindow, loadWindow, saveWindow;
 
     private static NPCStatWindow npcStatWindow;
     private static BuildingStatWindow buildingStatWindow;
@@ -45,9 +46,9 @@ public class UI {
 
     public static void init() {
         pauseMenu = new UIElement(null, new Vector2i(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2), false);
-        mainMenu = new UIElement(null, new Vector2i(0, 10), true);
-        buildingMenu = new UIElement(null, new Vector2i(0, 84), false);
-        timeMenu = new UIElement(null, new Vector2i(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), true);
+        mainButtonGroup = new UIElement(null, new Vector2i(0, 10), true);
+        buildingButtonGroup = new UIElement(null, new Vector2i(0, 84), false);
+        timeElementGroup = new UIElement(null, new Vector2i(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), true);
 
         //region pauseMenu
         int menuWidth = 120, menuHeight = 163;
@@ -60,7 +61,7 @@ public class UI {
         resumeButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, 40), "Resume",
                 () -> showPauseMenu(false));
         loadButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, 3), "Load",
-                () -> {});
+                () -> loadWindow.setVisible(true));
         saveButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, -34), "Save",
                 () -> {});
         quitButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, new Vector2i(-40, -71), "Quit",
@@ -72,77 +73,86 @@ public class UI {
         quitButton.setTint(WHITE);
         //endregion
 
-        //region mainMenu
-        buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), mainMenu, new Vector2i(10, 0),
-                () -> buildingMenu.setVisible(!buildingMenu.isVisible()));
-        npcButton = new Button(Textures.get(Textures.Ui.NPC), mainMenu, new Vector2i(84, 0),
+        //region loadWindow
+        loadWindow = new Window(Textures.get(Textures.Ui.WINDOW), pauseMenu, new Vector2i(), false);
+        loadWindow.setWidth(400);
+        loadWindow.setHeight(300);
+        loadWindow.setLocalPosition(-loadWindow.getWindowWidth()/2, -loadWindow.getWindowHeight()/2);
+
+        loadWindow.setTint(WHITE);
+        //endregion
+
+        //region mainButtonGroup
+        buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), mainButtonGroup, new Vector2i(10, 0),
+                () -> buildingButtonGroup.setVisible(!buildingButtonGroup.isVisible()));
+        npcButton = new Button(Textures.get(Textures.Ui.NPC), mainButtonGroup, new Vector2i(84, 0),
                 () -> {
                     Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
                     World.spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), position));
                 });
 
-        workButton = new Button(Textures.get(Textures.Ui.WORK), mainMenu, new Vector2i(158, 0),
+        workButton = new Button(Textures.get(Textures.Ui.WORK), mainButtonGroup, new Vector2i(158, 0),
                 () -> World.setTime(25170));
-        restButton = new Button(Textures.get(Textures.Ui.REST), mainMenu, new Vector2i(232, 0),
+        restButton = new Button(Textures.get(Textures.Ui.REST), mainButtonGroup, new Vector2i(232, 0),
                 () -> World.setTime(57570));
-        demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainMenu, new Vector2i(306, 0),
+        demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainButtonGroup, new Vector2i(306, 0),
                 Buildings::switchDemolishingMode);
         //endregion
 
-        //region buildingMenu
-        homeButton = new Button(Textures.get(Textures.Ui.HOME), buildingMenu, new Vector2i(10, 0),
+        //region buildingButtonGroup
+        homeButton = new Button(Textures.get(Textures.Ui.HOME), buildingButtonGroup, new Vector2i(10, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_RESIDENTIAL_BUILDING);
-                    buildingMenu.setVisible(false);
+                    buildingButtonGroup.setVisible(false);
                 }, false);
-        workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), buildingMenu, new Vector2i(84, 0),
+        workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), buildingButtonGroup, new Vector2i(84, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_PRODUCTION_BUILDING);
-                    buildingMenu.setVisible(false);
+                    buildingButtonGroup.setVisible(false);
                 }, false);
-        serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), buildingMenu, new Vector2i(158, 0),
+        serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), buildingButtonGroup, new Vector2i(158, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_SERVICE_BUILDING);
-                    buildingMenu.setVisible(false);
+                    buildingButtonGroup.setVisible(false);
                 }, false);
-        storageButton = new Button(Textures.get(Textures.Ui.STORAGE), buildingMenu, new Vector2i(232, 0),
+        storageButton = new Button(Textures.get(Textures.Ui.STORAGE), buildingButtonGroup, new Vector2i(232, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.DEFAULT_STORAGE_BUILDING);
-                    buildingMenu.setVisible(false);
+                    buildingButtonGroup.setVisible(false);
                 }, false);
-        constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingMenu, new Vector2i(306, 0),
+        constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingButtonGroup, new Vector2i(306, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
-                    buildingMenu.setVisible(false);
+                    buildingButtonGroup.setVisible(false);
                 }, false);
         //endregion
 
-        //region timeMenu
+        //region timeElementGroup
         TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
-        clock = new Clock(timeMenu,
+        clock = new Clock(timeElementGroup,
                 new Vector2i(- clockTexture.getRegionWidth() - 10, - clockTexture.getRegionHeight() - 10));
 
         pauseButton = new Button(
                 Textures.get(Textures.Ui.PAUSE),
-                timeMenu,
+                timeElementGroup,
                 new Vector2i(- clockTexture.getRegionWidth() - 9, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(0), true);
 
         playButton = new Button(
                 Textures.get(Textures.Ui.PLAY),
-                timeMenu,
+                timeElementGroup,
                 new Vector2i(- clockTexture.getRegionWidth() + 23, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(Logic.NORMAL_SPEED), true);
 
         x2Button = new Button(
                 Textures.get(Textures.Ui.X2SPEED),
-                timeMenu,
+                timeElementGroup,
                 new Vector2i(- clockTexture.getRegionWidth() + 55, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(Logic.SPEED_X2), true);
 
         x3Button= new Button(
                 Textures.get(Textures.Ui.X3SPEED),
-                timeMenu,
+                timeElementGroup,
                 new Vector2i(- clockTexture.getRegionWidth() + 87, - clockTexture.getRegionHeight() - 36),
                 () -> Logic.setTickSpeed(Logic.SPEED_X3), true);
         //endregion
@@ -152,6 +162,7 @@ public class UI {
 
         resourceList = new ResourceList();
 
+        layers.add(new HashSet<>(Arrays.asList(loadWindow)));
         layers.add(new HashSet<>(Arrays.asList(resumeButton, loadButton, saveButton, quitButton)));
         layers.add(new HashSet<>(Arrays.asList(pauseMenuWindow)));
         layers.add(new HashSet<>(Arrays.asList(npcStatWindow, buildingStatWindow)));
@@ -170,7 +181,7 @@ public class UI {
         }
     }
 
-    public static boolean handleClickableElementsInteractions() {
+    /*public static boolean handleClickableElementsInteractions() {
         if(!Logic.isPaused()) {
             for (Set<UIElement> layer : layers) {
                 for (UIElement element : layer) {
@@ -191,29 +202,94 @@ public class UI {
                 }
             }
         } else {
-            for (UIElement element : layers.get(0)) {
-                if (element.isVisible() && element instanceof Clickable) {
-                    Clickable clickableElement = (Clickable) element;
-                    if (clickableElement.isClicked()) {
-                        clickableElement.onClick();
-                    }
-                    if (clickableElement.isUp()) {
-                        clickableElement.onUp();
-                        return true;
-                    }
-                    if (clickableElement.isHeld()) {
-                        clickableElement.onHold();
-                        return true;
+            for (int i = 0; i < 2; i++) {
+                for (UIElement element : layers.get(i)) {
+                    if (element.isVisible() && element instanceof Clickable) {
+                        Clickable clickableElement = (Clickable) element;
+                        if (clickableElement.isClicked()) {
+                            clickableElement.onClick();
+                        }
+                        if (clickableElement.isUp()) {
+                            clickableElement.onUp();
+                            return true;
+                        }
+                        if (clickableElement.isHeld()) {
+                            clickableElement.onHold();
+                            return true;
+                        }
                     }
                 }
             }
             return true;
         }
         return false;
+    }*/
+
+    public static boolean handleMouseInput() {
+        int topLayers = UI.layerCount();
+        if(Logic.isPaused()) topLayers = 2;
+        boolean interacted = false;
+
+        if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE))  interacted = UI.onClick(topLayers);
+        if(InputManager.isButtonUp(InputManager.LEFT_MOUSE))interacted = UI.onUp(topLayers);
+        if(InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = UI.onHold(topLayers);
+
+        return interacted;
+    }
+
+    private static boolean onClick(int topLayers) {
+        if(topLayers > layers.size()) topLayers = layers.size();
+        for (int i = 0; i < topLayers; i++) {
+            for (UIElement element : layers.get(i)) {
+                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
+                    ((Clickable) element).onClick();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean onClick() {
+        return onClick(layers.size());
+    }
+
+    private static boolean onHold(int topLayers) {
+        if(topLayers > layers.size()) topLayers = layers.size();
+        for (int i = 0; i < topLayers; i++) {
+            for (UIElement element : layers.get(i)) {
+                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
+                    ((Clickable) element).onHold();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean onHold() {
+        return onHold(layers.size());
+    }
+
+    private static boolean onUp(int topLayers) {
+        if(topLayers > layers.size()) topLayers = layers.size();
+        for (int i = 0; i < topLayers; i++) {
+            for (UIElement element : layers.get(i)) {
+                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
+                    ((Clickable) element).onUp();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean onUp() {
+        return onUp(layers.size());
     }
 
     public static void resizeUI() {
-        timeMenu.setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        timeElementGroup.setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         resourceList.setGlobalPosition(20, Gdx.graphics.getHeight() - 20);
         pauseMenu.setGlobalPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
     }
@@ -237,8 +313,8 @@ public class UI {
                 npcStatWindow.setVisible(false);
                 return;
             }
-            if(buildingMenu.isVisible()) {
-                buildingMenu.setVisible(false);
+            if(buildingButtonGroup.isVisible()) {
+                buildingButtonGroup.setVisible(false);
                 return;
             }
             showPauseMenu(true);
@@ -250,5 +326,9 @@ public class UI {
         Logic.pause(open);
         DEFAULT_COLOR.set(open ? DARK : WHITE);
         pauseMenu.setVisible(open);
+    }
+
+    public static int layerCount() {
+        return layers.size();
     }
 }

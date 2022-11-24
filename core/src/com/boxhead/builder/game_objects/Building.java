@@ -37,16 +37,13 @@ public class Building extends GameObject implements Clickable {
     }
 
     @Override
-    public boolean isClicked() {
-        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
-            Vector3 mousePos = GameScreen.getMouseWorldPosition();
-            int colliderX = collider.getGridPosition().x;
-            int colliderY = collider.getGridPosition().y;
+    public boolean isMouseOver() {
+        int colliderX = collider.getGridPosition().x;
+        int colliderY = collider.getGridPosition().y;
+        Vector3 mousePos = GameScreen.getMouseWorldPosition();
 
-            return mousePos.x >= colliderX * World.TILE_SIZE && mousePos.x < (colliderX * World.TILE_SIZE + collider.getWidth() * World.TILE_SIZE)
-                    && mousePos.y >= colliderY * World.TILE_SIZE && mousePos.y < (colliderY * World.TILE_SIZE + collider.getHeight() * World.TILE_SIZE);
-        }
-        return false;
+        return mousePos.x >= colliderX * World.TILE_SIZE && mousePos.x < (colliderX * World.TILE_SIZE + collider.getWidth() * World.TILE_SIZE)
+                && mousePos.y >= colliderY * World.TILE_SIZE && mousePos.y < (colliderY * World.TILE_SIZE + collider.getHeight() * World.TILE_SIZE);
     }
 
     @Override
