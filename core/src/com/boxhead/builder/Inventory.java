@@ -2,21 +2,22 @@ package com.boxhead.builder;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Inventory {
 
     private final Map<Resource, Integer> resources = new EnumMap<>(Resource.class);
-    private final int maxMass;
-    private int currentMass;
-    private int displayedMass;
+    private final int maxCapacity;
+    private int currentAmount;
+    private int displayedAmount;
 
-    public Inventory(int maxWeight) {
-        if (maxWeight < 1)
+    public Inventory(int maxCapacity) {
+        if (maxCapacity < 1)
             throw new IllegalArgumentException();
 
-        this.maxMass = maxWeight;
-        currentMass = 0;
-        displayedMass = 0;
+        this.maxCapacity = maxCapacity;
+        currentAmount = 0;
+        displayedAmount = 0;
     }
 
     public enum Availability {
@@ -26,19 +27,12 @@ public class Inventory {
         LACKS_INPUT
     }
 
-    public int moveResourcesTo(Inventory otherInventory, Resource resource, int units) {
-        if (!hasResourceAmount(resource, units))
+    public void moveResourcesTo(Inventory otherInventory, Resource resource, int units) {
+        if (!hasResourceAmount(resource, units) || otherInventory.getAvailableCapacity() < units)
             throw new IllegalArgumentException();
 
-        int amountToMove = otherInventory.getAvailableCapacityFor(resource);
-        if (amountToMove > units) amountToMove = units;
-
-        if (amountToMove > 0) {
-            this.take(resource, amountToMove);
-            otherInventory.put(resource, amountToMove);
-        }
-
-        return amountToMove;
+        put(resource, -units);
+        otherInventory.put(resource, units);
     }
 
     /**
@@ -47,15 +41,15 @@ public class Inventory {
      * @return How many units were transferred
      */
     public int moveResourcesTo(Inventory otherInventory, Resource resource) {
-        int moved = Math.min(resources.get(resource), otherInventory.getAvailableCapacityFor(resource));
+        int moved = Math.min(resources.get(resource), otherInventory.getAvailableCapacity());
 
         take(resource, moved);
         otherInventory.put(resource, moved);
         return moved;
     }
 
-    public int getAvailableCapacityFor(Resource resource) {
-        return (maxMass - currentMass) / resource.mass;
+    public int getAvailableCapacity() {
+        return maxCapacity - currentAmount;
     }
 
     public Availability checkStorageAvailability(Recipe recipe) {
@@ -65,7 +59,7 @@ public class Inventory {
             if (inStorage + change < 0)
                 return Availability.LACKS_INPUT;
 
-            if (change > getAvailableCapacityFor(resource))
+            if (change > getAvailableCapacity())
                 return Availability.OUTPUT_FULL;
         }
         return Availability.AVAILABLE;
@@ -80,17 +74,17 @@ public class Inventory {
     }
 
     public boolean isEmpty() {
-        return currentMass == 0;
+        return currentAmount == 0;
     }
 
     public boolean isFull() {
-        return displayedMass >= maxMass;
+        return displayedAmount >= maxCapacity;
     }
 
     public void put(Resource resource, int units) {
         int currentUnits = resources.getOrDefault(resource, 0);
 
-        if (units > getAvailableCapacityFor(resource))
+        if (currentAmount + units > maxCapacity || currentUnits + units < 0)
             throw new IllegalArgumentException();
 
         resources.put(resource, currentUnits + units);
@@ -123,24 +117,24 @@ public class Inventory {
         updateMass(resource, -units);
     }
 
-    public int getMaxMass() {
-        return maxMass;
+    public int getMaxCapacity() {
+        return maxCapacity;
     }
 
-    public int getCurrentMass() {
-        return currentMass;
+    public int getCurrentAmount() {
+        return currentAmount;
     }
 
-    public int getDisplayedMass() {
-        return displayedMass;
+    public int getDisplayedAmount() {
+        return displayedAmount;
     }
 
-    public int remainingCapacity() {
-        return maxMass - currentMass;
+    public Set<Resource> getStoredResources() {
+        return resources.keySet();
     }
 
     private void updateMass(Resource resource, int units) {
-        currentMass += units * resource.mass;
-        if (resource != Resource.NOTHING) displayedMass += units * resource.mass;
+        currentAmount += units;
+        if (resource != Resource.NOTHING) displayedAmount += units;
     }
 }

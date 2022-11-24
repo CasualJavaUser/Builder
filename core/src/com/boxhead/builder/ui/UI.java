@@ -32,7 +32,7 @@ public class UI {
     private static final List<Set<UIElement>> layers = new ArrayList<>();
 
     private static Button buildingButton, npcButton, workButton, restButton, demolishButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
-                          pauseButton, playButton, x2Button, x3Button, resumeButton, loadButton, saveButton, quitButton;
+                          transportOfficeButton, pauseButton, playButton, x2Button, x3Button, resumeButton, loadButton, saveButton, quitButton;
 
     private static UIElement buildingButtonGroup, mainButtonGroup, timeElementGroup, pauseMenu;
 
@@ -123,6 +123,11 @@ public class UI {
         constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingButtonGroup, new Vector2i(306, 0),
                 () -> {
                     Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
+                    buildingButtonGroup.setVisible(false);
+                }, false);
+        transportOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingButtonGroup, new Vector2i(380, 0),
+                () -> {
+                    Buildings.toBuildingMode(Buildings.Type.TRANSPORT_OFFICE);
                     buildingButtonGroup.setVisible(false);
                 }, false);
         //endregion

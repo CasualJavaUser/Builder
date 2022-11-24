@@ -80,6 +80,21 @@ public class ProductionBuilding extends EnterableBuilding {
                 job.assign(employee, this);
             }
         }
+
+        if (productionInterval > 0) {
+            productionCounter += employeesInside;
+
+            if (productionCounter >= productionInterval) {
+                Recipe recipe = job.getRecipe();
+                Inventory.Availability availability = inventory.checkStorageAvailability(recipe);
+
+                if (availability == Inventory.Availability.AVAILABLE) {
+                    inventory.put(recipe);
+                    productionCounter = 0;
+                    Logistics.requestTransport(this, recipe);
+                }
+            }
+        }
     }
 
     public void dissociateFieldWork(NPC employee) {
@@ -112,6 +127,10 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public Set<NPC> getEmployees() {
         return employees;
+    }
+
+    public boolean hasEmployeesInside() {
+        return employeesInside != 0;
     }
 
     public Map<NPC, FieldWork> getAssignedFieldWork() {

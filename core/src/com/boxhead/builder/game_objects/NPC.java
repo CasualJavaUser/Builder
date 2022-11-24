@@ -27,7 +27,7 @@ public class NPC extends GameObject implements Clickable {
     private final int[] stats = new int[Stats.values().length];
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
-    private Building buildingIsIn = null;
+    private EnterableBuilding buildingIsIn = null;
 
     private Vector2i prevPosition;
     private final Vector2 spritePosition;
@@ -206,7 +206,9 @@ public class NPC extends GameObject implements Clickable {
             EXIT,
             PUT_RESOURCES_TO_BUILDING,
             PUT_RESERVED_RESOURCES,
-            TAKE_RESOURCES_FROM_BUILDING
+            TAKE_RESERVED_RESOURCES,
+            REQUEST_TRANSPORT,
+            END_DELIVERY
         }
     }
 
@@ -318,10 +320,19 @@ public class NPC extends GameObject implements Clickable {
                     }
                 });
                 break;
+            case END_DELIVERY:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        Logistics.getDeliveryList().remove(this);
+                        orderList.removeFirst();
+                    }
+                });
+                break;
         }
     }
 
-    public void giveResourceOrder(Order.Type type, Resource resource, int amount) {
+    public void giveOrder(Order.Type type, Resource resource, int amount) {
         switch (type) {
             case PUT_RESOURCES_TO_BUILDING:
                 orderList.addLast(new Order() {
@@ -335,16 +346,39 @@ public class NPC extends GameObject implements Clickable {
                     }
                 });
                 break;
-            case TAKE_RESOURCES_FROM_BUILDING:
+            case TAKE_RESERVED_RESOURCES:
                 orderList.addLast(new Order() {
                     @Override
                     void execute() {
                         if (buildingIsIn == null)
                             throw new IllegalStateException();
-                        if (buildingIsIn.getInventory().hasResourceAmount(resource, amount))
-                            throw new IllegalArgumentException();
 
-                        buildingIsIn.getInventory().moveResourcesTo(getInventory(), resource, amount);
+                        buildingIsIn.moveReservedResourcesTo(inventory, resource, amount);
+                        orderList.removeFirst();
+                    }
+                });
+                break;
+            case PUT_RESERVED_RESOURCES:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (buildingIsIn == null)
+                            throw new IllegalStateException();
+
+                        buildingIsIn.putReservedResources(resource, amount);
+                        inventory.put(resource, -amount);
+                        orderList.removeFirst();
+                    }
+                });
+                break;
+            case REQUEST_TRANSPORT:
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (buildingIsIn == null)
+                            throw new IllegalStateException();
+
+                        Logistics.requestTransport(buildingIsIn, resource, amount);
                         orderList.removeFirst();
                     }
                 });
@@ -354,7 +388,7 @@ public class NPC extends GameObject implements Clickable {
         }
     }
 
-    public void giveResourceOrder(Order.Type type, Resource resource) {
+    public void giveOrder(Order.Type type, Resource resource) {
         switch (type) {
             case PUT_RESOURCES_TO_BUILDING:
                 orderList.addLast(new Order() {
@@ -375,8 +409,7 @@ public class NPC extends GameObject implements Clickable {
                         if (buildingIsIn == null)
                             throw new IllegalStateException();
 
-                        buildingIsIn.getInventory().put(Resource.NOTHING, -NPC.INVENTORY_SIZE);
-                        inventory.moveResourcesTo(buildingIsIn.getInventory(), resource);
+                        buildingIsIn.moveReservedResourcesTo(inventory, resource, -NPC.INVENTORY_SIZE);
                         orderList.removeFirst();
                     }
                 });

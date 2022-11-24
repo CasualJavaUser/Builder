@@ -191,6 +191,11 @@ public class World {
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
         gameObjects.add(building);
+        if (type == Buildings.Type.TRANSPORT_OFFICE) {
+            Logistics.getTransportOffices().add((ProductionBuilding) building);
+        } else if (building instanceof StorageBuilding) {
+            Logistics.getStorages().add((StorageBuilding) building);
+        }
     }
 
     public static void removeBuilding(Building building) {
@@ -320,7 +325,9 @@ public class World {
         Arrays.fill(tiles, Tile.DEFAULT);
     }
 
-    private static void initNPCs() {
-        spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+    private static void initNPCs(int num) {
+        for (int i = 0; i < num; i++) {
+            spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+        }
     }
 }

@@ -53,10 +53,18 @@ public class BuildingStatWindow extends StatWindow<Building> {
             else warning = "";
 
             stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();
-            stats += "\n" + building.getInventory().getDisplayedMass() + " / " + building.getInventory().getMaxMass();
+            stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : job.getRecipe().changedResources()) {
                 stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
                         building.getInventory().getResourceAmount(resource));
+            }
+        }
+
+        if (pinnedObject instanceof StorageBuilding) {
+            for (Resource resource : pinnedObject.getInventory().getStoredResources()) {
+                if (resource == Resource.NOTHING) continue;
+                stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
+                        pinnedObject.getInventory().getResourceAmount(resource));
             }
         }
 

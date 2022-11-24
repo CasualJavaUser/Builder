@@ -3,6 +3,8 @@ package com.boxhead.builder;
 import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
 
+import java.util.Optional;
+
 public class Logic {
 
     public static final float NORMAL_SPEED = 0.005f;
@@ -17,8 +19,21 @@ public class Logic {
         public void run() {
             World.addTime(1);
             dailyCycle();
-            NPCLife();
             produceResources();
+            for (NPC npc : World.getNpcs()) {
+                npc.executeOrders();
+            }
+        }
+    };
+
+    private static final Timer.Task intermittentTask = new Timer.Task() {
+        @Override
+        public void run() {
+            Logistics.pairRequests();
+            for (NPC npc : World.getNpcs()) {
+                npc.seekJob();
+                npc.seekHouse();
+            }
         }
     };
 
@@ -41,6 +56,20 @@ public class Logic {
     }
 
     private static void produceResources() {
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null && ((ProductionBuilding) building).hasEmployeesInside()) {
+                Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), ((EnterableBuilding) building).getEntrancePosition());
+                fieldWork.ifPresent(work -> Logistics.requestFieldWork((ProductionBuilding) building, work));
+            }
+        }
+
+        for (ProductionBuilding transportOffice : Logistics.getTransportOffices()) {
+            if (transportOffice.hasEmployeesInside()) {
+                Optional<Logistics.Order> order = Logistics.findOrder(transportOffice.getEntrancePosition());
+                order.ifPresent(o -> Logistics.takeOrder(transportOffice, o));
+            }
+        }
+
         for (int i = 0; i < World.getBuildings().size(); i++) {
             if (World.getBuildings().get(i) instanceof ServiceBuilding) {
                 ((ServiceBuilding) World.getBuildings().get(i)).provideServices();
@@ -54,6 +83,8 @@ public class Logic {
             fieldWork.work();
         }
         World.removeFieldWorks();
+        Logistics.clearFieldWorkRequests();
+        Logistics.clearOrderRequests();
     }
 
     private static void NPCLife() {
@@ -67,6 +98,7 @@ public class Logic {
 
     public static void init() {
         Timer.instance().scheduleTask(task, 0, NORMAL_SPEED);
+        Timer.instance().scheduleTask(intermittentTask, 1f, 1f);
     }
 
     public static void setTickSpeed(float tickSpeed) {
@@ -77,6 +109,7 @@ public class Logic {
         Logic.tickSpeed = tickSpeed;
         Timer.instance().clear();
         Timer.instance().scheduleTask(task, 0, tickSpeed);
+        Timer.instance().scheduleTask(intermittentTask, 0f, 1f);
         Timer.instance().start();
     }
 

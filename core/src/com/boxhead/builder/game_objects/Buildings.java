@@ -22,9 +22,10 @@ public class Buildings {
         DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS, Jobs.LUMBERJACK, new Vector2i(0, -1), "lumber mill"),
         DEFAULT_RESIDENTIAL_BUILDING(Textures.Building.HOUSE_FUNGUS, new Vector2i(0, -1), "house"),
         DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS, Jobs.DOCTOR, new Vector2i(0, -1), "hospital"),
-        DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS, "storage"),
+        DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS, new Vector2i(1, -1), "storage"),
         BIG(Textures.Building.FUNGI),
-        CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1));
+        CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1)),
+        TRANSPORT_OFFICE(Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0));
 
         public final Textures.Building texture;
         public final Job job;
@@ -109,6 +110,8 @@ public class Buildings {
                 return new Building(building, gridPosition);
             case CONSTRUCTION_OFFICE:
                 return new ProductionBuilding(building, gridPosition, 5, 0);
+            case TRANSPORT_OFFICE:
+                return new ProductionBuilding(building, gridPosition, 3, 0);
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }

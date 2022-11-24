@@ -12,6 +12,7 @@ public class Building extends GameObject implements Clickable {
     protected final String name;
     protected BoxCollider collider;
     protected final Inventory inventory = new Inventory(200);
+    protected final Inventory reservedInventory = new Inventory(200);
 
     public Building(String name, TextureRegion texture, Vector2i gridPosition, BoxCollider collider) {
         super(texture, gridPosition);
@@ -34,6 +35,44 @@ public class Building extends GameObject implements Clickable {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void reserveResources(Resource resource, int units) {
+        if (inventory.getResourceAmount(resource) - reservedInventory.getResourceAmount(resource) >= units) {
+            reservedInventory.put(resource, units);
+        }
+    }
+
+    public boolean reserveSpace(int units) {
+        if (inventory.getAvailableCapacity() >= units) {
+            inventory.put(Resource.NOTHING, units);
+            return true;
+        }
+        return false;
+    }
+
+    public void cancelReservation(int units) {
+        inventory.put(Resource.NOTHING, -units);
+    }
+
+    public void moveReservedResourcesTo(Inventory otherInventory, Resource resource, int units) {
+        if (units > 0) {
+            reservedInventory.moveResourcesTo(otherInventory, resource, units);
+            inventory.put(resource, -units);
+        } else if (units < 0) {
+            inventory.put(Resource.NOTHING, units);
+            otherInventory.moveResourcesTo(inventory, resource, -units);
+        }
+    }
+
+    public void putReservedResources(Resource resource, int units) {
+        if (units > 0) {
+            inventory.put(Resource.NOTHING, -units);
+            inventory.put(resource, units);
+        } else if (units < 0) {
+            reservedInventory.put(resource, -units);
+            inventory.put(resource, -units);
+        }
     }
 
     @Override

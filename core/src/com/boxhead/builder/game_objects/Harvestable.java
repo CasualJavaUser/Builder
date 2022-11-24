@@ -78,7 +78,7 @@ public class Harvestable extends GameObject implements FieldWork {
     public void work() {
         if (worked) {
             boolean exit = false;
-            if (assigned.getInventory().getAvailableCapacityFor(characteristic.resource) > 0) {
+            if (assigned.getInventory().getAvailableCapacity() > 0) {
                 productionCounter++;
                 if (productionCounter == productionInterval) {
                     productionCounter = 0;
@@ -94,7 +94,8 @@ public class Harvestable extends GameObject implements FieldWork {
                 assigned.getWorkplace().dissociateFieldWork(assigned);
                 assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
                 assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-                assigned.giveResourceOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, characteristic.resource);
+                assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, characteristic.resource);
+                assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, characteristic.resource, NPC.INVENTORY_SIZE);
                 worked = false;
                 assigned = null;
             }
