@@ -2,10 +2,10 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.boxhead.builder.utils.Pair;
-import com.boxhead.builder.utils.Vector2i;
 
-public class InputManager {
+public class InputManager extends InputAdapter {
     public static Pair<Integer, Integer> LEFT = Pair.of(Input.Keys.LEFT, Input.Keys.A);
     public static Pair<Integer, Integer> RIGHT = Pair.of(Input.Keys.RIGHT, Input.Keys.D);
     public static Pair<Integer, Integer> UP = Pair.of(Input.Keys.UP, Input.Keys.W);
@@ -14,6 +14,12 @@ public class InputManager {
 
     public static final int LEFT_MOUSE = Input.Buttons.LEFT;
     public static final int RIGHT_MOUSE = Input.Buttons.RIGHT;
+
+    private static float scrollDelta = 0;
+
+    private static InputManager instance = null;
+
+    private InputManager() {}
 
     public static boolean isKeyPressed(Pair<Integer, Integer> key) {
         return (key.first != null && Gdx.input.isKeyJustPressed(key.first)) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));
@@ -38,4 +44,27 @@ public class InputManager {
     public static boolean isButtonDown(int button) {
         return Gdx.input.isButtonPressed(button);
     }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        scrollDelta = amountY;
+        return amountY != 0f || amountX != 0f;
+    }
+
+    public static float getScroll() {
+        float temp = scrollDelta;
+        scrollDelta = 0;
+        return temp;
+    }
+
+    public static boolean isScrolled() {
+        return scrollDelta != 0;
+    }
+
+    public static InputManager getInstance() {
+        if(instance == null) instance = new InputManager();
+        return instance;
+    }
+
+
 }

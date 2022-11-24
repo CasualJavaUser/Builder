@@ -2,7 +2,6 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,7 +16,7 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 import org.apache.commons.lang3.Range;
 
-public class GameScreen extends InputAdapter implements Screen {
+public class GameScreen implements Screen {
 
     public static final OrthographicCamera camera = new OrthographicCamera();
     private final SpriteBatch batch;
@@ -25,7 +24,7 @@ public class GameScreen extends InputAdapter implements Screen {
     private final Matrix4 uiProjection;
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
-    private final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 50;
+    private final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 30;
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
@@ -44,7 +43,10 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        if(!Logic.isPaused()) moveCamera(deltaTime);
+        if(!Logic.isPaused()) {
+            moveCamera(deltaTime);
+            scroll();
+        }
 
         batch.begin();
         World.drawMap(batch);
@@ -78,24 +80,6 @@ public class GameScreen extends InputAdapter implements Screen {
         viewport.update(width, height, false);
         batch.setProjectionMatrix(camera.combined);
         UI.resizeUI();
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        if(Logic.isPaused()) return false;
-        Vector3 mousePositionBefore = getMouseWorldPosition();
-        camera.zoom = ZOOM_RANGE.fit(camera.zoom + amountY / SCROLL_SPEED);
-        camera.update();
-
-        Vector3 mousePositionAfter = getMouseWorldPosition();
-        final float cameraX = camera.position.x + (mousePositionBefore.x - mousePositionAfter.x);
-        final float cameraY = camera.position.y + (mousePositionBefore.y - mousePositionAfter.y);
-        camera.position.set(cameraX, cameraY, 0);
-        //zoom to cursor
-
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-        return true;
     }
 
     @Override
@@ -166,5 +150,21 @@ public class GameScreen extends InputAdapter implements Screen {
         final float minCameraX = (float) viewport.getScreenWidth() / 2 * camera.zoom;
         final float maxCameraX = World.getWidth() - (float) viewport.getScreenWidth() / 2 * camera.zoom;
         return Range.between(minCameraX, maxCameraX);
+    }
+
+    public void scroll() {
+        if(!InputManager.isScrolled()) return;
+        Vector3 mousePositionBefore = getMouseWorldPosition();
+        camera.zoom = ZOOM_RANGE.fit(camera.zoom + InputManager.getScroll() / SCROLL_SPEED);
+        camera.update();
+
+        Vector3 mousePositionAfter = getMouseWorldPosition();
+        final float cameraX = camera.position.x + (mousePositionBefore.x - mousePositionAfter.x);
+        final float cameraY = camera.position.y + (mousePositionBefore.y - mousePositionAfter.y);
+        camera.position.set(cameraX, cameraY, 0);
+        //zoom to cursor
+
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
     }
 }

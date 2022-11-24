@@ -17,7 +17,7 @@ public class BuilderGame extends Game {
         gameScreen = new GameScreen(batch);
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(gameScreen);
+        inputMultiplexer.addProcessor(InputManager.getInstance());
         Gdx.input.setInputProcessor(inputMultiplexer);
 
         setScreen(gameScreen);
