@@ -324,7 +324,7 @@ public class NPC extends GameObject implements Clickable {
                 orderList.addLast(new Order() {
                     @Override
                     void execute() {
-                        Logistics.getDeliveryList().remove(this);
+                        Logistics.getDeliveryList().remove(NPC.this);
                         orderList.removeFirst();
                     }
                 });

@@ -22,12 +22,14 @@ public class InputManager extends InputAdapter {
     private static final boolean[] buttonsUp = new boolean[5];
     private static final boolean[] keysUp = new boolean[Input.Keys.MAX_KEYCODE];
 
-    private static InputManager instance = null;
+    private static InputManager instance = new InputManager();
 
-    private InputManager() {
+    static {
         Arrays.fill(buttonsUp, true);
         Arrays.fill(keysUp, true);
     }
+
+    private InputManager() {}
 
     public static boolean isKeyPressed(Pair<Integer, Integer> key) {
         return (key.first != null && Gdx.input.isKeyJustPressed(key.first)) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));

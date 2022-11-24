@@ -172,7 +172,7 @@ public class UI {
         layers.add(new HashSet<>(Arrays.asList(pauseMenuWindow)));
         layers.add(new HashSet<>(Arrays.asList(npcStatWindow, buildingStatWindow)));
         layers.add(new HashSet<>(Arrays.asList(buildingButton, npcButton, workButton, restButton, demolishButton,
-                homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
+                homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton, transportOfficeButton,
                 clock, pauseButton, playButton, x2Button, x3Button, resourceList)));
     }
 
@@ -186,57 +186,13 @@ public class UI {
         }
     }
 
-    /*public static boolean handleClickableElementsInteractions() {
-        if(!Logic.isPaused()) {
-            for (Set<UIElement> layer : layers) {
-                for (UIElement element : layer) {
-                    if (element.isVisible() && element instanceof Clickable) {
-                        Clickable clickableElement = (Clickable) element;
-                        if (clickableElement.isClicked()) {
-                            clickableElement.onClick();
-                        }
-                        if (clickableElement.isUp()) {
-                            clickableElement.onUp();
-                            return true;
-                        }
-                        if (clickableElement.isHeld()) {
-                            clickableElement.onHold();
-                            return true;
-                        }
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < 2; i++) {
-                for (UIElement element : layers.get(i)) {
-                    if (element.isVisible() && element instanceof Clickable) {
-                        Clickable clickableElement = (Clickable) element;
-                        if (clickableElement.isClicked()) {
-                            clickableElement.onClick();
-                        }
-                        if (clickableElement.isUp()) {
-                            clickableElement.onUp();
-                            return true;
-                        }
-                        if (clickableElement.isHeld()) {
-                            clickableElement.onHold();
-                            return true;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
-    }*/
-
     public static boolean handleMouseInput() {
         int topLayers = UI.layerCount();
         if(Logic.isPaused()) topLayers = 2;
         boolean interacted = false;
 
-        if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE))  interacted = UI.onClick(topLayers);
-        if(InputManager.isButtonUp(InputManager.LEFT_MOUSE))interacted = UI.onUp(topLayers);
+        if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) interacted = UI.onClick(topLayers);
+        if(InputManager.isButtonUp(InputManager.LEFT_MOUSE)) interacted = UI.onUp(topLayers);
         if(InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = UI.onHold(topLayers);
 
         return interacted;
@@ -248,6 +204,7 @@ public class UI {
             for (UIElement element : layers.get(i)) {
                 if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
                     ((Clickable) element).onClick();
+                    ((Clickable) element).isClicked.set(true);
                     return true;
                 }
             }
@@ -263,7 +220,7 @@ public class UI {
         if(topLayers > layers.size()) topLayers = layers.size();
         for (int i = 0; i < topLayers; i++) {
             for (UIElement element : layers.get(i)) {
-                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
+                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver() && ((Clickable) element).isClicked.get()) {
                     ((Clickable) element).onHold();
                     return true;
                 }
@@ -280,8 +237,9 @@ public class UI {
         if(topLayers > layers.size()) topLayers = layers.size();
         for (int i = 0; i < topLayers; i++) {
             for (UIElement element : layers.get(i)) {
-                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
+                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver() && ((Clickable) element).isClicked.get()) {
                     ((Clickable) element).onUp();
+                    ((Clickable) element).isClicked.set(false);
                     return true;
                 }
             }

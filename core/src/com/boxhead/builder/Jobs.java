@@ -17,6 +17,8 @@ public class Jobs {
         }
     };
     public static final Job LUMBERJACK = new Job() {
+        private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, 0));
+
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
             FieldWork fieldWork = Logistics.assignedFieldWork(workplace);
@@ -54,7 +56,7 @@ public class Jobs {
 
         @Override
         public Recipe getRecipe() {
-            return new Recipe(Pair.of(Resource.WOOD, 0));
+            return recipe;
         }
 
         @Override
