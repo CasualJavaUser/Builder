@@ -44,6 +44,8 @@ public class UI {
     private static ResourceList resourceList;
     private static Clock clock;
 
+    private static Clickable clickedElement = null;
+
     public static void init() {
         pauseMenu = new UIElement(null, new Vector2i(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2), false);
         mainButtonGroup = new UIElement(null, new Vector2i(0, 10), true);
@@ -192,8 +194,13 @@ public class UI {
         boolean interacted = false;
 
         if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) interacted = UI.onClick(topLayers);
-        if(InputManager.isButtonUp(InputManager.LEFT_MOUSE)) interacted = UI.onUp(topLayers);
-        if(InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = UI.onHold(topLayers);
+        else if(clickedElement != null) {
+            if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = UI.onHold(topLayers);
+            if (InputManager.isButtonUp(InputManager.LEFT_MOUSE)) {
+                interacted = UI.onUp(topLayers);
+                clickedElement = null;
+            }
+        }
 
         return interacted;
     }
@@ -204,7 +211,7 @@ public class UI {
             for (UIElement element : layers.get(i)) {
                 if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
                     ((Clickable) element).onClick();
-                    ((Clickable) element).isClicked.set(true);
+                    clickedElement = (Clickable) element;
                     return true;
                 }
             }
@@ -217,14 +224,9 @@ public class UI {
     }
 
     private static boolean onHold(int topLayers) {
-        if(topLayers > layers.size()) topLayers = layers.size();
-        for (int i = 0; i < topLayers; i++) {
-            for (UIElement element : layers.get(i)) {
-                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver() && ((Clickable) element).isClicked.get()) {
-                    ((Clickable) element).onHold();
-                    return true;
-                }
-            }
+        if(clickedElement.isMouseOver() && ((UIElement)clickedElement).isVisible()) {
+            clickedElement.onHold();
+            return true;
         }
         return false;
     }
@@ -234,15 +236,9 @@ public class UI {
     }
 
     private static boolean onUp(int topLayers) {
-        if(topLayers > layers.size()) topLayers = layers.size();
-        for (int i = 0; i < topLayers; i++) {
-            for (UIElement element : layers.get(i)) {
-                if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver() && ((Clickable) element).isClicked.get()) {
-                    ((Clickable) element).onUp();
-                    ((Clickable) element).isClicked.set(false);
-                    return true;
-                }
-            }
+        if(clickedElement.isMouseOver() && ((UIElement)clickedElement).isVisible()) {
+            clickedElement.onUp();
+            return true;
         }
         return false;
     }
