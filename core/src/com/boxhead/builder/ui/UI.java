@@ -195,9 +195,9 @@ public class UI {
 
         if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) interacted = UI.onClick(topLayers);
         else if(clickedElement != null) {
-            if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = UI.onHold(topLayers);
+            if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = UI.onHold();
             if (InputManager.isButtonUp(InputManager.LEFT_MOUSE)) {
-                interacted = UI.onUp(topLayers);
+                interacted = UI.onUp();
                 clickedElement = null;
             }
         }
@@ -219,11 +219,7 @@ public class UI {
         return false;
     }
 
-    private static boolean onClick() {
-        return onClick(layers.size());
-    }
-
-    private static boolean onHold(int topLayers) {
+    private static boolean onHold() {
         if(clickedElement.isMouseOver() && ((UIElement)clickedElement).isVisible()) {
             clickedElement.onHold();
             return true;
@@ -231,20 +227,12 @@ public class UI {
         return false;
     }
 
-    private static boolean onHold() {
-        return onHold(layers.size());
-    }
-
-    private static boolean onUp(int topLayers) {
+    private static boolean onUp() {
         if(clickedElement.isMouseOver() && ((UIElement)clickedElement).isVisible()) {
             clickedElement.onUp();
             return true;
         }
         return false;
-    }
-
-    private static boolean onUp() {
-        return onUp(layers.size());
     }
 
     public static void resizeUI() {
