@@ -1,5 +1,7 @@
 package com.boxhead.builder.utils;
 
+import java.util.Objects;
+
 public class Pair<A, B> {
     public A first;
     public B second;
@@ -11,5 +13,17 @@ public class Pair<A, B> {
 
     public static <A, B> Pair<A, B> of(A first, B second) {
         return new Pair<>(first, second);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Pair)) return false;
+
+        return ((Pair<?, ?>) other).first.equals(first) && ((Pair<?, ?>) other).second.equals(second);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(first, second);
     }
 }

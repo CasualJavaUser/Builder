@@ -130,7 +130,7 @@ public class NPC extends GameObject implements Clickable {
         path = null;
         waitingForPath = true;
         executor.submit(() -> {
-            path = Pathfinding.findPath(gridPosition, tile);
+            path = Pathfinding.findPath(gridPosition.clone(), tile);
             pathStep = 0;
             nextStep = STEP_INTERVAL;
             waitingForPath = false;
@@ -142,7 +142,7 @@ public class NPC extends GameObject implements Clickable {
         path = null;
         waitingForPath = true;
         executor.submit(() -> {
-            path = Pathfinding.findPath(gridPosition, collider);
+            path = Pathfinding.findPath(gridPosition.clone(), collider);
             pathStep = 0;
             nextStep = STEP_INTERVAL;
             waitingForPath = false;
@@ -388,6 +388,7 @@ public class NPC extends GameObject implements Clickable {
         }
     }
 
+    @Deprecated
     public void giveOrder(Order.Type type, Resource resource) {
         switch (type) {
             case PUT_RESOURCES_TO_BUILDING:

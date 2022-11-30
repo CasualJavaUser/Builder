@@ -40,6 +40,7 @@ public class Inventory {
      *
      * @return How many units were transferred
      */
+    @Deprecated
     public int moveResourcesTo(Inventory otherInventory, Resource resource) {
         int moved = Math.min(resources.get(resource), otherInventory.getAvailableCapacity());
 

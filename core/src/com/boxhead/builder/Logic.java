@@ -2,6 +2,7 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.utils.Pathfinding;
 
 import java.util.Optional;
 
@@ -52,6 +53,8 @@ public class Logic {
                     ((ProductionBuilding) building).endWorkday();
                 }
             }
+        } else if (World.getTime() == 0) {  //0:00
+            Pathfinding.removeUnusedPaths();
         }
     }
 

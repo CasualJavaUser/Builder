@@ -2,17 +2,65 @@ package com.boxhead.builder.utils;
 
 import com.boxhead.builder.World;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class Pathfinding {
-    public static Vector2i[] findPath(final Vector2i start, final Vector2i destination) {
-        return dijkstra(start, Predicate.isEqual(destination));
+    private static final Map<Pair<Vector2i, Vector2i>, Pair<Vector2i[], Integer>> cache = new HashMap<>();
+
+    public static Vector2i[] findPath(Vector2i start, Vector2i destination) {
+        Pair<Vector2i, Vector2i> pair = Pair.of(start, destination);
+
+        if (cache.containsKey(pair)) {
+            cache.get(pair).second++;
+            return cache.get(pair).first;
+        }
+
+        Vector2i[] path = dijkstra(start, Predicate.isEqual(destination));
+        cache.put(pair, Pair.of(path, 1));
+        return path;
     }
 
-    public static Vector2i[] findPath(final Vector2i start, final BoxCollider area) {
+    public static Vector2i[] findPath(Vector2i start, BoxCollider area) {
         return dijkstra(start, area.extended()::overlaps);
+    }
+
+    public static void removeUnusedPaths() {
+        for (Pair<Vector2i, Vector2i> pair : cache.keySet()) {
+            if (cache.get(pair).second.equals(0))
+                cache.remove(pair);
+        }
+        for (Pair<Vector2i, Vector2i> pair : cache.keySet()) {
+            cache.get(pair).second--;
+        }
+    }
+
+    public static void updateCache(Vector2i gridPosition) {
+        for (Pair<Vector2i[], Integer> pair : cache.values()) {
+            Vector2i[] array = pair.first;
+
+            for (Vector2i tile : array) {
+                if (tile.equals(gridPosition)) {
+                    cache.remove(Pair.of(array[0], array[array.length - 1]));
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void updateCache(BoxCollider collider) {
+        List<Vector2i> list = collider.toVector2iList();
+
+        for (Pair<Vector2i[], Integer> pair : cache.values()) {
+            Vector2i[] array = pair.first;
+
+            for (Vector2i tile : array) {
+                if (list.contains(tile)) {
+                    cache.remove(Pair.of(array[0], array[array.length - 1]));
+                    break;
+                }
+            }
+        }
     }
 
     private static Vector2i[] dijkstra(Vector2i start, Predicate<Vector2i> destination) {

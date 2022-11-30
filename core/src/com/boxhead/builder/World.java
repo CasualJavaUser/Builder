@@ -4,10 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.ui.UI;
-import com.boxhead.builder.utils.BoxCollider;
-import com.boxhead.builder.utils.PerlinNoise;
-import com.boxhead.builder.utils.SortedList;
-import com.boxhead.builder.utils.Vector2i;
+import com.boxhead.builder.utils.*;
 
 import java.util.*;
 
@@ -161,6 +158,7 @@ public class World {
 
     public static void makeUnnavigable(Vector2i gridPosition) {
         navigableTiles.remove(gridPosition);
+        Pathfinding.updateCache(gridPosition);
     }
 
     public static void makeUnnavigable(BoxCollider area) {
@@ -171,6 +169,7 @@ public class World {
                 navigableTiles.remove(tile);
             }
         }
+        Pathfinding.updateCache(area);
     }
 
     public static void makeNavigable(Vector2i gridPosition) {
