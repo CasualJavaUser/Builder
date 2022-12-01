@@ -119,9 +119,19 @@ public class Window extends UIElement {
         windowWidth = contentWidth + (texture.getRegionWidth()-1)*2;
     }
 
+    public void setWindowWidth(int width) {
+        contentWidth = width - (texture.getRegionWidth()-1)*2;
+        windowWidth = width;
+    }
+
     public void setHeight(int height) {
         contentHeight = height;
         windowHeight = contentHeight + (texture.getRegionHeight()-1)*2;
+    }
+
+    public void setWindowHeight(int height) {
+        contentHeight = height - (texture.getRegionHeight()-1)*2;
+        windowHeight = height;
     }
 
     public int getContentHeight() {

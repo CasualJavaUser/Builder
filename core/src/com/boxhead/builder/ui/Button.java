@@ -71,7 +71,7 @@ public class Button extends UIElement implements Clickable {
                 text,
                 getGlobalPosition().x,
                 getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT_SIZE/2),
-                80,
+                texture.getRegionWidth(),
                 1,
                 false);
         batch.setColor(UI.DEFAULT_COLOR);

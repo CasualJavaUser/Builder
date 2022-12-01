@@ -29,7 +29,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         UI.FONT.setColor(Color.WHITE);
         UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getContentHeight() - (warning.equals("") ? 0 : 20));
 
-        if(pinnedObject instanceof EnterableBuilding) {
+        if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
             drawNPCCounter(batch);
         }
     }
@@ -61,10 +61,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
         }
 
         if (pinnedObject instanceof StorageBuilding) {
+            stats += "\n" + pinnedObject.getInventory().getDisplayedAmount() + " / " + pinnedObject.getInventory().getMaxCapacity();
             for (Resource resource : pinnedObject.getInventory().getStoredResources()) {
-                if (resource == Resource.NOTHING) continue;
-                stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
-                        pinnedObject.getInventory().getResourceAmount(resource));
+                if (resource != Resource.NOTHING) {
+                    stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
+                            pinnedObject.getInventory().getResourceAmount(resource));
+                }
             }
         }
 
@@ -80,7 +82,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
             setHeight(getContentHeight() + 20);
             setWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
-        if(pinnedObject instanceof EnterableBuilding) {
+        if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
             setHeight(getContentHeight() + Textures.get(Textures.Npc.FUNGUY).getRegionHeight());
             int counterWidth = leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * npcCapacity;
             if(getContentHeight() < counterWidth)

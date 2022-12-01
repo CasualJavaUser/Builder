@@ -6,168 +6,175 @@ filter: Nearest, Nearest
 repeat: none
 clock_face
   rotate: false
-  xy: 0, 0
+  xy: 240, 0
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 close_button
   rotate: false
-  xy: 704, 32
+  xy: 192, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 construction_office
   rotate: false
-  xy: 512, 0
+  xy: 688, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 demolish
   rotate: false
-  xy: 640, 0
+  xy: 816, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 full_storage
   rotate: false
-  xy: 736, 48
+  xy: 224, 48
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fungus
   rotate: false
-  xy: 384, 0
+  xy: 64, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 home
   rotate: false
-  xy: 640, 64
+  xy: 752, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 hour_hand
   rotate: false
-  xy: 256, 0
+  xy: 496, 0
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 house
   rotate: false
-  xy: 512, 64
+  xy: 624, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 minute_hand
   rotate: false
-  xy: 128, 0
+  xy: 368, 0
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 no_resources
   rotate: false
-  xy: 798, 80
+  xy: 880, 64
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 no_storage
   rotate: false
-  xy: 768, 64
+  xy: 224, 32
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 npc
   rotate: false
-  xy: 576, 64
+  xy: 688, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pause
   rotate: false
-  xy: 848, 112
+  xy: 960, 112
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 play
   rotate: false
-  xy: 704, 0
+  xy: 192, 0
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 rest
   rotate: false
-  xy: 384, 64
+  xy: 0, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 service
   rotate: false
-  xy: 448, 64
+  xy: 128, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 storage
   rotate: false
-  xy: 448, 0
+  xy: 624, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
+wide_area
+  rotate: false
+  xy: 0, 64
+  size: 240, 64
+  orig: 240, 64
+  offset: 0, 0
+  index: -1
 wide_button
   rotate: false
-  xy: 768, 96
+  xy: 880, 96
   size: 80, 32
   orig: 80, 32
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 848, 105
+  xy: 910, 89
   size: 7, 7
   orig: 7, 7
   offset: 0, 0
   index: -1
 work
   rotate: false
-  xy: 704, 64
+  xy: 816, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 workplace
   rotate: false
-  xy: 576, 0
+  xy: 752, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 x2speed
   rotate: false
-  xy: 768, 80
+  xy: 880, 80
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 x3speed
   rotate: false
-  xy: 704, 16
+  xy: 192, 16
   size: 30, 16
   orig: 30, 16
   offset: 0, 0

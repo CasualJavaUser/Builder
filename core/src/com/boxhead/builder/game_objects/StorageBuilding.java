@@ -17,16 +17,6 @@ public class StorageBuilding extends EnterableBuilding {
         return getInventory().getResourceAmount(resource);
     }
 
-    @Deprecated
-    public int getStoredMass() {
-        return getInventory().getCurrentAmount();
-    }
-
-    @Deprecated
-    public int getMaxMass() {
-        return getInventory().getMaxCapacity();
-    }
-
     public int getRemainingCapacity() {
         return inventory.getAvailableCapacity();
     }

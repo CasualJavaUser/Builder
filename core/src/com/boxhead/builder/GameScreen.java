@@ -53,7 +53,7 @@ public class GameScreen implements Screen {
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
 
-        if(!UI.handleMouseInput()) {
+        if(!UI.handleMouseInput() && !Logic.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
             else if (Buildings.isDemolishing()) Buildings.demolish();
             else {
