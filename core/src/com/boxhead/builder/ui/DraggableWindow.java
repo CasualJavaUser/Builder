@@ -27,29 +27,27 @@ public class DraggableWindow extends Window implements Clickable {
     }
 
     @Override
-    public void onClick() {
-        if (closeButton.isMouseOver()) closeButton.onClick();
+    public Clickable onClick() {
+        if (closeButton.isMouseOver()) {
+            closeButton.onClick();
+            return closeButton;
+        }
         prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
+        return this;
     }
 
     @Override
     public void onHold() {
         isDragged = true;
-        position.x += Gdx.input.getX() - prevMousePos.x;
-        position.y -= Gdx.input.getY() - prevMousePos.y;
+        Move(Gdx.input.getX() - prevMousePos.x, -(Gdx.input.getY() - prevMousePos.y));
 
-        Vector2i parentPos;
-        if(parent != null) parentPos = parent.position;
-        else parentPos = Vector2i.zero();
-        final Range<Integer> rangeX = Range.between(
-                -parentPos.x,
-                Gdx.graphics.getWidth() - (getContentWidth() + (texture.getRegionWidth()-1)*2) - parentPos.x);
-        final Range<Integer> rangeY = Range.between(
-                getContentHeight() + (texture.getRegionHeight()-1)*2 - parentPos.y - getWindowHeight(),
-                Gdx.graphics.getHeight() - parentPos.y - getWindowHeight());
+        Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - getWindowWidth());
+        Range<Integer> rangeY = Range.between(0, Gdx.graphics.getHeight() - getWindowHeight());
 
-        position.x = rangeX.fit(position.x);
-        position.y = rangeY.fit(position.y);
+        setGlobalPosition(
+                rangeX.fit(getGlobalPosition().x),
+                rangeY.fit(getGlobalPosition().y)
+        );
 
         prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
     }

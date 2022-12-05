@@ -8,25 +8,28 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 public class Building extends GameObject implements Clickable {
-    protected final String name;
+    protected transient Buildings.Type type;
     protected BoxCollider collider;
     protected final Inventory inventory = new Inventory(200);
     protected final Inventory reservedInventory = new Inventory(200);
 
-    public Building(String name, TextureRegion texture, Vector2i gridPosition, BoxCollider collider) {
-        super(texture, gridPosition);
-        this.name = name;
-        this.collider = collider;
+    public Building (Buildings.Type type, Vector2i gridPosition) {
+        this(type, type.getTexture(), gridPosition);
     }
 
-    public Building(Buildings.Type type, Vector2i gridPosition) {
-        this(type.name, type.getTexture(), gridPosition,
-                type.getRelativeCollider().cloneAndTranslate(gridPosition));
+    public Building (Buildings.Type type, TextureRegion texture, Vector2i gridPosition) {
+        super(texture, gridPosition);
+        this.type = type;
+        collider = type.getRelativeCollider().cloneAndTranslate(gridPosition);
     }
 
     public String getName() {
-        return name;
+        return type.name;
     }
 
     public BoxCollider getCollider() {
@@ -35,6 +38,10 @@ public class Building extends GameObject implements Clickable {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public Buildings.Type getType() {
+        return type;
     }
 
     public void reserveResources(Resource resource, int units) {
@@ -86,7 +93,19 @@ public class Building extends GameObject implements Clickable {
     }
 
     @Override
-    public void onClick() {
+    public Clickable onClick() {
         UI.showBuildingStatWindow(this);
+        return this;
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeUTF(type.name());
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        type = Buildings.Type.valueOf(ois.readUTF());
+        texture = type.getTexture();
     }
 }

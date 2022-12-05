@@ -1,6 +1,7 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
@@ -12,6 +13,7 @@ public class Button extends UIElement implements Clickable {
     private Action onUp = () -> {};
     private boolean isPrevHeld = false;
     private String text;
+    private Color defaultTint;
 
     public Button(TextureRegion texture, Vector2i position, Action action, boolean onDown) {
         this(texture, null, position, null, action, onDown);
@@ -34,6 +36,13 @@ public class Button extends UIElement implements Clickable {
         if(onDown) onClick = action;
         else onUp = action;
         this.text = text;
+        defaultTint = tint;
+    }
+
+    @Override
+    public void setTint(Color tint) {
+        super.setTint(tint);
+        defaultTint = tint;
     }
 
     @Override
@@ -46,26 +55,27 @@ public class Button extends UIElement implements Clickable {
     }
 
     @Override
-    public void onClick() {
+    public Clickable onClick() {
         onClick.execute();
+        return this;
     }
 
     @Override
     public void onHold() {
         Clickable.super.onHold();
-        currentTint = UI.PRESSED_COLOR;
+        tint = UI.PRESSED_COLOR;
     }
 
     @Override
     public void onUp() {
         onUp.execute();
-        currentTint = tint;
+        tint = defaultTint;
     }
 
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        batch.setColor(currentTint);
+        batch.setColor(tint);
         if(text != null) UI.FONT.draw(
                 batch,
                 text,

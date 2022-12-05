@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -11,6 +12,10 @@ import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Pathfinding;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +24,7 @@ public class NPC extends GameObject implements Clickable {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
-    public static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+    public static final ExecutorService executor = Executors.newCachedThreadPool();
     public static final int INVENTORY_SIZE = 10;
     private static final int STEP_INTERVAL = 50;
 
@@ -188,16 +193,17 @@ public class NPC extends GameObject implements Clickable {
     @Override
     public boolean isMouseOver() {
         Vector3 mousePos = GameScreen.getMouseWorldPosition();
-        return mousePos.x >= gridPosition.x * World.TILE_SIZE && mousePos.x < (gridPosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
-                mousePos.y >= gridPosition.y * World.TILE_SIZE && mousePos.y < (gridPosition.y * World.TILE_SIZE + texture.getRegionHeight());
+        return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
+                mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + texture.getRegionHeight());
     }
 
     @Override
-    public void onClick() {
+    public Clickable onClick() {
         UI.showNPCStatWindow(this);
+        return this;
     }
 
-    public static abstract class Order {
+    public static abstract class Order implements Serializable {
         abstract void execute();
 
         public enum Type {
@@ -461,5 +467,23 @@ public class NPC extends GameObject implements Clickable {
 
     public boolean hasOrders() {
         return !orderList.isEmpty();
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeFloat(texture.getU());
+        oos.writeFloat(texture.getV());
+        oos.writeFloat(texture.getU2());
+        oos.writeFloat(texture.getV2());
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        texture = new TextureRegion(  //TODO get texture from Textures class
+                new Texture("npcs.png"),
+                ois.readFloat(),
+                ois.readFloat(),
+                ois.readFloat(),
+                ois.readFloat());
     }
 }

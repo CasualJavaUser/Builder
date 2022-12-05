@@ -69,10 +69,6 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 }
             }
         }
-
-        if (pinnedObject instanceof ConstructionSite) {
-            stats += '(' + ((ConstructionSite) pinnedObject).getBuildingType().name + ')';
-        }
     }
 
     @Override
@@ -83,9 +79,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
             setWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
-            setHeight(getContentHeight() + Textures.get(Textures.Npc.FUNGUY).getRegionHeight());
+            setHeight(getContentHeight() + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() + 20);
             int counterWidth = leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * npcCapacity;
-            if(getContentHeight() < counterWidth)
+            if(getContentWidth() < counterWidth)
                 setWidth(counterWidth);
         }
     }
@@ -107,14 +103,14 @@ public class BuildingStatWindow extends StatWindow<Building> {
         for (NPC npc : npcs) {
             if (npc.getCurrentBuilding() == pinnedObject)
                 batch.draw(npc.getTexture(),
-                        position.x + leftPadding + (npc.getTexture().getRegionWidth() + leftPadding) * i++,
-                        position.y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
+                        getGlobalPosition().x + leftPadding + (npc.getTexture().getRegionWidth() + leftPadding) * i++,
+                        getGlobalPosition().y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
         }
         batch.setColor(Color.BLACK);
         while (i < npcCapacity) {
             batch.draw(Textures.get(Textures.Npc.FUNGUY),
-                    position.x + leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * i++,
-                    position.y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
+                    getGlobalPosition().x + leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * i++,
+                    getGlobalPosition().y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
         }
         batch.setColor(UI.DEFAULT_COLOR);
     }

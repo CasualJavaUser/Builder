@@ -8,7 +8,7 @@ import com.boxhead.builder.game_objects.NPC;
 public class NPCStatWindow extends StatWindow<NPC> {
     private String job = null, name = null;
     private int[] npcStatList = null;
-    private final int IMAGE_SIZE = 4;
+    private final int IMAGE_SCALE = 4;
 
     @Override
     public void draw(SpriteBatch batch) {
@@ -16,11 +16,11 @@ public class NPCStatWindow extends StatWindow<NPC> {
 
         batch.draw(pinnedObject.getTexture(),
                 getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE,
-                pinnedObject.getTexture().getRegionWidth() * IMAGE_SIZE,
-                pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
+                getGlobalPosition().y + getContentHeight() - pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE,
+                pinnedObject.getTexture().getRegionWidth() * IMAGE_SCALE,
+                pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE);
         UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
+                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE);
     }
 
     @Override
@@ -46,6 +46,6 @@ public class NPCStatWindow extends StatWindow<NPC> {
     @Override
     protected void updateWindowSize() {
         super.updateWindowSize();
-        setHeight(getContentHeight() + verticalPadding + pinnedObject.getTexture().getRegionHeight() * IMAGE_SIZE);
+        setHeight(getContentHeight() + verticalPadding + pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE + 20);
     }
 }

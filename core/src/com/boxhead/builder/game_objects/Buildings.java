@@ -146,7 +146,7 @@ public class Buildings {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)  && isBuildable) {
             Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-            World.placeFieldWork(new ConstructionSite("construction site", buildingPosition, currentBuilding, 100));
+            World.placeFieldWork(new ConstructionSite(currentBuilding, buildingPosition, 100));
 
             if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
                 isInBuildingMode = false;
@@ -168,8 +168,8 @@ public class Buildings {
         }
     }
 
-    public static void switchDemolishingMode() {
-        isDemolishing = !isDemolishing;
+    public static void setDemolishingMode(boolean isDemolishing) {
+        Buildings.isDemolishing = isDemolishing;
         isInBuildingMode = false;
     }
 

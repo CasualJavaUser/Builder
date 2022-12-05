@@ -18,7 +18,7 @@ public class Window extends UIElement {
 
     @Override
     public void draw(SpriteBatch batch) {
-        batch.setColor(currentTint);
+        batch.setColor(tint);
         drawWindow(batch);
         batch.setColor(UI.DEFAULT_COLOR);
     }

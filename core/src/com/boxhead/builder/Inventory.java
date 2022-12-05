@@ -1,11 +1,13 @@
 package com.boxhead.builder;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Inventory {
+public class Inventory implements Serializable {
 
+    private static final long serialVersionUID = 4L;
     private final Map<Resource, Integer> resources = new EnumMap<>(Resource.class);
     private final int maxCapacity;
     private int currentAmount;

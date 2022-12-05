@@ -12,7 +12,7 @@ import org.apache.commons.lang3.Range;
 public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected T pinnedObject = null;
     protected boolean pinned;
-    protected static final int verticalPadding = 6, leftPadding = 10, rightPadding = 20;
+    protected static final int verticalPadding = 6, leftPadding = 10, rightPadding = 25;
     protected String stats = "";
 
     public StatWindow() {
@@ -36,15 +36,15 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
                     getPinnedObjectBoundsY().contains(getObjectScreenPosition().y)))
                 setVisible(false);
         }
-        super.draw(batch);
         updateStats();
         updateWindowSize();
+        super.draw(batch);
     }
 
     protected abstract void updateStats();
 
     protected void updateWindowSize() {
-        setHeight(30);
+        setHeight(10);
         for(char c : stats.toCharArray()) {
             if (c == '\n') setHeight(getContentHeight() + UI.FONT_SIZE +3);
         }
@@ -61,7 +61,7 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
         x = getStatWindowXRange().fit(x);
         y = getStatWindowYRange().fit(y);
 
-        position.set(x, y);
+        setGlobalPosition(x, y);
     }
 
     protected Vector3 getObjectScreenPosition() {

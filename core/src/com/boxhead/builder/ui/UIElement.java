@@ -1,6 +1,5 @@
 package com.boxhead.builder.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,10 +8,10 @@ import com.boxhead.builder.utils.Vector2i;
 public class UIElement {
     protected TextureRegion texture;
     protected UIElement parent;
-    protected final Vector2i position;
+    private final Vector2i position;
     protected float rotation;
     protected boolean isVisible;
-    protected Color tint, currentTint;
+    protected Color tint;
 
     public UIElement(TextureRegion texture, Vector2i position) {
         this(texture, null, position, 0, false);
@@ -37,7 +36,6 @@ public class UIElement {
         this.rotation = rotation;
         isVisible = visible;
         tint = UI.DEFAULT_COLOR;
-        currentTint = UI.DEFAULT_COLOR;
     }
 
     public TextureRegion getTexture() {
@@ -71,6 +69,10 @@ public class UIElement {
             position.set(x, y);
     }
 
+    public void Move(int x, int y) {
+        position.set(position.x + x, position.y + y);
+    }
+
     public boolean isVisible() {
         if(parent == null) return isVisible;
         else return isVisible && parent.isVisible();
@@ -100,7 +102,6 @@ public class UIElement {
 
     public void setTint(Color tint) {
         this.tint = tint;
-        currentTint = tint;
     }
 
     public UIElement getParent() {
@@ -109,7 +110,7 @@ public class UIElement {
 
     public void draw(SpriteBatch batch) {
         if (texture != null) {
-            batch.setColor(currentTint);
+            batch.setColor(tint);
             batch.draw(
                     texture,
                     getGlobalPosition().x,

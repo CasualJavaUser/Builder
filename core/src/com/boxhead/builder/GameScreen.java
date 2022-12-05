@@ -53,7 +53,7 @@ public class GameScreen implements Screen {
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
 
-        if(!UI.handleMouseInput() && !Logic.isPaused()) {
+        if(!UI.handleUiInteraction() && !Logic.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
             else if (Buildings.isDemolishing()) Buildings.demolish();
             else {
@@ -101,7 +101,7 @@ public class GameScreen implements Screen {
     }
 
     private void moveCamera(float deltaTime) {
-        final float deltaPosition = InputManager.isKeyDown(InputManager.FAST)
+        final float deltaPosition = InputManager.isKeyDown(InputManager.SHIFT)
                 ? FAST_SPEED * deltaTime
                 : NORMAL_SPEED * deltaTime;
 

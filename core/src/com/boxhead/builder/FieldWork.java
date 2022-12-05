@@ -4,10 +4,11 @@ import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Optional;
 
-public interface FieldWork extends WorldObject {
+public interface FieldWork extends WorldObject, Serializable {
     Object getCharacteristic();
 
     void assignWorker(NPC npc);

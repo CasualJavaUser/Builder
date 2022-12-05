@@ -17,7 +17,7 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
-    private static final int SEED = 60;
+    private static int SEED = 60;
     private static Random random;
 
     private static final int[] storedResources = new int[Resource.values().length];
@@ -72,7 +72,7 @@ public class World {
         }
     }
 
-    private static void generateTiles() {
+    public static void generateTiles() {
         Arrays.fill(tiles, Tile.GRASS);
         generateRiver();
 
@@ -272,12 +272,25 @@ public class World {
         }
     }
 
+    public static void setSEED(int SEED) {
+        World.SEED = SEED;
+        random = new Random(SEED);
+    }
+
+    public static int getSEED() {
+        return SEED;
+    }
+
     public static void setTime(int time) {
         World.time = time;
     }
 
     public static void addTime(int shift) {
         time = (time + shift) % FULL_DAY;
+    }
+
+    public static SortedList<GameObject> getGameObjects() {
+        return gameObjects;
     }
 
     public static List<Building> getBuildings() {

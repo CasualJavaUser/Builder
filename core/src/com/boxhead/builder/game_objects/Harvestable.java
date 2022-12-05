@@ -1,11 +1,16 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class Harvestable extends GameObject implements FieldWork {
     private final Characteristic characteristic;
@@ -116,5 +121,23 @@ public class Harvestable extends GameObject implements FieldWork {
     @Override
     public String toString() {
         return characteristic.toString() + " " + gridPosition.toString();
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeFloat(texture.getU());
+        oos.writeFloat(texture.getV());
+        oos.writeFloat(texture.getU2());
+        oos.writeFloat(texture.getV2());
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        texture = new TextureRegion(  //TODO get texture from Textures class
+                new Texture("environment.png"),
+                ois.readFloat(),
+                ois.readFloat(),
+                ois.readFloat(),
+                ois.readFloat());
     }
 }

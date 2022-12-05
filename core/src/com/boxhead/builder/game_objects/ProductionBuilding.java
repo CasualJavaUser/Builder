@@ -2,28 +2,33 @@ package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
+import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class ProductionBuilding extends EnterableBuilding {
-    protected final Job job;
+    protected transient Job job;
     protected int jobQuality = 0;
     protected int employeeCapacity, employeesInside = 0;
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
     protected int productionCounter = 0, productionInterval;
     protected boolean showRange = false;
-    protected UIElement indicator;
+    protected transient UIElement indicator;
 
     public ProductionBuilding(Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
         super(type, gridPosition);
+        this.type = type;
         job = type.getJob();
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
@@ -33,7 +38,7 @@ public class ProductionBuilding extends EnterableBuilding {
         } else {
             assignedFieldWork = null;
         }
-        indicator = new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
+        indicator = newIndicator();
     }
 
     /**
@@ -142,9 +147,10 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     @Override
-    public void onClick() {
+    public Clickable onClick() {
         super.onClick();
         showRange = true;
+        return this;
     }
 
     @Override
@@ -174,5 +180,22 @@ public class ProductionBuilding extends EnterableBuilding {
             batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
                     gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
         }
+    }
+
+    private UIElement newIndicator() {
+        return new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeUTF(type.name());
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        type = Buildings.Type.valueOf(ois.readUTF());
+        texture = type.getTexture();
+        job = type.getJob();
+        indicator = newIndicator();
     }
 }

@@ -13,28 +13,28 @@ clock_face
   index: -1
 close_button
   rotate: false
-  xy: 192, 32
+  xy: 704, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 construction_office
   rotate: false
-  xy: 688, 64
+  xy: 752, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 demolish
   rotate: false
-  xy: 816, 64
+  xy: 880, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 full_storage
   rotate: false
-  xy: 224, 48
+  xy: 736, 112
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -48,7 +48,7 @@ fungus
   index: -1
 home
   rotate: false
-  xy: 752, 0
+  xy: 816, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -62,7 +62,7 @@ hour_hand
   index: -1
 house
   rotate: false
-  xy: 624, 0
+  xy: 688, 32
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -76,35 +76,35 @@ minute_hand
   index: -1
 no_resources
   rotate: false
-  xy: 880, 64
+  xy: 736, 16
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 no_storage
   rotate: false
-  xy: 224, 32
+  xy: 736, 96
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 npc
   rotate: false
-  xy: 688, 0
+  xy: 752, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pause
   rotate: false
-  xy: 960, 112
+  xy: 944, 112
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 play
   rotate: false
-  xy: 192, 0
+  xy: 944, 96
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
@@ -125,9 +125,16 @@ service
   index: -1
 storage
   rotate: false
-  xy: 624, 64
+  xy: 624, 32
   size: 64, 64
   orig: 64, 64
+  offset: 0, 0
+  index: -1
+text_field
+  rotate: false
+  xy: 624, 96
+  size: 112, 32
+  orig: 112, 32
   offset: 0, 0
   index: -1
 wide_area
@@ -139,42 +146,42 @@ wide_area
   index: -1
 wide_button
   rotate: false
-  xy: 880, 96
+  xy: 624, 0
   size: 80, 32
   orig: 80, 32
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 910, 89
+  xy: 736, 9
   size: 7, 7
   orig: 7, 7
   offset: 0, 0
   index: -1
 work
   rotate: false
-  xy: 816, 0
+  xy: 880, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 workplace
   rotate: false
-  xy: 752, 64
+  xy: 816, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 x2speed
   rotate: false
-  xy: 880, 80
+  xy: 192, 48
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 x3speed
   rotate: false
-  xy: 192, 16
+  xy: 192, 32
   size: 30, 16
   orig: 30, 16
   offset: 0, 0

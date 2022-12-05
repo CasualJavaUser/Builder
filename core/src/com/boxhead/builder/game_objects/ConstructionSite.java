@@ -4,6 +4,9 @@ import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,13 +15,15 @@ public class ConstructionSite extends Building implements FieldWork {
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
     private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
-    private final Buildings.Type buildingType;
 
-    public ConstructionSite(String name, Vector2i gridPosition, Buildings.Type buildingType, int totalLabour) {
-        super(name, buildingType.getConstructionSite(), gridPosition, null);
+    public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour) {
+        super(type, type.getConstructionSite(), gridPosition);
         this.totalLabour = totalLabour;
-        collider = buildingType.relativeCollider.cloneAndTranslate(gridPosition);
-        this.buildingType = buildingType;
+    }
+
+    @Override
+    public String getName() {
+        return "construction site\n(" + type.name + ")";
     }
 
     @Override
@@ -54,7 +59,7 @@ public class ConstructionSite extends Building implements FieldWork {
         progress += currentlyWorking;
 
         if (progress >= totalLabour) {
-            World.placeBuilding(buildingType, gridPosition);
+            World.placeBuilding(type, gridPosition);
 
             for (NPC npc : assigned.keySet()) {
                 npc.getWorkplace().dissociateFieldWork(npc);
@@ -80,7 +85,14 @@ public class ConstructionSite extends Building implements FieldWork {
         }
     }
 
-    public Buildings.Type getBuildingType() {
-        return buildingType;
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeUTF(type.name());
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        Buildings.Type type = Buildings.Type.valueOf(ois.readUTF());
+        texture = type.getConstructionSite();
     }
 }

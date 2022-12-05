@@ -7,9 +7,12 @@ import com.boxhead.builder.WorldObject;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
-public abstract class GameObject implements WorldObject {
+import java.io.Serializable;
+
+public abstract class GameObject implements WorldObject, Serializable {
+    private static final long serialVersionUID = 3L;
     protected final Vector2i gridPosition;
-    protected TextureRegion texture;
+    protected transient TextureRegion texture;
 
     public GameObject(TextureRegion texture, Vector2i gridPosition) {
         this.gridPosition = gridPosition;
