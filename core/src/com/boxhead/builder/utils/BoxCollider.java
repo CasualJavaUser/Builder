@@ -1,11 +1,14 @@
 package com.boxhead.builder.utils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BoxCollider implements Serializable {
+    @Serial
     private static final long serialVersionUID = 2L;
+
     private Vector2i lowerLeftCorner;
     private int width, height;
 

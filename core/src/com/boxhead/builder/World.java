@@ -103,7 +103,7 @@ public class World {
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
         int textureId = random.nextInt(type.getTextures().length);
 
-        int width = type.getTextures()[textureId].getRegionWidth() / TILE_SIZE;
+        int width = Textures.get(type.getTextures()[textureId]).getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if(smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
@@ -339,7 +339,7 @@ public class World {
 
     private static void initNPCs(int num) {
         for (int i = 0; i < num; i++) {
-            spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+            spawnNPC(new NPC(Textures.Npc.FUNGUY, new Vector2i(worldSize.x / 2, worldSize.y / 2)));
         }
     }
 }

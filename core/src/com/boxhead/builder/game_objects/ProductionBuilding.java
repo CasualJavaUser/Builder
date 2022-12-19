@@ -11,6 +11,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class ProductionBuilding extends EnterableBuilding {
     public ProductionBuilding(Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
         super(type, gridPosition);
         this.type = type;
-        job = type.getJob();
+        job = type.job;
         this.employeeCapacity = employeeCapacity;
         this.productionInterval = productionInterval;
         employees = new HashSet<>(employeeCapacity, 1f);
@@ -185,7 +186,7 @@ public class ProductionBuilding extends EnterableBuilding {
         }
     }
 
-    private void instantiateIndicator() {
+    protected void instantiateIndicator() {
         indicator = new UIElement(
                 Textures.get(Textures.Ui.FULL_STORAGE),
                 UI.Layer.BUILDINGS,
@@ -195,16 +196,18 @@ public class ProductionBuilding extends EnterableBuilding {
         indicator.addToUI();
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
         oos.writeUTF(type.name());
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());
         texture = type.getTexture();
-        job = type.getJob();
+        job = type.job;
         instantiateIndicator();
     }
 }

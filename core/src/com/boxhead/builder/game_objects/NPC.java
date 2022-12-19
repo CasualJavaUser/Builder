@@ -1,8 +1,6 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
@@ -12,10 +10,7 @@ import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Pathfinding;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,13 +41,16 @@ public class NPC extends GameObject implements Clickable {
 
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
 
+    private transient Textures.Npc textureType;
+
     public enum Stats {
         AGE,
         HEALTH
     }
 
-    public NPC(TextureRegion texture, Vector2i position) {
-        super(texture, position);
+    public NPC(Textures.Npc texture, Vector2i position) {
+        super(Textures.get(texture), position);
+        textureType = texture;
         prevPosition = position;
         spritePosition = position.toVector2();
         name = NAMES[(int) (Math.random() * NAMES.length)];
@@ -468,21 +466,16 @@ public class NPC extends GameObject implements Clickable {
         return !orderList.isEmpty();
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
-        oos.writeFloat(texture.getU());
-        oos.writeFloat(texture.getV());
-        oos.writeFloat(texture.getU2());
-        oos.writeFloat(texture.getV2());
+        oos.writeUTF(textureType.name());
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        texture = new TextureRegion(  //TODO get texture from Textures class
-                new Texture("npcs.png"),
-                ois.readFloat(),
-                ois.readFloat(),
-                ois.readFloat(),
-                ois.readFloat());
+        textureType = Textures.Npc.valueOf(ois.readUTF());
+        texture = Textures.get(textureType);
     }
 }

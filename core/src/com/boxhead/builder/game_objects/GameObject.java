@@ -7,10 +7,13 @@ import com.boxhead.builder.WorldObject;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public abstract class GameObject implements WorldObject, Serializable {
+    @Serial
     private static final long serialVersionUID = 3L;
+
     protected final Vector2i gridPosition;
     protected transient TextureRegion texture;
 
@@ -35,10 +38,6 @@ public abstract class GameObject implements WorldObject, Serializable {
 
     public TextureRegion getTexture() {
         return texture;
-    }
-
-    public void setTexture(TextureRegion texture) {
-        this.texture = texture;
     }
 
     public void draw(SpriteBatch batch) {

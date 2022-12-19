@@ -46,16 +46,6 @@ public class ScrollPane extends UIElement {
             scrollable = true;
     }
 
-    /*public void removeElementFromUI(UIElement element) {
-        element.removeScissors();
-        element.getLayer().removeElement(element);
-        elements.remove(element);
-        if (element.getTexture() != null)
-            nextPos.set(nextPos.x, nextPos.y + element.getTexture().getRegionHeight() + padding);
-        if(element == firstElement) firstElement = null;
-        if(element == lastElement) lastElement = null;
-    }*/
-
     public void clear() {
         for (UIElement element : elements) {
             element.removeScissors();
@@ -77,7 +67,7 @@ public class ScrollPane extends UIElement {
 
     public void scroll() {
         if(!elements.isEmpty() && scrollable) {
-            int scroll = (int) (InputManager.getScroll() * 3);
+            int scroll = (int) (InputManager.getScroll() * 10);
             if (scroll != 0) {
                 int delta1 = (getGlobalPosition().y + height - firstElement.getHeight()) - firstElement.getGlobalPosition().y;
                 int delta2 = getGlobalPosition().y - lastElement.getGlobalPosition().y;

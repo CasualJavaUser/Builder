@@ -7,6 +7,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,11 +86,13 @@ public class ConstructionSite extends Building implements FieldWork {
         }
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
         oos.writeUTF(type.name());
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         Buildings.Type type = Buildings.Type.valueOf(ois.readUTF());

@@ -21,7 +21,7 @@ public class Buildings {
     public enum Type {
         DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS, Jobs.LUMBERJACK, new Vector2i(0, -1), "lumber mill"),
         DEFAULT_RESIDENTIAL_BUILDING(Textures.Building.HOUSE_FUNGUS, new Vector2i(0, -1), "house"),
-        DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS, Jobs.DOCTOR, new Vector2i(0, -1), "hospital"),
+        DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS, Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), "hospital"),
         DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS, new Vector2i(1, -1), "storage"),
         BIG(Textures.Building.FUNGI),
         CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1)),
@@ -29,33 +29,45 @@ public class Buildings {
 
         public final Textures.Building texture;
         public final Job job;
+        public final Service service;
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
 
         public String name;
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, String name) {
+        Type(Textures.Building texture, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider, String name) {
             this.texture = texture;
             this.job = job;
+            this.service = service;
             this.entrancePosition = entrancePosition;
             this.relativeCollider = relativeCollider;
             this.name = name;
         }
 
+        Type(Textures.Building texture, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, String name) {
+            this(texture, job, null, entrancePosition, relativeCollider, name);
+        }
+
+        Type(Textures.Building texture, Job job, Service service, Vector2i entrancePosition, String name) {
+            this(texture,
+                    job,
+                    service,
+                    entrancePosition,
+                    new BoxCollider(
+                            Vector2i.zero(),
+                            Textures.get(texture).getRegionWidth() / World.TILE_SIZE,
+                            Textures.get(texture).getRegionHeight() / World.TILE_SIZE),
+                    name);
+
+        }
+
         Type(Textures.Building texture, Job job, Vector2i entrancePosition, String name) {
-            this.texture = texture;
-            this.job = job;
-            this.entrancePosition = entrancePosition;
-            this.name = name;
-            TextureRegion tex = Textures.get(texture);
-            this.relativeCollider = new BoxCollider(Vector2i.zero(),
-                    tex.getRegionWidth() / World.TILE_SIZE,
-                    tex.getRegionHeight() / World.TILE_SIZE);
+            this(texture, job, null, entrancePosition, name);
         }
 
         Type(Textures.Building texture, Job job, Vector2i entrancePosition) {
             this(texture, job, entrancePosition, null);
-            name = defaultName(this);
+            name = defaultName();
         }
 
         Type(Textures.Building texture, Vector2i entrancePosition, String name) {
@@ -68,23 +80,11 @@ public class Buildings {
 
         Type(Textures.Building texture) {
             this(texture, null);
-            name = defaultName(this);
-        }
-
-        public BoxCollider getRelativeCollider() {
-            return relativeCollider;
+            name = defaultName();
         }
 
         public TextureRegion getTexture() {
             return Textures.get(texture);
-        }
-
-        public Job getJob() {
-            return job;
-        }
-
-        public Vector2i getEntrancePosition() {
-            return entrancePosition;
         }
 
         public TextureRegion getConstructionSite() {
@@ -93,6 +93,10 @@ public class Buildings {
             } catch (IllegalArgumentException e) {
                 return getTexture();
             }
+        }
+
+        private String defaultName() {
+            return name().toLowerCase().replace('_', ' ');
         }
     }
 
@@ -103,7 +107,7 @@ public class Buildings {
             case DEFAULT_RESIDENTIAL_BUILDING:
                 return new ResidentialBuilding(building, gridPosition, 5);
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding(building, gridPosition, Service.HEAL, 5, 10, 100, 100);
+                return new ServiceBuilding(building, gridPosition, 5, 10, 100, 100);
             case DEFAULT_STORAGE_BUILDING:
                 return new StorageBuilding(building, gridPosition);
             case BIG:
@@ -133,7 +137,7 @@ public class Buildings {
         posX = rangeX.fit(posX);
         posY = rangeY.fit(posY);
 
-        if (currentBuilding.getJob() != null && currentBuilding.getJob().getRange() > 0) {
+        if (currentBuilding.job != null && currentBuilding.job.getRange() > 0) {
             showBuildingRange(batch,
                     posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
                     posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
@@ -195,8 +199,8 @@ public class Buildings {
 
     private static boolean checkAndShowTileAvailability(SpriteBatch batch, int posX, int posY) {
         boolean isBuildable = true;
-        for (int y = 0; y < currentBuilding.getRelativeCollider().getHeight(); y++) {
-            for (int x = 0; x < currentBuilding.getRelativeCollider().getWidth(); x++) {
+        for (int y = 0; y < currentBuilding.relativeCollider.getHeight(); y++) {
+            for (int x = 0; x < currentBuilding.relativeCollider.getWidth(); x++) {
                 if(World.isBuildable(new Vector2i(posX/World.TILE_SIZE + x, posY/World.TILE_SIZE + y)))
                     batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
                 else {
@@ -206,9 +210,9 @@ public class Buildings {
                 batch.draw(Textures.get(Textures.Tile.DEFAULT), posX + x * World.TILE_SIZE, posY + y * World.TILE_SIZE);
             }
         }
-        if(currentBuilding.getEntrancePosition() != null) {
-            Vector2i entrancePos = new Vector2i(posX/World.TILE_SIZE + currentBuilding.getEntrancePosition().x,
-                                                posY/World.TILE_SIZE + currentBuilding.getEntrancePosition().y);
+        if(currentBuilding.entrancePosition != null) {
+            Vector2i entrancePos = new Vector2i(posX/World.TILE_SIZE + currentBuilding.entrancePosition.x,
+                                                posY/World.TILE_SIZE + currentBuilding.entrancePosition.y);
             if(rangeX.contains(entrancePos.x * World.TILE_SIZE) && rangeY.contains(entrancePos.y * World.TILE_SIZE) && World.isBuildable(entrancePos))
                 batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
             else {
@@ -217,8 +221,8 @@ public class Buildings {
             }
 
             batch.draw(Textures.get(Textures.Tile.DEFAULT),
-                    posX + currentBuilding.getEntrancePosition().x * World.TILE_SIZE,
-                    posY + currentBuilding.getEntrancePosition().y * World.TILE_SIZE);
+                    posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
+                    posY + currentBuilding.entrancePosition.y * World.TILE_SIZE);
         }
         return isBuildable;
     }
@@ -232,9 +236,5 @@ public class Buildings {
                 posY,
                 range * World.TILE_SIZE);
         batch.setColor(UI.DEFAULT_COLOR);
-    }
-
-    private static String defaultName(Type type) {
-        return type.toString().toLowerCase().replace('_', ' ');
     }
 }

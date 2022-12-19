@@ -3,19 +3,23 @@ package com.boxhead.builder.game_objects;
 import com.boxhead.builder.Service;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ServiceBuilding extends ProductionBuilding {
 
-    private final Service service;
+    private transient Service service;
     private final int guestCapacity;
     private final Set<NPC> guests;
     private int serviceCounter, serviceInterval;
 
-    public ServiceBuilding(Buildings.Type type, Vector2i gridPosition, Service service, int employeeCapacity, int guestCapacity, int productionInterval, int serviceInterval) {
+    public ServiceBuilding(Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int guestCapacity, int productionInterval, int serviceInterval) {
         super(type, gridPosition, employeeCapacity, productionInterval);
-        this.service = service;
+        this.service = type.service;
         this.guestCapacity = guestCapacity;
         this.serviceInterval = serviceInterval;
         guests = new HashSet<>(guestCapacity, 1f);
@@ -69,5 +73,21 @@ public class ServiceBuilding extends ProductionBuilding {
 
     public int getGuestsInside() {
         return guests.size();
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeUTF(type.name());
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        type = Buildings.Type.valueOf(ois.readUTF());
+        texture = type.getTexture();
+        job = type.job;
+        service = type.service;
+        instantiateIndicator();
     }
 }

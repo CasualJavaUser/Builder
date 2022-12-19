@@ -2,9 +2,11 @@ package com.boxhead.builder.utils;
 
 import com.badlogic.gdx.math.Vector2;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Vector2i implements Cloneable, Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     public int x;
     public int y;

@@ -11,6 +11,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 
 public class Building extends GameObject implements Clickable {
     protected transient Buildings.Type type;
@@ -25,7 +26,7 @@ public class Building extends GameObject implements Clickable {
     public Building (Buildings.Type type, TextureRegion texture, Vector2i gridPosition) {
         super(texture, gridPosition);
         this.type = type;
-        collider = type.getRelativeCollider().cloneAndTranslate(gridPosition);
+        collider = type.relativeCollider.cloneAndTranslate(gridPosition);
     }
 
     public String getName() {
@@ -97,11 +98,13 @@ public class Building extends GameObject implements Clickable {
         UI.showBuildingStatWindow(this);
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
         oos.writeUTF(type.name());
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());

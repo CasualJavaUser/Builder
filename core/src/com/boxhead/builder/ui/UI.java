@@ -147,7 +147,7 @@ public class UI {
         npcButton = new Button(Textures.get(Textures.Ui.NPC), mainButtonGroup, Layer.IN_GAME, new Vector2i(84, 0),
                 () -> {
                     Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
-                    World.spawnNPC(new NPC(Textures.get(Textures.Npc.FUNGUY), position));
+                    World.spawnNPC(new NPC(Textures.Npc.FUNGUY, position));
                 });
 
         workButton = new Button(Textures.get(Textures.Ui.WORK), mainButtonGroup, Layer.IN_GAME, new Vector2i(158, 0),

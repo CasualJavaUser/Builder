@@ -11,7 +11,7 @@ public class EnterableBuilding extends Building {
 
     protected EnterableBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        entrancePosition = type.getEntrancePosition();
+        entrancePosition = type.entrancePosition;
     }
 
     public Vector2i getEntrancePosition() {

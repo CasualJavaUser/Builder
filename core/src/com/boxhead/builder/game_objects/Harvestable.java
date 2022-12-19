@@ -1,9 +1,8 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
@@ -11,6 +10,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 
 public class Harvestable extends GameObject implements FieldWork {
     private final Characteristic characteristic;
@@ -20,18 +20,21 @@ public class Harvestable extends GameObject implements FieldWork {
     private NPC assigned;
     private boolean worked;
     private final BoxCollider collider;
+    private transient Textures.Environment textureType;
 
-    public Harvestable(TextureRegion texture, Vector2i gridPosition, Characteristic characteristic, int size) {
-        super(texture, gridPosition);
+    public Harvestable(Textures.Environment texture, Vector2i gridPosition, Characteristic characteristic, int size) {
+        super(Textures.get(texture), gridPosition);
+        textureType = texture;
         this.characteristic = characteristic;
         amountLeft = size;
         if (characteristic != Characteristic.TREE) collider = getDefaultCollider();
         else
-            collider = new BoxCollider(new Vector2i(gridPosition.x + texture.getRegionWidth() / World.TILE_SIZE / 2, gridPosition.y), 1, 1);
+            collider = new BoxCollider(new Vector2i(gridPosition.x + getTexture().getRegionWidth() / World.TILE_SIZE / 2, gridPosition.y), 1, 1);
     }
 
-    public Harvestable(TextureRegion texture, Vector2i gridPosition, BoxCollider collider, Characteristic characteristic, int size) {
-        super(texture, gridPosition);
+    public Harvestable(Textures.Environment texture, Vector2i gridPosition, BoxCollider collider, Characteristic characteristic, int size) {
+        super(Textures.get(texture), gridPosition);
+        textureType = texture;
         this.collider = collider;
         this.characteristic = characteristic;
         amountLeft = size;
@@ -123,21 +126,16 @@ public class Harvestable extends GameObject implements FieldWork {
         return characteristic.toString() + " " + gridPosition.toString();
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
-        oos.writeFloat(texture.getU());
-        oos.writeFloat(texture.getV());
-        oos.writeFloat(texture.getU2());
-        oos.writeFloat(texture.getV2());
+        oos.writeUTF(textureType.name());
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        texture = new TextureRegion(  //TODO get texture from Textures class
-                new Texture("environment.png"),
-                ois.readFloat(),
-                ois.readFloat(),
-                ois.readFloat(),
-                ois.readFloat());
+        textureType = Textures.Environment.valueOf(ois.readUTF());
+        texture = Textures.get(textureType);
     }
 }

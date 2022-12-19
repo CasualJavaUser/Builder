@@ -1,23 +1,22 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Vector2i;
 
 public class Harvestables {
 
     public enum Type {
-        BIG_TREE(Textures.get(Textures.Environment.BIG_TREE)),
-        STONE(Textures.get(Textures.Environment.STONE1), Textures.get(Textures.Environment.STONE2)),
-        IRON_ORE(Textures.get(Textures.Environment.SMALL_TREE));
+        BIG_TREE(Textures.Environment.BIG_TREE),
+        STONE(Textures.Environment.STONE1, Textures.Environment.STONE2),
+        IRON_ORE(Textures.Environment.SMALL_TREE);
 
-        private final TextureRegion[] textures;
+        private final Textures.Environment[] textures;
 
-        Type(TextureRegion... textures) {
+        Type(Textures.Environment... textures) {
             this.textures = textures;
         }
 
-        public TextureRegion[] getTextures() {
+        public Textures.Environment[] getTextures() {
             return textures;
         }
     }
