@@ -13,27 +13,22 @@ public class DraggableWindow extends Window implements Clickable {
     protected Button closeButton;
     private final Vector2i prevMousePos = new Vector2i();
 
-    public DraggableWindow(TextureRegion texture, boolean isVisible) {
-        this(texture, null, new Vector2i(), isVisible);
+    public DraggableWindow(TextureRegion texture, UI.Layer layer, boolean isVisible) {
+        this(texture, null, layer, new Vector2i(), isVisible);
     }
 
-    public DraggableWindow(TextureRegion texture, UIElement parent, Vector2i position) {
-        this(texture, parent, position, true);
+    public DraggableWindow(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
+        this(texture, parent, layer, position, true);
     }
 
-    public DraggableWindow(TextureRegion texture, UIElement parent, Vector2i position, boolean isVisible) {
-        super(texture, parent, position, isVisible);
-        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), this, new Vector2i(), () -> this.setVisible(false), true);
+    public DraggableWindow(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean isVisible) {
+        super(texture, parent, layer, position, isVisible);
+        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), this, layer, new Vector2i(), () -> this.setVisible(false), true);
     }
 
     @Override
-    public Clickable onClick() {
-        if (closeButton.isMouseOver()) {
-            closeButton.onClick();
-            return closeButton;
-        }
+    public void onClick() {
         prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
-        return this;
     }
 
     @Override
@@ -69,7 +64,6 @@ public class DraggableWindow extends Window implements Clickable {
         int closeButtonY = getWindowHeight() - closeButton.getTexture().getRegionHeight();
         closeButton.setLocalPosition(closeButtonX, closeButtonY);
         super.draw(batch);
-        closeButton.draw(batch);
     }
 
     @Override
@@ -83,5 +77,11 @@ public class DraggableWindow extends Window implements Clickable {
         int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
         return x >= getGlobalPosition().x && x < (getGlobalPosition().x + getWindowWidth()) &&
                 y >= getGlobalPosition().y && y < (getGlobalPosition().y + getWindowHeight());
+    }
+
+    @Override
+    public void addToUI() {
+        super.addToUI();
+        closeButton.addToUI();
     }
 }

@@ -93,9 +93,8 @@ public class Building extends GameObject implements Clickable {
     }
 
     @Override
-    public Clickable onClick() {
+    public void onClick() {
         UI.showBuildingStatWindow(this);
-        return this;
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {

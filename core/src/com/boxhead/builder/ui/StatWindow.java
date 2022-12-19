@@ -15,8 +15,8 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected static final int verticalPadding = 6, leftPadding = 10, rightPadding = 25;
     protected String stats = "";
 
-    public StatWindow() {
-        super(Textures.get(Textures.Ui.WINDOW), false);
+    public StatWindow(UI.Layer layer) {
+        super(Textures.get(Textures.Ui.WINDOW), layer, false);
     }
 
     public void show(T gameObject) {

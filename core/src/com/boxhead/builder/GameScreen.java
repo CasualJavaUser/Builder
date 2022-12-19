@@ -72,6 +72,14 @@ public class GameScreen implements Screen {
         return camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     }
 
+    public static Vector3 worldToScreenPosition(Vector2i position) {
+        return camera.project(new Vector3(position.x, position.y, 0));
+    }
+
+    public static Vector3 worldToScreenPosition(float x, float y) {
+        return camera.project(new Vector3(x, y, 0));
+    }
+
     @Override
     public void resize(int width, int height) {
         viewport.setWorldSize(width, height);

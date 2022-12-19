@@ -10,6 +10,10 @@ public class NPCStatWindow extends StatWindow<NPC> {
     private int[] npcStatList = null;
     private final int IMAGE_SCALE = 4;
 
+    public NPCStatWindow(UI.Layer layer) {
+        super(layer);
+    }
+
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);

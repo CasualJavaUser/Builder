@@ -8,12 +8,12 @@ public class Window extends UIElement {
     private int contentWidth = 0, contentHeight = 0;
     private int windowWidth, windowHeight;
 
-    public Window(TextureRegion texture, UIElement parent, Vector2i position) {
-        this(texture, parent, position, true);
+    public Window(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
+        this(texture, parent, layer, position, true);
     }
 
-    public Window(TextureRegion texture, UIElement parent, Vector2i position, boolean visible) {
-        super(texture, parent, position, visible);
+    public Window(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean visible) {
+        super(texture, parent, layer, position, visible);
     }
 
     @Override

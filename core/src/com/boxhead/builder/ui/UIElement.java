@@ -1,8 +1,12 @@
 package com.boxhead.builder.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
@@ -12,26 +16,34 @@ public class UIElement {
     protected float rotation;
     protected boolean isVisible;
     protected Color tint;
+    protected UI.Layer layer;
+    //private int scissorX, scissorY, scissorWidth, scissorHeight;
+    private Rectangle scissors = null;
 
-    public UIElement(TextureRegion texture, Vector2i position) {
-        this(texture, null, position, 0, false);
+    public UIElement() {
+        this(null, null, null, new Vector2i(), 0, true);
     }
 
-    public UIElement(TextureRegion texture, Vector2i position, boolean visible) {
-        this(texture, null, position, 0, visible);
+    public UIElement(UIElement parent, UI.Layer layer, Vector2i position, boolean visible) {
+        this(null, parent, layer, position, 0, visible);
     }
 
-    public UIElement(TextureRegion texture, UIElement parent, Vector2i position) {
-        this(texture, parent, position, 0, true);
+    public UIElement(TextureRegion texture, UI.Layer layer, Vector2i position, boolean visible) {
+        this(texture, null, layer, position, 0, visible);
     }
 
-    public UIElement(TextureRegion texture, UIElement parent, Vector2i position, boolean visible) {
-        this(texture, parent, position, 0, visible);
+    public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
+        this(texture, parent, layer, position, 0, true);
     }
 
-    public UIElement(TextureRegion texture, UIElement parent, Vector2i position, float rotation, boolean visible) {
+    public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean visible) {
+        this(texture, parent, layer, position, 0, visible);
+    }
+
+    public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, float rotation, boolean visible) {
         this.texture = texture;
         this.parent = parent;
+        this.layer = layer;
         this.position = position;
         this.rotation = rotation;
         isVisible = visible;
@@ -42,8 +54,22 @@ public class UIElement {
         return texture;
     }
 
+    public int getWidth() {
+        if (texture != null) return texture.getRegionWidth();
+        return 0;
+    }
+
+    public int getHeight() {
+        if (texture != null) return texture.getRegionHeight();
+        return 0;
+    }
+
     public void setTexture(TextureRegion texture) {
         this.texture = texture;
+    }
+
+    public void setParent(UIElement parent) {
+        this.parent = parent;
     }
 
     public Vector2i getLocalPosition() {
@@ -75,7 +101,7 @@ public class UIElement {
 
     public boolean isVisible() {
         if(parent == null) return isVisible;
-        else return isVisible && parent.isVisible();
+        else return isVisible && parent.isVisible() && layer.isVisible();
     }
 
     public void setVisible(boolean visible) {
@@ -106,6 +132,49 @@ public class UIElement {
 
     public UIElement getParent() {
         return parent;
+    }
+
+    public UI.Layer getLayer() {
+        return layer;
+    }
+
+    public void addToUI() {
+        if (!layer.getElements().contains(this)) layer.addElement(this);
+    }
+
+    public void setScissors(int x, int y, int width, int height) {
+        scissors = new Rectangle(x, y, width, height);
+    }
+
+    public void setScissors(Rectangle rectangle) {
+        scissors = rectangle;
+    }
+
+    public void removeScissors() {
+        scissors = null;
+    }
+
+    protected void enableScissors(SpriteBatch batch) {
+        batch.flush();
+        if(scissors != null) {
+            Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+            Gdx.gl.glScissor(
+                    (int)(scissors.getX() * 2),
+                    (int)(scissors.getY() * 2),
+                    (int)(scissors.getWidth() * 2),
+                    (int)(scissors.getHeight() * 2));
+        }
+    }
+
+    protected void disableScissors(SpriteBatch batch) {
+        if(scissors != null) {
+            batch.flush();
+            Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        }
+    }
+
+    public Rectangle getScissors() {
+        return scissors;
     }
 
     public void draw(SpriteBatch batch) {

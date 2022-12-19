@@ -15,24 +15,24 @@ public class Button extends UIElement implements Clickable {
     private String text;
     private Color defaultTint;
 
-    public Button(TextureRegion texture, Vector2i position, Action action, boolean onDown) {
-        this(texture, null, position, null, action, onDown);
+    public Button(TextureRegion texture, UI.Layer layer, Vector2i position, Action action, boolean onDown) {
+        this(texture, null, layer, position, null, action, onDown);
     }
 
-    public Button(TextureRegion texture, UIElement parent, Vector2i position, Action action) {
-        this(texture, parent, position, null, action, false);
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, Action action) {
+        this(texture, parent, layer, position, null, action, false);
     }
 
-    public Button(TextureRegion texture, UIElement parent, Vector2i position, String text, Action action) {
-        this(texture, parent, position, text, action, false);
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text, Action action) {
+        this(texture, parent, layer, position, text, action, false);
     }
 
-    public Button(TextureRegion texture, UIElement parent, Vector2i position, Action action, boolean onDown) {
-        this(texture, parent, position, null, action, onDown);
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, Action action, boolean onDown) {
+        this(texture, parent, layer, position, null, action, onDown);
     }
 
-    public Button(TextureRegion texture, UIElement parent, Vector2i position, String text, Action action, boolean onDown) {
-        super(texture, parent, position);
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text, Action action, boolean onDown) {
+        super(texture, parent, layer, position);
         if(onDown) onClick = action;
         else onUp = action;
         this.text = text;
@@ -55,9 +55,8 @@ public class Button extends UIElement implements Clickable {
     }
 
     @Override
-    public Clickable onClick() {
+    public void onClick() {
         onClick.execute();
-        return this;
     }
 
     @Override
@@ -76,14 +75,18 @@ public class Button extends UIElement implements Clickable {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
         batch.setColor(tint);
-        if(text != null) UI.FONT.draw(
-                batch,
-                text,
-                getGlobalPosition().x,
-                getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT_SIZE/2),
-                texture.getRegionWidth(),
-                1,
-                false);
+        if(text != null) {
+            UI.FONT.setColor(tint);
+            UI.FONT.draw(
+                    batch,
+                    text,
+                    getGlobalPosition().x,
+                    getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT_SIZE/2),
+                    texture.getRegionWidth(),
+                    1,
+                    false);
+            UI.FONT.setColor(UI.DEFAULT_COLOR);
+        }
         batch.setColor(UI.DEFAULT_COLOR);
     }
 }

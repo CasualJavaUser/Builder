@@ -16,8 +16,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
     private int guestsInside, guestCapacity;
     String warning = "";
 
-    public BuildingStatWindow() {
-        super();
+    public BuildingStatWindow(UI.Layer layer) {
+        super(layer);
     }
 
     @Override

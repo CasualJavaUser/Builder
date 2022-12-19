@@ -1,6 +1,5 @@
 package com.boxhead.builder.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Resource;
@@ -11,20 +10,17 @@ import com.boxhead.builder.utils.Vector2i;
 public class ResourceList extends UIElement {
     Label[] labels = new Label[Resource.values().length];
 
-    public ResourceList() {
-        super(null, new Vector2i(20, Gdx.graphics.getHeight() - 20), true);
+    public ResourceList(UIElement parent, UI.Layer layer, Vector2i position) {
+        super(null, parent, layer, position, true);
         for (int i = 0; i < labels.length; i++) {
             TextureRegion texture = getResourcesTexture(Resource.values()[i]);
-            labels[i] = new Label(texture, this, Vector2i.zero());
+            labels[i] = new Label(texture, this, layer, Vector2i.zero());
         }
     }
 
     @Override
     public void draw(SpriteBatch batch) {
         updateData();
-        for (Label label : labels) {
-            if (label.isVisible()) label.draw(batch);
-        }
     }
 
     private void updateData() {
@@ -46,5 +42,13 @@ public class ResourceList extends UIElement {
     private TextureRegion getResourcesTexture(Resource resource) {
         String resourceName = resource.toString().toUpperCase();
         return Textures.get(Textures.Resource.valueOf(resourceName));
+    }
+
+    @Override
+    public void addToUI() {
+        super.addToUI();
+        for (Label label : labels) {
+            label.addToUI();
+        }
     }
 }

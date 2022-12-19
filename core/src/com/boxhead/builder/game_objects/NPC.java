@@ -198,9 +198,8 @@ public class NPC extends GameObject implements Clickable {
     }
 
     @Override
-    public Clickable onClick() {
+    public void onClick() {
         UI.showNPCStatWindow(this);
-        return this;
     }
 
     public static abstract class Order implements Serializable {

@@ -1,8 +1,8 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
-import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.ui.UIElement;
@@ -38,7 +38,7 @@ public class ProductionBuilding extends EnterableBuilding {
         } else {
             assignedFieldWork = null;
         }
-        indicator = newIndicator();
+        instantiateIndicator();
     }
 
     /**
@@ -147,10 +147,9 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     @Override
-    public Clickable onClick() {
+    public void onClick() {
         super.onClick();
         showRange = true;
-        return this;
     }
 
     @Override
@@ -177,13 +176,23 @@ public class ProductionBuilding extends EnterableBuilding {
             indicator.setVisible(false);
         }
         if (indicator.isVisible()) {
-            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
-                    gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
+            Vector3 screenPos = GameScreen.worldToScreenPosition(
+                    gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth()/2f - indicator.getWidth()/2f * GameScreen.camera.zoom,
+                    gridPosition.y * World.TILE_SIZE + getTexture().getRegionHeight() + 5);
+            indicator.setGlobalPosition((int)screenPos.x, (int)screenPos.y);
+//            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
+//                    gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
         }
     }
 
-    private UIElement newIndicator() {
-        return new UIElement(null, new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10));
+    private void instantiateIndicator() {
+        indicator = new UIElement(
+                Textures.get(Textures.Ui.FULL_STORAGE),
+                UI.Layer.BUILDINGS,
+                //new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10),
+                new Vector2i(),
+                false);
+        indicator.addToUI();
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
@@ -196,6 +205,6 @@ public class ProductionBuilding extends EnterableBuilding {
         type = Buildings.Type.valueOf(ois.readUTF());
         texture = type.getTexture();
         job = type.getJob();
-        indicator = newIndicator();
+        instantiateIndicator();
     }
 }
