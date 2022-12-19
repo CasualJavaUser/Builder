@@ -11,7 +11,6 @@ public class Button extends UIElement implements Clickable {
 
     private Action onClick = () -> {};
     private Action onUp = () -> {};
-    private boolean isPrevHeld = false;
     private String text;
     private Color defaultTint;
 

@@ -1,11 +1,9 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.boxhead.builder.InputManager;
 import com.boxhead.builder.utils.Action;
 import com.boxhead.builder.utils.Vector2i;
@@ -36,10 +34,10 @@ public class TextField extends UIElement implements Clickable {
 
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor(
-                getGlobalPosition().x * 2 + padding*2,
-                getGlobalPosition().y * 2,
-                texture.getRegionWidth()*2 - padding*4,
-                texture.getRegionHeight()*2);
+                getGlobalPosition().x + padding,
+                getGlobalPosition().y,
+                texture.getRegionWidth() - padding * 2,
+                texture.getRegionHeight());
 
         UI.FONT.draw(
                 batch,

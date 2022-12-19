@@ -17,7 +17,6 @@ public class UIElement {
     protected boolean isVisible;
     protected Color tint;
     protected UI.Layer layer;
-    //private int scissorX, scissorY, scissorWidth, scissorHeight;
     private Rectangle scissors = null;
 
     public UIElement() {
@@ -155,14 +154,14 @@ public class UIElement {
     }
 
     protected void enableScissors(SpriteBatch batch) {
-        batch.flush();
         if(scissors != null) {
+            batch.flush();
             Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
             Gdx.gl.glScissor(
-                    (int)(scissors.getX() * 2),
-                    (int)(scissors.getY() * 2),
-                    (int)(scissors.getWidth() * 2),
-                    (int)(scissors.getHeight() * 2));
+                    (int)scissors.getX(),
+                    (int)scissors.getY(),
+                    (int)scissors.getWidth(),
+                    (int)scissors.getHeight());
         }
     }
 
