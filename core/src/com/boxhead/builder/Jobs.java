@@ -23,7 +23,7 @@ public class Jobs {
         public void assign(NPC assignee, ProductionBuilding workplace) {
             FieldWork fieldWork = Logistics.assignedFieldWork(workplace);
 
-            if (fieldWork == null || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
+            if (fieldWork == null || !fieldWork.isFree() || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
                 return;
 
             if (workplace.reserveSpace(NPC.INVENTORY_SIZE)) {
