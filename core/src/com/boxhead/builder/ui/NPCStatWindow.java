@@ -50,6 +50,6 @@ public class NPCStatWindow extends StatWindow<NPC> {
     @Override
     protected void updateWindowSize() {
         super.updateWindowSize();
-        setHeight(getContentHeight() + verticalPadding + pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE + 20);
+        setContentHeight(getContentHeight() + verticalPadding + pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE + 20);
     }
 }

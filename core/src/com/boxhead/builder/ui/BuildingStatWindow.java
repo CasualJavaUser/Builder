@@ -25,9 +25,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
         super.draw(batch);
 
         UI.FONT.setColor(Color.RED);
-        UI.FONT.draw(batch, warning, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getContentHeight());
+        UI.FONT.draw(batch, warning, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getWindowHeight() - verticalPadding);
         UI.FONT.setColor(Color.WHITE);
-        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getContentHeight() - (warning.equals("") ? 0 : 20));
+        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getWindowHeight() - verticalPadding - (warning.equals("") ? 0 : UI.FONT_SIZE + verticalPadding));
 
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
             drawNPCCounter(batch);
@@ -36,23 +36,22 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
     @Override
     protected void updateStats() {
-        stats = pinnedObject.getName() + "\n";
-        if(pinnedObject instanceof ResidentialBuilding) {
-            npcCapacity = ((ResidentialBuilding) pinnedObject).getResidentCapacity();
-            npcs = ((ResidentialBuilding) pinnedObject).getResidents();
+        stats = pinnedObject.getName();
+        if(pinnedObject instanceof ResidentialBuilding building) {
+            npcCapacity = building.getResidentCapacity();
+            npcs = building.getResidents();
         }
 
-        if(pinnedObject instanceof ProductionBuilding) {
-            ProductionBuilding building = (ProductionBuilding) pinnedObject;
+        if(pinnedObject instanceof ProductionBuilding building) {
             npcCapacity = building.getEmployeeCapacity();
             npcs = building.getEmployees();
-            job = ((ProductionBuilding) pinnedObject).getJob();
+            job = building.getJob();
 
-            if(pinnedObject.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
-            else if(pinnedObject.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
+            if(building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
+            else if(building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
             else warning = "";
 
-            stats += "job quality: " + ((ProductionBuilding) pinnedObject).getJobQuality();
+            stats += "\njob quality: " + building.getJobQuality();
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : job.getRecipe().changedResources()) {
                 stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
@@ -60,12 +59,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }
         }
 
-        if (pinnedObject instanceof StorageBuilding) {
-            stats += "\n" + pinnedObject.getInventory().getDisplayedAmount() + " / " + pinnedObject.getInventory().getMaxCapacity();
-            for (Resource resource : pinnedObject.getInventory().getStoredResources()) {
+        if (pinnedObject instanceof StorageBuilding building) {
+            stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
+            for (Resource resource : building.getInventory().getStoredResources()) {
                 if (resource != Resource.NOTHING) {
                     stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
-                            pinnedObject.getInventory().getResourceAmount(resource));
+                            building.getInventory().getResourceAmount(resource));
                 }
             }
         }
@@ -75,14 +74,15 @@ public class BuildingStatWindow extends StatWindow<Building> {
     protected void updateWindowSize() {
         super.updateWindowSize();
         if(!warning.equals("")) {
-            setHeight(getContentHeight() + 20);
-            setWidth(warning.length() * 7 + leftPadding + rightPadding);
+            setContentHeight(getContentHeight() + 20);
+            setContentWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
-            setHeight(getContentHeight() + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() + 20);
-            int counterWidth = leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * npcCapacity;
+            int npcSize = Textures.get(Textures.Npc.FUNGUY).getRegionHeight();
+            setContentHeight(getContentHeight() + npcSize + verticalPadding);
+            int counterWidth = leftPadding + (npcSize + leftPadding) * npcCapacity;
             if(getContentWidth() < counterWidth)
-                setWidth(counterWidth);
+                setContentWidth(counterWidth);
         }
     }
 
@@ -100,17 +100,18 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
     private void drawNPCCounter(SpriteBatch batch) {
         int i = 0;
+        int npcSize = Textures.get(Textures.Npc.FUNGUY).getRegionHeight();
         for (NPC npc : npcs) {
             if (npc.getCurrentBuilding() == pinnedObject)
                 batch.draw(npc.getTexture(),
-                        getGlobalPosition().x + leftPadding + (npc.getTexture().getRegionWidth() + leftPadding) * i++,
-                        getGlobalPosition().y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
+                        getGlobalPosition().x + leftPadding + (npcSize + leftPadding) * i++,
+                        getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(Color.BLACK);
         while (i < npcCapacity) {
             batch.draw(Textures.get(Textures.Npc.FUNGUY),
-                    getGlobalPosition().x + leftPadding + (Textures.get(Textures.Npc.FUNGUY).getRegionWidth() + leftPadding) * i++,
-                    getGlobalPosition().y + Textures.get(Textures.Npc.FUNGUY).getRegionHeight() - verticalPadding);
+                    getGlobalPosition().x + leftPadding + (npcSize + leftPadding) * i++,
+                    getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(UI.DEFAULT_COLOR);
     }

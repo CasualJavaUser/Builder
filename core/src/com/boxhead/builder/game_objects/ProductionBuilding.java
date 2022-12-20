@@ -163,27 +163,9 @@ public class ProductionBuilding extends EnterableBuilding {
                 job.getRange() * World.TILE_SIZE);
         batch.setColor(UI.DEFAULT_COLOR);
 
-        super.draw(batch);
+        updateIndicator();
 
-        if (inventory.checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) {
-            indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
-            indicator.setVisible(true);
-        }
-        else if (inventory.checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) {
-            indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
-            indicator.setVisible(true);
-        }
-        else {
-            indicator.setVisible(false);
-        }
-        if (indicator.isVisible()) {
-            Vector3 screenPos = GameScreen.worldToScreenPosition(
-                    gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth()/2f - indicator.getWidth()/2f * GameScreen.camera.zoom,
-                    gridPosition.y * World.TILE_SIZE + getTexture().getRegionHeight() + 5);
-            indicator.setGlobalPosition((int)screenPos.x, (int)screenPos.y);
-//            batch.draw(indicator.getTexture(), gridPosition.x * World.TILE_SIZE + indicator.getLocalPosition().x,
-//                    gridPosition.y * World.TILE_SIZE + indicator.getLocalPosition().y);
-        }
+        super.draw(batch);
     }
 
     protected void instantiateIndicator() {
@@ -194,6 +176,22 @@ public class ProductionBuilding extends EnterableBuilding {
                 new Vector2i(),
                 false);
         indicator.addToUI();
+    }
+
+    private void updateIndicator() {
+        switch (inventory.checkStorageAvailability(job.getRecipe())) {
+            case AVAILABLE: indicator.setVisible(false); break;
+            case OUTPUT_FULL: indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
+            case LACKS_INPUT: indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
+            default: indicator.setVisible(true);
+        }
+
+        if (indicator.isVisible()) {
+            Vector3 screenPos = GameScreen.worldToScreenPosition(
+                    gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth()/2f - indicator.getWidth()/2f * GameScreen.camera.zoom,
+                    gridPosition.y * World.TILE_SIZE + getTexture().getRegionHeight() + 5);
+            indicator.setGlobalPosition((int)screenPos.x, (int)screenPos.y);
+        }
     }
 
     @Serial

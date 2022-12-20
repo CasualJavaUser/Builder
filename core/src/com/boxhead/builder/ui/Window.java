@@ -114,7 +114,7 @@ public class Window extends UIElement {
                 false);
     }
 
-    public void setWidth(int width) {
+    public void setContentWidth(int width) {
         contentWidth = width;
         windowWidth = contentWidth + (texture.getRegionWidth()-1)*2;
     }
@@ -124,7 +124,7 @@ public class Window extends UIElement {
         windowWidth = width;
     }
 
-    public void setHeight(int height) {
+    public void setContentHeight(int height) {
         contentHeight = height;
         windowHeight = contentHeight + (texture.getRegionHeight()-1)*2;
     }

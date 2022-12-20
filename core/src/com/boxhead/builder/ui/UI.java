@@ -111,8 +111,8 @@ public class UI {
         //region pauseMenu
         int menuWidth = 120, menuHeight = 163;
         pauseWindow = new Window(Textures.get(Textures.Ui.WINDOW), pauseMenu, Layer.PAUSE_MENU, new Vector2i());
-        pauseWindow.setWidth(menuWidth);
-        pauseWindow.setHeight(menuHeight);
+        pauseWindow.setContentWidth(menuWidth);
+        pauseWindow.setContentHeight(menuHeight);
         pauseWindow.setLocalPosition(-pauseWindow.getWindowWidth() / 2, -pauseWindow.getWindowHeight() / 2);
         pauseWindow.setTint(WHITE);
 
@@ -130,7 +130,7 @@ public class UI {
         //region saveWindow
         saveWindow = new Window(Textures.get(Textures.Ui.WINDOW), pauseMenu, Layer.SAVE_MENU, new Vector2i());
         saveWindow.setWindowWidth(280);
-        saveWindow.setHeight(300);
+        saveWindow.setContentHeight(300);
         saveWindow.setLocalPosition(-saveWindow.getWindowWidth() / 2, -saveWindow.getWindowHeight() / 2);
 
         saveText = new TextArea("Save", saveWindow, Layer.SAVE_MENU, new Vector2i(0, saveWindow.getWindowHeight() - 25), saveWindow.getWindowWidth(), true);
@@ -470,15 +470,15 @@ public class UI {
                     dateFormat.format(saveFile.lastModified()),
                 area,
                 Layer.SAVE_MENU,
-                new Vector2i(0, area.getHeight() - 15),
-                area.getWidth(),
+                new Vector2i(Textures.get(Textures.Ui.WIDE_BUTTON).getRegionWidth(), area.getHeight() - 15),
+                area.getWidth() - Textures.get(Textures.Ui.WIDE_BUTTON).getRegionWidth(),
                 true);
 
         Button saveButton = new Button(
                 Textures.get(Textures.Ui.WIDE_BUTTON),
                 area,
                 Layer.SAVE_MENU,
-                new Vector2i(15, 15),
+                new Vector2i(0, 32),
                 isSaving ? "save" : "load",
                 () -> {
                     if(isSaving) {
@@ -497,7 +497,7 @@ public class UI {
                 Textures.get(Textures.Ui.WIDE_BUTTON),
                 area,
                 Layer.SAVE_MENU,
-                new Vector2i(saveButton.getWidth() + 30, 15),
+                new Vector2i(0, 0),
                 "delete",
                 () -> {
                     Popups.showPopup("Delete file?", () -> {
