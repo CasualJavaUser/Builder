@@ -57,6 +57,14 @@ public class NPC extends GameObject implements Clickable {
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
     }
 
+    public NPC(Textures.Npc texture, Vector2i position, int index) {
+        super(Textures.get(texture), position);
+        prevPosition = position;
+        spritePosition = position.toVector2();
+        name = String.valueOf(index);
+        surname = "";
+    }
+
     @Override
     public void draw(SpriteBatch batch) {
         if (!isInBuilding()) {

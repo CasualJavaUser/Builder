@@ -35,9 +35,12 @@ public class Pathfinding {
         }
     }
 
+    /**
+     * Removes all paths containing the given tile from the cache
+     */
     public static void updateCache(Vector2i gridPosition) {
-        for (Pair<Vector2i[], Integer> pair : cache.values()) {
-            Vector2i[] array = pair.first;
+        for (Object pair : cache.values().toArray()) {
+            Vector2i[] array = ((Pair<Vector2i[], Integer>)pair).first;
 
             for (Vector2i tile : array) {
                 if (tile.equals(gridPosition)) {
@@ -48,11 +51,14 @@ public class Pathfinding {
         }
     }
 
+    /**
+     * Removes all paths crossing the given area from the cache
+     */
     public static void updateCache(BoxCollider collider) {
         List<Vector2i> list = collider.toVector2iList();
 
-        for (Pair<Vector2i[], Integer> pair : cache.values()) {
-            Vector2i[] array = pair.first;
+        for (Object pair : cache.values().toArray()) {
+            Vector2i[] array = ((Pair<Vector2i[], Integer>)pair).first;
 
             for (Vector2i tile : array) {
                 if (list.contains(tile)) {

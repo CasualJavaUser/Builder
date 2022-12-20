@@ -369,5 +369,15 @@ public class Logistics {
             return sender.getEntrancePosition().distance(gridPosition) +
                     recipient.getEntrancePosition().distance(gridPosition);
         }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+
+            if (other instanceof Order) {
+                return resource == ((Order) other).resource && recipient == ((Order) other).recipient && sender == ((Order) other).sender;
+            }
+            return false;
+        }
     }
 }

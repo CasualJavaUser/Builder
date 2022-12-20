@@ -36,7 +36,8 @@ public class ConstructionSite extends Building implements FieldWork {
     public void assignWorker(NPC npc) {
         if (assigned.size() < capacity) {
             assigned.put(npc, false);
-        }
+        } else
+            throw new IllegalArgumentException("Assignment over capacity");
     }
 
     @Override

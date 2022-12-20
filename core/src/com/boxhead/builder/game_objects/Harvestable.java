@@ -61,7 +61,8 @@ public class Harvestable extends GameObject implements FieldWork {
     public void assignWorker(NPC npc) {
         if (assigned == null) {
             assigned = npc;
-        }
+        } else if (assigned != npc)
+            throw new IllegalArgumentException("Assignment over capacity");
     }
 
     @Override
