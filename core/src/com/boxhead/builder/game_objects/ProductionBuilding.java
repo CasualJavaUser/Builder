@@ -80,10 +80,15 @@ public class ProductionBuilding extends EnterableBuilding {
         return employees.size() < employeeCapacity;
     }
 
+    public boolean canProduce() {
+        return hasEmployeesInside() && inventory.checkStorageAvailability(job.getRecipe()) == Inventory.Availability.AVAILABLE;
+    }
+
     public void business() {
         for (NPC employee : employees) {
             if (employee.getCurrentBuilding() == this && !employee.hasOrders()) {
                 job.assign(employee, this);
+                break;
             }
         }
 

@@ -238,20 +238,25 @@ public class Logistics {
 
     private static void updatePriority(Request request) {
         float fill;
+        SortedList<Request> list;
         Inventory inventory = request.building.getInventory();
 
         if (outputRequests.contains(request)) {
             fill = (float) inventory.getCurrentAmount() / (float) inventory.getMaxCapacity();
+            list = outputRequests;
         } else if (supplyRequests.contains(request)) {
             fill = 1 - (float) inventory.getCurrentAmount() / (float) inventory.getMaxCapacity();
+            list = supplyRequests;
         } else return;
 
+        list.remove(request);
         for (Priority priority : Priority.values()) {
             if (fill >= priority.threshold) {
                 request.priorityEnum = priority;
                 request.priority = request.priorityEnum.ordinal();
             } else break;
         }
+        list.add(request);
     }
 
     private static SortedList<Request> determineList(long zipCode) {

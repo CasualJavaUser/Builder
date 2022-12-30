@@ -5,17 +5,17 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class EnterableBuilding extends Building {
     /**
-     * Relative position of the tile from which NPCs can enter. The lower left tile of the building is at (0,0).
+     * Absolute position of the tile from which NPCs can enter.
      */
     protected Vector2i entrancePosition;
 
     protected EnterableBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        entrancePosition = type.entrancePosition;
+        entrancePosition = gridPosition.add(type.entrancePosition);
     }
 
     public Vector2i getEntrancePosition() {
-        return gridPosition.add(entrancePosition);
+        return entrancePosition;
     }
 
     public static EnterableBuilding getByCoordinates(Vector2i gridPosition) {

@@ -17,7 +17,7 @@ public class Jobs {
         }
     };
     public static final Job LUMBERJACK = new Job() {
-        private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, 0));
+        private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, NPC.INVENTORY_SIZE));
 
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {

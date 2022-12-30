@@ -30,6 +30,10 @@ public class Buildings {
         public final Textures.Building texture;
         public final Job job;
         public final Service service;
+
+        /**
+         * Relative position of the tile from which NPCs can enter. The lower left tile of the building is at (0,0).
+         */
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
 
