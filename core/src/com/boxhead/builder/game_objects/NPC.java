@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class NPC extends GameObject implements Clickable {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
@@ -35,7 +36,7 @@ public class NPC extends GameObject implements Clickable {
 
     private Vector2i[] path = null;
     private int pathStep;
-    private boolean waitingForPath = false;
+    private Future<?> pathfinding;
 
     private final LinkedList<NPC.Order> orderList = new LinkedList<>();
 
@@ -59,6 +60,7 @@ public class NPC extends GameObject implements Clickable {
 
     public NPC(Textures.Npc texture, Vector2i position, int index) {
         super(Textures.get(texture), position);
+        textureType = texture;
         prevPosition = position;
         spritePosition = position.toVector2();
         name = String.valueOf(index);
@@ -139,24 +141,20 @@ public class NPC extends GameObject implements Clickable {
     private void navigateTo(Vector2i tile) {
         alignSprite();
         path = null;
-        waitingForPath = true;
-        executor.submit(() -> {
+        pathfinding = executor.submit(() -> {
             path = Pathfinding.findPath(gridPosition.clone(), tile);
             pathStep = 0;
             nextStep = STEP_INTERVAL;
-            waitingForPath = false;
         });
     }
 
     private void navigateTo(BoxCollider collider) {
         alignSprite();
         path = null;
-        waitingForPath = true;
-        executor.submit(() -> {
-            path = Pathfinding.findPath(gridPosition.clone(), collider);
+        pathfinding = executor.submit(() -> {
+            path = Pathfinding.findPath(gridPosition.clone(), collider.cloneAndTranslate(Vector2i.zero()));
             pathStep = 0;
             nextStep = STEP_INTERVAL;
-            waitingForPath = false;
         });
     }
 
@@ -166,7 +164,7 @@ public class NPC extends GameObject implements Clickable {
      * @return <b>true</b> if destination is reached, <b>false</b> otherwise.
      */
     private boolean followPath() {
-        if (path == null || waitingForPath) {
+        if (path == null || !pathfinding.isDone()) {
             return false;
         }
 
@@ -237,7 +235,7 @@ public class NPC extends GameObject implements Clickable {
         orderList.addLast(new Order() {
             @Override
             void execute() {
-                if (!waitingForPath && (path == null || !path[path.length - 1].equals(tile))) {
+                if (pathfinding == null || pathfinding.isDone() && (path == null || !path[path.length - 1].equals(tile))) {
                     navigateTo(tile);
                 } else if (followPath()) {
                     orderList.removeFirst();
@@ -289,7 +287,7 @@ public class NPC extends GameObject implements Clickable {
                 orderList.addLast(new Order() {
                     @Override
                     void execute() {
-                        if (!waitingForPath && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
+                        if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
                             navigateTo(fieldWork.getCollider());
                         } else if (followPath()) {
                             orderList.removeFirst();
@@ -472,6 +470,11 @@ public class NPC extends GameObject implements Clickable {
 
     public boolean hasOrders() {
         return !orderList.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return name + " " + surname;
     }
 
     @Serial

@@ -60,7 +60,8 @@ public class Logic {
 
     private static void produceResources() {
         for (Building building : World.getBuildings()) {
-            if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null && ((ProductionBuilding) building).hasEmployeesInside()) {
+            if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null &&
+                    ((ProductionBuilding) building).canProduce()) {
                 Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), ((EnterableBuilding) building).getEntrancePosition());
                 fieldWork.ifPresent(work -> Logistics.requestFieldWork((ProductionBuilding) building, work));
             }
