@@ -89,13 +89,15 @@ public class InputManager extends InputAdapter {
     }
 
     public static float getScroll() {
-        float temp = scrollDelta;
-        scrollDelta = 0;
-        return temp;
+        return scrollDelta;
     }
 
     public static boolean isScrolled() {
         return scrollDelta != 0;
+    }
+
+    public static void resetScroll() {
+        scrollDelta = 0;
     }
 
     public static InputManager getInstance() {

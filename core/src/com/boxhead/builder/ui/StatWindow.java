@@ -84,11 +84,11 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
         return longest;
     }
 
-    private Range<Integer> getStatWindowXRange() {
+    protected Range<Integer> getStatWindowXRange() {
         return Range.between(0, Gdx.graphics.getWidth() - getWindowWidth());
     }
 
-    private Range<Integer> getStatWindowYRange() {
+    protected Range<Integer> getStatWindowYRange() {
         return Range.between(getWindowWidth(), Gdx.graphics.getHeight());
     }
 

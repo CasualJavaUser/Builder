@@ -2,6 +2,7 @@ package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.*;
 
@@ -68,6 +69,19 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 }
             }
         }
+    }
+
+    @Override
+    protected void updatePosition() {
+        Vector3 objectPosition = getObjectScreenPosition();
+
+        float cameraZoom = GameScreen.camera.zoom;
+        int x = (int) (objectPosition.x + pinnedObject.getCollider().getWidth() * World.TILE_SIZE / cameraZoom);
+        int y = (int) (objectPosition.y + (pinnedObject.getCollider().getHeight()) * World.TILE_SIZE / cameraZoom);
+        x = getStatWindowXRange().fit(x);
+        y = getStatWindowYRange().fit(y);
+
+        setGlobalPosition(x, y);
     }
 
     @Override

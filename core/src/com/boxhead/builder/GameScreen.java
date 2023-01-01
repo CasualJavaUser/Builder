@@ -66,6 +66,7 @@ public class GameScreen implements Screen {
         drawUI();
 
         batch.end();
+        InputManager.resetScroll();
     }
 
     public static Vector3 getMouseWorldPosition() {

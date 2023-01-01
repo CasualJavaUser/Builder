@@ -76,6 +76,7 @@ public class BuilderGame extends Game {
             saveCollection(World.getBuildings(), out);
             saveCollection(World.getFieldWorks(), out);
             saveCollection(World.getNpcs(), out);
+            saveCollection(World.getNavigableTiles(), out);
 
             out.close();
 
@@ -93,12 +94,12 @@ public class BuilderGame extends Game {
     public static boolean loadFromFile(File file) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
             World.setSEED(in.readInt());
-            World.generateTiles();
             World.setTime(in.readInt());
             loadCollection(World.getGameObjects(), in);
             loadCollection(World.getBuildings(), in);
             loadCollection(World.getFieldWorks(), in);
             loadCollection(World.getNpcs(), in);
+            loadCollection(World.getNavigableTiles(), in);
         } catch (IOException e) {
             Popups.showPopup(e.getClass().getName());
             return false;
