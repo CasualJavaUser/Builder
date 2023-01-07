@@ -63,13 +63,13 @@ public class Building extends GameObject implements Clickable {
         inventory.put(Resource.NOTHING, -units);
     }
 
-    public void moveReservedResourcesTo(Inventory otherInventory, Resource resource, int units) {
-        if (units > 0) {
-            reservedInventory.moveResourcesTo(otherInventory, resource, units);
-            inventory.put(resource, -units);
-        } else if (units < 0) {
-            inventory.put(Resource.NOTHING, units);
-            otherInventory.moveResourcesTo(inventory, resource, -units);
+    public void moveReservedResourcesTo(Inventory otherInventory, Resource resource, int movedUnits, int reservedUnits) {
+        if (movedUnits > 0) {   //move from this to other
+            inventory.moveResourcesTo(otherInventory, resource, movedUnits);
+            reservedInventory.put(resource, -reservedUnits);
+        } else if (movedUnits < 0) {    //move from other to this
+            inventory.put(Resource.NOTHING, -reservedUnits);
+            inventory.moveResourcesTo(otherInventory, resource, movedUnits);
         }
     }
 

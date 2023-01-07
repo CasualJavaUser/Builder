@@ -48,6 +48,10 @@ public class Vector2i implements Cloneable, Serializable {
         return new Vector2i(x * factor, y * factor);
     }
 
+    public Vector2i divide(int divisor) {
+        return new Vector2i(x / divisor, y / divisor);
+    }
+
     public double distance(Vector2i vector) {
         return Math.sqrt(Math.pow(x - vector.x, 2d) + Math.pow(y - vector.y, 2d));
     }

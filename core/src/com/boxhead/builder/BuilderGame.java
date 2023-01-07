@@ -132,7 +132,7 @@ public class BuilderGame extends Game {
     }*/
 
     public static File getSaveFile(String fileName) {
-        return new File(saveDirectory + "/" + fileName);
+        return new File(saveDirectory + File.separator + fileName);
     }
 
     public static SortedSet<File> getSortedSaveFiles() {
@@ -143,5 +143,9 @@ public class BuilderGame extends Game {
             saves.removeIf(s -> !(s.isFile() && s.getName().endsWith(".save")));
         }
         return saves;
+    }
+
+    public static GameScreen getGameScreen() {
+        return gameScreen;
     }
 }

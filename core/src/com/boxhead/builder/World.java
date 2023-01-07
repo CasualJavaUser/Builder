@@ -2,6 +2,8 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.*;
@@ -27,6 +29,7 @@ public class World {
     private static List<Building> buildings;
     private static List<NPC> npcs;
     private static Set<FieldWork> fieldWorks;
+    private static Set<FieldWork> removedFieldWorks;
     private static SortedList<GameObject> gameObjects;
 
     private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
@@ -40,6 +43,7 @@ public class World {
         buildings = new ArrayList<>();
         npcs = new ArrayList<>();
         fieldWorks = new HashSet<>();
+        removedFieldWorks = new HashSet<>();
         gameObjects = new SortedList<>(comparator);
 
         random = new Random(SEED);
@@ -212,14 +216,19 @@ public class World {
     }
 
     public static void removeFieldWorks() {
-        for (FieldWork fieldWork : fieldWorks) {
-            if (fieldWork.isRemoved()) {
-                if (fieldWork instanceof Harvestable) makeNavigable(fieldWork.getCollider());
-                else if (fieldWork instanceof ConstructionSite) buildings.remove(fieldWork);
-                gameObjects.remove((GameObject) fieldWork);
-            }
+        for (FieldWork fieldWork : removedFieldWorks) {
+            fieldWorks.remove(fieldWork);
+            gameObjects.remove((GameObject) fieldWork);
+            if (fieldWork instanceof Harvestable)
+                World.makeNavigable(fieldWork.getCollider());
+            else if (fieldWork instanceof ConstructionSite)
+                buildings.remove(fieldWork);
         }
-        fieldWorks.removeIf(FieldWork::isRemoved);
+        removedFieldWorks.clear();
+    }
+
+    public static void removeFieldWorks(FieldWork fieldWork) {
+        removedFieldWorks.add(fieldWork);
     }
 
     public static void spawnNPC(NPC npc) {
@@ -227,17 +236,45 @@ public class World {
     }
 
     public static void drawMap(SpriteBatch batch) {
-        for (int i = 0; i < tiles.length; i++) {
-            batch.draw(tileTextures[i], i % worldSize.x * TILE_SIZE, (float) (i / worldSize.x) * TILE_SIZE);
+        Viewport viewport = BuilderGame.getGameScreen().getViewport();
+
+        Vector2i upperLeftCorner = new Vector2i(viewport.unproject(new Vector2()));
+        Vector2i lowerRightCorner = new Vector2i(viewport.unproject(new Vector2((float) viewport.getScreenWidth(), (float) viewport.getScreenHeight())));
+
+        Vector2i gridULC = upperLeftCorner.divide(TILE_SIZE);
+        Vector2i gridLRC = lowerRightCorner.divide(TILE_SIZE);
+        if (gridULC.x < 0) gridULC.x = 0;
+        if (gridULC.y >= worldSize.y) gridULC.y = worldSize.y - 1;
+        if (gridLRC.x >= worldSize.x) gridLRC.x = worldSize.x - 1;
+        if (gridLRC.y < 0) gridLRC.y = 0;
+
+        for (int x = gridULC.x; x <= gridLRC.x; x++) {
+            for (int y = gridLRC.y; y <= gridULC.y; y++) {
+                batch.draw(tileTextures[y * worldSize.x + x], x * TILE_SIZE, y * TILE_SIZE);
+            }
         }
     }
 
     public static void drawObjects(SpriteBatch batch) {
+        Viewport viewport = BuilderGame.getGameScreen().getViewport();
+
+        Vector2i upperLeftCorner = new Vector2i(viewport.unproject(new Vector2()));
+        Vector2i lowerRightCorner = new Vector2i(viewport.unproject(new Vector2((float) viewport.getScreenWidth(), (float) viewport.getScreenHeight())));
+
+        Vector2i gridULC = upperLeftCorner.divide(TILE_SIZE);
+        Vector2i gridLRC = lowerRightCorner.divide(TILE_SIZE);
+
         for (NPC npc : npcs) {
-            npc.draw(batch);
+            Vector2 spritePosition = npc.getSpritePosition();
+            if (spritePosition.x >= gridULC.x && spritePosition.x <= gridLRC.x &&
+                    spritePosition.y >= gridLRC.y && spritePosition.y <= gridULC.y)
+                npc.draw(batch);
         }
-        for (GameObject o : gameObjects) {
-            o.draw(batch);
+        for (GameObject go : gameObjects) {
+            Vector2i gridPosition = go.getGridPosition();
+            if (gridPosition.x >= gridULC.x - go.getTexture().getRegionWidth() / TILE_SIZE && gridPosition.x <= gridLRC.x &&
+                    gridPosition.y >= gridLRC.y - go.getTexture().getRegionHeight() / TILE_SIZE && gridPosition.y <= gridULC.y)
+                go.draw(batch);
         }
     }
 

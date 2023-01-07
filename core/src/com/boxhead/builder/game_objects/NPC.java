@@ -20,7 +20,7 @@ public class NPC extends GameObject implements Clickable {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
-    public static final ExecutorService executor = Executors.newCachedThreadPool();
+    public static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
     public static final int INVENTORY_SIZE = 10;
     private static final int STEP_INTERVAL = 50;
 
@@ -36,7 +36,7 @@ public class NPC extends GameObject implements Clickable {
 
     private Vector2i[] path = null;
     private int pathStep;
-    private Future<?> pathfinding;
+    private transient Future<?> pathfinding;
 
     private final LinkedList<NPC.Order> orderList = new LinkedList<>();
 
@@ -347,10 +347,10 @@ public class NPC extends GameObject implements Clickable {
                 orderList.addLast(new Order() {
                     @Override
                     void execute() {
-                        if (buildingIsIn == null)
+                        if (buildingIsIn == null || !inventory.hasResourceAmount(resource, amount))
                             throw new IllegalStateException();
 
-                        getInventory().moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
+                        inventory.moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
                         orderList.removeFirst();
                     }
                 });
@@ -362,7 +362,7 @@ public class NPC extends GameObject implements Clickable {
                         if (buildingIsIn == null)
                             throw new IllegalStateException();
 
-                        buildingIsIn.moveReservedResourcesTo(inventory, resource, amount);
+                        buildingIsIn.moveReservedResourcesTo(inventory, resource, amount, NPC.INVENTORY_SIZE);
                         orderList.removeFirst();
                     }
                 });
@@ -374,8 +374,7 @@ public class NPC extends GameObject implements Clickable {
                         if (buildingIsIn == null)
                             throw new IllegalStateException();
 
-                        buildingIsIn.putReservedResources(resource, amount);
-                        inventory.put(resource, -amount);
+                        buildingIsIn.moveReservedResourcesTo(inventory, resource, -amount, NPC.INVENTORY_SIZE);
                         orderList.removeFirst();
                     }
                 });
@@ -388,38 +387,6 @@ public class NPC extends GameObject implements Clickable {
                             throw new IllegalStateException();
 
                         Logistics.requestTransport(buildingIsIn, resource, amount);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    @Deprecated
-    public void giveOrder(Order.Type type, Resource resource) {
-        switch (type) {
-            case PUT_RESOURCES_TO_BUILDING:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (buildingIsIn == null)
-                            throw new IllegalStateException();
-
-                        getInventory().moveResourcesTo(buildingIsIn.getInventory(), resource);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            case PUT_RESERVED_RESOURCES:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (buildingIsIn == null)
-                            throw new IllegalStateException();
-
-                        buildingIsIn.moveReservedResourcesTo(inventory, resource, -NPC.INVENTORY_SIZE);
                         orderList.removeFirst();
                     }
                 });
@@ -464,7 +431,7 @@ public class NPC extends GameObject implements Clickable {
         return buildingIsIn != null;
     }
 
-    public Building getCurrentBuilding() {
+    public EnterableBuilding getCurrentBuilding() {
         return buildingIsIn;
     }
 

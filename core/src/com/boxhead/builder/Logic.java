@@ -73,19 +73,18 @@ public class Logic {
                 order.ifPresent(o -> Logistics.takeOrder(transportOffice, o));
             }
         }
-
-        for (int i = 0; i < World.getBuildings().size(); i++) {
-            if (World.getBuildings().get(i) instanceof ServiceBuilding) {
-                ((ServiceBuilding) World.getBuildings().get(i)).provideServices();
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ServiceBuilding) {
+                ((ServiceBuilding) building).provideServices();
             }
-            if (World.getBuildings().get(i) instanceof ProductionBuilding) {
-                ((ProductionBuilding) World.getBuildings().get(i)).business();
+            if (building instanceof ProductionBuilding) {
+                ((ProductionBuilding) building).business();
+                for (Object fieldWork : ((ProductionBuilding) building).getAssignedFieldWork().values().toArray()) {
+                    ((FieldWork) fieldWork).work();
+                }
             }
         }
 
-        for (FieldWork fieldWork : World.getFieldWorks()) {
-            fieldWork.work();
-        }
         World.removeFieldWorks();
         Logistics.clearFieldWorkRequests();
         Logistics.clearOrderRequests();

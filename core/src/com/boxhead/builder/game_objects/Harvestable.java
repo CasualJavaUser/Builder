@@ -79,11 +79,6 @@ public class Harvestable extends GameObject implements FieldWork {
     }
 
     @Override
-    public boolean isRemoved() {
-        return amountLeft <= 0;
-    }
-
-    @Override
     public void work() {
         if (worked) {
             Resource resource = characteristic.resource;
@@ -97,8 +92,10 @@ public class Harvestable extends GameObject implements FieldWork {
                 }
             } else exit = true;
 
-            if (amountLeft <= 0)
+            if (amountLeft <= 0) {
                 exit = true;
+                World.removeFieldWorks(this);
+            }
 
             if (exit) {
                 assigned.getWorkplace().dissociateFieldWork(assigned);

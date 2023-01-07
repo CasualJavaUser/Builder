@@ -30,7 +30,8 @@ public class Inventory implements Serializable {
     }
 
     public void moveResourcesTo(Inventory otherInventory, Resource resource, int units) {
-        if (!hasResourceAmount(resource, units) || otherInventory.getAvailableCapacity() < units)
+        if (getResourceAmount(resource) < units || otherInventory.getAvailableCapacity() < units
+        || getAvailableCapacity() < -units || otherInventory.getResourceAmount(resource) < -units)
             throw new IllegalArgumentException();
 
         put(resource, -units);

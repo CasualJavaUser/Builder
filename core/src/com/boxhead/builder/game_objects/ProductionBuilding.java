@@ -12,12 +12,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ProductionBuilding extends EnterableBuilding {
+    /**
+     * How many production cycles worth of input resources to keep.
+     */
+    private static final int stockCycles = 3;
+
+    private static final Map<NPC, FieldWork> emptyMap = new HashMap<>(0);  //do not modify
+
     protected transient Job job;
     protected int jobQuality = 0;
     protected int employeeCapacity, employeesInside = 0;
@@ -37,7 +41,7 @@ public class ProductionBuilding extends EnterableBuilding {
         if (job.getPoI() != null) {
             assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
         } else {
-            assignedFieldWork = null;
+            assignedFieldWork = emptyMap;
         }
         instantiateIndicator();
     }
@@ -103,6 +107,12 @@ public class ProductionBuilding extends EnterableBuilding {
                     inventory.put(recipe);
                     productionCounter = 0;
                     Logistics.requestTransport(this, recipe);
+                } else if (availability == Inventory.Availability.LACKS_INPUT) {
+                    for (Resource resource : recipe.changedResources()) {
+                        if (recipe.getChange(resource) < 0 && inventory.getResourceAmount(resource) < stockCycles * -recipe.getChange(resource)) {
+                            Logistics.requestTransport(this, resource, recipe.getChange(resource));
+                        }
+                    }
                 }
             }
         }
@@ -193,9 +203,9 @@ public class ProductionBuilding extends EnterableBuilding {
 
         if (indicator.isVisible()) {
             Vector3 screenPos = GameScreen.worldToScreenPosition(
-                    gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth()/2f - indicator.getWidth()/2f * GameScreen.camera.zoom,
+                    gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth() / 2f - indicator.getWidth() / 2f * GameScreen.camera.zoom,
                     gridPosition.y * World.TILE_SIZE + getTexture().getRegionHeight() + 5);
-            indicator.setGlobalPosition((int)screenPos.x, (int)screenPos.y);
+            indicator.setGlobalPosition((int) screenPos.x, (int) screenPos.y);
         }
     }
 

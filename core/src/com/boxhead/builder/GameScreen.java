@@ -43,9 +43,9 @@ public class GameScreen implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        if(!Logic.isPaused()) {
-            moveCamera(deltaTime);
+        if (!Logic.isPaused()) {
             scroll();
+            moveCamera(deltaTime);
         }
 
         batch.begin();

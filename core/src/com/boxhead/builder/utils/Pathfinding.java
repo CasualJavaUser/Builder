@@ -26,7 +26,7 @@ public class Pathfinding {
     }
 
     public static void removeUnusedPaths() {
-        for (Pair<Vector2i, Vector2i> pair : cache.keySet()) {
+        for (Object pair : cache.keySet().toArray()) {
             if (cache.get(pair).second.equals(0))
                 cache.remove(pair);
         }

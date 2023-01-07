@@ -52,11 +52,6 @@ public class ConstructionSite extends Building implements FieldWork {
     }
 
     @Override
-    public boolean isRemoved() {
-        return progress >= totalLabour;
-    }
-
-    @Override
     public void work() {
         progress += currentlyWorking;
 
@@ -68,6 +63,7 @@ public class ConstructionSite extends Building implements FieldWork {
                 npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
                 npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
             }
+            World.removeFieldWorks(this);
         }
     }
 

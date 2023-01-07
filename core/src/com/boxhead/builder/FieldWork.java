@@ -17,8 +17,6 @@ public interface FieldWork extends WorldObject, Serializable {
 
     boolean isFree();
 
-    boolean isRemoved();
-
     void work();
 
     void setWork(NPC npc, boolean b);
