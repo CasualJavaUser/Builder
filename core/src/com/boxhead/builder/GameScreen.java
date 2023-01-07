@@ -19,8 +19,8 @@ import org.apache.commons.lang3.Range;
 public class GameScreen implements Screen {
 
     public static final OrthographicCamera camera = new OrthographicCamera();
+    public static final Viewport viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
     private final SpriteBatch batch;
-    private final Viewport viewport;
     private final Matrix4 uiProjection;
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
@@ -28,11 +28,11 @@ public class GameScreen implements Screen {
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
-        this.viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
+        //this.viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         this.uiProjection = new Matrix4();
 
         Textures.init();
-        World.init(new Vector2i(101, 101));
+        World.init(new Vector2i(2000, 2000));
         UI.init();
         Logic.init();
 
@@ -141,10 +141,6 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(uiProjection);
         UI.drawUI(batch);
         batch.setProjectionMatrix(camera.combined);
-    }
-
-    public Viewport getViewport() {
-        return viewport;
     }
 
     private Range<Float> getCameraYRange() {

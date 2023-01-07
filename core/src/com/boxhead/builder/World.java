@@ -21,6 +21,7 @@ public class World {
 
     private static int SEED = 60;
     private static Random random;
+    private static final int noiseSize = 100;
 
     private static final int[] storedResources = new int[Resource.values().length];
 
@@ -101,8 +102,8 @@ public class World {
 
     private static void generateTree(Vector2i pos, float smallFreq, float bigFreq) {
         Harvestables.Type type = Harvestables.Type.BIG_TREE;  //TODO randomise tree types
-        double dx = (double) pos.x / worldSize.x;
-        double dy = (double) pos.y / worldSize.y;
+        double dx = (double) pos.x / noiseSize;
+        double dy = (double) pos.y / noiseSize;
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
         int textureId = random.nextInt(type.getTextures().length);
@@ -116,8 +117,8 @@ public class World {
 
     private static void generateStone(Vector2i pos, float smallFreq, float bigFreq) {
         Harvestables.Type type = Harvestables.Type.STONE;
-        double dx = (double) pos.x / worldSize.x;
-        double dy = (double) pos.y / worldSize.y;
+        double dx = (double) pos.x / noiseSize;
+        double dy = (double) pos.y / noiseSize;
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
         int textureId = random.nextInt(type.getTextures().length);
@@ -137,7 +138,7 @@ public class World {
         int[] steps = new int[worldSize.y];
         double startX = random.nextInt((int)(worldSize.x * (1-2*minDistanceFromEdge))) + (int)(worldSize.x * minDistanceFromEdge);
         for (int i = 0; i < steps.length; i++) {
-            double di = (double) i / worldSize.y;
+            double di = (double) i / noiseSize;
             double noise = PerlinNoise.noise2D(di * noiseFrequency, SEED) * curveMultiplier;
             steps[i] = (int)startX + (int)noise;
             startX += bias;
@@ -236,7 +237,7 @@ public class World {
     }
 
     public static void drawMap(SpriteBatch batch) {
-        Viewport viewport = BuilderGame.getGameScreen().getViewport();
+        Viewport viewport = GameScreen.viewport;
 
         Vector2i upperLeftCorner = new Vector2i(viewport.unproject(new Vector2()));
         Vector2i lowerRightCorner = new Vector2i(viewport.unproject(new Vector2((float) viewport.getScreenWidth(), (float) viewport.getScreenHeight())));
@@ -256,7 +257,7 @@ public class World {
     }
 
     public static void drawObjects(SpriteBatch batch) {
-        Viewport viewport = BuilderGame.getGameScreen().getViewport();
+        Viewport viewport = GameScreen.viewport;
 
         Vector2i upperLeftCorner = new Vector2i(viewport.unproject(new Vector2()));
         Vector2i lowerRightCorner = new Vector2i(viewport.unproject(new Vector2((float) viewport.getScreenWidth(), (float) viewport.getScreenHeight())));
@@ -291,8 +292,11 @@ public class World {
     }
 
     public static boolean isBuildable(Vector2i position) {
-        Tile tile = getTile(position);
-        return tile != Tile.WATER && navigableTiles.contains(position);
+        if (worldSize.x * position.y + position.x < tiles.length) {
+            Tile tile = getTile(position);
+            return tile != Tile.WATER && navigableTiles.contains(position);
+        }
+        else return false;
     }
 
     public static int getStored(Resource resource) {
