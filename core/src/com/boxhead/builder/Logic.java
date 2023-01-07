@@ -73,7 +73,9 @@ public class Logic {
                 order.ifPresent(o -> Logistics.takeOrder(transportOffice, o));
             }
         }
-        for (Building building : World.getBuildings()) {
+        for (int i = 0; i < World.getBuildings().size(); i++) {
+            Building building = World.getBuildings().get(i);
+
             if (building instanceof ServiceBuilding) {
                 ((ServiceBuilding) building).provideServices();
             }

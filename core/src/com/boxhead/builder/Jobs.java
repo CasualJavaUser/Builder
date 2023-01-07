@@ -41,19 +41,20 @@ public class Jobs {
                 FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
                 assignee.giveOrder(NPC.Order.Type.EXIT, fieldWork);
                 workplace.dissociateFieldWork(assignee);
-            }
 
-            if (assignee.getCurrentBuilding() == null) {
                 if (assignee.getInventory().isEmpty()) {
                     workplace.cancelReservation(NPC.INVENTORY_SIZE);
-                } else {
-                    int woodUnits = assignee.getInventory().getResourceAmount(Resource.WOOD);
-
-                    assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-                    assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
-                    assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, Resource.WOOD, woodUnits);
-                    assignee.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, Resource.WOOD, woodUnits);
+                    return;
                 }
+            }
+
+            if (!assignee.getInventory().isEmpty()) {
+                int woodUnits = assignee.getInventory().getResourceAmount(Resource.WOOD);
+
+                assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
+                assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
+                assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, Resource.WOOD, woodUnits);
+                assignee.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, Resource.WOOD, woodUnits);
             }
         }
 

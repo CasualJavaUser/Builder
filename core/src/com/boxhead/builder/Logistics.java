@@ -99,6 +99,9 @@ public class Logistics {
         }
     }
 
+    /**
+     * @param units The sign of this argument determines whether this request is considered an input or an output. Should be kept the same as in Recipes - positive for output and negative for input, zero has no effect.
+     */
     public static void requestTransport(EnterableBuilding building, Resource resource, int units) {
         Request request;
         long zipCode = Request.zipCode(building, resource);
