@@ -5,6 +5,7 @@ import com.boxhead.builder.utils.BidirectionalMap;
 import com.boxhead.builder.utils.SortedList;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class Logistics {
@@ -12,16 +13,16 @@ public class Logistics {
      * The smallest amount that is considered worth issuing a transport order.
      */
     public static final int THE_UNIT = NPC.INVENTORY_SIZE;
-    private static final SortedList<Request> supplyRequests;
-    private static final SortedList<Request> outputRequests;
-    private static final SortedList<Order> readyOrders;
+    public static final SortedList<Request> supplyRequests;
+    public static final SortedList<Request> outputRequests;
+    public static final SortedList<Order> readyOrders;
 
-    private static final Set<StorageBuilding> storages = new HashSet<>();
-    private static final Set<ProductionBuilding> transportOffices = new HashSet<>();
+    public static final Set<StorageBuilding> storages = new HashSet<>();
+    public static final Set<ProductionBuilding> transportOffices = new HashSet<>();
 
-    private static final BidirectionalMap<FieldWork, ProductionBuilding> FW_requests = new BidirectionalMap<>();
-    private static final BidirectionalMap<Order, ProductionBuilding> orderRequests = new BidirectionalMap<>();
-    private static final Map<NPC, Order> deliveriesInProgress = new HashMap<>();
+    private static final BidirectionalMap<FieldWork, ProductionBuilding> fieldWorkRequests = new BidirectionalMap<>();
+    public static final BidirectionalMap<Order, ProductionBuilding> orderRequests = new BidirectionalMap<>();
+    public static final Map<NPC, Order> deliveriesInProgress = new HashMap<>();
 
     static {
         Comparator<Request> requestComparator = Comparator.comparingInt(r -> r.priority);
@@ -32,28 +33,28 @@ public class Logistics {
     }
 
     public static void requestFieldWork(ProductionBuilding building, FieldWork fieldWork) {
-        if (!FW_requests.containsKey(fieldWork)) {
-            FW_requests.put(fieldWork, building);
+        if (!fieldWorkRequests.containsKey(fieldWork)) {
+            fieldWorkRequests.put(fieldWork, building);
         } else {
             Vector2i fieldWorkPos = fieldWork.getGridPosition();
             double newDistance = building.getEntrancePosition().distance(fieldWorkPos);
-            double currentDistance = FW_requests.get(fieldWork).getEntrancePosition().distance(fieldWorkPos);
+            double currentDistance = fieldWorkRequests.get(fieldWork).getEntrancePosition().distance(fieldWorkPos);
 
             if (newDistance < currentDistance) {
-                FW_requests.replace(fieldWork, building);
+                fieldWorkRequests.replace(fieldWork, building);
             }
         }
     }
 
     public static FieldWork assignedFieldWork(ProductionBuilding building) {
-        if (!FW_requests.containsValue(building))
+        if (!fieldWorkRequests.containsValue(building))
             return null;
 
-        return FW_requests.getByValue(building);
+        return fieldWorkRequests.getByValue(building);
     }
 
     public static void clearFieldWorkRequests() {
-        FW_requests.clear();
+        fieldWorkRequests.clear();
     }
 
     /**
@@ -308,7 +309,7 @@ public class Logistics {
         }
     }
 
-    private static class Request {
+    private static class Request implements Serializable {
         Resource resource;
         EnterableBuilding building;
         int amount;
@@ -345,7 +346,7 @@ public class Logistics {
         }
     }
 
-    public static class Order extends Request {
+    public static class Order extends Request{
         EnterableBuilding sender;
         EnterableBuilding recipient;
 

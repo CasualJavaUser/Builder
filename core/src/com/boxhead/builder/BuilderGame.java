@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.popup.Popups;
+import com.boxhead.builder.utils.Pair;
 
 import java.io.*;
 import java.util.*;
@@ -22,7 +23,7 @@ public class BuilderGame extends Game {
         gameScreen = new GameScreen(batch);
 
         String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) saveDirectory = new File(System.getProperty("user.home") + "/Appdata/LocalLow/Box Head/saves/");
+        if (os.contains("win")) saveDirectory = new File(System.getenv("APPDATA") + "/Box Head/saves/");
         else if (os.contains("mac")) saveDirectory = new File(System.getProperty("user.home") + "/Library/Application Support/Box Head/saves/");
         else if (os.contains("nix") || os.contains("nux") || os.indexOf("aix") > 0) saveDirectory = new File(System.getProperty("user.home") + "/Home/.local/share/Box Head/saves/");
         else throw new RuntimeException("Unsupported OS");
@@ -78,6 +79,14 @@ public class BuilderGame extends Game {
             saveCollection(World.getNpcs(), out);
             saveCollection(World.getNavigableTiles(), out);
 
+            saveCollection(Logistics.supplyRequests, out);
+            saveCollection(Logistics.outputRequests, out);
+            saveCollection(Logistics.readyOrders, out);
+            saveCollection(Logistics.storages, out);
+            saveCollection(Logistics.transportOffices, out);
+            saveMap(Logistics.orderRequests, out);
+            saveMap(Logistics.deliveriesInProgress, out);
+
             out.close();
 
         } catch (IOException e) {
@@ -93,6 +102,7 @@ public class BuilderGame extends Game {
 
     public static boolean loadFromFile(File file) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+
             World.setSEED(in.readInt());
             World.setTime(in.readInt());
             loadCollection(World.getGameObjects(), in);
@@ -100,6 +110,15 @@ public class BuilderGame extends Game {
             loadCollection(World.getFieldWorks(), in);
             loadCollection(World.getNpcs(), in);
             loadCollection(World.getNavigableTiles(), in);
+
+            loadCollection(Logistics.supplyRequests, in);
+            loadCollection(Logistics.outputRequests, in);
+            loadCollection(Logistics.readyOrders, in);
+            loadCollection(Logistics.storages, in);
+            loadCollection(Logistics.transportOffices, in);
+            loadMap(Logistics.orderRequests, in);
+            loadMap(Logistics.deliveriesInProgress, in);
+
         } catch (IOException e) {
             Popups.showPopup(e.getClass().getName());
             return false;
@@ -116,6 +135,13 @@ public class BuilderGame extends Game {
         }
     }
 
+    private static<K extends Serializable, V extends Serializable> void saveMap(Map<K,V> map, ObjectOutputStream out) throws IOException {
+        out.writeInt(map.size());
+        for (Map.Entry<K,V> e : map.entrySet()) {
+            out.writeObject(Pair.of(e.getKey(), e.getValue()));
+        }
+    }
+
     private static<T extends Serializable> void loadCollection(Collection<T> collection,  ObjectInputStream in) throws IOException, ClassNotFoundException {
         collection.clear();
         int size = in.readInt();
@@ -124,12 +150,14 @@ public class BuilderGame extends Game {
         }
     }
 
-    /*public static File[] getSaveFiles() {
-        File file = new File(saveDirectory);
-        File[] saves = file.listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".save"));
-        if (saves == null) saves = new File[0];
-        return saves;
-    }*/
+    private static<K extends Serializable, V extends Serializable> void loadMap(Map<K,V> map, ObjectInputStream in) throws IOException, ClassNotFoundException {
+        map.clear();
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+           Pair<K,V> pair = (Pair<K,V>)in.readObject();
+            map.put(pair.first, pair.second);
+        }
+    }
 
     public static File getSaveFile(String fileName) {
         return new File(saveDirectory + File.separator + fileName);
