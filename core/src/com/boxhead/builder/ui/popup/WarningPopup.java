@@ -18,14 +18,8 @@ public class WarningPopup extends Popup {
         setWindowWidth(160 + 3*padding);
         setWindowHeight(100);
 
-        okButton = new Button(
-                Textures.get(Textures.Ui.WIDE_BUTTON),
-                this,
-                UI.Layer.POPUP,
-                new Vector2i(),
-                "Ok",
-                () -> layer.setVisible(false),
-                false);
+        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(), "Ok");
+        okButton.setOnUp(() -> layer.setVisible(false));
         okButton.setLocalPosition(getWindowWidth()/2 - okButton.getTexture().getRegionWidth()/2, padding);
     }
 
@@ -41,6 +35,10 @@ public class WarningPopup extends Popup {
             instance.addToUI();
         }
         return instance;
+    }
+
+    public Button getOkButton() {
+        return okButton;
     }
 
     @Override

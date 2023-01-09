@@ -14,6 +14,8 @@ public class Clock extends UIElement {
         super(Textures.get(Textures.Ui.CLOCK_FACE), parent, layer, position, true);
         minuteHand = new UIElement(Textures.get(Textures.Ui.MINUTE_HAND), this, layer, Vector2i.zero(), true);
         hourHand = new UIElement(Textures.get(Textures.Ui.HOUR_HAND), this, layer, Vector2i.zero(), true);
+        minuteHand.setOriginToCenter();
+        hourHand.setOriginToCenter();
     }
 
     @Override

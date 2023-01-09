@@ -9,7 +9,7 @@ public class TileCircle {
     private TileCircle() {}
 
     public static void draw(SpriteBatch batch, TextureRegion texture, Vector2i position, int radius) {
-        if(radius > 0) {
+        /*if(radius > 0) {
             Vector2i pos = new Vector2i();
             for (int i = -radius; i < radius; i++) {
                 for (int j = -radius; j < radius; j++) {
@@ -17,7 +17,8 @@ public class TileCircle {
                     if (position.distance(pos) < radius) batch.draw(texture, pos.x, pos.y);
                 }
             }
-        }
+        }*/
+        draw(batch, texture, position.x, position.y, radius);
     }
 
     public static void draw(SpriteBatch batch, TextureRegion texture, int posX, int posY, int radius) {

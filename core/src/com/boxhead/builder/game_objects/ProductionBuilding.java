@@ -24,22 +24,20 @@ public class ProductionBuilding extends EnterableBuilding {
 
     protected transient Job job;
     protected int jobQuality = 0;
-    protected int employeeCapacity, employeesInside = 0;
+    protected int employeesInside = 0;
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
-    protected int productionCounter = 0, productionInterval;
+    protected int productionCounter = 0;
     protected boolean showRange = false;
     protected transient UIElement indicator;
 
-    public ProductionBuilding(Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int productionInterval) {
+    public ProductionBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         this.type = type;
         job = type.job;
-        this.employeeCapacity = employeeCapacity;
-        this.productionInterval = productionInterval;
-        employees = new HashSet<>(employeeCapacity, 1f);
+        employees = new HashSet<>(type.npcCapacity, 1f);
         if (job.getPoI() != null) {
-            assignedFieldWork = new HashMap<>(employeeCapacity, 1f);
+            assignedFieldWork = new HashMap<>(type.npcCapacity, 1f);
         } else {
             assignedFieldWork = emptyMap;
         }
@@ -65,7 +63,7 @@ public class ProductionBuilding extends EnterableBuilding {
     public void addEmployee(NPC npc) {
         if (employees.contains(npc))
             throw new IllegalArgumentException("Employee already works here");
-        if (employees.size() < employeeCapacity) {
+        if (employees.size() < type.npcCapacity) {
             employees.add(npc);
         }
     }
@@ -81,7 +79,7 @@ public class ProductionBuilding extends EnterableBuilding {
     }
 
     public boolean isHiring() {
-        return employees.size() < employeeCapacity;
+        return employees.size() < type.npcCapacity;
     }
 
     public boolean canProduce() {
@@ -96,10 +94,10 @@ public class ProductionBuilding extends EnterableBuilding {
             }
         }
 
-        if (productionInterval > 0) {
+        if (type.productionInterval > 0) {
             productionCounter += employeesInside;
 
-            if (productionCounter >= productionInterval) {
+            if (productionCounter >= type.productionInterval) {
                 Recipe recipe = job.getRecipe();
                 Inventory.Availability availability = inventory.checkStorageAvailability(recipe);
 
@@ -142,10 +140,6 @@ public class ProductionBuilding extends EnterableBuilding {
         return jobQuality;
     }
 
-    public int getEmployeeCapacity() {
-        return employeeCapacity;
-    }
-
     public Set<NPC> getEmployees() {
         return employees;
     }
@@ -158,8 +152,8 @@ public class ProductionBuilding extends EnterableBuilding {
         return assignedFieldWork;
     }
 
-    public void hideRangeVisualiser() {
-        showRange = false;
+    public void showRangeVisualiser(boolean show) {
+        showRange = show;
     }
 
     @Override
@@ -170,13 +164,15 @@ public class ProductionBuilding extends EnterableBuilding {
 
     @Override
     public void draw(SpriteBatch batch) {
-        batch.setColor(UI.VERY_TRANSPARENT);
-        if (showRange) TileCircle.draw(
-                batch,
-                Textures.get(Textures.Tile.DEFAULT),  //todo temp texture
-                gridPosition.add(entrancePosition).multiply(World.TILE_SIZE),
-                job.getRange() * World.TILE_SIZE);
-        batch.setColor(UI.DEFAULT_COLOR);
+        if (showRange) {
+            batch.setColor(UI.VERY_TRANSPARENT);
+            TileCircle.draw(
+                    batch,
+                    Textures.get(Textures.Tile.DEFAULT),  //todo temp texture
+                    entrancePosition.multiply(World.TILE_SIZE),
+                    job.getRange() * World.TILE_SIZE);
+            batch.setColor(UI.DEFAULT_COLOR);
+        }
 
         updateIndicator();
 

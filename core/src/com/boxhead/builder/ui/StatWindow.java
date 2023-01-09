@@ -19,13 +19,9 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
         super(Textures.get(Textures.Ui.WINDOW), layer, false);
     }
 
-    public void show(T gameObject) {
+    public void pin(T gameObject) {
         this.pinnedObject = gameObject;
         pinned = true;
-        updateStats();
-        updateWindowSize();
-        updatePosition();
-        setVisible(true);
     }
 
     @Override
@@ -46,10 +42,10 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected void updateWindowSize() {
         setContentHeight(2*verticalPadding);
         for(char c : stats.toCharArray()) {
-            if (c == '\n') setContentHeight(getContentHeight() + UI.FONT_SIZE + 3);
+            if (c == '\n') setContentHeight(getContentHeight() + (int)UI.FONT.getXHeight() + 10);
         }
 
-        setContentWidth((int)(getLongestLineLength(stats) * 6.5f + leftPadding + rightPadding));
+        setContentWidth((int)(getLongestLineLength(stats) * UI.FONT.getSpaceXadvance() + leftPadding + rightPadding));
     }
 
     protected void updatePosition() {
@@ -89,7 +85,7 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     }
 
     protected Range<Integer> getStatWindowYRange() {
-        return Range.between(getWindowWidth(), Gdx.graphics.getHeight());
+        return Range.between(0, Gdx.graphics.getHeight() - getWindowHeight());
     }
 
     private Range<Float> getPinnedObjectBoundsX() {

@@ -20,32 +20,15 @@ public class QuestionPopup extends Popup {
         setWindowWidth(160 + 3*padding);
         setWindowHeight(100);
 
-        okButton = new Button(Textures.get(
-                Textures.Ui.WIDE_BUTTON),
-                this,
-                UI.Layer.POPUP,
-                new Vector2i(padding, padding),
-                "OK",
-                () -> { layer.setVisible(false); onAccept.execute();},
-                false);
+        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(padding, padding), "OK");
+        okButton.setOnUp(() -> {
+            layer.setVisible(false);
+            onAccept.execute();
+        });
 
-        cancelButton = new Button(
-                Textures.get(Textures.Ui.WIDE_BUTTON),
-                this,
-                UI.Layer.POPUP,
-                new Vector2i(80 + 2*padding, padding),
-                "Cancel",
-                () -> layer.setVisible(false),
-                false);
+        cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*padding, padding), "Cancel");
+        cancelButton.setOnUp(() -> layer.setVisible(false));
     }
-
-    /*protected static void show(String text, Action onAccept) {
-        getInstance();
-        instance.text = text;
-        instance.onAccept = onAccept;
-        instance.setTint(UI.WHITE);
-        instance.setVisible(true);
-    }*/
 
     protected static QuestionPopup getInstance() {
         if (instance == null) {
@@ -59,6 +42,10 @@ public class QuestionPopup extends Popup {
             instance.addToUI();
         }
         return instance;
+    }
+
+    public Button getOkButton() {
+        return okButton;
     }
 
     @Override

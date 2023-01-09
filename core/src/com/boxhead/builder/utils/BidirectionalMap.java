@@ -1,5 +1,6 @@
 package com.boxhead.builder.utils;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +9,7 @@ import java.util.Set;
 /**
  * A naive approach to bi-directional mapping
  */
-public class BidirectionalMap<K, V> implements Map<K, V> {
+public class BidirectionalMap<K, V> implements Map<K, V>, Serializable {
     private final Map<K, V> mapKV;
     private final Map<V, K> mapVK;
 

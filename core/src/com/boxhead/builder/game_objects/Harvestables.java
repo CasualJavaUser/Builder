@@ -6,9 +6,9 @@ import com.boxhead.builder.utils.Vector2i;
 public class Harvestables {
 
     public enum Type {
-        BIG_TREE(Textures.Environment.BIG_TREE),
-        STONE(Textures.Environment.STONE1, Textures.Environment.STONE2),
-        IRON_ORE(Textures.Environment.SMALL_TREE);
+        BIG_TREE(Textures.Environment.PINE_TREE),
+        STONE(Textures.Environment.ROCK1, Textures.Environment.ROCK2, Textures.Environment.ROCK3),
+        IRON_ORE(Textures.Environment.PINE_TREE);
 
         private final Textures.Environment[] textures;
 

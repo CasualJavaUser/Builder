@@ -1,40 +1,33 @@
 
 environment.png
-size: 128, 64
+size: 64, 64
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-big_tree
-  rotate: false
-  xy: 0, 16
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
-bush
-  rotate: false
-  xy: 32, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-small_tree
-  rotate: false
-  xy: 48, 32
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-stone1
-  rotate: false
-  xy: 16, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-stone2
+pine_tree
   rotate: false
   xy: 0, 0
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: -1
+rock1
+  rotate: false
+  xy: 48, 32
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+rock2
+  rotate: false
+  xy: 48, 48
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+rock3
+  rotate: false
+  xy: 48, 16
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

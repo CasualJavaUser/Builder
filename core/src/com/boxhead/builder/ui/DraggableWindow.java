@@ -23,7 +23,8 @@ public class DraggableWindow extends Window implements Clickable {
 
     public DraggableWindow(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean isVisible) {
         super(texture, parent, layer, position, isVisible);
-        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), this, layer, new Vector2i(), () -> this.setVisible(false), true);
+        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), this, layer, new Vector2i());
+        closeButton.setOnClick(() -> this.setVisible(false));
     }
 
     @Override

@@ -1,15 +1,16 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.game_objects.NPC;
-import com.boxhead.builder.ui.popup.InputPopup;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -27,26 +28,42 @@ public class UI {
     public static final Color WHITE = new Color(1, 1, 1, 1);
     public static final Color DARK = new Color(.5f, .5f, .5f, 1);
 
-    public static final BitmapFont FONT = new BitmapFont();
-    public static final int FONT_SIZE = 15;
-
+    //public static final BitmapFont FONT = new BitmapFont();
+    public static BitmapFont FONT;
+    //public static final int FONT_SIZE = 30;
     private static TextField activeTextField = null;
+    private static Button activeButton = null;
     private static ScrollPane activeScrollPane = null;
     private static Clickable clickedElement = null;
     private static Set<UIElement> saveWindowElements = new HashSet<>();
 
-    private static UIElement buildingButtonGroup, mainButtonGroup, timeElementGroup, pauseMenu;
+    private static UIElement mainButtonGroup;
+    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton;
 
-    private static Button buildingButton, npcButton, workButton, restButton, demolishButton, homeButton, workplaceButton, serviceButton, storageButton, constructionOfficeButton,
-            transportOfficeButton, pauseButton, playButton, x2Button, x3Button, resumeButton, loadButton, saveButton, quitButton;
+    private static UIElement timeElementGroup;
+    private static Clock clock;
+    private static Button pauseButton, playButton, x2Button, x3Button;
+
+    private static ResourceList resourceList;
+
+    private static Window buildWindow;
+    private static TextArea buildWindowDivider;
+    private static Button logCabinButton, lumberjackButton, mineButton, serviceButton, storageButton, constructionOfficeButton, transportOfficeButton;
+    private static UIElement buildingImage;
+    private static Button buildButton;
+    private static TextArea buildingDescription;
+
+    private static Window pauseWindow;
+    private static Button resumeButton, loadButton, saveButton, settingsButton, quitButton;
+
+    private static Window saveWindow;
+    private static TextArea saveText;
+    private static ScrollPane scrollPane;
 
     private static NPCStatWindow npcStatWindow;
     private static BuildingStatWindow buildingStatWindow;
-    private static Window pauseWindow, saveWindow;
-    private static TextArea saveText;
-    private static ResourceList resourceList;
-    private static Clock clock;
-    private static ScrollPane scrollPane;
+
+    private static int padding = 10;
 
     public enum Anchor {
         CENTER,
@@ -69,6 +86,7 @@ public class UI {
     public enum Layer {
         BUILDINGS(true),
         IN_GAME(true),
+        BUILD_MENU(false),
         PAUSE_MENU(false),
         SAVE_MENU(false),
         POPUP(false);
@@ -103,34 +121,49 @@ public class UI {
     }
 
     public static void init() {
-        pauseMenu = new UIElement(Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(), true);
-        mainButtonGroup = new UIElement(Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(0, 10), true);
-        buildingButtonGroup = new UIElement(Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(0, 84), false);
+        mainButtonGroup = new UIElement(Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(padding, padding), true);
         timeElementGroup = new UIElement(Anchor.TOP_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(), true);
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 30;
+        parameter.spaceY = -6;
+        FONT = generator.generateFont(parameter);
+        generator.dispose();
 
         //region pauseMenu
-        int menuWidth = 120, menuHeight = 163;
-        pauseWindow = new Window(Textures.get(Textures.Ui.WINDOW), pauseMenu, Layer.PAUSE_MENU, new Vector2i());
-        pauseWindow.setContentWidth(menuWidth);
-        pauseWindow.setContentHeight(menuHeight);
-        pauseWindow.setLocalPosition(-pauseWindow.getWindowWidth() / 2, -pauseWindow.getWindowHeight() / 2);
-        pauseWindow.setTint(WHITE);
+        {
+            int menuWidth = 200, menuHeight = 380;
+            pauseWindow = new Window(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i());
+            pauseWindow.setContentWidth(menuWidth);
+            pauseWindow.setContentHeight(menuHeight);
+            pauseWindow.setLocalPosition(-pauseWindow.getWindowWidth() / 2, -pauseWindow.getWindowHeight() / 2);
+            pauseWindow.setTint(WHITE);
 
-        resumeButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, Layer.PAUSE_MENU, new Vector2i(-40,  40), "Resume", () -> showPauseMenu(false));
-        loadButton =   new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, Layer.PAUSE_MENU, new Vector2i(-40,   3), "Load", UI::showLoadMenu);
-        saveButton =   new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, Layer.PAUSE_MENU, new Vector2i(-40, -34), "Save", UI::showSaveMenu);
-        quitButton =   new Button(Textures.get(Textures.Ui.WIDE_BUTTON), pauseMenu, Layer.PAUSE_MENU, new Vector2i(-40, -71), "Quit", () -> Gdx.app.exit());
+            int x = -Textures.get(Textures.Ui.BIG_BUTTON).getRegionWidth() / 2;
+            resumeButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "Resume");
+            loadButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 42), "Load");
+            saveButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -32), "Save");
+            settingsButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -106), "Settings");
+            quitButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit");
 
-        resumeButton.setTint(WHITE);
-        loadButton.setTint(WHITE);
-        saveButton.setTint(WHITE);
-        quitButton.setTint(WHITE);
+            resumeButton.setOnUp(() -> showPauseMenu(false));
+            loadButton.setOnUp(UI::showLoadMenu);
+            saveButton.setOnUp(UI::showSaveMenu);
+            settingsButton.setOnUp(() -> {});
+            quitButton.setOnUp(() -> Gdx.app.exit());
+
+            resumeButton.setTint(WHITE);
+            loadButton.setTint(WHITE);
+            saveButton.setTint(WHITE);
+            settingsButton.setTint(WHITE);
+            quitButton.setTint(WHITE);
+        }
         //endregion
 
         //region saveWindow
-        saveWindow = new Window(Textures.get(Textures.Ui.WINDOW), pauseMenu, Layer.SAVE_MENU, new Vector2i());
-        saveWindow.setWindowWidth(280);
-        saveWindow.setContentHeight(300);
+        saveWindow = new Window(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.SAVE_MENU, new Vector2i());
+        saveWindow.setContentWidth(500);
+        saveWindow.setContentHeight(500);
         saveWindow.setLocalPosition(-saveWindow.getWindowWidth() / 2, -saveWindow.getWindowHeight() / 2);
 
         saveText = new TextArea("Save", saveWindow, Layer.SAVE_MENU, new Vector2i(0, saveWindow.getWindowHeight() - 25), saveWindow.getWindowWidth(), true);
@@ -142,83 +175,110 @@ public class UI {
         //endregion
 
         //region mainButtonGroup
-        buildingButton = new Button(Textures.get(Textures.Ui.HOUSE), mainButtonGroup, Layer.IN_GAME, new Vector2i(10, 0),
-                () -> buildingButtonGroup.setVisible(!buildingButtonGroup.isVisible()));
-        npcButton = new Button(Textures.get(Textures.Ui.NPC), mainButtonGroup, Layer.IN_GAME, new Vector2i(84, 0),
-                () -> {
-                    Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
-                    World.spawnNPC(new NPC(Textures.Npc.FUNGUY, position));
-                });
+        {
+            int x = 0;
+            buildMenuButton = new Button(Textures.get(Textures.Ui.HAMMER), mainButtonGroup, Layer.IN_GAME, new Vector2i());
+            npcButton = new Button(Textures.get(Textures.Ui.NPC), mainButtonGroup, Layer.IN_GAME, new Vector2i(x += 74, 0));
+            workButton = new Button(Textures.get(Textures.Ui.WORK), mainButtonGroup, Layer.IN_GAME, new Vector2i(x += 74, 0));
+            restButton = new Button(Textures.get(Textures.Ui.REST), mainButtonGroup, Layer.IN_GAME, new Vector2i(x += 74, 0));
+            demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainButtonGroup, Layer.IN_GAME, new Vector2i(x + 74, 0));
 
-        workButton = new Button(Textures.get(Textures.Ui.WORK), mainButtonGroup, Layer.IN_GAME, new Vector2i(158, 0),
-                () -> World.setTime(25170));
-        restButton = new Button(Textures.get(Textures.Ui.REST), mainButtonGroup, Layer.IN_GAME, new Vector2i(232, 0),
-                () -> World.setTime(57570));
-        demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainButtonGroup, Layer.IN_GAME, new Vector2i(306, 0),
-                () -> Buildings.setDemolishingMode(!Buildings.isDemolishing()));
+            buildMenuButton.setOnUp(() -> {
+                Layer.BUILD_MENU.setVisible(!Layer.BUILD_MENU.isVisible());
+                buildingImage.setTexture(null);
+                buildWindowDivider.setText("");
+                buildingDescription.setText("");
+                buildButton.setVisible(false);
+            });
+
+            npcButton.setOnUp(() -> {
+                Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
+                World.spawnNPC(new NPC(Textures.Npc.FUNGUY, position));
+            });
+
+            workButton.setOnUp(() -> World.setTime(25170));
+            restButton.setOnUp(() -> World.setTime(57570));
+            demolishButton.setOnUp(() -> Buildings.setDemolishingMode(!Buildings.isDemolishing()));
+        }
         //endregion
 
-        //region buildingButtonGroup
-        homeButton = new Button(Textures.get(Textures.Ui.HOME), buildingButtonGroup, Layer.IN_GAME, new Vector2i(10, 0),
-                () -> {
-                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_RESIDENTIAL_BUILDING);
-                    buildingButtonGroup.setVisible(false);
-                }, false);
-        workplaceButton = new Button(Textures.get(Textures.Ui.WORKPLACE), buildingButtonGroup, Layer.IN_GAME, new Vector2i(84, 0),
-                () -> {
-                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_PRODUCTION_BUILDING);
-                    buildingButtonGroup.setVisible(false);
-                }, false);
-        serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), buildingButtonGroup, Layer.IN_GAME, new Vector2i(158, 0),
-                () -> {
-                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_SERVICE_BUILDING);
-                    buildingButtonGroup.setVisible(false);
-                }, false);
-        storageButton = new Button(Textures.get(Textures.Ui.STORAGE), buildingButtonGroup, Layer.IN_GAME, new Vector2i(232, 0),
-                () -> {
-                    Buildings.toBuildingMode(Buildings.Type.DEFAULT_STORAGE_BUILDING);
-                    buildingButtonGroup.setVisible(false);
-                }, false);
-        constructionOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingButtonGroup, Layer.IN_GAME, new Vector2i(306, 0),
-                () -> {
-                    Buildings.toBuildingMode(Buildings.Type.CONSTRUCTION_OFFICE);
-                    buildingButtonGroup.setVisible(false);
-                }, false);
-        transportOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildingButtonGroup, Layer.IN_GAME, new Vector2i(380, 0),
-                () -> {
-                    Buildings.toBuildingMode(Buildings.Type.TRANSPORT_OFFICE);
-                    buildingButtonGroup.setVisible(false);
-                }, false);
+        //region buildingWindow
+        {
+            buildWindow = new Window(Textures.get(Textures.Ui.WINDOW), Anchor.CENTER.getElement(), Layer.BUILD_MENU, new Vector2i(), true);
+            buildWindow.setContentWidth(454);
+            buildWindow.setContentHeight(400);
+            buildWindow.setLocalPosition(-buildWindow.getWindowWidth() / 2, -buildWindow.getWindowHeight() / 2);
+
+            buildWindowDivider = new TextArea(Textures.get(Textures.Ui.DIVIDER), "", buildWindow, Layer.BUILD_MENU, new Vector2i(), true);
+            buildWindowDivider.setLocalPosition(
+                    buildWindow.getTexture().getRegionWidth() + padding,
+                    buildWindow.getTexture().getRegionHeight() + 128 + padding * 2
+            );
+
+            buildingImage = new UIElement(null, buildWindow, Layer.BUILD_MENU, new Vector2i(buildWindow.getEdgeWidth() + padding, buildWindow.getEdgeWidth() + padding));
+
+            buildingDescription = new TextArea("", buildWindow, Layer.BUILD_MENU, new Vector2i(), 200, false);
+
+            buildButton = new Button(
+                    Textures.get(Textures.Ui.BUILD),
+                    buildWindow, Layer.BUILD_MENU,
+                    new Vector2i(buildWindow.getWindowWidth() - buildWindow.getEdgeWidth() - 64 - padding, buildWindow.getEdgeWidth() + padding));
+            buildButton.setVisible(false);
+
+            int x = buildWindow.getTexture().getRegionWidth() + padding;
+            int y = buildWindow.getWindowHeight() - buildWindow.getEdgeWidth() - padding - 64;
+
+            logCabinButton = new Button(Textures.get(Textures.Ui.HOUSE), buildWindow, Layer.BUILD_MENU, new Vector2i(x, y));
+            lumberjackButton = new Button(Textures.get(Textures.Ui.AXE), buildWindow, Layer.BUILD_MENU, new Vector2i(x += 74, y));
+            mineButton = new Button(Textures.get(Textures.Ui.PICKAXE), buildWindow, Layer.BUILD_MENU, new Vector2i(x += 74, y));
+            storageButton = new Button(Textures.get(Textures.Ui.STORAGE), buildWindow, Layer.BUILD_MENU, new Vector2i(x += 74, y));
+            serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), buildWindow, Layer.BUILD_MENU, new Vector2i(x += 74, y));
+            constructionOfficeButton = new Button(Textures.get(Textures.Ui.BIG_HAMMER), buildWindow, Layer.BUILD_MENU, new Vector2i(x += 74, y));
+
+            x = buildWindow.getEdgeWidth() + padding;
+            y -= 74;
+
+            transportOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildWindow, Layer.BUILD_MENU, new Vector2i(x, y));
+
+            logCabinButton.setOnUp(() -> showBuildingStats(Buildings.Type.LOG_CABIN));
+            lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACK_HUT));
+            mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
+            storageButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_STORAGE_BUILDING));
+            serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_SERVICE_BUILDING));
+            constructionOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.CONSTRUCTION_OFFICE));
+            transportOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.TRANSPORT_OFFICE));
+        }
         //endregion
 
         //region timeElementGroup
         TextureRegion clockTexture = Textures.get(Textures.Ui.CLOCK_FACE);
         clock = new Clock(timeElementGroup, Layer.IN_GAME,
-                new Vector2i(-clockTexture.getRegionWidth() - 10, -clockTexture.getRegionHeight() - 10));
+                new Vector2i(-clockTexture.getRegionWidth() - padding, -clockTexture.getRegionHeight() - padding));
 
         pauseButton = new Button(
                 Textures.get(Textures.Ui.PAUSE),
                 timeElementGroup, Layer.IN_GAME,
-                new Vector2i(-clockTexture.getRegionWidth() - 9, -clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(0), true);
+                new Vector2i(-clockTexture.getRegionWidth() - 9, -clockTexture.getRegionHeight() - 36));
 
         playButton = new Button(
                 Textures.get(Textures.Ui.PLAY),
                 timeElementGroup, Layer.IN_GAME,
-                new Vector2i(-clockTexture.getRegionWidth() + 23, -clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(Logic.NORMAL_SPEED), true);
+                new Vector2i(-clockTexture.getRegionWidth() + 23, -clockTexture.getRegionHeight() - 36));
 
         x2Button = new Button(
                 Textures.get(Textures.Ui.X2SPEED),
                 timeElementGroup, Layer.IN_GAME,
-                new Vector2i(-clockTexture.getRegionWidth() + 55, -clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(Logic.SPEED_X2), true);
+                new Vector2i(-clockTexture.getRegionWidth() + 55, -clockTexture.getRegionHeight() - 36));
 
         x3Button = new Button(
                 Textures.get(Textures.Ui.X3SPEED),
                 timeElementGroup, Layer.IN_GAME,
-                new Vector2i(-clockTexture.getRegionWidth() + 87, -clockTexture.getRegionHeight() - 36),
-                () -> Logic.setTickSpeed(Logic.SPEED_X3), true);
+                new Vector2i(-clockTexture.getRegionWidth() + 87, -clockTexture.getRegionHeight() - 36));
+
+        pauseButton.setOnClick(() -> Logic.setTickSpeed(0));
+        playButton.setOnClick(() -> Logic.setTickSpeed(Logic.NORMAL_SPEED));
+        x2Button.setOnClick(() -> Logic.setTickSpeed(Logic.SPEED_X2));
+        x3Button.setOnClick(() -> Logic.setTickSpeed(Logic.SPEED_X3));
         //endregion
 
         npcStatWindow = new NPCStatWindow(Layer.IN_GAME);
@@ -233,17 +293,12 @@ public class UI {
         npcStatWindow.addToUI();
         buildingStatWindow.addToUI();
 
-        buildingButton.addToUI();
+        buildMenuButton.addToUI();
         npcButton.addToUI();
         workButton.addToUI();
         restButton.addToUI();
         demolishButton.addToUI();
-        homeButton.addToUI();
-        workplaceButton.addToUI();
-        serviceButton.addToUI();
-        storageButton.addToUI();
-        constructionOfficeButton.addToUI();
-        transportOfficeButton.addToUI();
+
         clock.addToUI();
         pauseButton.addToUI();
         playButton.addToUI();
@@ -251,10 +306,30 @@ public class UI {
         x3Button.addToUI();
         resourceList.addToUI();
 
+        Layer.BUILD_MENU.addElement(buildMenuButton);
+        Layer.BUILD_MENU.addElement(npcButton);
+        Layer.BUILD_MENU.addElement(workButton);
+        Layer.BUILD_MENU.addElement(restButton);
+        Layer.BUILD_MENU.addElement(demolishButton);
+
+        buildWindow.addToUI();
+            logCabinButton.addToUI();
+            lumberjackButton.addToUI();
+            mineButton.addToUI();
+            serviceButton.addToUI();
+            storageButton.addToUI();
+            constructionOfficeButton.addToUI();
+            transportOfficeButton.addToUI();
+            buildWindowDivider.addToUI();
+            buildingImage.addToUI();
+            buildingDescription.addToUI();
+            buildButton.addToUI();
+
         pauseWindow.addToUI();
             resumeButton.addToUI();
             loadButton.addToUI();
             saveButton.addToUI();
+            settingsButton.addToUI();
             quitButton.addToUI();
 
         saveWindow.addToUI();
@@ -285,11 +360,17 @@ public class UI {
             if (layer != null) interacted = onClick(getTopVisibleLayer());
         }
         else if (clickedElement != null) {
+            if (clickedElement instanceof Button button) activeButton = button;
             if (InputManager.isButtonDown(InputManager.LEFT_MOUSE)) interacted = onHold();
             if (InputManager.isButtonUp(InputManager.LEFT_MOUSE)) {
                 interacted = onUp();
                 clickedElement = null;
             }
+        }
+        else if (activeButton != null && activeButton.getLayer().equals(getTopVisibleLayer())) {
+            if (InputManager.isKeyPressed(Input.Keys.ENTER)) activeButton.onClick();
+            if (InputManager.isKeyDown(Input.Keys.ENTER)) activeButton.onHold();
+            if (InputManager.isKeyUp(Input.Keys.ENTER)) activeButton.onUp();
         }
 
         return interacted;
@@ -303,9 +384,9 @@ public class UI {
     private static boolean onClick(Layer layer) {
         for (int i = layer.getElements().size()-1; i >= 0; i--) {
             UIElement element = layer.getElements().get(i);
-            if (element.isVisible() && element instanceof Clickable && ((Clickable) element).isMouseOver()) {
-                ((Clickable) element).onClick();
-                clickedElement = ((Clickable) element);
+            if (element.isVisible() && element instanceof Clickable clickable && clickable.isMouseOver()) {
+                clickable.onClick();
+                clickedElement = clickable;
                 return true;
             }
         }
@@ -356,23 +437,28 @@ public class UI {
     }
 
     public static void showNPCStatWindow(NPC npc) {
-        npcStatWindow.show(npc);
+        npcStatWindow.pin(npc);
+        npcStatWindow.setVisible(true);
     }
 
     public static void showBuildingStatWindow(Building building) {
-        buildingStatWindow.show(building);
+        buildingStatWindow.pin(building);
+        buildingStatWindow.setVisible(true);
     }
 
     public static void onEscape() {
         if (!Logic.isPaused()) {
-            if (Buildings.isInBuildingMode() || Buildings.isDemolishing()) {
+            if (Layer.BUILD_MENU.isVisible()) {
+                Layer.BUILD_MENU.setVisible(false);
+            }
+            else if (Buildings.isInBuildingMode() || Buildings.isDemolishing()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.setDemolishingMode(false);
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
                 npcStatWindow.setVisible(false);
-            } else if (buildingButtonGroup.isVisible()) {
-                buildingButtonGroup.setVisible(false);
+            //} else if (buildingButtonGroup.isVisible()) {
+            //    buildingButtonGroup.setVisible(false);
             } else {
                 showPauseMenu(true);
             }
@@ -402,17 +488,14 @@ public class UI {
 
         Layer.SAVE_MENU.setVisible(true);
         saveText.setText("Load");
-        TextureRegion texture = Textures.get(Textures.Ui.WIDE_AREA);
 
         SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
 
         if (saves.size() == 0) {
-            UIElement field = new UIElement(texture, scrollPane, Layer.SAVE_MENU, new Vector2i());
-            TextArea textArea = new TextArea("No saves", field, Layer.SAVE_MENU, new Vector2i(0, 40), field.getHeight(), true);
-            field.setTint(WHITE);
+            TextArea textArea = new TextArea(Textures.get(Textures.Ui.WIDE_AREA), "No saves", scrollPane, Layer.SAVE_MENU, new Vector2i(), true);
             textArea.setTint(WHITE);
-            field.addToUI();
             textArea.addToUI();
+            scrollPane.addElement(textArea);
         }
         else {
             for (File save : saves) {
@@ -432,20 +515,23 @@ public class UI {
 
         SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
 
-        Button newSaveButton = new Button(texture, scrollPane, Layer.SAVE_MENU, new Vector2i(), "New save", () -> {
+        Button newSaveButton = new Button(texture, scrollPane, Layer.SAVE_MENU, new Vector2i(), "New save");
+
+        newSaveButton.setOnUp(() -> {
             Popups.showPopup("New save", "New save...", s -> {
                 if (BuilderGame.getSaveFile(s + ".save").exists()) {
                     Popups.showPopup("Override save?", () -> {
                         BuilderGame.saveToFile(s + ".save");
                         Layer.SAVE_MENU.setVisible(false);
                     });
-                } else {
+                }
+                else {
                     BuilderGame.saveToFile(s + ".save");
                     Layer.SAVE_MENU.setVisible(false);
                 }
             });
-            setActiveTextField(InputPopup.getTextField());
         });
+
         saveWindowElements.add(newSaveButton);
         newSaveButton.setTint(WHITE);
         newSaveButton.addToUI();
@@ -460,6 +546,10 @@ public class UI {
         UI.activeTextField = activeTextField;
     }
 
+    public static void setActiveButton(Button activeButton) {
+        UI.activeButton = activeButton;
+    }
+
     private static void createSaveField(File saveFile, boolean isSaving) {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
 
@@ -470,36 +560,30 @@ public class UI {
                     dateFormat.format(saveFile.lastModified()),
                 area,
                 Layer.SAVE_MENU,
-                new Vector2i(Textures.get(Textures.Ui.WIDE_BUTTON).getRegionWidth(), area.getHeight() - 15),
-                area.getWidth() - Textures.get(Textures.Ui.WIDE_BUTTON).getRegionWidth(),
+                new Vector2i(158, area.getHeight() - 15),
+                area.getWidth() - 148,
                 true);
 
-        Button saveButton = new Button(
-                Textures.get(Textures.Ui.WIDE_BUTTON),
-                area,
-                Layer.SAVE_MENU,
-                new Vector2i(0, 32),
-                isSaving ? "save" : "load",
-                () -> {
+        Button saveButton = new Button(Textures.get(isSaving ? Textures.Ui.SAVE : Textures.Ui.LOAD), area, Layer.SAVE_MENU, new Vector2i(padding, padding));
+
+                saveButton.setOnUp(() -> {
                     if(isSaving) {
                         Popups.showPopup("Override save?", () -> {
+                            //todo show info popup
                             BuilderGame.saveToFile(saveFile);
                             Layer.SAVE_MENU.setVisible(false);
                         });
                     }
                     else {
+                        //todo show info popup
                         BuilderGame.loadFromFile(saveFile);
                         Layer.SAVE_MENU.setVisible(false);
                     }
                 });
 
-        Button deleteButton = new Button(
-                Textures.get(Textures.Ui.WIDE_BUTTON),
-                area,
-                Layer.SAVE_MENU,
-                new Vector2i(0, 0),
-                "delete",
-                () -> {
+        Button deleteButton = new Button(Textures.get(Textures.Ui.DELETE), area, Layer.SAVE_MENU, new Vector2i(padding * 2 + 64, padding));
+
+                deleteButton.setOnUp(() -> {
                     Popups.showPopup("Delete file?", () -> {
                         saveFile.delete();
                         if(isSaving) showSaveMenu();
@@ -527,5 +611,27 @@ public class UI {
         textArea.setScissors(area.getScissors());
         saveButton.setScissors(area.getScissors());
         deleteButton.setScissors(area.getScissors());
+    }
+
+    private static void showBuildingStats(Buildings.Type building) {
+        float scale = 128f / building.getTexture().getRegionHeight();
+        buildingImage.setScale(scale);
+        buildingImage.setTexture(building.getTexture());
+        buildWindowDivider.setText(building.name);
+
+        String text = "";
+        if (building.job != null && building.job.getRange() != 0) text += "Range: " + building.job.getRange();
+        buildingDescription.setText(text);
+        buildingDescription.setLocalPosition(
+                buildingImage.getLocalPosition().x + (int)(buildingImage.getWidth() * scale) + padding,
+                buildingImage.getLocalPosition().y + (int)(buildingImage.getHeight() * scale)
+                );
+
+        buildButton.setOnUp(() -> {
+            Buildings.toBuildingMode(building);
+            Layer.BUILD_MENU.setVisible(false);
+        });
+
+        buildButton.setVisible(true);
     }
 }

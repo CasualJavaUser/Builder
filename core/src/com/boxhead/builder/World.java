@@ -89,13 +89,13 @@ public class World {
     private static void generateObjects() {
         Vector2i pos = new Vector2i();
         float treeSmallNoiseFreq = 5.9f, treeBigNoiseFreq = 99.2f;
-        float stoneSmallNoiseFreq = 5.9f, stoneBigNoiseFreq = 199.2f;
+        float rockSmallNoiseFreq = 5.9f, rockBigNoiseFreq = 199.2f;
 
         for (int y = worldSize.y - 1; y >= 0; y--) {
             for (int x = worldSize.x - 1; x >= 0; x--) {
                 pos.set(x, y);
                 generateTree(pos.clone(), treeSmallNoiseFreq, treeBigNoiseFreq);
-                generateStone(pos.clone(), stoneSmallNoiseFreq, stoneBigNoiseFreq);
+                generateRock(pos.clone(), rockSmallNoiseFreq, rockBigNoiseFreq);
             }
         }
     }
@@ -115,7 +115,7 @@ public class World {
         }
     }
 
-    private static void generateStone(Vector2i pos, float smallFreq, float bigFreq) {
+    private static void generateRock(Vector2i pos, float smallFreq, float bigFreq) {
         Harvestables.Type type = Harvestables.Type.STONE;
         double dx = (double) pos.x / noiseSize;
         double dy = (double) pos.y / noiseSize;

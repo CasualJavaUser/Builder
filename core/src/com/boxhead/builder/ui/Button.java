@@ -14,28 +14,26 @@ public class Button extends UIElement implements Clickable {
     private String text;
     private Color defaultTint;
 
-    public Button(TextureRegion texture, UI.Layer layer, Vector2i position, Action action, boolean onDown) {
-        this(texture, null, layer, position, null, action, onDown);
-    }
-
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, Action action) {
-        this(texture, parent, layer, position, null, action, false);
-    }
-
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text, Action action) {
-        this(texture, parent, layer, position, text, action, false);
-    }
-
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, Action action, boolean onDown) {
-        this(texture, parent, layer, position, null, action, onDown);
-    }
-
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text, Action action, boolean onDown) {
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text) {
         super(texture, parent, layer, position);
-        if(onDown) onClick = action;
-        else onUp = action;
         this.text = text;
         defaultTint = tint;
+    }
+
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
+        this(texture, parent, layer, position, null);
+    }
+
+    public Button(TextureRegion texture, UI.Layer layer, Vector2i position) {
+        this(texture, null, layer, position, null);
+    }
+
+    public void setOnClick(Action action) {
+        onClick = action;
+    }
+
+    public void setOnUp(Action onUp) {
+        this.onUp = onUp;
     }
 
     @Override
@@ -80,7 +78,7 @@ public class Button extends UIElement implements Clickable {
                     batch,
                     text,
                     getGlobalPosition().x,
-                    getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT_SIZE/2),
+                    getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT.getCapHeight()/2),
                     texture.getRegionWidth(),
                     1,
                     false);

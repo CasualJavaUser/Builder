@@ -25,6 +25,12 @@ public class BoxCollider implements Serializable {
         this.height = height;
     }
 
+    public BoxCollider(int x, int y, int width, int height) {
+        lowerLeftCorner = new Vector2i(x, y);
+        this.width = width;
+        this.height = height;
+    }
+
     public boolean overlaps(Vector2i gridPosition) {
         return gridPosition.x >= lowerLeftCorner.x && gridPosition.x < lowerLeftCorner.x + width &&
                 gridPosition.y >= lowerLeftCorner.y && gridPosition.y < lowerLeftCorner.y + height;

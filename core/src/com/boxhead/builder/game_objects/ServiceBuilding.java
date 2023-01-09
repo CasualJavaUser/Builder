@@ -13,16 +13,13 @@ import java.util.Set;
 public class ServiceBuilding extends ProductionBuilding {
 
     private transient Service service;
-    private final int guestCapacity;
     private final Set<NPC> guests;
-    private int serviceCounter, serviceInterval;
+    private int serviceCounter;
 
-    public ServiceBuilding(Buildings.Type type, Vector2i gridPosition, int employeeCapacity, int guestCapacity, int productionInterval, int serviceInterval) {
-        super(type, gridPosition, employeeCapacity, productionInterval);
+    public ServiceBuilding(Buildings.Type type, Vector2i gridPosition) {
+        super(type, gridPosition);
         this.service = type.service;
-        this.guestCapacity = guestCapacity;
-        this.serviceInterval = serviceInterval;
-        guests = new HashSet<>(guestCapacity, 1f);
+        guests = new HashSet<>(type.guestCapacity, 1f);
     }
 
     /**
@@ -42,7 +39,7 @@ public class ServiceBuilding extends ProductionBuilding {
      * @return true if the array of guests changed as a result of the call
      */
     public boolean addGuest(NPC npc) {
-        if (guests.size() < guestCapacity) {
+        if (guests.size() < type.guestCapacity) {
             return guests.add(npc);
         }
         return false;
@@ -65,10 +62,6 @@ public class ServiceBuilding extends ProductionBuilding {
             it++;
         }
         return false;
-    }
-
-    public int getGuestCapacity() {
-        return guestCapacity;
     }
 
     public int getGuestsInside() {

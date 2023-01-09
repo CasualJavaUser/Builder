@@ -13,7 +13,9 @@ public class UIElement {
     protected TextureRegion texture;
     protected UIElement parent;
     private final Vector2i position;
+    protected float scale;
     protected float rotation;
+    protected float originX = 0, originY = 0;
     protected boolean isVisible;
     protected Color tint;
     protected UI.Layer layer;
@@ -24,26 +26,31 @@ public class UIElement {
     }
 
     public UIElement(UIElement parent, UI.Layer layer, Vector2i position, boolean visible) {
-        this(null, parent, layer, position, 0, visible);
+        this(null, parent, layer, position, 1, 0, visible);
     }
 
     public UIElement(TextureRegion texture, UI.Layer layer, Vector2i position, boolean visible) {
-        this(texture, null, layer, position, 0, visible);
+        this(texture, null, layer, position, 1, 0, visible);
     }
 
     public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
-        this(texture, parent, layer, position, 0, true);
+        this(texture, parent, layer, position, 1, 0, true);
     }
 
     public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean visible) {
-        this(texture, parent, layer, position, 0, visible);
+        this(texture, parent, layer, position, 1, 0, visible);
     }
 
     public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, float rotation, boolean visible) {
+        this(texture, parent, layer, position, 1, rotation, visible);
+    }
+
+    public UIElement(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, float scale, float rotation, boolean visible) {
         this.texture = texture;
         this.parent = parent;
         this.layer = layer;
         this.position = position;
+        this.scale = scale;
         this.rotation = rotation;
         isVisible = visible;
         tint = UI.DEFAULT_COLOR;
@@ -125,6 +132,15 @@ public class UIElement {
         else return rotation;
     }
 
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+
+    public void setOriginToCenter() {
+        originX = (float) texture.getRegionWidth() / 2;
+        originY = (float) texture.getRegionHeight() / 2;
+    }
+
     public void setTint(Color tint) {
         this.tint = tint;
     }
@@ -183,11 +199,11 @@ public class UIElement {
                     texture,
                     getGlobalPosition().x,
                     getGlobalPosition().y,
-                    (float) texture.getRegionWidth() / 2,
-                    (float) texture.getRegionHeight() / 2,
+                    originX,
+                    originY,
                     texture.getRegionWidth(), texture.getRegionHeight(),
-                    1,
-                    1,
+                    scale,
+                    scale,
                     -getGlobalRotation());
             batch.setColor(UI.DEFAULT_COLOR);
         }

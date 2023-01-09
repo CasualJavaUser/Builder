@@ -1,7 +1,6 @@
 package com.boxhead.builder.ui.popup;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.ui.*;
@@ -23,38 +22,25 @@ public class InputPopup extends Popup {
         setWindowHeight(139);
 
         TextureRegion textFieldTexture = Textures.get(Textures.Ui.TEXT_FIELD);
-        textField = new TextField(prompt, textFieldTexture, this, UI.Layer.POPUP, new Vector2i((getWindowWidth() - textFieldTexture.getRegionWidth())/2, padding*2 + 32), () -> {
-            if(!textField.getText().equals("")) {
-                layer.setVisible(false);
-                onAccept.accept(textField.getText());
-                textField.setText("");
-            }
-        });
+        textField = new TextField(prompt, textFieldTexture, this, UI.Layer.POPUP, new Vector2i((getWindowWidth() - textFieldTexture.getRegionWidth())/2, padding*2 + 32));
 
-        okButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), this, UI.Layer.POPUP, new Vector2i(padding, padding), "OK", () -> {
+        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(padding, padding), "OK");
+        okButton.setOnUp(() -> {
             if(!textField.getText().equals("")) {
                 layer.setVisible(false);
                 onAccept.accept(textField.getText());
                 textField.setText("");
                 UI.setActiveTextField(null);
             }
-        }, false);
+        });
 
-        cancelButton = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*padding, padding), "Cancel", () -> {
+        cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*padding, padding), "Cancel");
+        cancelButton.setOnUp(() -> {
             layer.setVisible(false);
             textField.setText("");
             UI.setActiveTextField(null);
-        }, false);
+        });
     }
-
-    /*protected static void show(String text, String prompt, Consumer<String> onAccept) {
-        getInstance();
-        instance.text = text;
-        instance.prompt = prompt;
-        instance.onAccept = onAccept;
-        instance.setTint(UI.WHITE);
-        instance.setVisible(true);
-    }*/
 
     protected static InputPopup getInstance() {
         if (instance == null) {
@@ -70,8 +56,12 @@ public class InputPopup extends Popup {
         return instance;
     }
 
-    public static TextField getTextField() {
+    public TextField getTextField() {
         return getInstance().textField;
+    }
+
+    public Button getOkButton() {
+        return okButton;
     }
 
     @Override

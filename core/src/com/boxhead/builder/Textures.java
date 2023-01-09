@@ -54,12 +54,18 @@ public class Textures {
     }
 
     public enum Building implements TextureId {
+        LOG_CABIN, LOG_CABIN_CS,
+        LUMBERJACK_HUT, LUMBERJACK_HUT_CS,
+        MINE, MINE_CS,
         FUNGI, FUNGUS, HOUSE_FUNGUS, WORK_FUNGUS, SERVICE_FUNGUS, STORAGE_FUNGUS, CONSTRUCTION_OFFICE,
         HOUSE_FUNGUS_CS, WORK_FUNGUS_CS, SERVICE_FUNGUS_CS, STORAGE_FUNGUS_CS, CONSTRUCTION_OFFICE_CS
     }
 
     public enum Tile implements TextureId {
-        DEFAULT, DIRT, GRASS, GRASS1, GRASS2, GRASS3, WATER
+        DEFAULT,
+        DIRT,
+        GRASS1, GRASS2, GRASS3,
+        WATER1, WATER2
     }
 
     public enum Npc implements TextureId {
@@ -67,12 +73,19 @@ public class Textures {
     }
 
     public enum Ui implements TextureId {
+        //buttons
         FUNGUS,
-        HOUSE, NPC, WORK, REST, DEMOLISH,
-        HOME, WORKPLACE, SERVICE, STORAGE, CONSTRUCTION_OFFICE,
-        NO_STORAGE, FULL_STORAGE, NO_RESOURCES, WINDOW, WIDE_AREA,
+        HAMMER, NPC, WORK, REST, DEMOLISH,
+        HOUSE, AXE, PICKAXE, BIG_HAMMER, STORAGE, BUILD,
+        SAVE, LOAD, DELETE,
+
+        DIVIDER,
+        SMALL_BUTTON, BIG_BUTTON,
         CLOCK_FACE, HOUR_HAND, MINUTE_HAND, PAUSE, PLAY, X2SPEED, X3SPEED,
-        WIDE_BUTTON, CLOSE_BUTTON, TEXT_FIELD
+
+        SERVICE, CONSTRUCTION_OFFICE,
+        NO_STORAGE, FULL_STORAGE, NO_RESOURCES, WINDOW, MENU_WINDOW, WIDE_AREA,
+        CLOSE_BUTTON, TEXT_FIELD
     }
 
     public enum Resource implements TextureId {
@@ -80,6 +93,6 @@ public class Textures {
     }
 
     public enum Environment implements TextureId {
-        SMALL_TREE, BIG_TREE, BUSH, STONE1, STONE2
+        PINE_TREE, ROCK1, ROCK2, ROCK3
     }
 }

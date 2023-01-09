@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -72,7 +73,10 @@ public class NPC extends GameObject implements Clickable {
         if (!isInBuilding()) {
             float x = spritePosition.x * World.TILE_SIZE;
             float y = spritePosition.y * World.TILE_SIZE;
-            batch.draw(texture, x, y);
+            Vector3 pos = GameScreen.worldToScreenPosition(x, y);
+            if (pos.x + texture.getRegionWidth() / GameScreen.camera.zoom > 0 && pos.x < Gdx.graphics.getWidth() &&
+                    pos.y + texture.getRegionHeight() / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight())
+                batch.draw(texture, x, y);
         }
     }
 

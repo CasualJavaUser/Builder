@@ -19,13 +19,22 @@ public class Buildings {
     private static Range<Integer> rangeX, rangeY;
 
     public enum Type {
-        DEFAULT_PRODUCTION_BUILDING(Textures.Building.WORK_FUNGUS, Jobs.LUMBERJACK, new Vector2i(0, -1), "lumber mill"),
-        DEFAULT_RESIDENTIAL_BUILDING(Textures.Building.HOUSE_FUNGUS, new Vector2i(0, -1), "house"),
-        DEFAULT_SERVICE_BUILDING(Textures.Building.SERVICE_FUNGUS, Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), "hospital"),
-        DEFAULT_STORAGE_BUILDING(Textures.Building.STORAGE_FUNGUS, new Vector2i(1, -1), "storage"),
-        BIG(Textures.Building.FUNGI),
-        CONSTRUCTION_OFFICE(Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1)),
-        TRANSPORT_OFFICE(Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0));
+        LOG_CABIN
+                (Textures.Building.LOG_CABIN, "log cabin", new Vector2i(2, -1), new BoxCollider(0, 0, 4, 2), 5),
+        LUMBERJACK_HUT
+                (Textures.Building.LUMBERJACK_HUT, "lumberjack's hut", Jobs.LUMBERJACK, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 3), 1, 100),
+        MINE
+                (Textures.Building.MINE, "mine", Jobs.MINER, new Vector2i(1, -1), 3, 300),
+        DEFAULT_SERVICE_BUILDING
+                (Textures.Building.SERVICE_FUNGUS, "hospital", Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), 5, 100, 10, 100),
+        DEFAULT_STORAGE_BUILDING
+                (Textures.Building.STORAGE_FUNGUS, "storage", new Vector2i(1, -1)),
+        BIG
+                (Textures.Building.FUNGI),
+        CONSTRUCTION_OFFICE
+                (Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1), 5, 0),
+        TRANSPORT_OFFICE
+                (Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0), 5, 0);
 
         public final Textures.Building texture;
         public final Job job;
@@ -36,24 +45,31 @@ public class Buildings {
          */
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
+        public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
 
         public String name;
 
-        Type(Textures.Building texture, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider, String name) {
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval) {
             this.texture = texture;
             this.job = job;
             this.service = service;
             this.entrancePosition = entrancePosition;
             this.relativeCollider = relativeCollider;
             this.name = name;
+            this.npcCapacity = npcCapacity;
+            this.productionInterval = productionInterval;
+            this.guestCapacity = guestCapacity;
+            this.serviceInterval = serviceInterval;
         }
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, String name) {
-            this(texture, job, null, entrancePosition, relativeCollider, name);
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0);
         }
 
-        Type(Textures.Building texture, Job job, Service service, Vector2i entrancePosition, String name) {
-            this(texture,
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, int npcCapacity, int productionInterval, int guestCapacity, int serviceCapacity) {
+            this(
+                    texture,
+                    name,
                     job,
                     service,
                     entrancePosition,
@@ -61,29 +77,41 @@ public class Buildings {
                             Vector2i.zero(),
                             Textures.get(texture).getRegionWidth() / World.TILE_SIZE,
                             Textures.get(texture).getRegionHeight() / World.TILE_SIZE),
-                    name);
+                    npcCapacity,
+                    productionInterval,
+                    0,
+                    0
+            );
 
         }
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, String name) {
-            this(texture, job, null, entrancePosition, name);
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, int npcCapacity, int productionInterval) {
+            this(texture, name, job, service, entrancePosition, npcCapacity, productionInterval, 0, 0);
         }
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition) {
-            this(texture, job, entrancePosition, null);
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval) {
+            this(texture, name, job, null, entrancePosition, npcCapacity, productionInterval);
+        }
+
+        Type(Textures.Building texture, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval) {
+            this(texture, null, job, null, entrancePosition, npcCapacity, productionInterval);
             name = defaultName();
         }
 
-        Type(Textures.Building texture, Vector2i entrancePosition, String name) {
-            this(texture, null, entrancePosition, name);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity) {
+            this(texture, name, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0);
+        }
+
+        Type(Textures.Building texture, String name, Vector2i entrancePosition) {
+            this(texture, name, null, null, entrancePosition, 0, 0, 0, 0);
         }
 
         Type(Textures.Building texture, String name) {
-            this(texture, null, null, name);
+            this(texture, name, null, null, null, null, 0, 0, 0, 0);
         }
 
         Type(Textures.Building texture) {
-            this(texture, null);
+            this(texture, null, null, null, null, null, 0, 0, 0, 0);
             name = defaultName();
         }
 
@@ -106,20 +134,22 @@ public class Buildings {
 
     public static Building create(Type building, Vector2i gridPosition) {
         switch (building) {
-            case DEFAULT_PRODUCTION_BUILDING:
-                return new ProductionBuilding(building, gridPosition, 1, 100);
-            case DEFAULT_RESIDENTIAL_BUILDING:
-                return new ResidentialBuilding(building, gridPosition, 5);
+            case LOG_CABIN:
+                return new ResidentialBuilding(building, gridPosition);
+            case LUMBERJACK_HUT:
+                return new ProductionBuilding(building, gridPosition);
+            case MINE:
+                return new ProductionBuilding(building, gridPosition);
             case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding(building, gridPosition, 5, 10, 100, 100);
+                return new ServiceBuilding(building, gridPosition);
             case DEFAULT_STORAGE_BUILDING:
                 return new StorageBuilding(building, gridPosition);
             case BIG:
                 return new Building(building, gridPosition);
             case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding(building, gridPosition, 5, 0);
+                return new ProductionBuilding(building, gridPosition);
             case TRANSPORT_OFFICE:
-                return new ProductionBuilding(building, gridPosition, 3, 0);
+                return new ProductionBuilding(building, gridPosition);
             default:
                 throw new IllegalArgumentException("Unknown building type: " + building);
         }

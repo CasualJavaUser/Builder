@@ -149,4 +149,8 @@ public class Window extends UIElement {
     public int getWindowWidth() {
         return windowWidth;
     }
+
+    public int getEdgeWidth() {
+        return texture.getRegionWidth();
+    }
 }

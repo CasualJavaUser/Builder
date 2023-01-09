@@ -10,12 +10,14 @@ public class Jobs {
             return "unemployed";
         }
     };
+
     public static final Job DOCTOR = new Job() {
         @Override
         public String toString() {
             return "doctor";
         }
     };
+
     public static final Job LUMBERJACK = new Job() {
         private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, NPC.INVENTORY_SIZE));
 
@@ -78,6 +80,7 @@ public class Jobs {
             return "lumberjack";
         }
     };
+
     public static final Job BUILDER = new Job() {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
@@ -109,6 +112,25 @@ public class Jobs {
         @Override
         public String toString() {
             return "builder";
+        }
+    };
+
+    public static final Job MINER = new Job() {
+        private final Recipe recipe = new Recipe(Pair.of(Resource.STONE, 5));
+
+        @Override
+        public Recipe getRecipe() {
+            return recipe;
+        }
+
+        @Override
+        public int getRange() {
+            return 10;
+        }
+
+        @Override
+        public String toString() {
+            return "miner";
         }
     };
 

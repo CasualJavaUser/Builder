@@ -7,17 +7,15 @@ import java.util.Set;
 
 public class ResidentialBuilding extends EnterableBuilding {
 
-    private final int residentCapacity;
     private final Set<NPC> residents;
 
-    public ResidentialBuilding(Buildings.Type type, Vector2i gridPosition, int residentCapacity) {
+    public ResidentialBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        this.residentCapacity = residentCapacity;
-        residents = new HashSet<>(residentCapacity, 1f);
+        residents = new HashSet<>(type.npcCapacity, 1f);
     }
 
     public boolean addResident(NPC npc) {
-        if (residents.size() < residentCapacity) {
+        if (residents.size() < type.npcCapacity) {
             return residents.add(npc);
         }
         return false;
@@ -28,11 +26,11 @@ public class ResidentialBuilding extends EnterableBuilding {
     }
 
     public boolean hasFreePlaces() {
-        return residents.size() < residentCapacity;
+        return residents.size() < type.npcCapacity;
     }
 
     public int getResidentCapacity() {
-        return residentCapacity;
+        return type.npcCapacity;
     }
 
     public Set<NPC> getResidents() {

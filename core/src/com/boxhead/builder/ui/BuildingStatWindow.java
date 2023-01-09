@@ -28,7 +28,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         UI.FONT.setColor(Color.RED);
         UI.FONT.draw(batch, warning, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getWindowHeight() - verticalPadding);
         UI.FONT.setColor(Color.WHITE);
-        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getWindowHeight() - verticalPadding - (warning.equals("") ? 0 : UI.FONT_SIZE + verticalPadding));
+        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding, getGlobalPosition().y + getWindowHeight() - verticalPadding - (warning.equals("") ? 0 : UI.FONT.getXHeight() + verticalPadding));
 
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
             drawNPCCounter(batch);
@@ -44,7 +44,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         }
 
         if(pinnedObject instanceof ProductionBuilding building) {
-            npcCapacity = building.getEmployeeCapacity();
+            npcCapacity = building.getType().npcCapacity;
             npcs = building.getEmployees();
             job = building.getJob();
 
@@ -101,15 +101,15 @@ public class BuildingStatWindow extends StatWindow<Building> {
     }
 
     @Override
-    public void show(Building gameObject) {
-        if (pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();
-        super.show(gameObject);
+    public void pin(Building gameObject) {
+        if(pinnedObject instanceof ProductionBuilding building) building.showRangeVisualiser(false);
+        super.pin(gameObject);
     }
 
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
-        if(!visible && pinnedObject instanceof ProductionBuilding) ((ProductionBuilding)pinnedObject).hideRangeVisualiser();
+        if(pinnedObject instanceof ProductionBuilding building) building.showRangeVisualiser(visible);
     }
 
     private void drawNPCCounter(SpriteBatch batch) {

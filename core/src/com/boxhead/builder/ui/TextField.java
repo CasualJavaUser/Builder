@@ -5,18 +5,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.InputManager;
-import com.boxhead.builder.utils.Action;
 import com.boxhead.builder.utils.Vector2i;
 
 public class TextField extends UIElement implements Clickable {
     private String prompt, text = "";
     private final int padding = 10;
-    private Action onEnter;
 
-    public TextField(String prompt, TextureRegion background, UIElement parent, UI.Layer layer, Vector2i position, Action onEnter) {
+    public TextField(String prompt, TextureRegion background, UIElement parent, UI.Layer layer, Vector2i position) {
         super(background, parent, layer, position);
         this.prompt = prompt;
-        this.onEnter = onEnter;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class TextField extends UIElement implements Clickable {
                 batch,
                 txt,
                 getGlobalPosition().x + padding,
-                getGlobalPosition().y + (texture.getRegionHeight() + UI.FONT_SIZE)/2f - 2,
+                getGlobalPosition().y + (texture.getRegionHeight() + UI.FONT.getCapHeight())/2f - 2,
                 texture.getRegionWidth() - padding*2,
                 0,
                 false);
@@ -73,7 +70,6 @@ public class TextField extends UIElement implements Clickable {
         char key = InputManager.getKeyTyped();
         if (key >= ' ' && key <= '~') text += key;
         else if (key == '\b' && text.length() > 0) text = text.substring(0, text.length()-1);
-        else if (key == '\n') onEnter.execute();
     }
 
     public void setText(String text) {

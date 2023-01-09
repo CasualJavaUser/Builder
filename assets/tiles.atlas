@@ -1,6 +1,6 @@
 
 tiles.png
-size: 128, 32
+size: 256, 32
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
@@ -18,16 +18,9 @@ dirt
   orig: 16, 16
   offset: 0, 0
   index: -1
-grass
-  rotate: false
-  xy: 37, 1
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
 grass1
   rotate: false
-  xy: 19, 1
+  xy: 37, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -46,7 +39,21 @@ grass3
   orig: 16, 16
   offset: 0, 0
   index: -1
-water
+left_river_bank
+  rotate: false
+  xy: 127, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+water1
+  rotate: false
+  xy: 19, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+water2
   rotate: false
   xy: 91, 1
   size: 16, 16

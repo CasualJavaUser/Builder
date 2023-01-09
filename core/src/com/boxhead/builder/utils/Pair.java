@@ -1,8 +1,9 @@
 package com.boxhead.builder.utils;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Pair<A, B> {
+public class Pair<A, B> implements Serializable {
     public A first;
     public B second;
 
