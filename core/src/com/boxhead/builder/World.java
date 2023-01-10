@@ -320,7 +320,9 @@ public class World {
         Arrays.fill(storedResources, 0);
         for (Building building : buildings) {
             for (int i = 0; i < storedResources.length; i++) {
-                storedResources[i] += building.getInventory().getResourceAmount(Resource.values()[i]);
+                if (building instanceof StorageBuilding b) {
+                    storedResources[i] += b.getInventory().getResourceAmount(Resource.values()[i]);
+                }
             }
         }
     }
