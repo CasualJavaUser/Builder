@@ -57,7 +57,7 @@ public class World {
         //temp
         Vector2i constructionOfficePos = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         placeBuilding(Buildings.Type.BUILDERS_HUT, constructionOfficePos);
-        makeUnnavigable(new BoxCollider(constructionOfficePos, 2, 2));
+        makeUnnavigable(new BoxCollider(constructionOfficePos, 4, 2));
     }
 
     public static void handleNpcsAndBuildingsOnClick() {

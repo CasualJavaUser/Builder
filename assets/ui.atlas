@@ -41,7 +41,7 @@ clock_face
   index: -1
 close_button
   rotate: false
-  xy: 608, 32
+  xy: 1104, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -109,6 +109,20 @@ house
   orig: 64, 64
   offset: 0, 0
   index: -1
+housing_tab
+  rotate: false
+  xy: 1600, 91
+  size: 32, 37
+  orig: 32, 37
+  offset: 0, 0
+  index: -1
+infrastructure_tab
+  rotate: false
+  xy: 608, 27
+  size: 32, 37
+  orig: 32, 37
+  offset: 0, 0
+  index: -1
 load
   rotate: false
   xy: 1344, 64
@@ -118,7 +132,7 @@ load
   index: -1
 menu_window
   rotate: false
-  xy: 1104, 15
+  xy: 608, 10
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -132,7 +146,7 @@ minute_hand
   index: -1
 no_resources
   rotate: false
-  xy: 464, 28
+  xy: 1136, 16
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -179,6 +193,13 @@ play
   orig: 30, 16
   offset: 0, 0
   index: -1
+resources_tab
+  rotate: false
+  xy: 1664, 91
+  size: 32, 37
+  orig: 32, 37
+  offset: 0, 0
+  index: -1
 rest
   rotate: false
   xy: 1536, 64
@@ -198,6 +219,13 @@ service
   xy: 1152, 64
   size: 64, 64
   orig: 64, 64
+  offset: 0, 0
+  index: -1
+services_tab
+  rotate: false
+  xy: 1632, 91
+  size: 32, 37
+  orig: 32, 37
   offset: 0, 0
   index: -1
 small_button
