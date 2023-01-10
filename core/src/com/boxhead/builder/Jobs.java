@@ -3,6 +3,8 @@ package com.boxhead.builder;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.utils.Pair;
 
+import java.util.Set;
+
 public class Jobs {
     public static final Job UNEMPLOYED = new Job() {
         @Override
@@ -72,7 +74,7 @@ public class Jobs {
 
         @Override
         public int getRange() {
-            return 10;
+            return 15;
         }
 
         @Override
@@ -126,6 +128,13 @@ public class Jobs {
         @Override
         public int getRange() {
             return 10;
+        }
+
+        @Override
+        public float getEfficiency(Set<Building> buildingsInRange) {
+            float efficiency = 1f - (float)buildingsInRange.size() / 3f;
+            if (efficiency < 0) efficiency = 0;
+            return efficiency;
         }
 
         @Override

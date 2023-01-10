@@ -1,23 +1,30 @@
 package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
-public class StorageBuilding extends EnterableBuilding {
+public class StorageBuilding extends Building {
+    /**
+     * Absolute position of the tile from which NPCs can enter.
+     */
+    protected Vector2i entrancePosition;
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
+        entrancePosition = gridPosition.add(type.entrancePosition);
     }
 
-    public boolean isFull() {
-        return getInventory().getAvailableCapacity() == 0;
+    public Vector2i getEntrancePosition() {
+        return entrancePosition;
     }
 
-    public int getStored(Resource resource) {
-        return getInventory().getResourceAmount(resource);
-    }
-
-    public int getRemainingCapacity() {
-        return inventory.getAvailableCapacity();
+    public static StorageBuilding getByCoordinates(Vector2i gridPosition) {
+        for (Building building : World.getBuildings()) {
+            if (building.getGridPosition().equals(gridPosition)) {
+                return (StorageBuilding) building;
+            }
+        }
+        return null;
     }
 }

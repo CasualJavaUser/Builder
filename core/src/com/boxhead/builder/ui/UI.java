@@ -28,17 +28,14 @@ public class UI {
     public static final Color WHITE = new Color(1, 1, 1, 1);
     public static final Color DARK = new Color(.5f, .5f, .5f, 1);
 
-    //public static final BitmapFont FONT = new BitmapFont();
     public static BitmapFont FONT;
-    //public static final int FONT_SIZE = 30;
     private static TextField activeTextField = null;
     private static Button activeButton = null;
     private static ScrollPane activeScrollPane = null;
     private static Clickable clickedElement = null;
     private static Set<UIElement> saveWindowElements = new HashSet<>();
 
-    private static UIElement mainButtonGroup;
-    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton;
+    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, pauseGameButton;
 
     private static UIElement timeElementGroup;
     private static Clock clock;
@@ -63,7 +60,7 @@ public class UI {
     private static NPCStatWindow npcStatWindow;
     private static BuildingStatWindow buildingStatWindow;
 
-    private static int padding = 10;
+    private static final int padding = 10;
 
     public enum Anchor {
         CENTER,
@@ -121,7 +118,6 @@ public class UI {
     }
 
     public static void init() {
-        mainButtonGroup = new UIElement(Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(padding, padding), true);
         timeElementGroup = new UIElement(Anchor.TOP_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(), true);
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pixel.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -176,12 +172,13 @@ public class UI {
 
         //region mainButtonGroup
         {
-            int x = 0;
-            buildMenuButton = new Button(Textures.get(Textures.Ui.HAMMER), mainButtonGroup, Layer.IN_GAME, new Vector2i());
-            npcButton = new Button(Textures.get(Textures.Ui.NPC), mainButtonGroup, Layer.IN_GAME, new Vector2i(x += 74, 0));
-            workButton = new Button(Textures.get(Textures.Ui.WORK), mainButtonGroup, Layer.IN_GAME, new Vector2i(x += 74, 0));
-            restButton = new Button(Textures.get(Textures.Ui.REST), mainButtonGroup, Layer.IN_GAME, new Vector2i(x += 74, 0));
-            demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), mainButtonGroup, Layer.IN_GAME, new Vector2i(x + 74, 0));
+            int x = padding;
+            buildMenuButton = new Button(Textures.get(Textures.Ui.HAMMER), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x, padding));
+            npcButton = new Button(Textures.get(Textures.Ui.NPC), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, padding));
+            workButton = new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, padding));
+            restButton = new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, padding));
+            demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x + 74, padding));
+            pauseGameButton = new Button(Textures.get(Textures.Ui.PAUSE_GAME), Anchor.BOTTOM_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(-48 - padding, padding));
 
             buildMenuButton.setOnUp(() -> {
                 Layer.BUILD_MENU.setVisible(!Layer.BUILD_MENU.isVisible());
@@ -199,6 +196,7 @@ public class UI {
             workButton.setOnUp(() -> World.setTime(25170));
             restButton.setOnUp(() -> World.setTime(57570));
             demolishButton.setOnUp(() -> Buildings.setDemolishingMode(!Buildings.isDemolishing()));
+            pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
 
@@ -241,11 +239,11 @@ public class UI {
             transportOfficeButton = new Button(Textures.get(Textures.Ui.CONSTRUCTION_OFFICE), buildWindow, Layer.BUILD_MENU, new Vector2i(x, y));
 
             logCabinButton.setOnUp(() -> showBuildingStats(Buildings.Type.LOG_CABIN));
-            lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACK_HUT));
+            lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACKS_HUT));
             mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
             storageButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_STORAGE_BUILDING));
             serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_SERVICE_BUILDING));
-            constructionOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.CONSTRUCTION_OFFICE));
+            constructionOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.BUILDERS_HUT));
             transportOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.TRANSPORT_OFFICE));
         }
         //endregion
@@ -298,6 +296,7 @@ public class UI {
         workButton.addToUI();
         restButton.addToUI();
         demolishButton.addToUI();
+        pauseGameButton.addToUI();
 
         clock.addToUI();
         pauseButton.addToUI();

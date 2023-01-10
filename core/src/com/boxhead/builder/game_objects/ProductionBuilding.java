@@ -13,21 +13,25 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class ProductionBuilding extends EnterableBuilding {
+public class ProductionBuilding extends StorageBuilding {
     /**
      * How many production cycles worth of input resources to keep.
      */
     private static final int stockCycles = 3;
 
     private static final Map<NPC, FieldWork> emptyMap = new HashMap<>(0);  //do not modify
+    private static final Set<Building> emptySet = new HashSet<>(0);
 
     protected transient Job job;
+    protected float efficiency = 1f;
     protected int jobQuality = 0;
     protected int employeesInside = 0;
     protected final Set<NPC> employees;
     protected final Map<NPC, FieldWork> assignedFieldWork;
-    protected int productionCounter = 0;
+    protected final Set<Building> buildingsInRange;
+    protected float productionCounter = 0;
     protected boolean showRange = false;
     protected transient UIElement indicator;
 
@@ -36,11 +40,20 @@ public class ProductionBuilding extends EnterableBuilding {
         this.type = type;
         job = type.job;
         employees = new HashSet<>(type.npcCapacity, 1f);
+
         if (job.getPoI() != null) {
             assignedFieldWork = new HashMap<>(type.npcCapacity, 1f);
-        } else {
-            assignedFieldWork = emptyMap;
         }
+        else assignedFieldWork = emptyMap;
+
+        if (job.getRange() > 0f) {
+            buildingsInRange = World.getBuildings().stream()
+                    .filter((b) -> b.getCollider().distance(entrancePosition) < job.getRange() && !(b instanceof ConstructionSite))
+                    .collect(Collectors.toSet());
+        }
+        else buildingsInRange = emptySet;
+        updateEfficiency();
+
         instantiateIndicator();
     }
 
@@ -95,7 +108,7 @@ public class ProductionBuilding extends EnterableBuilding {
         }
 
         if (type.productionInterval > 0) {
-            productionCounter += employeesInside;
+            productionCounter += employeesInside * efficiency;
 
             if (productionCounter >= type.productionInterval) {
                 Recipe recipe = job.getRecipe();
@@ -132,8 +145,16 @@ public class ProductionBuilding extends EnterableBuilding {
         }
     }
 
+    public void updateEfficiency() {
+        efficiency = job.getEfficiency(buildingsInRange);
+    }
+
     public Job getJob() {
         return job;
+    }
+
+    public float getEfficiency() {
+        return efficiency;
     }
 
     public int getJobQuality() {
@@ -154,6 +175,14 @@ public class ProductionBuilding extends EnterableBuilding {
 
     public void showRangeVisualiser(boolean show) {
         showRange = show;
+    }
+
+    public Set<Building> getBuildingsInRange() {
+        return buildingsInRange;
+    }
+
+    public boolean checkIfInRange(Building building) {
+        return job.getRange() > 0 && building.getCollider().distance(entrancePosition) < job.getRange() && !building.equals(this);
     }
 
     @Override

@@ -62,7 +62,7 @@ public class Logic {
         for (Building building : World.getBuildings()) {
             if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null &&
                     ((ProductionBuilding) building).canProduce()) {
-                Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), ((EnterableBuilding) building).getEntrancePosition());
+                Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), ((StorageBuilding) building).getEntrancePosition());
                 fieldWork.ifPresent(work -> Logistics.requestFieldWork((ProductionBuilding) building, work));
             }
         }

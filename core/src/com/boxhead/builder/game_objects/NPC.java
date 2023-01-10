@@ -29,7 +29,7 @@ public class NPC extends GameObject implements Clickable {
     private final int[] stats = new int[Stats.values().length];
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
-    private EnterableBuilding buildingIsIn = null;
+    private StorageBuilding buildingIsIn = null;
 
     private Vector2i prevPosition;
     private final Vector2 spritePosition;
@@ -123,7 +123,7 @@ public class NPC extends GameObject implements Clickable {
         }
     }
 
-    public void enterBuilding(EnterableBuilding building) {
+    public void enterBuilding(StorageBuilding building) {
         if (gridPosition.equals(building.getEntrancePosition())) {
             gridPosition.set(building.getGridPosition());
             buildingIsIn = building;
@@ -131,7 +131,7 @@ public class NPC extends GameObject implements Clickable {
     }
 
     public void exitBuilding() {
-        EnterableBuilding building = EnterableBuilding.getByCoordinates(gridPosition);
+        StorageBuilding building = StorageBuilding.getByCoordinates(gridPosition);
         if (building != null) {
             gridPosition.set(building.getEntrancePosition());
         }
@@ -248,7 +248,7 @@ public class NPC extends GameObject implements Clickable {
         });
     }
 
-    public void giveOrder(Order.Type type, EnterableBuilding building) {
+    public void giveOrder(Order.Type type, StorageBuilding building) {
         switch (type) {
             case GO_TO:
                 giveOrder(building.getEntrancePosition());
@@ -324,7 +324,7 @@ public class NPC extends GameObject implements Clickable {
 
     public void giveOrder(Order.Type type) {
         switch (type) {
-            case EXIT:  //if building is known, giveOrder(Order.Type, EnterableBuilding) should be used instead
+            case EXIT:  //if building is known, giveOrder(Order.Type, StorageBuilding) should be used instead
                 orderList.addLast(new Order() {
                     @Override
                     void execute() {
@@ -435,7 +435,7 @@ public class NPC extends GameObject implements Clickable {
         return buildingIsIn != null;
     }
 
-    public EnterableBuilding getCurrentBuilding() {
+    public StorageBuilding getCurrentBuilding() {
         return buildingIsIn;
     }
 

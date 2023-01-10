@@ -55,10 +55,11 @@ public class Textures {
 
     public enum Building implements TextureId {
         LOG_CABIN, LOG_CABIN_CS,
-        LUMBERJACK_HUT, LUMBERJACK_HUT_CS,
+        LUMBERJACKS_HUT, LUMBERJACKS_HUT_CS,
         MINE, MINE_CS,
-        FUNGI, FUNGUS, HOUSE_FUNGUS, WORK_FUNGUS, SERVICE_FUNGUS, STORAGE_FUNGUS, CONSTRUCTION_OFFICE,
-        HOUSE_FUNGUS_CS, WORK_FUNGUS_CS, SERVICE_FUNGUS_CS, STORAGE_FUNGUS_CS, CONSTRUCTION_OFFICE_CS
+        BUILDERS_HUT, BUILDERS_HUT_CS,
+
+        FUNGI, FUNGUS, SERVICE_FUNGUS, STORAGE_FUNGUS, SERVICE_FUNGUS_CS, STORAGE_FUNGUS_CS
     }
 
     public enum Tile implements TextureId {
@@ -75,7 +76,7 @@ public class Textures {
     public enum Ui implements TextureId {
         //buttons
         FUNGUS,
-        HAMMER, NPC, WORK, REST, DEMOLISH,
+        HAMMER, NPC, WORK, REST, DEMOLISH, PAUSE_GAME,
         HOUSE, AXE, PICKAXE, BIG_HAMMER, STORAGE, BUILD,
         SAVE, LOAD, DELETE,
 

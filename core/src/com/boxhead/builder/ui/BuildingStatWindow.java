@@ -38,20 +38,20 @@ public class BuildingStatWindow extends StatWindow<Building> {
     @Override
     protected void updateStats() {
         stats = pinnedObject.getName();
-        if(pinnedObject instanceof ResidentialBuilding building) {
+        if (pinnedObject instanceof ResidentialBuilding building) {
             npcCapacity = building.getResidentCapacity();
             npcs = building.getResidents();
         }
-
-        if(pinnedObject instanceof ProductionBuilding building) {
+        else if (pinnedObject instanceof ProductionBuilding building) {
             npcCapacity = building.getType().npcCapacity;
             npcs = building.getEmployees();
             job = building.getJob();
 
-            if(building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
-            else if(building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
+            if (building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
+            else if (building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
             else warning = "";
 
+            if (building.getEfficiency() != 1) stats += "\nefficiency: " + String.format("%.2f", building.getEfficiency());
             stats += "\njob quality: " + building.getJobQuality();
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : job.getRecipe().changedResources()) {
@@ -59,8 +59,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
                         building.getInventory().getResourceAmount(resource));
             }
         }
-
-        if (pinnedObject instanceof StorageBuilding building) {
+        else if (pinnedObject instanceof StorageBuilding building) {
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : building.getInventory().getStoredResources()) {
                 if (resource != Resource.NOTHING) {

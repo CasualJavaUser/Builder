@@ -41,24 +41,24 @@ public class BoxCollider implements Serializable {
 
         Vector2i closestTile;
         if (gridPosition.x < lowerLeftCorner.x) {
-            if (gridPosition.y < lowerLeftCorner.y)
+            if (gridPosition.y <= lowerLeftCorner.y)
                 closestTile = lowerLeftCorner;
-            else if (gridPosition.y > lowerLeftCorner.y + height)
-                closestTile = lowerLeftCorner.add(0, height);
+            else if (gridPosition.y > lowerLeftCorner.y + height-1)
+                closestTile = lowerLeftCorner.add(0, height-1);
             else
                 closestTile = new Vector2i(lowerLeftCorner.x, gridPosition.y);
-        } else if (gridPosition.x < lowerLeftCorner.x + width) {
+        } else if (gridPosition.x < lowerLeftCorner.x + width-1) {
             if (gridPosition.y < lowerLeftCorner.y)
                 closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y);
             else
-                closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y + height);
+                closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y + height-1);
         } else {
-            if (gridPosition.y < lowerLeftCorner.y)
-                closestTile = new Vector2i(lowerLeftCorner.x + width, lowerLeftCorner.y);
-            else if (gridPosition.y > lowerLeftCorner.y + height)
-                closestTile = new Vector2i(lowerLeftCorner.x + width, lowerLeftCorner.y + height);
+            if (gridPosition.y <= lowerLeftCorner.y)
+                closestTile = new Vector2i(lowerLeftCorner.x + width-1, lowerLeftCorner.y);
+            else if (gridPosition.y > lowerLeftCorner.y + height-1)
+                closestTile = new Vector2i(lowerLeftCorner.x + width-1, lowerLeftCorner.y + height-1);
             else
-                closestTile = new Vector2i(lowerLeftCorner.x + width, gridPosition.y);
+                closestTile = new Vector2i(lowerLeftCorner.x + width-1, gridPosition.y);
         }
         return gridPosition.distance(closestTile);
     }

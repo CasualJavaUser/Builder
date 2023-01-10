@@ -5,7 +5,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ResidentialBuilding extends EnterableBuilding {
+public class ResidentialBuilding extends StorageBuilding {
 
     private final Set<NPC> residents;
 

@@ -32,7 +32,7 @@ public class GameScreen implements Screen {
         this.uiProjection = new Matrix4();
 
         Textures.init();
-        World.init(new Vector2i(500, 500));
+        World.init(new Vector2i(101, 101));
         UI.init();
         Logic.init();
 

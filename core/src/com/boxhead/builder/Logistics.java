@@ -94,7 +94,7 @@ public class Logistics {
         orderRequests.clear();
     }
 
-    public static void requestTransport(EnterableBuilding building, Recipe recipe) {
+    public static void requestTransport(StorageBuilding building, Recipe recipe) {
         for (Resource resource : recipe.changedResources()) {
             requestTransport(building, resource, recipe.getChange(resource));
         }
@@ -103,7 +103,7 @@ public class Logistics {
     /**
      * @param units The sign of this argument determines whether this request is considered an input or an output. Should be kept the same as in Recipes - positive for output and negative for input, zero has no effect.
      */
-    public static void requestTransport(EnterableBuilding building, Resource resource, int units) {
+    public static void requestTransport(StorageBuilding building, Resource resource, int units) {
         Request request;
         long zipCode = Request.zipCode(building, resource);
         SortedList<Request> list;
@@ -125,7 +125,7 @@ public class Logistics {
         updatePriority(request);
     }
 
-    public static void overrideRequestPriority(EnterableBuilding building, Resource resource, int newPriority) {
+    public static void overrideRequestPriority(StorageBuilding building, Resource resource, int newPriority) {
         long zipCode = Request.zipCode(building, resource);
 
         SortedList<Request> list = determineList(zipCode);
@@ -282,13 +282,13 @@ public class Logistics {
 
     private static Optional<StorageBuilding> findStoredResources(Request request) {
         return storages.stream()
-                .filter(storage -> storage.getStored(request.resource) >= THE_UNIT)
+                .filter(storage -> storage.getInventory().getResourceAmount(request.resource) >= THE_UNIT)
                 .min(Comparator.comparingDouble(storage -> storage.getEntrancePosition().distance(request.building.getEntrancePosition())));
     }
 
     private static Optional<StorageBuilding> findStorageSpace(Request request) {
         return storages.stream()
-                .filter(storage -> storage.getRemainingCapacity() >= THE_UNIT)
+                .filter(storage -> storage.getInventory().getAvailableCapacity() >= THE_UNIT)
                 .min(Comparator.comparingDouble(storage -> storage.getEntrancePosition().distance(request.building.getEntrancePosition())));
     }
 
@@ -311,7 +311,7 @@ public class Logistics {
 
     private static class Request implements Serializable {
         Resource resource;
-        EnterableBuilding building;
+        StorageBuilding building;
         int amount;
         int priority;
         Priority priorityEnum;
@@ -319,7 +319,7 @@ public class Logistics {
         private Request() {
         }
 
-        private Request(Resource resource, EnterableBuilding building, int amount) {
+        private Request(Resource resource, StorageBuilding building, int amount) {
             this.resource = resource;
             this.building = building;
             this.amount = amount;
@@ -347,8 +347,8 @@ public class Logistics {
     }
 
     public static class Order extends Request{
-        EnterableBuilding sender;
-        EnterableBuilding recipient;
+        StorageBuilding sender;
+        StorageBuilding recipient;
 
         private Order(Request sender, Request recipient) {
             if (sender.resource != recipient.resource)

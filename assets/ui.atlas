@@ -118,7 +118,7 @@ load
   index: -1
 menu_window
   rotate: false
-  xy: 1536, 47
+  xy: 1104, 15
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -153,9 +153,16 @@ npc
   index: -1
 pause
   rotate: false
-  xy: 1104, 16
+  xy: 0, 7
   size: 30, 16
   orig: 30, 16
+  offset: 0, 0
+  index: -1
+pause_game
+  rotate: false
+  xy: 1536, 16
+  size: 48, 48
+  orig: 48, 48
   offset: 0, 0
   index: -1
 pickaxe
@@ -167,7 +174,7 @@ pickaxe
   index: -1
 play
   rotate: false
-  xy: 0, 7
+  xy: 1536, 0
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
@@ -237,14 +244,14 @@ work
   index: -1
 x2speed
   rotate: false
-  xy: 434, 28
+  xy: 1566, 0
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 x3speed
   rotate: false
-  xy: 1104, 0
+  xy: 434, 28
   size: 30, 16
   orig: 30, 16
   offset: 0, 0

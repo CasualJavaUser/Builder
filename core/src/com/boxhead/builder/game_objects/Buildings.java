@@ -21,33 +21,31 @@ public class Buildings {
     public enum Type {
         LOG_CABIN
                 (Textures.Building.LOG_CABIN, "log cabin", new Vector2i(2, -1), new BoxCollider(0, 0, 4, 2), 5),
-        LUMBERJACK_HUT
-                (Textures.Building.LUMBERJACK_HUT, "lumberjack's hut", Jobs.LUMBERJACK, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 3), 1, 100),
+        LUMBERJACKS_HUT
+                (Textures.Building.LUMBERJACKS_HUT, "lumberjack's hut", Jobs.LUMBERJACK, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 3), 1, 0),
         MINE
                 (Textures.Building.MINE, "mine", Jobs.MINER, new Vector2i(1, -1), 3, 300),
+        BUILDERS_HUT
+                (Textures.Building.BUILDERS_HUT, "builder's hut", Jobs.BUILDER, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 3, 0),
         DEFAULT_SERVICE_BUILDING
                 (Textures.Building.SERVICE_FUNGUS, "hospital", Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), 5, 100, 10, 100),
         DEFAULT_STORAGE_BUILDING
                 (Textures.Building.STORAGE_FUNGUS, "storage", new Vector2i(1, -1)),
         BIG
                 (Textures.Building.FUNGI),
-        CONSTRUCTION_OFFICE
-                (Textures.Building.CONSTRUCTION_OFFICE, Jobs.BUILDER, new Vector2i(0, -1), 5, 0),
         TRANSPORT_OFFICE
                 (Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0), 5, 0);
 
         public final Textures.Building texture;
+        public String name;
         public final Job job;
         public final Service service;
-
         /**
          * Relative position of the tile from which NPCs can enter. The lower left tile of the building is at (0,0).
          */
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
-
-        public String name;
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval) {
             this.texture = texture;
@@ -132,27 +130,12 @@ public class Buildings {
         }
     }
 
-    public static Building create(Type building, Vector2i gridPosition) {
-        switch (building) {
-            case LOG_CABIN:
-                return new ResidentialBuilding(building, gridPosition);
-            case LUMBERJACK_HUT:
-                return new ProductionBuilding(building, gridPosition);
-            case MINE:
-                return new ProductionBuilding(building, gridPosition);
-            case DEFAULT_SERVICE_BUILDING:
-                return new ServiceBuilding(building, gridPosition);
-            case DEFAULT_STORAGE_BUILDING:
-                return new StorageBuilding(building, gridPosition);
-            case BIG:
-                return new Building(building, gridPosition);
-            case CONSTRUCTION_OFFICE:
-                return new ProductionBuilding(building, gridPosition);
-            case TRANSPORT_OFFICE:
-                return new ProductionBuilding(building, gridPosition);
-            default:
-                throw new IllegalArgumentException("Unknown building type: " + building);
-        }
+    public static Building create(Type type, Vector2i gridPosition) {
+        if (type.service != null) return new ServiceBuilding(type, gridPosition);
+        if (type.job != null) return new ProductionBuilding(type, gridPosition);
+        if (type.npcCapacity > 0) return new ResidentialBuilding(type, gridPosition);
+        if (type.entrancePosition != null) return new StorageBuilding(type, gridPosition);
+        return new Building(type, gridPosition);
     }
 
     public static void handleBuildingMode(SpriteBatch batch) {

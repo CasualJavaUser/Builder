@@ -56,7 +56,7 @@ public class World {
 
         //temp
         Vector2i constructionOfficePos = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
-        placeBuilding(Buildings.Type.CONSTRUCTION_OFFICE, constructionOfficePos);
+        placeBuilding(Buildings.Type.BUILDERS_HUT, constructionOfficePos);
         makeUnnavigable(new BoxCollider(constructionOfficePos, 2, 2));
     }
 
@@ -200,6 +200,12 @@ public class World {
         } else if (building instanceof StorageBuilding) {
             Logistics.getStorages().add((StorageBuilding) building);
         }
+        for (Building b : buildings) {
+            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).checkIfInRange(building)) {
+                ((ProductionBuilding) b).getBuildingsInRange().add(building);
+                ((ProductionBuilding) b).updateEfficiency();
+            }
+        }
     }
 
     public static void removeBuilding(Building building) {
@@ -207,11 +213,17 @@ public class World {
         if (building instanceof ConstructionSite) fieldWorks.remove(building);
         buildings.remove(building);
         gameObjects.remove(building);
+        for (Building b : buildings) {
+            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).checkIfInRange(building)) {
+                ((ProductionBuilding) b).getBuildingsInRange().remove(building);
+                ((ProductionBuilding) b).updateEfficiency();
+            }
+        }
     }
 
     public static void placeFieldWork(FieldWork fieldWork) {
         makeUnnavigable(fieldWork.getCollider());
-        if (fieldWork instanceof Building) buildings.add((Building) fieldWork);
+        if (fieldWork instanceof Building building) buildings.add(building);
         fieldWorks.add(fieldWork);
         gameObjects.add((GameObject) fieldWork);
     }
