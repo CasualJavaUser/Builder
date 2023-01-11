@@ -1,6 +1,7 @@
 package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.FieldWork;
+import com.boxhead.builder.Logistics;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -11,15 +12,18 @@ import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConstructionSite extends Building implements FieldWork {
+public class ConstructionSite extends StorageBuilding implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
     private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
 
     public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour) {
-        super(type, type.getConstructionSite(), gridPosition);
+        super(type, type.getConstructionSite(), gridPosition, type.buildCost.sum());
         this.totalLabour = totalLabour;
+
+        Logistics.requestTransport(this, type.buildCost.negate(), Logistics.USE_STORAGE);
+        reserveSpace(type.buildCost.sum());
     }
 
     @Override
@@ -53,7 +57,8 @@ public class ConstructionSite extends Building implements FieldWork {
 
     @Override
     public void work() {
-        progress += currentlyWorking;
+        if ((float) progress / totalLabour < (float) inventory.getDisplayedAmount() / inventory.getMaxCapacity())
+            progress += currentlyWorking;
 
         if (progress >= totalLabour) {
             World.placeBuilding(type, gridPosition);

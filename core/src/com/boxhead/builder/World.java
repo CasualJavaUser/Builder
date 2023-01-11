@@ -55,9 +55,24 @@ public class World {
         generateObjects();
 
         //temp
-        Vector2i constructionOfficePos = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
-        placeBuilding(Buildings.Type.BUILDERS_HUT, constructionOfficePos);
-        makeUnnavigable(new BoxCollider(constructionOfficePos, 4, 2));
+        Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
+        BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
+        placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
+        makeUnnavigable(collider);
+
+        collider = Buildings.Type.DEFAULT_STORAGE_BUILDING.relativeCollider;
+        buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
+        collider = collider.cloneAndTranslate(buildingPosition);
+        placeBuilding(Buildings.Type.DEFAULT_STORAGE_BUILDING, buildingPosition);
+        makeUnnavigable(collider);
+        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
+        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 100);
+
+        collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
+        buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
+        placeBuilding(Buildings.Type.TRANSPORT_OFFICE, buildingPosition);
+        collider = collider.cloneAndTranslate(buildingPosition);
+        makeUnnavigable(collider);
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
@@ -197,7 +212,7 @@ public class World {
         gameObjects.add(building);
         if (type == Buildings.Type.TRANSPORT_OFFICE) {
             Logistics.getTransportOffices().add((ProductionBuilding) building);
-        } else if (building instanceof StorageBuilding) {
+        } else if (type == Buildings.Type.DEFAULT_STORAGE_BUILDING) {
             Logistics.getStorages().add((StorageBuilding) building);
         }
         for (Building b : buildings) {

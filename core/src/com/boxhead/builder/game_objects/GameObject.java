@@ -14,7 +14,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.Serial;
 import java.io.Serializable;
 
-public abstract class GameObject implements WorldObject, Serializable {
+public class GameObject implements WorldObject, Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -45,7 +45,6 @@ public abstract class GameObject implements WorldObject, Serializable {
     }
 
     public void draw(SpriteBatch batch) {
-        //batch.draw(texture, gridPosition.x * World.TILE_SIZE, gridPosition.y * World.TILE_SIZE);
         int x = gridPosition.x * World.TILE_SIZE;
         int y = gridPosition.y * World.TILE_SIZE;
         Vector3 pos = GameScreen.worldToScreenPosition(x, y);

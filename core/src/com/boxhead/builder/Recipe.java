@@ -18,11 +18,31 @@ public class Recipe {
         }
     }
 
+    private Recipe(int initialCapacity) {
+        changes = new HashMap<>(initialCapacity, 1f);
+    }
+
     public int getChange(Resource resource) {
         if (!changes.containsKey(resource))
             return 0;
 
         return changes.get(resource);
+    }
+
+    public Recipe negate() {
+        Recipe negative = new Recipe(changes.size());
+        for (Resource resource : changes.keySet()) {
+            negative.changes.put(resource, -changes.get(resource));
+        }
+        return negative;
+    }
+
+    public int sum() {
+        int sum = 0;
+        for (Integer change : changes.values()) {
+            sum += change;
+        }
+        return sum;
     }
 
     public Set<Resource> changedResources() {

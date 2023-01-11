@@ -9,6 +9,7 @@ import com.boxhead.builder.*;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 import org.apache.commons.lang3.Range;
 
@@ -20,21 +21,31 @@ public class Buildings {
 
     public enum Type {
         LOG_CABIN
-                (Textures.Building.LOG_CABIN, "log cabin", new Vector2i(2, -1), new BoxCollider(0, 0, 4, 2), 5),
+                (Textures.Building.LOG_CABIN, "log cabin", new Vector2i(2, -1), new BoxCollider(0, 0, 4, 2), 5,
+                        new Recipe(Pair.of(Resource.WOOD, 20))),
         LUMBERJACKS_HUT
-                (Textures.Building.LUMBERJACKS_HUT, "lumberjack's hut", Jobs.LUMBERJACK, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 3), 1, 0),
+                (Textures.Building.LUMBERJACKS_HUT, "lumberjack's hut", Jobs.LUMBERJACK, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 3), 1, 100,
+                        new Recipe(Pair.of(Resource.WOOD, 20))),
         MINE
-                (Textures.Building.MINE, "mine", Jobs.MINER, new Vector2i(1, -1), 3, 300),
-        BUILDERS_HUT
-                (Textures.Building.BUILDERS_HUT, "builder's hut", Jobs.BUILDER, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 3, 0),
+                (Textures.Building.MINE, "mine", Jobs.MINER, new Vector2i(1, -1), 3, 300,
+                        new Recipe(Pair.of(Resource.WOOD, 40),
+                                Pair.of(Resource.STONE, 20))),
         DEFAULT_SERVICE_BUILDING
-                (Textures.Building.SERVICE_FUNGUS, "hospital", Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), 5, 100, 10, 100),
+                (Textures.Building.SERVICE_FUNGUS, "hospital", Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), 5, 100, 10, 100,
+                        new Recipe(Pair.of(Resource.WOOD, 30),
+                                Pair.of(Resource.STONE, 30))),
         DEFAULT_STORAGE_BUILDING
-                (Textures.Building.STORAGE_FUNGUS, "storage", new Vector2i(1, -1)),
-        BIG
-                (Textures.Building.FUNGI),
+                (Textures.Building.STORAGE_FUNGUS, "storage", new Vector2i(1, -1),
+                        new Recipe(Pair.of(Resource.WOOD, 50))),
+        BUILDERS_HUT
+                (Textures.Building.BUILDERS_HUT, Jobs.BUILDER, new Vector2i(0, -1), 5, 0,
+                        new Recipe(Pair.of(Resource.WOOD, 20))),
         TRANSPORT_OFFICE
-                (Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0), 5, 0);
+                (Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0), 5, 0,
+                        new Recipe(Pair.of(Resource.WOOD, 20))),
+        STONE_GATHERERS
+                (Textures.Building.SERVICE_FUNGUS, Jobs.STONEMASON, new Vector2i(0, -1), 2, 0,
+                        new Recipe(Pair.of(Resource.WOOD, 30)));
 
         public final Textures.Building texture;
         public String name;
@@ -45,9 +56,11 @@ public class Buildings {
          */
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
+        public final Recipe buildCost;
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
 
-        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval) {
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Recipe buildCost) {
             this.texture = texture;
             this.job = job;
             this.service = service;
@@ -58,59 +71,42 @@ public class Buildings {
             this.productionInterval = productionInterval;
             this.guestCapacity = guestCapacity;
             this.serviceInterval = serviceInterval;
+            this.buildCost = buildCost;
         }
 
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval) {
-            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0);
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider,
+             int npcCapacity, int productionInterval, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, int npcCapacity, int productionInterval, int guestCapacity, int serviceCapacity) {
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition,
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceCapacity, Recipe buildCost) {
             this(
-                    texture,
-                    name,
-                    job,
-                    service,
-                    entrancePosition,
+                    texture, name, job, service, entrancePosition,
                     new BoxCollider(
                             Vector2i.zero(),
                             Textures.get(texture).getRegionWidth() / World.TILE_SIZE,
                             Textures.get(texture).getRegionHeight() / World.TILE_SIZE),
-                    npcCapacity,
-                    productionInterval,
-                    0,
-                    0
-            );
-
+                    npcCapacity, productionInterval,
+                    guestCapacity, serviceCapacity,
+                    buildCost);
         }
 
-        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, int npcCapacity, int productionInterval) {
-            this(texture, name, job, service, entrancePosition, npcCapacity, productionInterval, 0, 0);
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, npcCapacity, productionInterval, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval) {
-            this(texture, name, job, null, entrancePosition, npcCapacity, productionInterval);
-        }
-
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval) {
-            this(texture, null, job, null, entrancePosition, npcCapacity, productionInterval);
+        Type(Textures.Building texture, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval, Recipe buildCost) {
+            this(texture, null, job, entrancePosition, npcCapacity, productionInterval, buildCost);
             name = defaultName();
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity) {
-            this(texture, name, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
+            this(texture, name, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition) {
-            this(texture, name, null, null, entrancePosition, 0, 0, 0, 0);
-        }
-
-        Type(Textures.Building texture, String name) {
-            this(texture, name, null, null, null, null, 0, 0, 0, 0);
-        }
-
-        Type(Textures.Building texture) {
-            this(texture, null, null, null, null, null, 0, 0, 0, 0);
-            name = defaultName();
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost) {
+            this(texture, name, null, null, entrancePosition, 0, 0, 0, 0, buildCost);
         }
 
         public TextureRegion getTexture() {

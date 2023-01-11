@@ -75,11 +75,13 @@ public class Pathfinding {
         }
         HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
         HashMap<Vector2i, Double> distanceToTile = new HashMap<>(unvisitedTiles.size(), 1f);
+        SortedList<Vector2i> semiVisited = new SortedList<>(Comparator.comparingDouble(distanceToTile::get)); //unvisited tiles with known distances
         HashMap<Vector2i, Vector2i> parentTree = new HashMap<>();
         for (Vector2i tile : unvisitedTiles) {
             distanceToTile.put(tile, Double.MAX_VALUE);
         }
         distanceToTile.replace(start, 0d);
+        semiVisited.add(start);
 
         int x = start.x, y = start.y;
         Vector2i currentTile = start.clone();
@@ -89,23 +91,24 @@ public class Pathfinding {
             float distanceModifier = 1f / World.getTile(currentTile).speed;
 
             tempTile = new Vector2i(x + 1, y);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x - 1, y);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x, y + 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x, y - 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x + 1, y + 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
             tempTile = new Vector2i(x - 1, y + 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
             tempTile = new Vector2i(x + 1, y - 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
             tempTile = new Vector2i(x - 1, y - 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
 
             unvisitedTiles.remove(currentTile);
+            semiVisited.remove(currentTile);
 
             boolean pathExists = false;
             for (Vector2i tile : unvisitedTiles) {
@@ -118,15 +121,13 @@ public class Pathfinding {
                 return new Vector2i[]{start};   //no path
             }
 
-            Vector2i smallestDistanceTile = null;
-            double smallestDistance = Double.MAX_VALUE;
-            for (Vector2i tile : unvisitedTiles) {
-                if (distanceToTile.get(tile) < smallestDistance) {
-                    smallestDistanceTile = tile;
-                    smallestDistance = distanceToTile.get(tile);
+            for (int i = semiVisited.size() - 1; i >= 0; i--) {
+                Vector2i vector2i = semiVisited.get(i);
+                if (unvisitedTiles.contains(vector2i)) {
+                    currentTile = vector2i;
+                    break;
                 }
             }
-            currentTile = smallestDistanceTile;
             x = currentTile.x;
             y = currentTile.y;
         }
@@ -150,11 +151,14 @@ public class Pathfinding {
     private static void calcDistance(HashSet<Vector2i> unvisitedTiles,
                                      HashMap<Vector2i, Double> distanceToTile,
                                      HashMap<Vector2i, Vector2i> parentTree,
+                                     SortedList<Vector2i> semiVisited,
                                      Vector2i currentTile,
                                      Vector2i tempTile,
                                      double distance) {
         if (unvisitedTiles.contains(tempTile) && distanceToTile.get(tempTile) > distanceToTile.get(currentTile) + distance) {
             distanceToTile.replace(tempTile, distanceToTile.get(currentTile) + distance);
+            semiVisited.remove(tempTile);
+            semiVisited.add(tempTile);
             parentTree.remove(tempTile);
             parentTree.put(tempTile, currentTile);
         }

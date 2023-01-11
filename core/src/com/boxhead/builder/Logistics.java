@@ -13,6 +13,11 @@ public class Logistics {
      * The smallest amount that is considered worth issuing a transport order.
      */
     public static final int THE_UNIT = NPC.INVENTORY_SIZE;
+    /**
+     * The lowest priority at which storage space or stored resources are used to fulfill requests.
+     */
+    public static final int USE_STORAGE = Priority.HIGH.ordinal();
+
     public static final SortedList<Request> supplyRequests;
     public static final SortedList<Request> outputRequests;
     public static final SortedList<Order> readyOrders;
@@ -94,6 +99,12 @@ public class Logistics {
         orderRequests.clear();
     }
 
+    public static void requestTransport(StorageBuilding building, Recipe recipe, int overridePriority) {
+        for (Resource resource : recipe.changedResources()) {
+            requestTransport(building, resource, recipe.getChange(resource));
+            overrideRequestPriority(building, resource, overridePriority);
+        }
+    }
     public static void requestTransport(StorageBuilding building, Recipe recipe) {
         for (Resource resource : recipe.changedResources()) {
             requestTransport(building, resource, recipe.getChange(resource));
@@ -142,7 +153,7 @@ public class Logistics {
                 outputRequests.isEmpty() ? 0 : outputRequests.get(0).priority);
 
         if (supplyRequests.isEmpty() || outputRequests.isEmpty()) {
-            if (maxPriority > Priority.LOW.ordinal()) {
+            if (maxPriority >= USE_STORAGE) {
                 useStorage();
             }
             return;
@@ -160,6 +171,8 @@ public class Logistics {
                 if (paired.isPresent()) {
                     readyOrders.add(new Order(paired.get(), currentRequest, THE_UNIT));
                     currentRequest.amount -= THE_UNIT;
+                    currentRequest.building.reserveSpace(THE_UNIT);
+                    paired.get().building.reserveResources(currentRequest.resource, THE_UNIT);
                 }
 
                 supplyIterator++;
@@ -172,6 +185,8 @@ public class Logistics {
                 if (paired.isPresent()) {
                     readyOrders.add(new Order(currentRequest, paired.get(), THE_UNIT));
                     currentRequest.amount -= THE_UNIT;
+                    currentRequest.building.reserveResources(currentRequest.resource, THE_UNIT);
+                    paired.get().building.reserveSpace(THE_UNIT);
                 }
 
                 outputIterator++;

@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Inventory;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
@@ -9,13 +10,22 @@ public class StorageBuilding extends Building {
     /**
      * Absolute position of the tile from which NPCs can enter.
      */
-    protected Vector2i entrancePosition;
-    protected final Inventory inventory = new Inventory(200);
-    protected final Inventory reservedInventory = new Inventory(200);
+    protected final Vector2i entrancePosition;
+    protected final Inventory inventory;
+    protected final Inventory reservedInventory;
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         entrancePosition = gridPosition.add(type.entrancePosition);
+        inventory = new Inventory(200);
+        reservedInventory = new Inventory(200);
+    }
+
+    public StorageBuilding(Buildings.Type type, TextureRegion texture, Vector2i gridPosition, int storageCapacity) {
+        super(type, texture, gridPosition);
+        entrancePosition = gridPosition.add(type.entrancePosition);
+        inventory = new Inventory(storageCapacity);
+        reservedInventory = new Inventory(storageCapacity);
     }
 
     public Vector2i getEntrancePosition() {
