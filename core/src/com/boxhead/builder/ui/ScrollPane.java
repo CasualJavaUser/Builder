@@ -22,6 +22,10 @@ public class ScrollPane extends UIElement {
         nextPos = new Vector2i(width/2, height);
     }
 
+    public ScrollPane(UIElement parent, UI.Layer layer, int x1, int y1, int x2, int y2) {
+        this(parent, layer, new Vector2i(x1, y1), x2-x1, y2-y1);
+    }
+
     public void addElement(UIElement element) {
         if(elements.isEmpty()) firstElement = element;
         lastElement = element;

@@ -1,5 +1,6 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -14,6 +15,7 @@ public class Textures {
     private static TextureAtlas environmentAtlas;
 
     private static final HashMap<TextureId, TextureRegion> textures = new HashMap<>();
+    private static final HashMap<TextureId, Animation<TextureRegion>> animations = new HashMap<>();
 
     public static void init() {
         buildingAtlas = new TextureAtlas("buildings.atlas");
@@ -29,6 +31,8 @@ public class Textures {
         loadTextures(npcAtlas, Npc.values());
         loadTextures(resourceAtlas, Resource.values());
         loadTextures(environmentAtlas, Environment.values());
+
+        loadAnimations(npcAtlas, NpcAnimation.values());
     }
 
     public static TextureRegion get(TextureId textureId) {
@@ -36,6 +40,14 @@ public class Textures {
             return textures.get(textureId);
         } else {
             throw new IllegalArgumentException("Texture not found: " + textureId);
+        }
+    }
+
+    public static Animation<TextureRegion> getAnimation(TextureId animationId) {
+        if (animations.containsKey(animationId)) {
+            return animations.get(animationId);
+        } else {
+            throw new IllegalArgumentException("Texture not found: " + animationId);
         }
     }
 
@@ -49,7 +61,17 @@ public class Textures {
         }
     }
 
-    private interface TextureId {
+    private static void loadAnimations(TextureAtlas textureAtlas, TextureId[] textureIds) {
+        for (TextureId textureId : textureIds) {
+            Animation<TextureRegion> animation = new Animation<>(.15f, textureAtlas.findRegions(textureId.name().toLowerCase()), Animation.PlayMode.LOOP);
+            if (animation.getKeyFrames().length <= 0) {
+                throw new IllegalStateException("Animation '" + textureId.name().toLowerCase() + "' not found in texture atlas");
+            }
+            animations.put(textureId, animation);
+        }
+    }
+
+    public interface TextureId {
         String name();
     }
 
@@ -58,8 +80,11 @@ public class Textures {
         LUMBERJACKS_HUT, LUMBERJACKS_HUT_CS,
         MINE, MINE_CS,
         BUILDERS_HUT, BUILDERS_HUT_CS,
+        STORAGE_BARN, STORAGE_BARN_CS,
+        CARRIAGE_HOUSE, CARRIAGE_HOUSE_CS,
+        STONE_GATHERERS_SHACK, STONE_GATHERERS_SHACK_CS,
 
-        FUNGI, FUNGUS, SERVICE_FUNGUS, STORAGE_FUNGUS, SERVICE_FUNGUS_CS, STORAGE_FUNGUS_CS
+        FUNGUS, SERVICE_FUNGUS, SERVICE_FUNGUS_CS
     }
 
     public enum Tile implements TextureId {
@@ -70,20 +95,25 @@ public class Textures {
     }
 
     public enum Npc implements TextureId {
-        FUNGUY
+        IDLE0, IDLE1
+    }
+
+    public enum NpcAnimation implements TextureId {
+        WALK_LEFT0, WALK_RIGHT0, WALK_LEFT1, WALK_RIGHT1
     }
 
     public enum Ui implements TextureId {
         //buttons
         FUNGUS,
         HAMMER, NPC, WORK, REST, DEMOLISH, PAUSE_GAME,
-        HOUSE, AXE, PICKAXE, BIG_HAMMER, STORAGE, BUILD,
+        HOUSE, AXE, PICKAXE, PICKAXE_WITH_STONE, BIG_HAMMER, STORAGE, CARRIAGE, BUILD,
         SAVE, LOAD, DELETE,
         INFRASTRUCTURE_TAB, HOUSING_TAB, RESOURCES_TAB, SERVICES_TAB,
 
         DIVIDER,
         SMALL_BUTTON, BIG_BUTTON,
         CLOCK_FACE, HOUR_HAND, MINUTE_HAND, PAUSE, PLAY, X2SPEED, X3SPEED,
+        FULL_OUTPUT, NO_INPUT,
 
         SERVICE, CONSTRUCTION_OFFICE,
         NO_STORAGE, FULL_STORAGE, NO_RESOURCES, WINDOW, MENU_WINDOW, WIDE_AREA,

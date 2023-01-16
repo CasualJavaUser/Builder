@@ -15,7 +15,7 @@ import org.apache.commons.lang3.Range;
 
 public class Buildings {
     private static boolean isInBuildingMode = false;
-    private static boolean isDemolishing = false;
+    private static boolean isInDemolishingMode = false;
     private static Type currentBuilding;
     private static Range<Integer> rangeX, rangeY;
 
@@ -34,17 +34,17 @@ public class Buildings {
                 (Textures.Building.SERVICE_FUNGUS, "hospital", Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), 5, 100, 10, 100,
                         new Recipe(Pair.of(Resource.WOOD, 30),
                                 Pair.of(Resource.STONE, 30))),
-        DEFAULT_STORAGE_BUILDING
-                (Textures.Building.STORAGE_FUNGUS, "storage", new Vector2i(1, -1),
+        STORAGE_BARN
+                (Textures.Building.STORAGE_BARN, "storage barn", new Vector2i(2, -1), new BoxCollider(0, 0, 5, 3),
                         new Recipe(Pair.of(Resource.WOOD, 50))),
         BUILDERS_HUT
-                (Textures.Building.BUILDERS_HUT, Jobs.BUILDER, new Vector2i(0, -1), 5, 0,
+                (Textures.Building.BUILDERS_HUT, "builder's hut", Jobs.BUILDER, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 5, 0,
                         new Recipe(Pair.of(Resource.WOOD, 20))),
         TRANSPORT_OFFICE
-                (Textures.Building.FUNGUS, Jobs.CARRIER, new Vector2i(2, 0), 5, 0,
+                (Textures.Building.CARRIAGE_HOUSE, "carriage house", Jobs.CARRIER, new Vector2i(1, -1), new BoxCollider(0, 0, 5, 2), 5, 0,
                         new Recipe(Pair.of(Resource.WOOD, 20))),
         STONE_GATHERERS
-                (Textures.Building.SERVICE_FUNGUS, Jobs.STONEMASON, new Vector2i(0, -1), 2, 0,
+                (Textures.Building.STONE_GATHERERS_SHACK, "stone gatherer's shack", Jobs.STONEMASON, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 2, 0,
                         new Recipe(Pair.of(Resource.WOOD, 30)));
 
         public final Textures.Building texture;
@@ -59,6 +59,7 @@ public class Buildings {
         public final Recipe buildCost;
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
 
+        //service
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
              int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Recipe buildCost) {
             this.texture = texture;
@@ -74,11 +75,6 @@ public class Buildings {
             this.buildCost = buildCost;
         }
 
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, Recipe buildCost) {
-            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, buildCost);
-        }
-
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition,
              int npcCapacity, int productionInterval, int guestCapacity, int serviceCapacity, Recipe buildCost) {
             this(
@@ -92,6 +88,12 @@ public class Buildings {
                     buildCost);
         }
 
+        //production
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider,
+             int npcCapacity, int productionInterval, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, buildCost);
+        }
+
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval, Recipe buildCost) {
             this(texture, name, job, null, entrancePosition, npcCapacity, productionInterval, 0, 0, buildCost);
         }
@@ -101,8 +103,19 @@ public class Buildings {
             name = defaultName();
         }
 
+        //residential
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
             this(texture, name, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
+        }
+
+        Type(Textures.Building texture, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
+            this(texture, null, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
+            name = defaultName();
+        }
+
+        //storage
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost) {
+            this(texture, name, null, null, entrancePosition, relativeCollider, 0, 0, 0, 0, buildCost);
         }
 
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost) {
@@ -135,7 +148,7 @@ public class Buildings {
     }
 
     public static void handleBuildingMode(SpriteBatch batch) {
-        if (!isInBuildingMode || isDemolishing)
+        if (!isInBuildingMode || isInDemolishingMode)
             throw new IllegalStateException("Not in building mode");
 
         TextureRegion texture = currentBuilding.getTexture();
@@ -171,14 +184,14 @@ public class Buildings {
     }
 
     public static void demolish() {
-        if (!isDemolishing || isInBuildingMode)
+        if (!isInDemolishingMode || isInBuildingMode)
             throw new IllegalStateException("Not in demolishing mode");
 
         if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
             for (Building building : World.getBuildings()) {
                 if (building.isMouseOver()) {
                     World.removeBuilding(building);
-                    if (!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT)) isDemolishing = false;
+                    if (!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT)) isInDemolishingMode = false;
                     break;
                 }
             }
@@ -186,7 +199,7 @@ public class Buildings {
     }
 
     public static void setDemolishingMode(boolean isDemolishing) {
-        Buildings.isDemolishing = isDemolishing;
+        Buildings.isInDemolishingMode = isDemolishing;
         isInBuildingMode = false;
     }
 
@@ -194,7 +207,7 @@ public class Buildings {
         currentBuilding = building;
         rangeX = Range.between(0, World.getWidth() - currentBuilding.getTexture().getRegionWidth());
         rangeY = Range.between(0, World.getHeight() - currentBuilding.getTexture().getRegionHeight());
-        isDemolishing = false;
+        isInDemolishingMode = false;
         isInBuildingMode = true;
     }
 
@@ -206,8 +219,8 @@ public class Buildings {
         return isInBuildingMode;
     }
 
-    public static boolean isDemolishing() {
-        return isDemolishing;
+    public static boolean isInDemolishingMode() {
+        return isInDemolishingMode;
     }
 
     private static boolean checkAndShowTileAvailability(SpriteBatch batch, int posX, int posY) {

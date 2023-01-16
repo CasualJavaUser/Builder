@@ -17,16 +17,16 @@ public class QuestionPopup extends Popup {
 
     protected QuestionPopup(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
         super(texture, parent, layer, position);
-        setWindowWidth(160 + 3*padding);
+        setWindowWidth(160 + 3*UI.PADDING);
         setWindowHeight(100);
 
-        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(padding, padding), "OK");
+        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(UI.PADDING, UI.PADDING), "OK");
         okButton.setOnUp(() -> {
             layer.setVisible(false);
             onAccept.execute();
         });
 
-        cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*padding, padding), "Cancel");
+        cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*UI.PADDING, UI.PADDING), "Cancel");
         cancelButton.setOnUp(() -> layer.setVisible(false));
     }
 

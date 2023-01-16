@@ -181,7 +181,7 @@ public class ProductionBuilding extends StorageBuilding {
         return buildingsInRange;
     }
 
-    public boolean checkIfInRange(Building building) {
+    public boolean isBuildingInRange(Building building) {
         return job.getRange() > 0 && building.getCollider().distance(entrancePosition) < job.getRange() && !building.equals(this);
     }
 
@@ -221,8 +221,8 @@ public class ProductionBuilding extends StorageBuilding {
     private void updateIndicator() {
         switch (inventory.checkStorageAvailability(job.getRecipe())) {
             case AVAILABLE: indicator.setVisible(false); break;
-            case OUTPUT_FULL: indicator.setTexture(Textures.get(Textures.Ui.FULL_STORAGE));
-            case LACKS_INPUT: indicator.setTexture(Textures.get(Textures.Ui.NO_RESOURCES));
+            case LACKS_INPUT: indicator.setTexture(Textures.get(Textures.Ui.NO_INPUT));
+            case OUTPUT_FULL: indicator.setTexture(Textures.get(Textures.Ui.FULL_OUTPUT));
             default: indicator.setVisible(true);
         }
 

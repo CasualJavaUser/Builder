@@ -2,6 +2,7 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Pathfinding;
 
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class Logic {
         @Override
         public void run() {
             Logistics.pairRequests();
+            UI.getResourceList().updateData();
             for (NPC npc : World.getNpcs()) {
                 npc.seekJob();
                 npc.seekHouse();
@@ -106,11 +108,17 @@ public class Logic {
         Timer.instance().scheduleTask(intermittentTask, 1f, 1f);
     }
 
+    public static float getTickSpeed() {
+        return tickSpeed;
+    }
+
     public static void setTickSpeed(float tickSpeed) {
         if (tickSpeed == 0) {
+            isPaused = true;
             Timer.instance().stop();
             return;
         }
+        isPaused = false;
         Logic.tickSpeed = tickSpeed;
         Timer.instance().clear();
         Timer.instance().scheduleTask(task, 0, tickSpeed);
@@ -119,8 +127,9 @@ public class Logic {
     }
 
     public static void pause(boolean pause) {
-        setTickSpeed(pause ? 0 : tickSpeed);
         isPaused = pause;
+        if (pause) Timer.instance().stop();
+        else Timer.instance().start();
     }
 
     public static boolean isPaused() {

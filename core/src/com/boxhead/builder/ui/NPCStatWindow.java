@@ -18,13 +18,13 @@ public class NPCStatWindow extends StatWindow<NPC> {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
 
-        batch.draw(pinnedObject.getTexture(),
+        batch.draw(pinnedObject.getIdleTexture(),
                 getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE,
-                pinnedObject.getTexture().getRegionWidth() * IMAGE_SCALE,
-                pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE);
+                getGlobalPosition().y + getContentHeight() - NPC.SIZE * IMAGE_SCALE,
+                NPC.SIZE * IMAGE_SCALE,
+                NPC.SIZE * IMAGE_SCALE);
         UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE);
+                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - NPC.SIZE * IMAGE_SCALE);
     }
 
     @Override
@@ -50,6 +50,6 @@ public class NPCStatWindow extends StatWindow<NPC> {
     @Override
     protected void updateWindowSize() {
         super.updateWindowSize();
-        setContentHeight(getContentHeight() + verticalPadding + pinnedObject.getTexture().getRegionHeight() * IMAGE_SCALE + 20);
+        setContentHeight(getContentHeight() + verticalPadding + NPC.SIZE * IMAGE_SCALE + 20);
     }
 }

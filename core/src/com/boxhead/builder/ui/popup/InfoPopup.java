@@ -12,7 +12,7 @@ public class InfoPopup extends Popup {
 
     protected InfoPopup(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
         super(texture, parent, layer, position);
-        setWindowWidth(160 + 3*padding);
+        setWindowWidth(160 + UI.PADDING * 3);
         setWindowHeight(100);
     }
 

@@ -15,12 +15,12 @@ public class WarningPopup extends Popup {
 
     protected WarningPopup(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
         super(texture, parent, layer, position);
-        setWindowWidth(160 + 3*padding);
+        setWindowWidth(160 + 3*UI.PADDING);
         setWindowHeight(100);
 
         okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(), "Ok");
         okButton.setOnUp(() -> layer.setVisible(false));
-        okButton.setLocalPosition(getWindowWidth()/2 - okButton.getTexture().getRegionWidth()/2, padding);
+        okButton.setLocalPosition(getWindowWidth()/2 - okButton.getTexture().getRegionWidth()/2, UI.PADDING);
     }
 
     protected static WarningPopup getInstance() {

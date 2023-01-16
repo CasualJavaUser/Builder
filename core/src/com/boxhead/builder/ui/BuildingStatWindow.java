@@ -91,9 +91,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
             setContentWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
-            int npcSize = Textures.get(Textures.Npc.FUNGUY).getRegionHeight();
-            setContentHeight(getContentHeight() + npcSize + verticalPadding);
-            int counterWidth = leftPadding + (npcSize + leftPadding) * npcCapacity;
+            setContentHeight(getContentHeight() + NPC.SIZE + verticalPadding);
+            int counterWidth = leftPadding + (NPC.SIZE + leftPadding) * npcCapacity;
             if(getContentWidth() < counterWidth)
                 setContentWidth(counterWidth);
         }
@@ -113,17 +112,16 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
     private void drawNPCCounter(SpriteBatch batch) {
         int i = 0;
-        int npcSize = Textures.get(Textures.Npc.FUNGUY).getRegionHeight();
         for (NPC npc : npcs) {
             if (npc.getCurrentBuilding() == pinnedObject)
-                batch.draw(npc.getTexture(),
-                        getGlobalPosition().x + leftPadding + (npcSize + leftPadding) * i++,
+                batch.draw(npc.getIdleTexture(),
+                        getGlobalPosition().x + leftPadding + (NPC.SIZE + leftPadding) * i++,
                         getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(Color.BLACK);
         while (i < npcCapacity) {
-            batch.draw(Textures.get(Textures.Npc.FUNGUY),
-                    getGlobalPosition().x + leftPadding + (npcSize + leftPadding) * i++,
+            batch.draw(Textures.get(Textures.Npc.IDLE0),
+                    getGlobalPosition().x + leftPadding + (NPC.SIZE + leftPadding) * i++,
                     getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(UI.DEFAULT_COLOR);

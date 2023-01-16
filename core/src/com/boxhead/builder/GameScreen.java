@@ -43,7 +43,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        if (!Logic.isPaused()) {
+        if (!UI.isPaused()) {
             scroll();
             moveCamera(deltaTime);
         }
@@ -53,15 +53,16 @@ public class GameScreen implements Screen {
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
 
-        if(!UI.handleUiInteraction() && !Logic.isPaused()) {
+        if(!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
-            else if (Buildings.isDemolishing()) Buildings.demolish();
+            else if (Buildings.isInDemolishingMode()) Buildings.demolish();
             else {
                 World.handleNpcsAndBuildingsOnClick();
             }
         }
 
         if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
+        if (InputManager.isKeyPressed(Input.Keys.SPACE)) Logic.pause(!Logic.isPaused());
 
         drawUI();
 

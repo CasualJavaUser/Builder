@@ -9,7 +9,6 @@ import com.boxhead.builder.utils.Vector2i;
 
 public abstract class Popup extends Window {
     protected String text = "";
-    protected static final int padding = 10;
 
     protected Popup(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
         super(texture, parent, layer, position, true);
@@ -19,7 +18,7 @@ public abstract class Popup extends Window {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
         UI.FONT.setColor(tint);
-        UI.FONT.draw(batch, text, getGlobalPosition().x, getGlobalPosition().y + getContentHeight() - padding, getWindowWidth(), 1, false);
+        UI.FONT.draw(batch, text, getGlobalPosition().x, getGlobalPosition().y + getWindowHeight() - getEdgeWidth() - UI.PADDING, getWindowWidth(), 1, false);
         UI.FONT.setColor(UI.DEFAULT_COLOR);
     }
 }

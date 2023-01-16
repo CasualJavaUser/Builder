@@ -18,12 +18,7 @@ public class ResourceList extends UIElement {
         }
     }
 
-    @Override
-    public void draw(SpriteBatch batch) {
-        updateData();
-    }
-
-    private void updateData() {
+    public void updateData() {
         int i = 0, j = labels.length - 1;
         for (Resource resource : Resource.values()) {
             if (resource != Resource.NOTHING && World.getStored(resource) != 0) {

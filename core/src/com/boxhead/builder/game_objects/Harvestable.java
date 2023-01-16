@@ -20,11 +20,11 @@ public class Harvestable extends GameObject implements FieldWork {
     private NPC assigned;
     private boolean worked;
     private final BoxCollider collider;
-    private transient Textures.Environment textureType;
+    private transient Textures.Environment textureId;
 
     public Harvestable(Textures.Environment texture, Vector2i gridPosition, Characteristic characteristic, int size) {
         super(Textures.get(texture), gridPosition);
-        textureType = texture;
+        textureId = texture;
         this.characteristic = characteristic;
         amountLeft = size;
         if (characteristic != Characteristic.TREE) collider = getDefaultCollider();
@@ -34,7 +34,7 @@ public class Harvestable extends GameObject implements FieldWork {
 
     public Harvestable(Textures.Environment texture, Vector2i gridPosition, BoxCollider collider, Characteristic characteristic, int size) {
         super(Textures.get(texture), gridPosition);
-        textureType = texture;
+        textureId = texture;
         this.collider = collider;
         this.characteristic = characteristic;
         amountLeft = size;
@@ -127,13 +127,13 @@ public class Harvestable extends GameObject implements FieldWork {
     @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
-        oos.writeUTF(textureType.name());
+        oos.writeUTF(textureId.name());
     }
 
     @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        textureType = Textures.Environment.valueOf(ois.readUTF());
-        texture = Textures.get(textureType);
+        textureId = Textures.Environment.valueOf(ois.readUTF());
+        texture = Textures.get(textureId);
     }
 }

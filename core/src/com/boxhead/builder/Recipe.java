@@ -48,4 +48,16 @@ public class Recipe {
     public Set<Resource> changedResources() {
         return changes.keySet();
     }
+
+    @Override
+    public String toString() {
+        String s = "";
+        for (Resource resource : Resource.values()) {
+            if (changes.get(resource) != null) {
+                s = s.concat("- " + resource.name().toLowerCase() + ": " + changes.get(resource)) + "\n";
+            }
+        }
+        s = s.substring(0, s.length()-1);
+        return s;
+    }
 }

@@ -1,40 +1,12 @@
 
 resources.png
-size: 32, 16
+size: 64, 16
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 nothing
   rotate: false
-  xy: 0, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-tools
-  rotate: false
-  xy: 0, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-iron
-  rotate: false
-  xy: 0, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-coal
-  rotate: false
-  xy: 0, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-steel
-  rotate: false
-  xy: 0, 0
+  xy: 16, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -47,6 +19,34 @@ stone
   offset: 0, 0
   index: -1
 wood
+  rotate: false
+  xy: 32, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+iron
+  rotate: false
+  xy: 16, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+coal
+  rotate: false
+  xy: 16, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+steel
+  rotate: false
+  xy: 16, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+tools
   rotate: false
   xy: 16, 0
   size: 16, 16

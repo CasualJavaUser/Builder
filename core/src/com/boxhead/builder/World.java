@@ -60,10 +60,10 @@ public class World {
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
         makeUnnavigable(collider);
 
-        collider = Buildings.Type.DEFAULT_STORAGE_BUILDING.relativeCollider;
+        collider = Buildings.Type.STORAGE_BARN.relativeCollider;
         buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
         collider = collider.cloneAndTranslate(buildingPosition);
-        placeBuilding(Buildings.Type.DEFAULT_STORAGE_BUILDING, buildingPosition);
+        placeBuilding(Buildings.Type.STORAGE_BARN, buildingPosition);
         makeUnnavigable(collider);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 100);
@@ -212,11 +212,11 @@ public class World {
         gameObjects.add(building);
         if (type == Buildings.Type.TRANSPORT_OFFICE) {
             Logistics.getTransportOffices().add((ProductionBuilding) building);
-        } else if (type == Buildings.Type.DEFAULT_STORAGE_BUILDING) {
+        } else if (type == Buildings.Type.STORAGE_BARN) {
             Logistics.getStorages().add((StorageBuilding) building);
         }
         for (Building b : buildings) {
-            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).checkIfInRange(building)) {
+            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
                 ((ProductionBuilding) b).getBuildingsInRange().add(building);
                 ((ProductionBuilding) b).updateEfficiency();
             }
@@ -229,7 +229,7 @@ public class World {
         buildings.remove(building);
         gameObjects.remove(building);
         for (Building b : buildings) {
-            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).checkIfInRange(building)) {
+            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
                 ((ProductionBuilding) b).getBuildingsInRange().remove(building);
                 ((ProductionBuilding) b).updateEfficiency();
             }
@@ -409,7 +409,7 @@ public class World {
 
     private static void initNPCs(int num) {
         for (int i = 0; i < num; i++) {
-            spawnNPC(new NPC(Textures.Npc.FUNGUY, new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+            spawnNPC(new NPC((int)(Math.random()+1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
         }
     }
 }

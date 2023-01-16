@@ -18,13 +18,13 @@ public class InputPopup extends Popup {
 
     protected InputPopup(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
         super(texture, parent, layer, position);
-        setWindowWidth(160 + 3*padding);
-        setWindowHeight(139);
+        setWindowWidth(160 + UI.PADDING * 3);
+        setContentHeight(UI.PADDING * 4 + 64 + (int)UI.FONT.getCapHeight());
 
-        TextureRegion textFieldTexture = Textures.get(Textures.Ui.TEXT_FIELD);
-        textField = new TextField(prompt, textFieldTexture, this, UI.Layer.POPUP, new Vector2i((getWindowWidth() - textFieldTexture.getRegionWidth())/2, padding*2 + 32));
+        textField = new TextField(prompt, Textures.get(Textures.Ui.TEXT_FIELD), this, UI.Layer.POPUP, new Vector2i());
+        textField.setLocalPosition((getWindowWidth() - textField.getWidth())/2, UI.PADDING * 2 + 32);
 
-        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(padding, padding), "OK");
+        okButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(UI.PADDING, UI.PADDING), "OK");
         okButton.setOnUp(() -> {
             if(!textField.getText().equals("")) {
                 layer.setVisible(false);
@@ -34,7 +34,7 @@ public class InputPopup extends Popup {
             }
         });
 
-        cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*padding, padding), "Cancel");
+        cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*UI.PADDING, UI.PADDING), "Cancel");
         cancelButton.setOnUp(() -> {
             layer.setVisible(false);
             textField.setText("");

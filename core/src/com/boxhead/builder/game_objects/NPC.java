@@ -1,7 +1,9 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
@@ -27,6 +29,11 @@ public class NPC extends GameObject implements Clickable {
 
     private final String name, surname;
     private final int[] stats = new int[Stats.values().length];
+    private final int textureId;
+    private transient TextureRegion idleTexture;
+    private transient Animation<TextureRegion> walkLeft;
+    private transient Animation<TextureRegion> walkRight;
+
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
     private StorageBuilding buildingIsIn = null;
@@ -43,29 +50,26 @@ public class NPC extends GameObject implements Clickable {
 
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
 
-    private transient Textures.Npc textureType;
+    float stateTime = 0;
+
+    public static final int SIZE = 16;
 
     public enum Stats {
         AGE,
         HEALTH
     }
 
-    public NPC(Textures.Npc texture, Vector2i position) {
-        super(Textures.get(texture), position);
-        textureType = texture;
+    public NPC(int textureId, Vector2i position) {
+        super(Textures.get(Enum.valueOf(Textures.Npc.class, "IDLE" + textureId)), position);
+        this.textureId = textureId;
         prevPosition = position;
         spritePosition = position.toVector2();
         name = NAMES[(int) (Math.random() * NAMES.length)];
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
-    }
 
-    public NPC(Textures.Npc texture, Vector2i position, int index) {
-        super(Textures.get(texture), position);
-        textureType = texture;
-        prevPosition = position;
-        spritePosition = position.toVector2();
-        name = String.valueOf(index);
-        surname = "";
+        idleTexture = texture;
+        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + textureId));
+        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + textureId));
     }
 
     @Override
@@ -74,9 +78,25 @@ public class NPC extends GameObject implements Clickable {
             float x = spritePosition.x * World.TILE_SIZE;
             float y = spritePosition.y * World.TILE_SIZE;
             Vector3 pos = GameScreen.worldToScreenPosition(x, y);
-            if (pos.x + texture.getRegionWidth() / GameScreen.camera.zoom > 0 && pos.x < Gdx.graphics.getWidth() &&
-                    pos.y + texture.getRegionHeight() / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight())
+
+            if (pos.x + SIZE / GameScreen.camera.zoom > 0 && pos.x < Gdx.graphics.getWidth() &&
+                    pos.y + SIZE / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight()) {
+                if (prevPosition.equals(gridPosition)) {
+                    stateTime = 0;
+                    texture = idleTexture;
+                }
+                else if(!Logic.isPaused()) {
+                    stateTime += .01f / (Logic.getTickSpeed() * 200);
+
+                    if (prevPosition.x > gridPosition.x) {
+                        texture = walkLeft.getKeyFrame(stateTime, true);
+                    } else {
+                        texture = walkRight.getKeyFrame(stateTime, true);
+                    }
+                }
+
                 batch.draw(texture, x, y);
+            }
         }
     }
 
@@ -439,6 +459,10 @@ public class NPC extends GameObject implements Clickable {
         return buildingIsIn;
     }
 
+    public TextureRegion getIdleTexture() {
+        return idleTexture;
+    }
+
     public boolean hasOrders() {
         return !orderList.isEmpty();
     }
@@ -451,13 +475,13 @@ public class NPC extends GameObject implements Clickable {
     @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
-        oos.writeUTF(textureType.name());
     }
 
     @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        textureType = Textures.Npc.valueOf(ois.readUTF());
-        texture = Textures.get(textureType);
+        idleTexture = Textures.get(Enum.valueOf(Textures.Npc.class, "IDLE" + textureId));
+        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + textureId));
+        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + textureId));
     }
 }

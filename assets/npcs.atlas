@@ -1,13 +1,188 @@
 
 npcs.png
-size: 16, 16
+size: 512, 16
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-funguy
+idle0
+  rotate: false
+  xy: 336, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+idle1
+  rotate: false
+  xy: 192, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+walk_left0
+  rotate: false
+  xy: 48, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 3
+walk_left0
+  rotate: false
+  xy: 112, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 0
+walk_left0
+  rotate: false
+  xy: 176, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 5
+walk_left0
+  rotate: false
+  xy: 224, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 2
+walk_left0
+  rotate: false
+  xy: 320, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 4
+walk_left0
+  rotate: false
+  xy: 400, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 1
+walk_left1
+  rotate: false
+  xy: 32, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 3
+walk_left1
+  rotate: false
+  xy: 96, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 0
+walk_left1
+  rotate: false
+  xy: 128, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 5
+walk_left1
+  rotate: false
+  xy: 208, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 2
+walk_left1
+  rotate: false
+  xy: 288, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 4
+walk_left1
+  rotate: false
+  xy: 384, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 1
+walk_right0
+  rotate: false
+  xy: 16, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 2
+walk_right0
+  rotate: false
+  xy: 80, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 4
+walk_right0
+  rotate: false
+  xy: 160, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 1
+walk_right0
+  rotate: false
+  xy: 256, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 3
+walk_right0
+  rotate: false
+  xy: 304, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 0
+walk_right0
+  rotate: false
+  xy: 368, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 5
+walk_right1
   rotate: false
   xy: 0, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
-  index: -1
+  index: 2
+walk_right1
+  rotate: false
+  xy: 64, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 4
+walk_right1
+  rotate: false
+  xy: 144, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 1
+walk_right1
+  rotate: false
+  xy: 240, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 3
+walk_right1
+  rotate: false
+  xy: 272, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 0
+walk_right1
+  rotate: false
+  xy: 352, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 5
