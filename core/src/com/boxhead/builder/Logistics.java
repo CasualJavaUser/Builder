@@ -99,10 +99,14 @@ public class Logistics {
         orderRequests.clear();
     }
 
+    /**
+     * Creates a new transport request and overrides its priority. Note that this override is not persistent - invoking a
+     * non-overriding <code>requestTransport()</code> will reset priority.
+     */
     public static void requestTransport(StorageBuilding building, Recipe recipe, int overridePriority) {
         for (Resource resource : recipe.changedResources()) {
-            requestTransport(building, resource, recipe.getChange(resource));
-            overrideRequestPriority(building, resource, overridePriority);
+            Request request = returningRequestTransport(building, resource, recipe.getChange(resource));
+            overrideRequestPriority(request, overridePriority);
         }
     }
     public static void requestTransport(StorageBuilding building, Recipe recipe) {
@@ -115,37 +119,42 @@ public class Logistics {
      * @param units The sign of this argument determines whether this request is considered an input or an output. Should be kept the same as in Recipes - positive for output and negative for input, zero has no effect.
      */
     public static void requestTransport(StorageBuilding building, Resource resource, int units) {
-        Request request;
-        long zipCode = Request.zipCode(building, resource);
+        returningRequestTransport(building, resource, units);
+    }
+
+    private static Request returningRequestTransport(StorageBuilding building, Resource resource, int units) {
         SortedList<Request> list;
 
         if (units > 0)
             list = outputRequests;
         else if (units < 0)
             list = supplyRequests;
-        else return;
+        else
+            return null;
 
-        int index = list.indexOf(zipCode);
-        if (index == -1) {
-            request = new Request(resource, building, Math.abs(units));
-            list.add(request);
-        } else {
-            request = list.get(index);
-            request.amount += Math.abs(units);
+        long zipCode = Request.zipCode(building, resource);
+        for (Request request : list) {
+            if (request.equals(zipCode)) {
+                request.amount += Math.abs(units);
+                updatePriority(request);
+                return request;
+            }
         }
-        updatePriority(request);
+        Request request = new Request(resource, building, Math.abs(units));
+        request.priorityEnum = calcPriority(request);
+        request.priority = request.priorityEnum.ordinal();
+        list.add(request);
+        return request;
     }
 
-    public static void overrideRequestPriority(StorageBuilding building, Resource resource, int newPriority) {
-        long zipCode = Request.zipCode(building, resource);
+    public static void overrideRequestPriority(Request request, int newPriority) {
+        SortedList<Request> list = determineList(request);
+        if (request == null || list == null) return;
 
-        SortedList<Request> list = determineList(zipCode);
-        if (list == null) return;
-
-        Request request = list.get(list.indexOf(zipCode));
-
+        list.remove(request);
         request.priority = newPriority;
         request.priorityEnum = Priority.values()[newPriority];
+        list.add(request);
     }
 
     public static void pairRequests() {
@@ -169,10 +178,11 @@ public class Logistics {
                 paired = findRequest(outputRequests, currentRequest);
 
                 if (paired.isPresent()) {
-                    readyOrders.add(new Order(paired.get(), currentRequest, THE_UNIT));
-                    currentRequest.amount -= THE_UNIT;
+                    Request outputRequest = paired.get();
+
+                    addOrder(currentRequest, outputRequest);
                     currentRequest.building.reserveSpace(THE_UNIT);
-                    paired.get().building.reserveResources(currentRequest.resource, THE_UNIT);
+                    outputRequest.building.reserveResources(currentRequest.resource, THE_UNIT);
                 }
 
                 supplyIterator++;
@@ -183,10 +193,11 @@ public class Logistics {
                 paired = findRequest(supplyRequests, currentRequest);
 
                 if (paired.isPresent()) {
-                    readyOrders.add(new Order(currentRequest, paired.get(), THE_UNIT));
-                    currentRequest.amount -= THE_UNIT;
+                    Request supplyRequest = paired.get();
+
+                    addOrder(supplyRequest, currentRequest);
                     currentRequest.building.reserveResources(currentRequest.resource, THE_UNIT);
-                    paired.get().building.reserveSpace(THE_UNIT);
+                    supplyRequest.building.reserveSpace(THE_UNIT);
                 }
 
                 outputIterator++;
@@ -220,34 +231,34 @@ public class Logistics {
         int it = 0;
 
         while (it < supplyRequests.size() && supplyRequests.get(it).priority > Priority.LOW.ordinal()) {
-            Request request = supplyRequests.get(it);
-            Resource resource = request.resource;
+            Request supplyRequest = supplyRequests.get(it);
+            Resource resource = supplyRequest.resource;
             StorageBuilding storage;
 
-            Optional<StorageBuilding> optional = findStoredResources(request);
+            Optional<StorageBuilding> optional = findStoredResources(supplyRequest);
             if (optional.isPresent()) {
                 storage = optional.get();
+
+                addOrder(supplyRequest, new Request(resource, storage, THE_UNIT));
                 storage.reserveResources(resource, THE_UNIT);
-                request.building.reserveSpace(THE_UNIT);
-                readyOrders.add(new Order(new Request(resource, storage, THE_UNIT), request));
-                request.amount -= THE_UNIT;
+                supplyRequest.building.reserveSpace(THE_UNIT);
             }
             it++;
         }
 
         it = 0;
         while (it < outputRequests.size() && outputRequests.get(it).priority > Priority.LOW.ordinal()) {
-            Request request = outputRequests.get(it);
-            Resource resource = request.resource;
+            Request outputRequest = outputRequests.get(it);
+            Resource resource = outputRequest.resource;
             StorageBuilding storage;
 
-            Optional<StorageBuilding> optional = findStorageSpace(request);
+            Optional<StorageBuilding> optional = findStorageSpace(outputRequest);
             if (optional.isPresent()) {
                 storage = optional.get();
+
+                addOrder(new Request(resource, storage, THE_UNIT), outputRequest);
                 storage.reserveSpace(THE_UNIT);
-                request.building.reserveResources(resource, THE_UNIT);
-                readyOrders.add(new Order(request, new Request(resource, storage, THE_UNIT)));
-                request.amount -= THE_UNIT;
+                outputRequest.building.reserveResources(resource, THE_UNIT);
             }
             it++;
         }
@@ -256,35 +267,71 @@ public class Logistics {
     }
 
     private static void updatePriority(Request request) {
-        float fill;
         SortedList<Request> list;
+        Priority newPriority = calcPriority(request);
+        if (newPriority != request.priorityEnum) {
+            list = determineList(request);
+            if (list != null) {
+                list.remove(request);
+                request.priorityEnum = newPriority;
+                request.priority = newPriority.ordinal();
+                list.add(request);
+            }
+        }
+    }
+
+    private static Priority calcPriority(Request request) {
+        float fill;
         Inventory inventory = request.building.getInventory();
 
         if (outputRequests.contains(request)) {
             fill = (float) inventory.getCurrentAmount() / (float) inventory.getMaxCapacity();
-            list = outputRequests;
         } else if (supplyRequests.contains(request)) {
             fill = 1 - (float) inventory.getCurrentAmount() / (float) inventory.getMaxCapacity();
-            list = supplyRequests;
-        } else return;
+        } else return Priority.values()[0];
 
-        list.remove(request);
+        Priority maxPriority = Priority.values()[Priority.values().length - 1];
         for (Priority priority : Priority.values()) {
             if (fill >= priority.threshold) {
-                request.priorityEnum = priority;
-                request.priority = request.priorityEnum.ordinal();
+                maxPriority = priority;
             } else break;
         }
-        list.add(request);
+        return maxPriority;
     }
 
-    private static SortedList<Request> determineList(long zipCode) {
-        if (supplyRequests.indexOf(zipCode) != -1)
+    private static Order searchOrders(Request supply, Request output) {
+        for (Order order : readyOrders) {
+            if (order.resource == supply.resource && order.sender == output.building && order.recipient == supply.building)
+                return order;
+        }
+        return null;
+    }
+
+    private static void addOrder(Request supply, Request output) {
+        Order order = searchOrders(supply, output);
+
+        if (order == null) {
+            readyOrders.add(new Order(output, supply, THE_UNIT));
+        } else {
+            int maxPriority = Math.max(supply.priority, output.priority);
+            if (maxPriority > order.priority) {
+                readyOrders.remove(order);
+                order.priority = maxPriority;
+                readyOrders.add(order);
+            }
+            order.amount += THE_UNIT;
+        }
+
+        supply.amount -= THE_UNIT;
+        output.amount -= THE_UNIT;
+    }
+
+    private static SortedList<Request> determineList(Request request) {
+        if (supplyRequests.contains(request))
             return supplyRequests;
 
-        if (outputRequests.indexOf(zipCode) != -1)
+        if (outputRequests.contains(request))
             return outputRequests;
-
         return null;
     }
 
@@ -297,7 +344,7 @@ public class Logistics {
 
     private static Optional<StorageBuilding> findStoredResources(Request request) {
         return storages.stream()
-                .filter(storage -> storage.getInventory().getResourceAmount(request.resource) >= THE_UNIT)
+                .filter(storage -> storage.getFreeResources(request.resource) >= THE_UNIT)
                 .min(Comparator.comparingDouble(storage -> storage.getEntrancePosition().distance(request.building.getEntrancePosition())));
     }
 
@@ -398,8 +445,8 @@ public class Logistics {
         public boolean equals(Object other) {
             if (this == other) return true;
 
-            if (other instanceof Order) {
-                return resource == ((Order) other).resource && recipient == ((Order) other).recipient && sender == ((Order) other).sender;
+            if (other instanceof Order otherOrder) {
+                return resource == otherOrder.resource && recipient == otherOrder.recipient && sender == otherOrder.sender;
             }
             return false;
         }

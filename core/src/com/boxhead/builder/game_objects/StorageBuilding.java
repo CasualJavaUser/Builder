@@ -42,7 +42,7 @@ public class StorageBuilding extends Building {
     }
 
     public void reserveResources(Resource resource, int units) {
-        if (inventory.getResourceAmount(resource) - reservedInventory.getResourceAmount(resource) >= units) {
+        if (getFreeResources(resource) >= units) {
             reservedInventory.put(resource, units);
         }
     }
@@ -77,6 +77,10 @@ public class StorageBuilding extends Building {
             reservedInventory.put(resource, -units);
             inventory.put(resource, -units);
         }
+    }
+
+    public int getFreeResources(Resource resource) {
+        return inventory.getResourceAmount(resource) - reservedInventory.getResourceAmount(resource);
     }
 
     public Inventory getInventory() {

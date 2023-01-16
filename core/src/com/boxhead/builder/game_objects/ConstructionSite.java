@@ -52,7 +52,7 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
 
     @Override
     public boolean isFree() {
-        return assigned.size() < capacity;
+        return inventory.isFull() && assigned.size() < capacity;
     }
 
     @Override
