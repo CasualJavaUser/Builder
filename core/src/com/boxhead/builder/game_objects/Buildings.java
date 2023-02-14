@@ -45,7 +45,10 @@ public class Buildings {
                         new Recipe(Pair.of(Resource.WOOD, 20))),
         STONE_GATHERERS
                 (Textures.Building.STONE_GATHERERS_SHACK, "stone gatherer's shack", Jobs.STONEMASON, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 2, 0,
-                        new Recipe(Pair.of(Resource.WOOD, 30)));
+                        new Recipe(Pair.of(Resource.WOOD, 30))),
+        TOOL_SHACK
+                (Textures.Building.TOOL_SHACK, "tool shack", Jobs.FARMER, new Vector2i(1, -1), 1, 0,
+                        new Recipe(Pair.of(Resource.WOOD, 10)));
 
         public final Textures.Building texture;
         public String name;

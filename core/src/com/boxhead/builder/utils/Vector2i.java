@@ -60,6 +60,15 @@ public class Vector2i implements Cloneable, Serializable {
         return Math.sqrt(Math.pow(this.x - x, 2d) + Math.pow(this.y - y, 2d));
     }
 
+    /**
+     * Doesn't actually compute the distance, it is however, consistent with <code>.distance()</code> in comparisons.
+     */
+    public int distanceScore(Vector2i vector) {
+        int xDiff = x - vector.x;
+        int yDiff = y - vector.y;
+        return (xDiff * xDiff) + (yDiff * yDiff);
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ')';

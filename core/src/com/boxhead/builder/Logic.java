@@ -19,8 +19,11 @@ public class Logic {
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
-            World.addTime(1);
+            World.incrementTime();
             dailyCycle();
+            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first == World.getDate()) {
+                Harvestable.timeTriggers.remove(0).second.changePhase();
+            }
             produceResources();
             for (NPC npc : World.getNpcs()) {
                 npc.executeOrders();
@@ -81,9 +84,9 @@ public class Logic {
             if (building instanceof ServiceBuilding) {
                 ((ServiceBuilding) building).provideServices();
             }
-            if (building instanceof ProductionBuilding) {
-                ((ProductionBuilding) building).business();
-                for (Object fieldWork : ((ProductionBuilding) building).getAssignedFieldWork().values().toArray()) {
+            if (building instanceof ProductionBuilding workplace) {
+                workplace.business();
+                for (Object fieldWork : workplace.getAssignedFieldWork().values().toArray()) {
                     ((FieldWork) fieldWork).work();
                 }
             }

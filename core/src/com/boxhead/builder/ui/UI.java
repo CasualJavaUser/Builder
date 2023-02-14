@@ -59,7 +59,7 @@ public class UI {
 
     private static Button resourcesTabButton;
     private static UIElement resourcesTab;
-    private static Button lumberjackButton, mineButton, stoneGathererButton;
+    private static Button lumberjackButton, mineButton, stoneGathererButton, toolShackButton;
 
     private static Button servicesTabButton;
     private static UIElement servicesTab;
@@ -341,11 +341,13 @@ public class UI {
 
                 lumberjackButton = new Button(Textures.get(Textures.Ui.AXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
                 mineButton = new Button(Textures.get(Textures.Ui.PICKAXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                stoneGathererButton = new Button(Textures.get(Textures.Ui.PICKAXE_WITH_STONE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x + 74, y));
+                stoneGathererButton = new Button(Textures.get(Textures.Ui.PICKAXE_WITH_STONE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
+                toolShackButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x + 74, y));
 
                 lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACKS_HUT));
                 mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
                 stoneGathererButton.setOnUp(() -> showBuildingStats(Buildings.Type.STONE_GATHERERS));
+                toolShackButton.setOnUp(() -> showBuildingStats(Buildings.Type.TOOL_SHACK));
             }
             //endregion
 
@@ -446,6 +448,7 @@ public class UI {
                 lumberjackButton.addToUI();
                 mineButton.addToUI();
                 stoneGathererButton.addToUI();
+                toolShackButton.addToUI();
             servicesTabButton.addToUI();
                 serviceButton.addToUI();
 

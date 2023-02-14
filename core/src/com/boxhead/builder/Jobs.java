@@ -3,6 +3,7 @@ package com.boxhead.builder;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.utils.Pair;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class Jobs {
@@ -25,7 +26,7 @@ public class Jobs {
 
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
-            harvesterAssign(assignee, workplace);
+            harvesterAssign(assignee, workplace, Logistics.assignedFieldWork(workplace));
         }
 
         @Override
@@ -59,7 +60,7 @@ public class Jobs {
 
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
-            harvesterAssign(assignee, workplace);
+            harvesterAssign(assignee, workplace, Logistics.assignedFieldWork(workplace));
         }
 
         @Override
@@ -198,9 +199,45 @@ public class Jobs {
         }
     };
 
-    private static void harvesterAssign(NPC assignee, ProductionBuilding workplace) {
-        FieldWork fieldWork = Logistics.assignedFieldWork(workplace);
+    public static final Job FARMER = new Job() {
+        @Override
+        public void assign(NPC assignee, ProductionBuilding workplace) {
+            Optional<FieldWork> fieldWorkOptional = FieldWork.findFieldWorkInRange(Harvestable.Characteristic.FIELD, assignee.getGridPosition(), getRange());
+            if (fieldWorkOptional.isPresent()) {
+                FieldWork fieldWork = fieldWorkOptional.get();
+                harvesterAssign(assignee, workplace, fieldWork);
+            }
+        }
 
+        @Override
+        public void onExit(NPC assignee, ProductionBuilding workplace) {
+            harvesterOnExit(assignee, workplace, Harvestable.Characteristic.FIELD.resource);
+        }
+
+        private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, NPC.INVENTORY_SIZE));
+
+        @Override
+        public Recipe getRecipe() {
+            return recipe;
+        }
+
+        @Override
+        public Object getPoI() {
+            return Harvestable.Characteristic.FIELD;
+        }
+
+        @Override
+        public int getRange() {
+            return 10;
+        }
+
+        @Override
+        public String toString() {
+            return "farmer";
+        }
+    };
+
+    private static void harvesterAssign(NPC assignee, ProductionBuilding workplace, FieldWork fieldWork) {
         if (fieldWork == null || !fieldWork.isFree() || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
             return;
 

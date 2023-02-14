@@ -15,6 +15,7 @@ public class World {
     public static final int TILE_SIZE = 16;
     public static final int FULL_DAY = 86400;
 
+    private static int day;
     private static int time;
     private static int temperature;
     private static Vector2i worldSize;
@@ -121,9 +122,9 @@ public class World {
         double dy = (double) pos.y / noiseSize;
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
-        int textureId = random.nextInt(type.getTextures().length);
+        int textureId = random.nextInt(type.textures.length);
 
-        int width = Textures.get(type.getTextures()[textureId]).getRegionWidth() / TILE_SIZE;
+        int width = Textures.get(type.textures[textureId]).getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if(smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
@@ -136,7 +137,7 @@ public class World {
         double dy = (double) pos.y / noiseSize;
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
-        int textureId = random.nextInt(type.getTextures().length);
+        int textureId = random.nextInt(type.textures.length);
 
         if(smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
@@ -144,7 +145,7 @@ public class World {
     }
 
     private static void generateRiver() {
-        double noiseFrequency = random.nextDouble() * 2 + 3;    //amount of curves (3 <= x < 5)
+        double noiseFrequency = random.nextDouble() * 2 + 3;    //number of curves (3 <= x < 5)
         double curveMultiplier = random.nextDouble() * 4 + 16;  //curve size (16 <= x < 20)
         int width = 2;                                          //river width
         double bias = random.nextDouble() - 0.5f;               //the general direction in which the river is going (positive - right, negative - left) (-0.5 <= x < 0.5)
@@ -355,8 +356,26 @@ public class World {
         World.time = time;
     }
 
-    public static void addTime(int shift) {
-        time = (time + shift) % FULL_DAY;
+    public static void incrementTime() {
+        time++;
+        if (time >= FULL_DAY) {
+            time = 0;
+            day++;
+        }
+    }
+
+    public static long getDate() {
+        return ((long) day << 32) | time;
+    }
+
+    public static long calculateDate(int ticksFromNow) {
+        int fullDays = ticksFromNow / FULL_DAY;
+        int resultTime = time + (ticksFromNow % FULL_DAY);
+        if (resultTime >= FULL_DAY) {
+            resultTime -= FULL_DAY;
+            fullDays++;
+        }
+        return ((long) day + fullDays) << 32 | resultTime;
     }
 
     public static SortedList<GameObject> getGameObjects() {

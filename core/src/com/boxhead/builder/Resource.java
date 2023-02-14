@@ -7,5 +7,6 @@ public enum Resource {
     IRON,
     COAL,
     STEEL,
-    TOOLS
+    TOOLS,
+    GRAIN
 }

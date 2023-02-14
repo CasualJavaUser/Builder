@@ -27,7 +27,7 @@ public interface FieldWork extends WorldObject, Serializable {
         return World.getFieldWorks().stream()
                 .filter(fw -> fw.getCharacteristic().equals(characteristic))
                 .filter(FieldWork::isFree)
-                .min(Comparator.comparingDouble(harvestable -> harvestable.getGridPosition().distance(gridPosition)))
+                .min(Comparator.comparingInt(harvestable -> harvestable.getGridPosition().distanceScore(gridPosition)))
                 .map(FieldWork.class::cast);
     }
 
@@ -36,7 +36,7 @@ public interface FieldWork extends WorldObject, Serializable {
                 .filter(fw -> fw.getCharacteristic().equals(characteristic))
                 .filter(FieldWork::isFree)
                 .filter(harvestable -> harvestable.getCollider().getGridPosition().distance(gridPosition) <= range)
-                .min(Comparator.comparingDouble(harvestable -> harvestable.getCollider().getGridPosition().distance(gridPosition)))
+                .min(Comparator.comparingInt(harvestable -> harvestable.getGridPosition().distanceScore(gridPosition)))
                 .map(FieldWork.class::cast);
     }
 }

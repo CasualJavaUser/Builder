@@ -126,7 +126,7 @@ public class NPC extends GameObject implements Clickable {
                 .filter(building -> building instanceof ResidentialBuilding)
                 .map(building -> (ResidentialBuilding) building)
                 .filter(ResidentialBuilding::hasFreePlaces)
-                .min(Comparator.comparingDouble(building -> building.getGridPosition().distance(this.gridPosition)));
+                .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
 
         if (bestHouseOptional.isPresent()) {
             ResidentialBuilding bestHouse = bestHouseOptional.get();
@@ -135,7 +135,7 @@ public class NPC extends GameObject implements Clickable {
                 bestHouse.addResident(this);
                 home = bestHouse;
             } else if (workplace != null &&
-                    home.getGridPosition().distance(workplace.getGridPosition()) < bestHouse.getGridPosition().distance(workplace.getGridPosition())) {
+                    home.getGridPosition().distanceScore(workplace.getGridPosition()) < bestHouse.getGridPosition().distanceScore(workplace.getGridPosition())) {
                 home.removeResident(this);
                 bestHouse.addResident(this);
                 home = bestHouse;

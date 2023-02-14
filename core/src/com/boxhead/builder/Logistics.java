@@ -42,8 +42,8 @@ public class Logistics {
             fieldWorkRequests.put(fieldWork, building);
         } else {
             Vector2i fieldWorkPos = fieldWork.getGridPosition();
-            double newDistance = building.getEntrancePosition().distance(fieldWorkPos);
-            double currentDistance = fieldWorkRequests.get(fieldWork).getEntrancePosition().distance(fieldWorkPos);
+            int newDistance = building.getEntrancePosition().distanceScore(fieldWorkPos);
+            int currentDistance = fieldWorkRequests.get(fieldWork).getEntrancePosition().distanceScore(fieldWorkPos);
 
             if (newDistance < currentDistance) {
                 fieldWorkRequests.replace(fieldWork, building);
@@ -345,13 +345,13 @@ public class Logistics {
     private static Optional<StorageBuilding> findStoredResources(Request request) {
         return storages.stream()
                 .filter(storage -> storage.getFreeResources(request.resource) >= THE_UNIT)
-                .min(Comparator.comparingDouble(storage -> storage.getEntrancePosition().distance(request.building.getEntrancePosition())));
+                .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
     }
 
     private static Optional<StorageBuilding> findStorageSpace(Request request) {
         return storages.stream()
                 .filter(storage -> storage.getInventory().getAvailableCapacity() >= THE_UNIT)
-                .min(Comparator.comparingDouble(storage -> storage.getEntrancePosition().distance(request.building.getEntrancePosition())));
+                .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
     }
 
     public enum Priority {

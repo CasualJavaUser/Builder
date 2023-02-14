@@ -83,6 +83,7 @@ public class Textures {
         STORAGE_BARN, STORAGE_BARN_CS,
         CARRIAGE_HOUSE, CARRIAGE_HOUSE_CS,
         STONE_GATHERERS_SHACK, STONE_GATHERERS_SHACK_CS,
+        TOOL_SHACK, TOOL_SHACK_CS,
 
         FUNGUS, SERVICE_FUNGUS, SERVICE_FUNGUS_CS
     }
@@ -121,7 +122,7 @@ public class Textures {
     }
 
     public enum Resource implements TextureId {
-        NOTHING, WOOD, STONE, IRON, COAL, STEEL, TOOLS
+        NOTHING, WOOD, STONE, IRON, COAL, STEEL, TOOLS, GRAIN
     }
 
     public enum Environment implements TextureId {

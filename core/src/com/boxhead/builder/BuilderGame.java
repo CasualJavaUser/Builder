@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Pair;
@@ -84,6 +85,7 @@ public class BuilderGame extends Game {
             saveCollection(Logistics.readyOrders, out);
             saveCollection(Logistics.storages, out);
             saveCollection(Logistics.transportOffices, out);
+            saveCollection(Harvestable.timeTriggers, out);
             saveMap(Logistics.orderRequests, out);
             saveMap(Logistics.deliveriesInProgress, out);
 
@@ -116,6 +118,7 @@ public class BuilderGame extends Game {
             loadCollection(Logistics.readyOrders, in);
             loadCollection(Logistics.storages, in);
             loadCollection(Logistics.transportOffices, in);
+            loadCollection(Harvestable.timeTriggers, in);
             loadMap(Logistics.orderRequests, in);
             loadMap(Logistics.deliveriesInProgress, in);
 
