@@ -257,7 +257,7 @@ public class World {
         if (fieldWork instanceof ConstructionSite constructionSite) {
             buildings.add(constructionSite);
             if (constructionSite.getType().isFarm()) {
-                Tiles.toTilingMode(constructionSite, 3, 3);
+                Tiles.toTilingMode(constructionSite, 3, 12);
             }
         }
         fieldWorks.add(fieldWork);

@@ -11,12 +11,16 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.function.Predicate;
+
 public class Tiles {
     private static boolean isInTilingMode = false;
     private static int originX = -1, originY = -1;
     private static ConstructionSite constructionSite = null;
-    private static int minX = 0, minY = 0;
+    private static int minSize = 0, maxSize = 0;
     private static TilingMode mode;
+
+    private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.DIRT;
 
     public enum TilingMode {
         SINGLE,
@@ -39,10 +43,10 @@ public class Tiles {
         isInTilingMode = true;
     }
 
-    public static void toTilingMode(ConstructionSite constructionSite, int minX, int minY) {
+    public static void toTilingMode(ConstructionSite constructionSite, int minSize, int maxSize) {
         Tiles.constructionSite = constructionSite;
-        Tiles.minX = minX;
-        Tiles.minY = minY;
+        Tiles.minSize = minSize;
+        Tiles.maxSize = maxSize;
         originX = constructionSite.getGridPosition().x;
         originY = constructionSite.getGridPosition().y;
         mode = TilingMode.FARM;
@@ -75,15 +79,16 @@ public class Tiles {
             else if(mousePos.y > (constructionSite.getGridPosition().y + constructionSite.getCollider().getHeight()) * World.TILE_SIZE)
                 originY = constructionSite.getGridPosition().y + constructionSite.getCollider().getHeight();
 
-            boolean canBuild = width >= minX && height >= minY;
+            boolean canBuild = width >= minSize && height >= minSize && width < maxSize && height < maxSize;
             if(!canBuild) batch.setColor(UI.SEMI_TRANSPARENT_RED);
             else batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
-            TileRect.draw(batch, Textures.get(Textures.Tile.DEFAULT), World::isBuildable, originX, originY, mouseGridX, mouseGridY);
+            TileRect.draw(batch, Textures.get(Textures.Tile.DEFAULT), isFarmable, originX, originY, mouseGridX, mouseGridY);
 
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && canBuild) {
                 if (mouseGridX < originX) originX -= width;
                 if (mouseGridY < originY) originY -= height;
                 constructionSite.setFieldCollider(new BoxCollider(originX, originY, width, height));
+
                 Vector2i pos = new Vector2i();
                 Vector2i fieldPos = constructionSite.getFieldCollider().getGridPosition();
                 int fieldWidth = constructionSite.getFieldCollider().getWidth();
@@ -94,7 +99,7 @@ public class Tiles {
                     for (int y = 0; y <= fieldHeight; y++) {
                         for (int x = 0; x <= fieldWidth; x++) {
                             pos.set(fieldPos.x + x, fieldPos.y + y);
-                            if (World.isBuildable(pos)) World.setTile(pos, Tile.DIRT);
+                            if (isFarmable.test(pos)) World.setTile(pos, Tile.DIRT);
                         }
                     }
                 }
@@ -102,33 +107,33 @@ public class Tiles {
                 else {
                     //corners
                     pos.set(fieldPos.x, fieldPos.y);
-                    if (World.isBuildable(pos))
+                    if (isFarmable.test(pos))
                         World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_BL), pos.clone()));
                     pos.set(fieldPos.x, fieldPos.y + fieldHeight);
-                    if (World.isBuildable(pos))
+                    if (isFarmable.test(pos))
                         World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_TL), pos.clone()));
                     pos.set(fieldPos.x + fieldWidth, fieldPos.y + fieldHeight);
-                    if (World.isBuildable(pos))
+                    if (isFarmable.test(pos))
                         World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_TR), pos.clone()));
                     pos.set(fieldPos.x + fieldWidth, fieldPos.y);
-                    if (World.isBuildable(pos))
+                    if (isFarmable.test(pos))
                         World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_BR), pos.clone()));
                     //top bottom
                     for (int x = 1; x < fieldWidth; x++) {
                         pos.set(fieldPos.x + x, fieldPos.y + fieldHeight);
-                        if (World.isBuildable(pos))
+                        if (isFarmable.test(pos))
                             World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_T), pos.clone()));
                         pos.set(fieldPos.x + x, fieldPos.y);
-                        if (World.isBuildable(pos))
+                        if (isFarmable.test(pos))
                             World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_B), pos.clone()));
                     }
                     //sides
                     for (int y = 1; y < fieldHeight; y++) {
                         pos.set(fieldPos.x, fieldPos.y + y);
-                        if (World.isBuildable(pos))
+                        if (isFarmable.test(pos))
                             World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_L), pos.clone()));
                         pos.set(fieldPos.x + fieldWidth, fieldPos.y + y);
-                        if (World.isBuildable(pos))
+                        if (isFarmable.test(pos))
                             World.getGameObjects().add(new GameObject(Textures.get(Textures.Environment.FENCE_R), pos.clone()));
                     }
                 }
