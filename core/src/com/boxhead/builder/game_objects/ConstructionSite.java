@@ -3,6 +3,7 @@ package com.boxhead.builder.game_objects;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Logistics;
 import com.boxhead.builder.World;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
+    private BoxCollider fieldCollider = new BoxCollider();
     private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
 
     public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour) {
@@ -61,7 +63,8 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
             progress += currentlyWorking;
 
         if (progress >= totalLabour) {
-            World.placeBuilding(type, gridPosition);
+            if(!type.isFarm()) World.placeBuilding(type, gridPosition);
+            else World.placeBuilding(type, gridPosition, fieldCollider);
 
             for (NPC npc : assigned.keySet()) {
                 npc.getWorkplace().dissociateFieldWork(npc);
@@ -86,6 +89,14 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
             if (working)
                 currentlyWorking++;
         }
+    }
+
+    public BoxCollider getFieldCollider() {
+        return fieldCollider;
+    }
+
+    public void setFieldCollider(BoxCollider fieldCollider) {
+        this.fieldCollider = fieldCollider;
     }
 
     @Serial

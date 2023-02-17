@@ -35,7 +35,7 @@ public class UI {
     private static Clickable clickedElement = null;
     private static Set<UIElement> saveWindowElements = new HashSet<>();
 
-    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, pauseGameButton;
+    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, pauseGameButton;
 
     private static UIElement timeElementGroup;
     private static Clock clock;
@@ -237,7 +237,9 @@ public class UI {
             npcButton = new Button(Textures.get(Textures.Ui.NPC), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             workButton = new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             restButton = new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x + 74, PADDING));
+            demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            tilingButton = new Button(Textures.get(Textures.Ui.FUNGUS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+
             pauseGameButton = new Button(Textures.get(Textures.Ui.PAUSE_GAME), Anchor.BOTTOM_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(-48 - PADDING, PADDING));
 
             buildMenuButton.setOnUp(() -> Layer.BUILDING_MENU.setVisible(!Layer.BUILDING_MENU.isVisible()));
@@ -249,7 +251,11 @@ public class UI {
 
             workButton.setOnUp(() -> World.setTime(25170));
             restButton.setOnUp(() -> World.setTime(57570));
-            demolishButton.setOnUp(() -> Buildings.setDemolishingMode(!Buildings.isInDemolishingMode()));
+            demolishButton.setOnUp(() -> {
+                if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
+                else Buildings.toDemolishingMode();
+            });
+            tilingButton.setOnUp(() -> Tiles.toTilingMode(Tiles.TilingMode.SINGLE));
             pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
@@ -293,7 +299,7 @@ public class UI {
                 int x = 0;
                 int y = -64;
 
-                storageButton = new Button(Textures.get(Textures.Ui.STORAGE), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x, y));
+                storageButton = new Button(Textures.get(Textures.Ui.BARN), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x, y));
                 constructionOfficeButton = new Button(Textures.get(Textures.Ui.BIG_HAMMER), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
                 transportOfficeButton = new Button(Textures.get(Textures.Ui.CARRIAGE), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x + 74, y));
 
@@ -347,7 +353,7 @@ public class UI {
                 lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACKS_HUT));
                 mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
                 stoneGathererButton.setOnUp(() -> showBuildingStats(Buildings.Type.STONE_GATHERERS));
-                toolShackButton.setOnUp(() -> showBuildingStats(Buildings.Type.TOOL_SHACK));
+                toolShackButton.setOnUp(() -> showBuildingStats(Buildings.Type.PLANTATION));
             }
             //endregion
 
@@ -422,6 +428,7 @@ public class UI {
         workButton.addToUI();
         restButton.addToUI();
         demolishButton.addToUI();
+        tilingButton.addToUI();
         pauseGameButton.addToUI();
 
         clock.addToUI();
@@ -596,9 +603,11 @@ public class UI {
             if (Layer.BUILDING_MENU.isVisible()) {
                 Layer.BUILDING_MENU.setVisible(false);
             }
-            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode()) {
+            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInTilingMode()) {
                 Buildings.turnOffBuildingMode();
-                Buildings.setDemolishingMode(false);
+                Buildings.turnOffDemolishingMode();
+                if(Tiles.getMode() == Tiles.TilingMode.FARM) return;  //TODO temporary solution (turning off tiling mode while placing a farm building)
+                Tiles.turnOffTilingMode();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
                 npcStatWindow.setVisible(false);
@@ -771,13 +780,14 @@ public class UI {
 
     private static void showBuildingStats(Buildings.Type building) {
         float scale = 128f / building.getTexture().getRegionHeight();
+        if (building.getTexture().getRegionWidth() * scale > 192) scale = 192f / building.getTexture().getRegionWidth();
         buildingImage.setScale(scale);
         buildingImage.setTexture(building.getTexture());
         buildWindowDivider.setText(building.name);
 
         String description = "";
         description += "build cost:\n" + building.buildCost;
-        if (building.job != null && building.job.getRange() != 0) description += "\n\nrange: " + building.job.getRange();
+        if (building.job != null && building.range != 0) description += "\n\nrange: " + building.range;
 
         buildingDescription.setText(description);
         buildingDescription.setLocalPosition(

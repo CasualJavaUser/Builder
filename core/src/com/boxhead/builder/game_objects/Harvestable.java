@@ -16,7 +16,8 @@ import java.io.Serial;
 import java.util.Comparator;
 
 public class Harvestable extends GameObject implements FieldWork {
-    public static final SortedList<Pair<Long, Harvestable>> timeTriggers;
+    //TODO description
+    public static final SortedList<Pair<Long, Harvestable>> timeTriggers = new SortedList<>((p1, p2) -> Long.compare(p2.first, p1.first));
 
     private final Harvestables.Type type;
     private final int productionInterval = 50;
@@ -26,11 +27,6 @@ public class Harvestable extends GameObject implements FieldWork {
     private boolean worked;
     private final BoxCollider collider;
     private transient Textures.Environment textureId;
-
-    static {
-        Comparator<Pair<Long, Harvestable>> comparator = Comparator.comparingLong(pair -> pair.first);
-        timeTriggers = new SortedList<>(comparator.reversed());
-    }
 
     public Harvestable(Textures.Environment texture, Vector2i gridPosition, Harvestables.Type type) {
         super(Textures.get(texture), gridPosition);

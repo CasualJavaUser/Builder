@@ -224,6 +224,21 @@ public class World {
         }
     }
 
+    public static void placeBuilding(Buildings.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
+        if (!type.isFarm()) throw new IllegalArgumentException("Building type must be a farm");
+
+        Building building = Buildings.create(type, gridPosition);
+        buildings.add(building);
+        gameObjects.add(building);
+        ((FarmBuilding) building).setFieldCollider(fieldCollider);
+        for (Building b : buildings) {
+            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
+                ((ProductionBuilding) b).getBuildingsInRange().add(building);
+                ((ProductionBuilding) b).updateEfficiency();
+            }
+        }
+    }
+
     public static void removeBuilding(Building building) {
         makeNavigable(building.getCollider());
         if (building instanceof ConstructionSite) fieldWorks.remove(building);
@@ -239,7 +254,12 @@ public class World {
 
     public static void placeFieldWork(FieldWork fieldWork) {
         makeUnnavigable(fieldWork.getCollider());
-        if (fieldWork instanceof Building building) buildings.add(building);
+        if (fieldWork instanceof ConstructionSite constructionSite) {
+            buildings.add(constructionSite);
+            if (constructionSite.getType().isFarm()) {
+                Tiles.toTilingMode(constructionSite, 3, 3);
+            }
+        }
         fieldWorks.add(fieldWork);
         gameObjects.add((GameObject) fieldWork);
     }
@@ -420,6 +440,11 @@ public class World {
 
     public static Tile getTile(Vector2i gridPosition) {
         return tiles[worldSize.x * gridPosition.y + gridPosition.x];
+    }
+
+    public static void setTile(Vector2i gridPosition, Tile tile) {
+        tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
+        tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
     }
 
     private static void debug() {

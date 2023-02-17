@@ -483,5 +483,6 @@ public class NPC extends GameObject implements Clickable {
         idleTexture = Textures.get(Enum.valueOf(Textures.Npc.class, "IDLE" + textureId));
         walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + textureId));
         walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + textureId));
+        texture = idleTexture;
     }
 }

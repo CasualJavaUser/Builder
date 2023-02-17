@@ -13,6 +13,9 @@ import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 import org.apache.commons.lang3.Range;
 
+import java.util.Set;
+import java.util.function.Function;
+
 public class Buildings {
     private static boolean isInBuildingMode = false;
     private static boolean isInDemolishingMode = false;
@@ -20,35 +23,101 @@ public class Buildings {
     private static Range<Integer> rangeX, rangeY;
 
     public enum Type {
-        LOG_CABIN
-                (Textures.Building.LOG_CABIN, "log cabin", new Vector2i(2, -1), new BoxCollider(0, 0, 4, 2), 5,
-                        new Recipe(Pair.of(Resource.WOOD, 20))),
-        LUMBERJACKS_HUT
-                (Textures.Building.LUMBERJACKS_HUT, "lumberjack's hut", Jobs.LUMBERJACK, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 3), 1, 100,
-                        new Recipe(Pair.of(Resource.WOOD, 20))),
-        MINE
-                (Textures.Building.MINE, "mine", Jobs.MINER, new Vector2i(1, -1), 3, 300,
-                        new Recipe(Pair.of(Resource.WOOD, 40),
-                                Pair.of(Resource.STONE, 20))),
-        DEFAULT_SERVICE_BUILDING
-                (Textures.Building.SERVICE_FUNGUS, "hospital", Jobs.DOCTOR, Service.HEAL, new Vector2i(0, -1), 5, 100, 10, 100,
-                        new Recipe(Pair.of(Resource.WOOD, 30),
-                                Pair.of(Resource.STONE, 30))),
-        STORAGE_BARN
-                (Textures.Building.STORAGE_BARN, "storage barn", new Vector2i(2, -1), new BoxCollider(0, 0, 5, 3),
-                        new Recipe(Pair.of(Resource.WOOD, 50))),
-        BUILDERS_HUT
-                (Textures.Building.BUILDERS_HUT, "builder's hut", Jobs.BUILDER, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 5, 0,
-                        new Recipe(Pair.of(Resource.WOOD, 20))),
-        TRANSPORT_OFFICE
-                (Textures.Building.CARRIAGE_HOUSE, "carriage house", Jobs.CARRIER, new Vector2i(1, -1), new BoxCollider(0, 0, 5, 2), 5, 0,
-                        new Recipe(Pair.of(Resource.WOOD, 20))),
-        STONE_GATHERERS
-                (Textures.Building.STONE_GATHERERS_SHACK, "stone gatherer's shack", Jobs.STONEMASON, new Vector2i(1, -1), new BoxCollider(0, 0, 4, 2), 2, 0,
-                        new Recipe(Pair.of(Resource.WOOD, 30))),
-        TOOL_SHACK
-                (Textures.Building.TOOL_SHACK, "tool shack", Jobs.FARMER, new Vector2i(1, -1), 1, 0,
-                        new Recipe(Pair.of(Resource.WOOD, 10)));
+        LOG_CABIN (
+                Textures.Building.LOG_CABIN,
+                "log cabin",
+                new Vector2i(2, -1),
+                new BoxCollider(0, 0, 4, 2),
+                5,
+                new Recipe(Pair.of(Resource.WOOD, 20))
+        ),
+        LUMBERJACKS_HUT (
+                Textures.Building.LUMBERJACKS_HUT,
+                "lumberjack's hut",
+                Jobs.LUMBERJACK,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 3),
+                1,
+                100,
+                15,
+                new Recipe(Pair.of(Resource.WOOD, 20))
+        ),
+        MINE (
+                Textures.Building.MINE,
+                "mine", Jobs.MINER,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 3, 3),
+                3,
+                300,
+                10,
+                new Recipe(Pair.of(Resource.WOOD, 40),
+                           Pair.of(Resource.STONE, 20)),
+                (buildingsInRange) -> {
+                    float efficiency = 1f - buildingsInRange.size() / 3f;
+                    if (efficiency < 0) efficiency = 0;
+                    return efficiency;
+                }
+        ),
+        DEFAULT_SERVICE_BUILDING (
+                Textures.Building.SERVICE_FUNGUS,
+                "hospital",
+                Jobs.DOCTOR,
+                Service.HEAL,
+                new Vector2i(0, -1),
+                5,
+                100,
+                10,
+                100,
+                new Recipe(Pair.of(Resource.WOOD, 30),
+                           Pair.of(Resource.STONE, 30))),
+        STORAGE_BARN (
+                Textures.Building.STORAGE_BARN,
+                "storage barn",
+                new Vector2i(2, -1),
+                new BoxCollider(0, 0, 5, 3),
+                new Recipe(Pair.of(Resource.WOOD, 50))
+        ),
+        BUILDERS_HUT (
+                Textures.Building.BUILDERS_HUT,
+                "builder's hut",
+                Jobs.BUILDER,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 2),
+                5,
+                0,
+                new Recipe(Pair.of(Resource.WOOD, 20))
+        ),
+        TRANSPORT_OFFICE (
+                Textures.Building.CARRIAGE_HOUSE,
+                "carriage house",
+                Jobs.CARRIER,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 5, 2),
+                5,
+                0,
+                new Recipe(Pair.of(Resource.WOOD, 20))
+        ),
+        STONE_GATHERERS (
+                Textures.Building.STONE_GATHERERS_SHACK,
+                "stone gatherer's shack",
+                Jobs.STONEMASON,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 2),
+                2,
+                0,
+                15,
+                new Recipe(Pair.of(Resource.WOOD, 30))
+        ),
+        PLANTATION(
+                Textures.Building.TOOL_SHACK,
+                "tool shack", Jobs.FARMER,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 2),
+                1,
+                0,
+                true,
+                new Recipe(Pair.of(Resource.WOOD, 10))
+        );
 
         public final Textures.Building texture;
         public String name;
@@ -59,12 +128,20 @@ public class Buildings {
          */
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
-        public final Recipe buildCost;
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
+        public final int range;
+        /**
+         * True if this type of building is a plantation. Only applies to farm buildings. (Null if not a farm building)
+         */
+        public final Boolean isPlantation;
+        public final Recipe buildCost;
+        /**
+         * Returns building's efficiency based on the buildings in range.
+         */
+        public final Function<Set<Building>, Float> updateEfficiency;
 
-        //service
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Recipe buildCost) {
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Boolean isPlantation, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
             this.texture = texture;
             this.job = job;
             this.service = service;
@@ -75,7 +152,21 @@ public class Buildings {
             this.productionInterval = productionInterval;
             this.guestCapacity = guestCapacity;
             this.serviceInterval = serviceInterval;
+            this.range = range;
+            this.isPlantation = isPlantation;
             this.buildCost = buildCost;
+            this.updateEfficiency = updateEfficiency;
+        }
+
+        //service
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, range, null, buildCost, updateEfficiency);
+        }
+
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Recipe buildCost) {
+            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, 0, buildCost, (b) -> 1f);
         }
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition,
@@ -92,8 +183,19 @@ public class Buildings {
         }
 
         //production
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, Recipe buildCost) {
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, range, buildCost, updateEfficiency);
+        }
+
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int range, Recipe buildCost) {
+            this(texture, name, job, entrancePosition, relativeCollider, npcCapacity, productionInterval, range, buildCost, (b) -> 1f);
+        }
+
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, boolean isPlantation, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, isPlantation, buildCost, (b) -> 1f);
+        }
+
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Recipe buildCost) {
             this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, buildCost);
         }
 
@@ -140,13 +242,34 @@ public class Buildings {
         private String defaultName() {
             return name().toLowerCase().replace('_', ' ');
         }
+
+        public boolean isFarm() {
+            return isPlantation != null;
+        }
+
+        public boolean isService() {
+            return service != null;
+        }
+
+        public boolean isProduction() {
+            return job != null;
+        }
+
+        public boolean isResidential() {
+            return npcCapacity > 0 && job == null;
+        }
+
+        public boolean isStorage() {
+            return entrancePosition != null;
+        }
     }
 
     public static Building create(Type type, Vector2i gridPosition) {
-        if (type.service != null) return new ServiceBuilding(type, gridPosition);
-        if (type.job != null) return new ProductionBuilding(type, gridPosition);
-        if (type.npcCapacity > 0) return new ResidentialBuilding(type, gridPosition);
-        if (type.entrancePosition != null) return new StorageBuilding(type, gridPosition);
+        if (type.isFarm()) return new FarmBuilding(type, gridPosition);
+        if (type.isService()) return new ServiceBuilding(type, gridPosition);
+        if (type.isProduction()) return new ProductionBuilding(type, gridPosition);
+        if (type.isResidential()) return new ResidentialBuilding(type, gridPosition);
+        if (type.isStorage()) return new StorageBuilding(type, gridPosition);
         return new Building(type, gridPosition);
     }
 
@@ -166,13 +289,14 @@ public class Buildings {
         posX = rangeX.fit(posX);
         posY = rangeY.fit(posY);
 
-        if (currentBuilding.job != null && currentBuilding.job.getRange() > 0) {
+        if (currentBuilding.range > 0) {
             showBuildingRange(batch,
                     posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
                     posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
-                    currentBuilding.job.getRange());
+                    currentBuilding.range);
         }
         boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
+
         batch.setColor(UI.SEMI_TRANSPARENT);
         batch.draw(texture, posX, posY);
         batch.setColor(UI.DEFAULT_COLOR);
@@ -186,7 +310,7 @@ public class Buildings {
         }
     }
 
-    public static void demolish() {
+    public static void handleDemolishingMode() {
         if (!isInDemolishingMode || isInBuildingMode)
             throw new IllegalStateException("Not in demolishing mode");
 
@@ -201,11 +325,6 @@ public class Buildings {
         }
     }
 
-    public static void setDemolishingMode(boolean isDemolishing) {
-        Buildings.isInDemolishingMode = isDemolishing;
-        isInBuildingMode = false;
-    }
-
     public static void toBuildingMode(Type building) {
         currentBuilding = building;
         rangeX = Range.between(0, World.getWidth() - currentBuilding.getTexture().getRegionWidth());
@@ -214,8 +333,17 @@ public class Buildings {
         isInBuildingMode = true;
     }
 
+    public static void toDemolishingMode() {
+        isInDemolishingMode = true;
+        isInBuildingMode = false;
+    }
+
     public static void turnOffBuildingMode() {
         isInBuildingMode = false;
+    }
+
+    public static void turnOffDemolishingMode() {
+        isInDemolishingMode = false;
     }
 
     public static boolean isInBuildingMode() {

@@ -45,11 +45,6 @@ public class Jobs {
         }
 
         @Override
-        public int getRange() {
-            return 15;
-        }
-
-        @Override
         public String toString() {
             return "lumberjack";
         }
@@ -76,11 +71,6 @@ public class Jobs {
         @Override
         public Object getPoI() {
             return Harvestable.Characteristic.STONE;
-        }
-
-        @Override
-        public int getRange() {
-            return 15;
         }
 
         @Override
@@ -129,18 +119,6 @@ public class Jobs {
         @Override
         public Recipe getRecipe() {
             return recipe;
-        }
-
-        @Override
-        public int getRange() {
-            return 10;
-        }
-
-        @Override
-        public float getEfficiency(Set<Building> buildingsInRange) {
-            float efficiency = 1f - (float) buildingsInRange.size() / 3f;
-            if (efficiency < 0) efficiency = 0;
-            return efficiency;
         }
 
         @Override
@@ -202,16 +180,16 @@ public class Jobs {
     public static final Job FARMER = new Job() {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
-            Optional<FieldWork> fieldWorkOptional = FieldWork.findFieldWorkInRange(Harvestable.Characteristic.FIELD, assignee.getGridPosition(), getRange());
+            /*Optional<FieldWork> fieldWorkOptional = FieldWork.findFieldWorkInRange(Harvestable.Characteristic.FIELD, assignee.getGridPosition(), workplace.getType().range);
             if (fieldWorkOptional.isPresent()) {
                 FieldWork fieldWork = fieldWorkOptional.get();
                 harvesterAssign(assignee, workplace, fieldWork);
-            }
+            }*/
         }
 
         @Override
         public void onExit(NPC assignee, ProductionBuilding workplace) {
-            harvesterOnExit(assignee, workplace, Harvestable.Characteristic.FIELD.resource);
+            //harvesterOnExit(assignee, workplace, Harvestable.Characteristic.FIELD.resource);
         }
 
         private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, NPC.INVENTORY_SIZE));
@@ -224,11 +202,6 @@ public class Jobs {
         @Override
         public Object getPoI() {
             return Harvestable.Characteristic.FIELD;
-        }
-
-        @Override
-        public int getRange() {
-            return 10;
         }
 
         @Override

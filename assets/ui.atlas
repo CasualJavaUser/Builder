@@ -11,6 +11,13 @@ axe
   orig: 64, 64
   offset: 0, 0
   index: -1
+barn
+  rotate: false
+  xy: 1536, 64
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 big_button
   rotate: false
   xy: 480, 64
@@ -27,14 +34,14 @@ big_hammer
   index: -1
 build
   rotate: false
-  xy: 1152, 0
+  xy: 1152, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 carriage
   rotate: false
-  xy: 1344, 0
+  xy: 1344, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -55,7 +62,7 @@ close_button
   index: -1
 construction_office
   rotate: false
-  xy: 1280, 64
+  xy: 1216, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -69,7 +76,7 @@ delete
   index: -1
 demolish
   rotate: false
-  xy: 1408, 0
+  xy: 1408, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -83,16 +90,9 @@ divider
   index: -1
 full_output
   rotate: false
-  xy: 1472, 0
+  xy: 1472, 64
   size: 64, 64
   orig: 64, 64
-  offset: 0, 0
-  index: -1
-full_storage
-  rotate: false
-  xy: 1136, 112
-  size: 16, 16
-  orig: 16, 16
   offset: 0, 0
   index: -1
 fungus
@@ -118,7 +118,7 @@ hour_hand
   index: -1
 house
   rotate: false
-  xy: 1216, 64
+  xy: 1152, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -139,7 +139,7 @@ infrastructure_tab
   index: -1
 load
   rotate: false
-  xy: 1344, 64
+  xy: 1280, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -160,28 +160,14 @@ minute_hand
   index: -1
 no_input
   rotate: false
-  xy: 1472, 64
+  xy: 1408, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
-no_resources
-  rotate: false
-  xy: 1136, 16
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-no_storage
-  rotate: false
-  xy: 1136, 96
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
 npc
   rotate: false
-  xy: 1280, 0
+  xy: 1280, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -202,14 +188,14 @@ pause_game
   index: -1
 pickaxe
   rotate: false
-  xy: 1536, 64
+  xy: 1472, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pickaxe_with_stone
   rotate: false
-  xy: 1408, 64
+  xy: 1344, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -237,14 +223,14 @@ rest
   index: -1
 save
   rotate: false
-  xy: 1216, 0
+  xy: 1216, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 service
   rotate: false
-  xy: 1152, 64
+  xy: 1088, 32
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -261,13 +247,6 @@ small_button
   xy: 1024, 0
   size: 80, 32
   orig: 80, 32
-  offset: 0, 0
-  index: -1
-storage
-  rotate: false
-  xy: 1088, 32
-  size: 64, 64
-  orig: 64, 64
   offset: 0, 0
   index: -1
 text_field

@@ -55,7 +55,8 @@ public class GameScreen implements Screen {
 
         if(!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
-            else if (Buildings.isInDemolishingMode()) Buildings.demolish();
+            else if (Buildings.isInDemolishingMode()) Buildings.handleDemolishingMode();
+            else if (Tiles.isInTilingMode()) Tiles.handleTilingMode(batch);
             else {
                 World.handleNpcsAndBuildingsOnClick();
             }

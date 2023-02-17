@@ -46,9 +46,9 @@ public class ProductionBuilding extends StorageBuilding {
         }
         else assignedFieldWork = emptyMap;
 
-        if (job.getRange() > 0f) {
+        if (type.range > 0f) {
             buildingsInRange = World.getBuildings().stream()
-                    .filter((b) -> b.getCollider().distance(entrancePosition) < job.getRange() && !(b instanceof ConstructionSite))
+                    .filter((b) -> b.getCollider().distance(entrancePosition) < type.range && !(b instanceof ConstructionSite))
                     .collect(Collectors.toSet());
         }
         else buildingsInRange = emptySet;
@@ -146,7 +146,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public void updateEfficiency() {
-        efficiency = job.getEfficiency(buildingsInRange);
+        efficiency = type.updateEfficiency.apply(buildingsInRange);
     }
 
     public Job getJob() {
@@ -182,7 +182,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public boolean isBuildingInRange(Building building) {
-        return job.getRange() > 0 && building.getCollider().distance(entrancePosition) < job.getRange() && !building.equals(this);
+        return type.range > 0 && building.getCollider().distance(entrancePosition) < type.range && !building.equals(this);
     }
 
     @Override
@@ -197,9 +197,9 @@ public class ProductionBuilding extends StorageBuilding {
             batch.setColor(UI.VERY_TRANSPARENT);
             TileCircle.draw(
                     batch,
-                    Textures.get(Textures.Tile.DEFAULT),  //todo temp texture
+                    Textures.get(Textures.Tile.DEFAULT),
                     entrancePosition.multiply(World.TILE_SIZE),
-                    job.getRange() * World.TILE_SIZE);
+                    type.range * World.TILE_SIZE);
             batch.setColor(UI.DEFAULT_COLOR);
         }
 
@@ -210,9 +210,8 @@ public class ProductionBuilding extends StorageBuilding {
 
     protected void instantiateIndicator() {
         indicator = new UIElement(
-                Textures.get(Textures.Ui.FULL_STORAGE),
+                Textures.get(Textures.Ui.FULL_OUTPUT),
                 UI.Layer.BUILDINGS,
-                //new Vector2i(texture.getRegionWidth() / 2 - 8, texture.getRegionHeight() + 10),
                 new Vector2i(),
                 false);
         indicator.addToUI();
