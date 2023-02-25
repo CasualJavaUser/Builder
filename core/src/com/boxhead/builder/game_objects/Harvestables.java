@@ -2,71 +2,70 @@ package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.Textures;
-import com.boxhead.builder.World;
-import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
-
-import static com.badlogic.gdx.math.MathUtils.random;
 
 public class Harvestables {
 
     public enum Type {
         BIG_TREE(Harvestable.Characteristic.TREE, 10, Textures.Environment.PINE_TREE),
-        SAPLING(BIG_TREE, Harvestable.Characteristic.FIELD, Resource.NOTHING, Harvestable.Condition.TIME, 1000, Textures.Environment.ROCK1),
+        SAPLING(BIG_TREE, Harvestable.Characteristic.FIELD, Resource.NOTHING, 1000, Textures.Environment.ROCK1),
         STONE(Harvestable.Characteristic.STONE, 5, Textures.Environment.ROCK1, Textures.Environment.ROCK2, Textures.Environment.ROCK3),
         IRON_ORE(Harvestable.Characteristic.IRON_ORE, Resource.IRON, 5, Textures.Environment.PINE_TREE),
-        FIELD_HARVEST(Harvestable.Characteristic.FIELD, 10, Textures.Environment.PINE_TREE),
+        FIELD_HARVEST(Harvestable.Characteristic.FIELD, 10, Textures.Environment.ROCK3),
 
-        FIELD_SEMI_GROWN(FIELD_HARVEST, Harvestable.Characteristic.FIELD, Resource.NOTHING, Harvestable.Condition.TIME, 1000, Textures.Environment.ROCK2),
-        FIELD_SEEDED(FIELD_SEMI_GROWN, Harvestable.Characteristic.FIELD, Resource.NOTHING, Harvestable.Condition.TIME, 1000, Textures.Environment.PINE_TREE),
-        FIELD_EMPTY(FIELD_SEEDED, Harvestable.Characteristic.FIELD, Resource.NOTHING, Harvestable.Condition.WORK, 10, Textures.Environment.ROCK1);
+        FIELD_SEMI_GROWN(FIELD_HARVEST, Harvestable.Characteristic.FIELD, Resource.NOTHING, 1000, Textures.Environment.ROCK2),
+        FIELD_SEEDED(FIELD_SEMI_GROWN, Harvestable.Characteristic.FIELD, Resource.NOTHING, 1000, Textures.Environment.ROCK2),
+        FIELD_EMPTY(FIELD_SEEDED, Harvestable.Characteristic.FIELD, Resource.NOTHING, 10, Textures.Environment.ROCK1),
+        FIELD_GRAIN(Harvestable.Characteristic.FIELD, Resource.GRAIN, 10, new int[]{100, 1000, 100}, Textures.Environment.ROCK1, Textures.Environment.ROCK2, Textures.Environment.ROCK3);
 
         public final Textures.Environment[] textures;
         public final Type nextPhase;
-        public final Harvestable.Condition condition;
         public final Harvestable.Characteristic characteristic;
         public final Resource resource;
         public final int size;
+        public final int[] phaseTimes;
 
-        /**
-         * Default resource, condition: work
-         */
+        //StaticHarvestable
         Type(Harvestable.Characteristic characteristic, int size, Textures.Environment... textures) {
             this(characteristic, characteristic.resource, size, textures);
         }
 
         Type(Harvestable.Characteristic characteristic, Resource resource, int size, Textures.Environment... textures) {
-            nextPhase = null;
-            condition = Harvestable.Condition.WORK;
-            this.characteristic = characteristic;
-            this.resource = resource;
-            this.size = size;
-            this.textures = textures;
+            this(null, characteristic, resource, size, textures);
         }
 
-        Type(Type nextPhase, Harvestable.Characteristic characteristic, Resource resource, Harvestable.Condition condition, int size, Textures.Environment... textures) {
+        Type(Type nextPhase, Harvestable.Characteristic characteristic, Resource resource, int size, Textures.Environment... textures) {
             this.nextPhase = nextPhase;
             this.characteristic = characteristic;
             this.resource = resource;
-            this.condition = condition;
             this.size = size;
             this.textures = textures;
+            phaseTimes = null;
         }
-    }
 
-    public static Harvestable create(Type type, Vector2i gridPosition) {
-        int textureId = random.nextInt(type.textures.length);
-        return create(type, gridPosition, textureId);
+        //FieldHarvestable
+        Type(Harvestable.Characteristic characteristic, Resource resource, int size, int[] phaseTimes, Textures.Environment... textures) {
+            if (textures.length != phaseTimes.length) throw new IllegalArgumentException("Mismatch in array sizes");
+            this.characteristic = characteristic;
+            this.resource = resource;
+            this.size = size;
+            this.textures = textures;
+            this.phaseTimes = phaseTimes;
+            nextPhase = null;
+        }
     }
 
     public static Harvestable create(Type type, Vector2i gridPosition, int textureId) {
-        if (type.characteristic == Harvestable.Characteristic.TREE) {
-            Textures.Environment texture = type.textures[textureId];
-            return new Harvestable(texture, gridPosition, new BoxCollider(new Vector2i(
-                    gridPosition.x + Textures.get(texture).getRegionWidth() / World.TILE_SIZE / 2, gridPosition.y), 1, 1),
-                    type);
-        }
+        Harvestable harvestable = create(type, gridPosition);
+        harvestable.texture = Textures.get(type.textures[textureId]);
+        return harvestable;
+    }
 
-        return new Harvestable(type.textures[textureId], gridPosition, type);
+    public static Harvestable create(Type type, Vector2i gridPosition) {
+        if (type.phaseTimes == null) {
+            return new StaticHarvestable(type, gridPosition);
+        } else {
+            return new FieldHarvestable(type, gridPosition);
+        }
     }
 }

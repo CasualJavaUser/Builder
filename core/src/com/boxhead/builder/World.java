@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.*;
+import org.apache.commons.lang3.Range;
 
 import java.util.*;
 
@@ -14,6 +15,11 @@ public class World {
 
     public static final int TILE_SIZE = 16;
     public static final int FULL_DAY = 86400;
+
+    /**
+     * The size (in tiles) of the biggest GameObject texture.
+     */
+    private static final int RENDER_BUFFER = 4;
 
     private static int day;
     private static int time;
@@ -33,8 +39,10 @@ public class World {
     private static Set<FieldWork> fieldWorks;
     private static Set<FieldWork> removedFieldWorks;
     private static SortedList<GameObject> gameObjects;
-
-    private static final Comparator<GameObject> comparator = Comparator.comparingInt(o -> ((worldSize.x - o.getGridPosition().x) + o.getGridPosition().y * worldSize.x));
+    /**
+     * Sum of GameObjects in all preceding horizontal lines.
+     */
+    private static int[] objectsSumUpToLine;
 
     private static final Set<Vector2i> navigableTiles = new HashSet<>();
 
@@ -46,7 +54,8 @@ public class World {
         npcs = new ArrayList<>();
         fieldWorks = new HashSet<>();
         removedFieldWorks = new HashSet<>();
-        gameObjects = new SortedList<>(comparator);
+        gameObjects = new SortedList<>(GameObject.gridPositionComparator);
+        objectsSumUpToLine = new int[worldSize.y + 1];
 
         random = new Random(SEED);
 
@@ -56,6 +65,8 @@ public class World {
         generateObjects();
 
         //temp
+        initNPCs(10);
+        spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
@@ -194,7 +205,7 @@ public class World {
     }
 
     public static void makeNavigable(Vector2i gridPosition) {
-        navigableTiles.add(gridPosition);
+        navigableTiles.add(gridPosition.clone());
     }
 
     public static void makeNavigable(BoxCollider area) {
@@ -210,7 +221,8 @@ public class World {
     public static void placeBuilding(Buildings.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
-        gameObjects.add(building);
+        addGameObject(building);
+        makeUnnavigable(building.getCollider());
         if (type == Buildings.Type.TRANSPORT_OFFICE) {
             Logistics.getTransportOffices().add((ProductionBuilding) building);
         } else if (type == Buildings.Type.STORAGE_BARN) {
@@ -229,7 +241,8 @@ public class World {
 
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
-        gameObjects.add(building);
+        addGameObject(building);
+        makeUnnavigable(building.getCollider());
         ((FarmBuilding) building).setFieldCollider(fieldCollider);
         for (Building b : buildings) {
             if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
@@ -243,7 +256,7 @@ public class World {
         makeNavigable(building.getCollider());
         if (building instanceof ConstructionSite) fieldWorks.remove(building);
         buildings.remove(building);
-        gameObjects.remove(building);
+        removeGameObject(building);
         for (Building b : buildings) {
             if (b instanceof ProductionBuilding pb && pb.isBuildingInRange(building)) {
                 pb.getBuildingsInRange().remove(building);
@@ -253,7 +266,9 @@ public class World {
     }
 
     public static void placeFieldWork(FieldWork fieldWork) {
-        makeUnnavigable(fieldWork.getCollider());
+        if (!fieldWork.isNavigable()) {
+            makeUnnavigable(fieldWork.getCollider());
+        }
         if (fieldWork instanceof ConstructionSite constructionSite) {
             buildings.add(constructionSite);
             if (constructionSite.getType().isFarm()) {
@@ -261,23 +276,38 @@ public class World {
             }
         }
         fieldWorks.add(fieldWork);
-        gameObjects.add((GameObject) fieldWork);
+        addGameObject((GameObject) fieldWork);
     }
 
     public static void removeFieldWorks() {
         for (FieldWork fieldWork : removedFieldWorks) {
             fieldWorks.remove(fieldWork);
-            gameObjects.remove((GameObject) fieldWork);
-            if (fieldWork instanceof Harvestable)
-                World.makeNavigable(fieldWork.getCollider());
-            else if (fieldWork instanceof ConstructionSite)
+            removeGameObject((GameObject) fieldWork);
+
+            if (fieldWork instanceof ConstructionSite)
                 buildings.remove(fieldWork);
         }
         removedFieldWorks.clear();
     }
 
     public static void removeFieldWorks(FieldWork fieldWork) {
+        if (!fieldWork.isNavigable())
+            makeNavigable(fieldWork.getCollider());
         removedFieldWorks.add(fieldWork);
+    }
+
+    private static void addGameObject(GameObject gameObject) {
+        gameObjects.add(gameObject);
+        for (int y = gameObject.getGridPosition().y + 1; y < objectsSumUpToLine.length; y++) {
+            objectsSumUpToLine[y]++;
+        }
+    }
+
+    private static void removeGameObject(GameObject gameObject) {
+        gameObjects.remove(gameObject);
+        for (int y = gameObject.getGridPosition().y + 1; y < objectsSumUpToLine.length; y++) {
+            objectsSumUpToLine[y]--;
+        }
     }
 
     public static void spawnNPC(NPC npc) {
@@ -319,11 +349,15 @@ public class World {
                     spritePosition.y >= gridLRC.y && spritePosition.y <= gridULC.y)
                 npc.draw(batch);
         }
-        for (GameObject go : gameObjects) {
-            Vector2i gridPosition = go.getGridPosition();
-            if (gridPosition.x >= gridULC.x - go.getTexture().getRegionWidth() / TILE_SIZE && gridPosition.x <= gridLRC.x &&
-                    gridPosition.y >= gridLRC.y - go.getTexture().getRegionHeight() / TILE_SIZE && gridPosition.y <= gridULC.y)
-                go.draw(batch);
+
+        for (int y = gridULC.y + RENDER_BUFFER; y >= gridLRC.y - RENDER_BUFFER; y--) {
+            if (Range.between(0, worldSize.y - 1).contains(y)) {
+                for (int i = objectsSumUpToLine[y]; i < objectsSumUpToLine[y + 1]; i++) {
+                    GameObject gameObject = gameObjects.get(gameObjects.size() - 1 - i);
+                    if (gameObject.getGridPosition().x >= gridULC.x - RENDER_BUFFER && gameObject.getGridPosition().x <= gridLRC.x)
+                        gameObject.draw(batch);
+                }
+            }
         }
     }
 
@@ -333,7 +367,7 @@ public class World {
             for (int x = 0; x < worldSize.x; x++) {
                 pos.set(x, y);
                 batch.setColor(UI.SEMI_TRANSPARENT_RED);
-                if(!isBuildable(pos)) batch.draw(Textures.get(Textures.Tile.DEFAULT), x * TILE_SIZE, y * TILE_SIZE);
+                if (!isBuildable(pos)) batch.draw(Textures.get(Textures.Tile.DEFAULT), x * TILE_SIZE, y * TILE_SIZE);
                 batch.setColor(UI.DEFAULT_COLOR);
             }
         }
@@ -342,9 +376,9 @@ public class World {
     public static boolean isBuildable(Vector2i position) {
         if (worldSize.x * position.y + position.x < tiles.length) {
             Tile tile = getTile(position);
-            return tile != Tile.WATER && navigableTiles.contains(position);
-        }
-        else return false;
+            return tile != Tile.WATER &&
+                    navigableTiles.contains(position);
+        } else return false;
     }
 
     public static int getStored(Resource resource) {

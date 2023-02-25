@@ -69,6 +69,10 @@ public class Vector2i implements Cloneable, Serializable {
         return (xDiff * xDiff) + (yDiff * yDiff);
     }
 
+    public long gridHash() {
+        return (long) y << 32 | x;
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ')';

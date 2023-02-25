@@ -58,12 +58,18 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     }
 
     @Override
+    public boolean isNavigable() {
+        return false;
+    }
+
+    @Override
     public void work() {
         if ((float) progress / totalLabour < (float) inventory.getDisplayedAmount() / inventory.getMaxCapacity())
             progress += currentlyWorking;
 
         if (progress >= totalLabour) {
-            if(!type.isFarm()) World.placeBuilding(type, gridPosition);
+            World.removeFieldWorks(this);
+            if (!type.isFarm()) World.placeBuilding(type, gridPosition);
             else World.placeBuilding(type, gridPosition, fieldCollider);
 
             for (NPC npc : assigned.keySet()) {
@@ -71,7 +77,6 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
                 npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
                 npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
             }
-            World.removeFieldWorks(this);
         }
     }
 
@@ -89,10 +94,6 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
             if (working)
                 currentlyWorking++;
         }
-    }
-
-    public BoxCollider getFieldCollider() {
-        return fieldCollider;
     }
 
     public void setFieldCollider(BoxCollider fieldCollider) {

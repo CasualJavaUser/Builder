@@ -2,9 +2,9 @@ package com.boxhead.builder;
 
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.utils.Pair;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.util.Optional;
-import java.util.Set;
 
 public class Jobs {
     public static final Job UNEMPLOYED = new Job() {
@@ -180,16 +180,27 @@ public class Jobs {
     public static final Job FARMER = new Job() {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
-            /*Optional<FieldWork> fieldWorkOptional = FieldWork.findFieldWorkInRange(Harvestable.Characteristic.FIELD, assignee.getGridPosition(), workplace.getType().range);
+            FarmBuilding employingFarm = (FarmBuilding) workplace;
+            Optional<FieldHarvestable> fieldWorkOptional = employingFarm.findWorkableField();
             if (fieldWorkOptional.isPresent()) {
                 FieldWork fieldWork = fieldWorkOptional.get();
                 harvesterAssign(assignee, workplace, fieldWork);
-            }*/
+            } else {
+                for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
+                    if (employingFarm.isArable(tile)) {
+                        Harvestable newField = Harvestables.create(Harvestables.Type.FIELD_GRAIN, tile);
+                        employingFarm.addFieldHarvestable((FieldHarvestable) newField);
+                        World.placeFieldWork(newField);
+                        harvesterAssign(assignee, workplace, newField);
+                        return;
+                    }
+                }
+            }
         }
 
         @Override
         public void onExit(NPC assignee, ProductionBuilding workplace) {
-            //harvesterOnExit(assignee, workplace, Harvestable.Characteristic.FIELD.resource);
+            harvesterOnExit(assignee, workplace, Harvestable.Characteristic.FIELD.resource);
         }
 
         private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, NPC.INVENTORY_SIZE));
