@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
@@ -77,7 +76,7 @@ public class NPC extends GameObject implements Clickable {
         if (!isInBuilding()) {
             float x = spritePosition.x * World.TILE_SIZE;
             float y = spritePosition.y * World.TILE_SIZE;
-            Vector3 pos = GameScreen.worldToScreenPosition(x, y);
+            Vector2 pos = GameScreen.worldToScreenPosition(x, y);
 
             if (pos.x + SIZE / GameScreen.camera.zoom > 0 && pos.x < Gdx.graphics.getWidth() &&
                     pos.y + SIZE / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight()) {
@@ -86,7 +85,7 @@ public class NPC extends GameObject implements Clickable {
                     texture = idleTexture;
                 }
                 else if(!Logic.isPaused()) {
-                    stateTime += .01f / (Logic.getTickSpeed() * 200);
+                    stateTime += 0.01f / (Logic.getTickSpeed() * 200);
 
                     if (prevPosition.x > gridPosition.x) {
                         texture = walkLeft.getKeyFrame(stateTime, true);
@@ -220,7 +219,7 @@ public class NPC extends GameObject implements Clickable {
 
     @Override
     public boolean isMouseOver() {
-        Vector3 mousePos = GameScreen.getMouseWorldPosition();
+        Vector2 mousePos = GameScreen.getMouseWorldPosition();
         return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
                 mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + texture.getRegionHeight());
     }

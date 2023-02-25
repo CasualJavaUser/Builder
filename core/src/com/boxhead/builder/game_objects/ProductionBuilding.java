@@ -1,7 +1,7 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
@@ -226,7 +226,7 @@ public class ProductionBuilding extends StorageBuilding {
         }
 
         if (indicator.isVisible()) {
-            Vector3 screenPos = GameScreen.worldToScreenPosition(
+            Vector2 screenPos = GameScreen.worldToScreenPosition(
                     gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth() / 2f - indicator.getWidth() / 2f * GameScreen.camera.zoom,
                     gridPosition.y * World.TILE_SIZE + getTexture().getRegionHeight() + 5);
             indicator.setGlobalPosition((int) screenPos.x, (int) screenPos.y);

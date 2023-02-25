@@ -1,7 +1,7 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
@@ -43,7 +43,7 @@ public class Building extends GameObject implements Clickable {
     public boolean isMouseOver() {
         int colliderX = collider.getGridPosition().x;
         int colliderY = collider.getGridPosition().y;
-        Vector3 mousePos = GameScreen.getMouseWorldPosition();
+        Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
         return mousePos.x >= colliderX * World.TILE_SIZE && mousePos.x < (colliderX * World.TILE_SIZE + collider.getWidth() * World.TILE_SIZE)
                 && mousePos.y >= colliderY * World.TILE_SIZE && mousePos.y < (colliderY * World.TILE_SIZE + collider.getHeight() * World.TILE_SIZE);

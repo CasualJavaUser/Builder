@@ -205,6 +205,7 @@ public class Logistics {
         }
         supplyRequests.removeIf(request -> request.amount == 0);
         outputRequests.removeIf(request -> request.amount == 0);
+        useStorage();
     }
 
     /**
@@ -230,7 +231,7 @@ public class Logistics {
     private static void useStorage() {
         int it = 0;
 
-        while (it < supplyRequests.size() && supplyRequests.get(it).priority > Priority.LOW.ordinal()) {
+        while (it < supplyRequests.size() && supplyRequests.get(it).priority >= USE_STORAGE) {
             Request supplyRequest = supplyRequests.get(it);
             Resource resource = supplyRequest.resource;
             StorageBuilding storage;
@@ -247,7 +248,7 @@ public class Logistics {
         }
 
         it = 0;
-        while (it < outputRequests.size() && outputRequests.get(it).priority > Priority.LOW.ordinal()) {
+        while (it < outputRequests.size() && outputRequests.get(it).priority >= USE_STORAGE) {
             Request outputRequest = outputRequests.get(it);
             Resource resource = outputRequest.resource;
             StorageBuilding storage;

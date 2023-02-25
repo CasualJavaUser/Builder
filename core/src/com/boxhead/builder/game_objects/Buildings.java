@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
@@ -278,7 +278,7 @@ public class Buildings {
             throw new IllegalStateException("Not in building mode");
 
         TextureRegion texture = currentBuilding.getTexture();
-        Vector3 mousePos = GameScreen.getMouseWorldPosition();
+        Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
         int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
         int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;

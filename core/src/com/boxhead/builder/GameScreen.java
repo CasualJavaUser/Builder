@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -24,11 +24,10 @@ public class GameScreen implements Screen {
     private final Matrix4 uiProjection;
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
-    private final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 30;
+    private static final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 30;
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
-        //this.viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         this.uiProjection = new Matrix4();
 
         Textures.init();
@@ -53,7 +52,7 @@ public class GameScreen implements Screen {
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
 
-        if(!UI.handleUiInteraction() && !UI.isPaused()) {
+        if (!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
             else if (Buildings.isInDemolishingMode()) Buildings.handleDemolishingMode();
             else if (Tiles.isInTilingMode()) Tiles.handleTilingMode(batch);
@@ -71,16 +70,16 @@ public class GameScreen implements Screen {
         InputManager.resetScroll();
     }
 
-    public static Vector3 getMouseWorldPosition() {
-        return camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+    public static Vector2 getMouseWorldPosition() {
+        return viewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
     }
 
-    public static Vector3 worldToScreenPosition(Vector2i position) {
-        return camera.project(new Vector3(position.x, position.y, 0));
+    public static Vector2 worldToScreenPosition(Vector2i position) {
+        return viewport.project(new Vector2(position.x, position.y));
     }
 
-    public static Vector3 worldToScreenPosition(float x, float y) {
-        return camera.project(new Vector3(x, y, 0));
+    public static Vector2 worldToScreenPosition(float x, float y) {
+        return viewport.project(new Vector2(x, y));
     }
 
     @Override
@@ -158,12 +157,12 @@ public class GameScreen implements Screen {
     }
 
     public void scroll() {
-        if(!InputManager.isScrolled()) return;
-        Vector3 mousePositionBefore = getMouseWorldPosition();
+        if (!InputManager.isScrolled()) return;
+        Vector2 mousePositionBefore = getMouseWorldPosition();
         camera.zoom = ZOOM_RANGE.fit(camera.zoom + InputManager.getScroll() / SCROLL_SPEED);
         camera.update();
 
-        Vector3 mousePositionAfter = getMouseWorldPosition();
+        Vector2 mousePositionAfter = getMouseWorldPosition();
         final float cameraX = camera.position.x + (mousePositionBefore.x - mousePositionAfter.x);
         final float cameraY = camera.position.y + (mousePositionBefore.y - mousePositionAfter.y);
         camera.position.set(cameraX, cameraY, 0);

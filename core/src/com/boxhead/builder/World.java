@@ -77,7 +77,7 @@ public class World {
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
-        if(InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
+        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
             for (Building building : buildings) {
                 if (building.isMouseOver()) {
                     building.onClick();
@@ -126,7 +126,7 @@ public class World {
 
         int width = Textures.get(type.textures[textureId]).getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
-        if(smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
+        if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
         }
     }
@@ -139,7 +139,7 @@ public class World {
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
         int textureId = random.nextInt(type.textures.length);
 
-        if(smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
+        if (smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
             placeFieldWork(Harvestables.create(type, pos, textureId));
         }
     }
@@ -152,16 +152,16 @@ public class World {
         float minDistanceFromEdge = 0.3f;
 
         int[] steps = new int[worldSize.y];
-        double startX = random.nextInt((int)(worldSize.x * (1-2*minDistanceFromEdge))) + (int)(worldSize.x * minDistanceFromEdge);
+        double startX = random.nextInt((int) (worldSize.x * (1 - 2 * minDistanceFromEdge))) + (int) (worldSize.x * minDistanceFromEdge);
         for (int i = 0; i < steps.length; i++) {
             double di = (double) i / noiseSize;
             double noise = PerlinNoise.noise2D(di * noiseFrequency, SEED) * curveMultiplier;
-            steps[i] = (int)startX + (int)noise;
+            steps[i] = (int) startX + (int) noise;
             startX += bias;
         }
         for (int y = 0; y < worldSize.y; y++) {
             for (int x = 0; x < worldSize.x; x++) {
-                if(x >= steps[y] - width && x <= steps[y] + width) {
+                if (x >= steps[y] - width && x <= steps[y] + width) {
                     tiles[y * worldSize.y + x] = Tile.WATER;
                 }
             }
@@ -245,9 +245,9 @@ public class World {
         buildings.remove(building);
         gameObjects.remove(building);
         for (Building b : buildings) {
-            if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
-                ((ProductionBuilding) b).getBuildingsInRange().remove(building);
-                ((ProductionBuilding) b).updateEfficiency();
+            if (b instanceof ProductionBuilding pb && pb.isBuildingInRange(building)) {
+                pb.getBuildingsInRange().remove(building);
+                pb.updateEfficiency();
             }
         }
     }
@@ -453,7 +453,7 @@ public class World {
 
     private static void initNPCs(int num) {
         for (int i = 0; i < num; i++) {
-            spawnNPC(new NPC((int)(Math.random()+1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+            spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
         }
     }
 }

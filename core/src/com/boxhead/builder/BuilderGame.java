@@ -25,11 +25,13 @@ public class BuilderGame extends Game {
 
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) saveDirectory = new File(System.getenv("APPDATA") + "/Box Head/saves/");
-        else if (os.contains("mac")) saveDirectory = new File(System.getProperty("user.home") + "/Library/Application Support/Box Head/saves/");
-        else if (os.contains("nix") || os.contains("nux") || os.indexOf("aix") > 0) saveDirectory = new File(System.getProperty("user.home") + "/Home/.local/share/Box Head/saves/");
+        else if (os.contains("mac"))
+            saveDirectory = new File(System.getProperty("user.home") + "/Library/Application Support/Box Head/saves/");
+        else if (os.contains("nix") || os.contains("nux") || os.indexOf("aix") > 0)
+            saveDirectory = new File(System.getProperty("user.home") + "/Home/.local/share/Box Head/saves/");
         else throw new RuntimeException("Unsupported OS");
 
-        if(!saveDirectory.exists()) saveDirectory.mkdirs();
+        if (!saveDirectory.exists()) saveDirectory.mkdirs();
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(InputManager.getInstance());
@@ -131,33 +133,33 @@ public class BuilderGame extends Game {
         return true;
     }
 
-    private static<T extends Serializable> void saveCollection(Collection<T> collection, ObjectOutputStream out) throws IOException {
+    private static <T extends Serializable> void saveCollection(Collection<T> collection, ObjectOutputStream out) throws IOException {
         out.writeInt(collection.size());
         for (T t : collection) {
             out.writeObject(t);
         }
     }
 
-    private static<K extends Serializable, V extends Serializable> void saveMap(Map<K,V> map, ObjectOutputStream out) throws IOException {
+    private static <K extends Serializable, V extends Serializable> void saveMap(Map<K, V> map, ObjectOutputStream out) throws IOException {
         out.writeInt(map.size());
-        for (Map.Entry<K,V> e : map.entrySet()) {
+        for (Map.Entry<K, V> e : map.entrySet()) {
             out.writeObject(Pair.of(e.getKey(), e.getValue()));
         }
     }
 
-    private static<T extends Serializable> void loadCollection(Collection<T> collection,  ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private static <T extends Serializable> void loadCollection(Collection<T> collection, ObjectInputStream in) throws IOException, ClassNotFoundException {
         collection.clear();
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            collection.add((T)in.readObject());
+            collection.add((T) in.readObject());
         }
     }
 
-    private static<K extends Serializable, V extends Serializable> void loadMap(Map<K,V> map, ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private static <K extends Serializable, V extends Serializable> void loadMap(Map<K, V> map, ObjectInputStream in) throws IOException, ClassNotFoundException {
         map.clear();
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
-           Pair<K,V> pair = (Pair<K,V>)in.readObject();
+            Pair<K, V> pair = (Pair<K, V>) in.readObject();
             map.put(pair.first, pair.second);
         }
     }
@@ -169,14 +171,10 @@ public class BuilderGame extends Game {
     public static SortedSet<File> getSortedSaveFiles() {
         SortedSet<File> saves = new TreeSet<>((s1, s2) -> Long.compare(s2.lastModified(), s1.lastModified()));
         File[] arr = saveDirectory.listFiles();
-        if(arr != null) {
+        if (arr != null) {
             saves.addAll(Arrays.asList(arr));
             saves.removeIf(s -> !(s.isFile() && s.getName().endsWith(".save")));
         }
         return saves;
-    }
-
-    public static GameScreen getGameScreen() {
-        return gameScreen;
     }
 }
