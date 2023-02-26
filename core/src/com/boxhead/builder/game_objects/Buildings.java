@@ -231,11 +231,11 @@ public class Buildings {
             return Textures.get(texture);
         }
 
-        public TextureRegion getConstructionSite() {
+        public Textures.TextureId getConstructionSite() {
             try {
-                return Textures.get(Textures.Building.valueOf(texture.name() + "_CS"));
+                return Textures.Building.valueOf(texture.name() + "_CS");
             } catch (IllegalArgumentException e) {
-                return getTexture();
+                return texture;
             }
         }
 
@@ -388,7 +388,7 @@ public class Buildings {
         batch.setColor(UI.VERY_TRANSPARENT);
         TileCircle.draw(
                 batch,
-                Textures.get(Textures.Tile.DEFAULT),  //todo temp texture
+                Textures.get(Textures.Tile.DEFAULT),
                 posX,
                 posY,
                 range * World.TILE_SIZE);

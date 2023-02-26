@@ -18,10 +18,10 @@ public class Building extends GameObject implements Clickable {
     protected BoxCollider collider;
 
     public Building (Buildings.Type type, Vector2i gridPosition) {
-        this(type, type.getTexture(), gridPosition);
+        this(type, type.texture, gridPosition);
     }
 
-    public Building (Buildings.Type type, TextureRegion texture, Vector2i gridPosition) {
+    public Building (Buildings.Type type, Textures.TextureId texture, Vector2i gridPosition) {
         super(texture, gridPosition);
         this.type = type;
         collider = type.relativeCollider.cloneAndTranslate(gridPosition);
@@ -64,6 +64,6 @@ public class Building extends GameObject implements Clickable {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());
-        texture = type.getTexture();
+        textureId = type.texture;
     }
 }

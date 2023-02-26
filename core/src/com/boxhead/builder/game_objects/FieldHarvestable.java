@@ -23,7 +23,7 @@ public class FieldHarvestable extends Harvestable {
 
     public void changePhase() {
         currentPhase++;
-        texture = Textures.get(type.textures[currentPhase]);
+        textureId = type.textures[currentPhase];
         amountLeft = type.size;
         if (currentPhase != phaseTimes.length - 1) {
             Harvestable.timeTriggers.add(Pair.of(World.calculateDate(phaseTimes[currentPhase]), this));
@@ -86,6 +86,6 @@ public class FieldHarvestable extends Harvestable {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         type = Harvestables.Type.valueOf(ois.readUTF());
-        texture = Textures.get(type.textures[currentPhase]);
+        textureId = type.textures[currentPhase];
     }
 }

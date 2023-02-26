@@ -114,7 +114,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         int i = 0;
         for (NPC npc : npcs) {
             if (npc.getCurrentBuilding() == pinnedObject)
-                batch.draw(npc.getIdleTexture(),
+                batch.draw(npc.getTexture(),
                         getGlobalPosition().x + leftPadding + (NPC.SIZE + leftPadding) * i++,
                         getGlobalPosition().y + verticalPadding);
         }

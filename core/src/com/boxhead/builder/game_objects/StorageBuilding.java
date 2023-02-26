@@ -3,6 +3,7 @@ package com.boxhead.builder.game_objects;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Inventory;
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -21,7 +22,7 @@ public class StorageBuilding extends Building {
         reservedInventory = new Inventory(200);
     }
 
-    public StorageBuilding(Buildings.Type type, TextureRegion texture, Vector2i gridPosition, int storageCapacity) {
+    public StorageBuilding(Buildings.Type type, Textures.TextureId texture, Vector2i gridPosition, int storageCapacity) {
         super(type, texture, gridPosition);
         entrancePosition = gridPosition.add(type.entrancePosition);
         inventory = new Inventory(storageCapacity);

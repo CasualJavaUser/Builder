@@ -18,7 +18,7 @@ public class NPCStatWindow extends StatWindow<NPC> {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
 
-        batch.draw(pinnedObject.getIdleTexture(),
+        batch.draw(pinnedObject.getTexture(),
                 getGlobalPosition().x + leftPadding,
                 getGlobalPosition().y + getContentHeight() - NPC.SIZE * IMAGE_SCALE,
                 NPC.SIZE * IMAGE_SCALE,

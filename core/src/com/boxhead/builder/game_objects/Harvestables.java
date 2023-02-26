@@ -57,7 +57,7 @@ public class Harvestables {
 
     public static Harvestable create(Type type, Vector2i gridPosition, int textureId) {
         Harvestable harvestable = create(type, gridPosition);
-        harvestable.texture = Textures.get(type.textures[textureId]);
+        harvestable.textureId = type.textures[textureId];
         return harvestable;
     }
 

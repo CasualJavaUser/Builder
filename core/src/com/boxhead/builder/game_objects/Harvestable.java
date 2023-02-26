@@ -24,7 +24,7 @@ public abstract class Harvestable extends GameObject implements FieldWork {
     }
 
     public Harvestable(Harvestables.Type type, Vector2i gridPosition, int textureId) {
-        super(Textures.get(type.textures[textureId]), gridPosition);
+        super(type.textures[textureId], gridPosition);
         this.type = type;
         amountLeft = type.size;
     }

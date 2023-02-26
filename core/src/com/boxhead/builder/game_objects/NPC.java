@@ -28,8 +28,8 @@ public class NPC extends GameObject implements Clickable {
 
     private final String name, surname;
     private final int[] stats = new int[Stats.values().length];
-    private final int textureId;
-    private transient TextureRegion idleTexture;
+    private final int skin;
+    private transient TextureRegion currentTexture;
     private transient Animation<TextureRegion> walkLeft;
     private transient Animation<TextureRegion> walkRight;
 
@@ -58,17 +58,17 @@ public class NPC extends GameObject implements Clickable {
         HEALTH
     }
 
-    public NPC(int textureId, Vector2i position) {
-        super(Textures.get(Enum.valueOf(Textures.Npc.class, "IDLE" + textureId)), position);
-        this.textureId = textureId;
+    public NPC(int skin, Vector2i position) {
+        super(Textures.Npc.valueOf("IDLE" + skin), position);
+        this.skin = skin;
         prevPosition = position;
         spritePosition = position.toVector2();
         name = NAMES[(int) (Math.random() * NAMES.length)];
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
 
-        idleTexture = texture;
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + textureId));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + textureId));
+        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
+        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
+        currentTexture = getTexture();  //idle texture
     }
 
     @Override
@@ -82,19 +82,19 @@ public class NPC extends GameObject implements Clickable {
                     pos.y + SIZE / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight()) {
                 if (prevPosition.equals(gridPosition)) {
                     stateTime = 0;
-                    texture = idleTexture;
+                    currentTexture = getTexture();
                 }
                 else if(!Logic.isPaused()) {
                     stateTime += 0.01f / (Logic.getTickSpeed() * 200);
 
                     if (prevPosition.x > gridPosition.x) {
-                        texture = walkLeft.getKeyFrame(stateTime, true);
+                        currentTexture = walkLeft.getKeyFrame(stateTime, true);
                     } else {
-                        texture = walkRight.getKeyFrame(stateTime, true);
+                        currentTexture = walkRight.getKeyFrame(stateTime, true);
                     }
                 }
 
-                batch.draw(texture, x, y);
+                batch.draw(currentTexture, x, y);
             }
         }
     }
@@ -220,8 +220,8 @@ public class NPC extends GameObject implements Clickable {
     @Override
     public boolean isMouseOver() {
         Vector2 mousePos = GameScreen.getMouseWorldPosition();
-        return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + texture.getRegionWidth()) &&
-                mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + texture.getRegionHeight());
+        return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + currentTexture.getRegionWidth()) &&
+                mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + currentTexture.getRegionHeight());
     }
 
     @Override
@@ -458,10 +458,6 @@ public class NPC extends GameObject implements Clickable {
         return buildingIsIn;
     }
 
-    public TextureRegion getIdleTexture() {
-        return idleTexture;
-    }
-
     public boolean hasOrders() {
         return !orderList.isEmpty();
     }
@@ -479,9 +475,9 @@ public class NPC extends GameObject implements Clickable {
     @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        idleTexture = Textures.get(Enum.valueOf(Textures.Npc.class, "IDLE" + textureId));
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + textureId));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + textureId));
-        texture = idleTexture;
+        textureId = Textures.Npc.valueOf("IDLE" + skin);
+        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
+        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
+        currentTexture = getTexture();
     }
 }

@@ -78,7 +78,7 @@ public class ServiceBuilding extends ProductionBuilding {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());
-        texture = type.getTexture();
+        textureId = type.texture;
         job = type.job;
         service = type.service;
         instantiateIndicator();

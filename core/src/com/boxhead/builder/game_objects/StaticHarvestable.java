@@ -80,6 +80,6 @@ public class StaticHarvestable extends Harvestable {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         type = Harvestables.Type.valueOf(ois.readUTF());
-        texture = Textures.get(type.textures[textureVariant]);
+        textureId = type.textures[textureVariant];
     }
 }

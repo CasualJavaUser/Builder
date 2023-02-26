@@ -110,6 +110,6 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         Buildings.Type type = Buildings.Type.valueOf(ois.readUTF());
-        texture = type.getConstructionSite();
+        textureId = type.getConstructionSite();
     }
 }
