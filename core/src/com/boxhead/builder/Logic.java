@@ -21,7 +21,7 @@ public class Logic {
         public void run() {
             World.incrementTime();
             dailyCycle();
-            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first == World.getDate()) {
+            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first <= World.getDate()) {
                 Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
             produceResources();
@@ -50,6 +50,7 @@ public class Logic {
                     npc.giveOrder(NPC.Order.Type.EXIT);
                     npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
                     npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
+                    npc.giveOrder(NPC.Order.Type.CLOCK_IN);
                 }
             }
         } else if (World.getTime() == 57600) { //16:00

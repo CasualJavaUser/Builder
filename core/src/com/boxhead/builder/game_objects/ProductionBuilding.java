@@ -101,7 +101,11 @@ public class ProductionBuilding extends StorageBuilding {
 
     public void business() {
         for (NPC employee : employees) {
-            if (employee.getCurrentBuilding() == this && !employee.hasOrders()) {
+            /*if (employee.getCurrentBuilding() == this && !employee.hasOrders()) {  //TODO remove
+                job.assign(employee, this);
+                break;
+            }*/
+            if (employee.isClockedIn() && !employee.hasOrders()) {
                 job.assign(employee, this);
                 break;
             }
@@ -137,6 +141,7 @@ public class ProductionBuilding extends StorageBuilding {
         for (NPC employee : employees) {
             employee.clearOrderQueue();
             job.onExit(employee, this);
+            employee.giveOrder(NPC.Order.Type.CLOCK_OUT);
             employee.giveOrder(NPC.Order.Type.EXIT, this);
             if (employee.getHome() != null) {
                 employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());

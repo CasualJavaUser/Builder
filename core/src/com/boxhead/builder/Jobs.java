@@ -180,25 +180,36 @@ public class Jobs {
     public static final Job FARMER = new Job() {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
-            FarmBuilding employingFarm = (FarmBuilding) workplace;
-            for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
-                if (employingFarm.isArable(tile)) {
-                    Harvestable newHarvestable = Harvestables.create(employingFarm.getType().crop, tile);
+            if(!workplace.getAssignedFieldWork().containsKey(assignee)) {
+                FarmBuilding employingFarm = (FarmBuilding) workplace;
+                Optional<Vector2i> arableTile = employingFarm.getFieldCollider().toVector2iList().stream().filter(employingFarm::isArable).findFirst();
+                if (arableTile.isPresent()) {
+                    Harvestable newHarvestable = Harvestables.create(employingFarm.getType().crop, arableTile.get());
                     employingFarm.addHarvestable(newHarvestable);
-
                     assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-                    assignee.giveOrder(tile);
+                    assignee.giveOrder(arableTile.get());
                     assignee.giveOrder(newHarvestable);
                     //TODO wait?
-                    assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-                    assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
                     return;
                 }
-            }
-            Optional<Harvestable> fieldWorkOptional = employingFarm.findWorkableField();
-            if (fieldWorkOptional.isPresent()) {
-                FieldWork fieldWork = fieldWorkOptional.get();
-                harvesterAssign(assignee, workplace, fieldWork);
+
+                Optional<Harvestable> readyForHarvest = employingFarm.findWorkableField();
+                if (readyForHarvest.isPresent()) {
+                    FieldWork fieldWork = readyForHarvest.get();
+                    if (!fieldWork.isFree() || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
+                        return;
+
+                    if (workplace.reserveSpace(NPC.INVENTORY_SIZE)) {
+                        fieldWork.assignWorker(assignee);
+                        workplace.getAssignedFieldWork().put(assignee, fieldWork);
+                        assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
+                        assignee.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
+                        assignee.giveOrder(NPC.Order.Type.ENTER, fieldWork);
+                    }
+                    return;
+                }
+                assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
+                assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
             }
         }
 

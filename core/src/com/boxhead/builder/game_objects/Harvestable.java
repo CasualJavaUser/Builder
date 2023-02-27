@@ -14,7 +14,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.*;
 import java.util.Comparator;
 
-public class Harvestable extends GameObject implements FieldWork, Serializable {
+public class Harvestable extends GameObject implements FieldWork {
     public static final SortedList<Pair<Long, Harvestable>> timeTriggers = new SortedList<>(Comparator.comparing(pair -> pair.first, Comparator.reverseOrder()));
 
     protected transient Harvestables.Type type;
@@ -59,7 +59,9 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
 
             default -> getDefaultCollider();
         };
+    }
 
+    public void startGrowing() {
         if(textureBundle.length > 1) {
             Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime / (textureBundle.length - 1)), this));
         }
@@ -147,8 +149,7 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
         assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
         assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
         assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
-        worked = false;
-        assigned = null;
+        dissociateWorker(assigned);
     }
 
     @Serial
@@ -164,54 +165,4 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
         textureBundle = Textures.getBundle(type.textureId);
         currentTexture = textureBundle[currentPhase];
     }
-
-    /*protected void exit(Resource resource) {
-        assigned.getWorkplace().dissociateFieldWork(assigned);
-        assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-        if (resource != Resource.NOTHING) {
-            assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-            assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
-        } else {
-            assigned.getWorkplace().cancelReservation(NPC.INVENTORY_SIZE);
-        }
-        worked = false;
-        assigned = null;
-    }
-
-    @Override
-    public Object getCharacteristic() {
-        return type.characteristic;
-    }
-
-    @Override
-    public void assignWorker(NPC npc) {
-        if (isFree()) {
-            assigned = npc;
-        } else throw new IllegalArgumentException();
-    }
-
-    @Override
-    public void dissociateWorker(NPC npc) {
-        if (assigned == npc) {
-            assigned = null;
-            worked = false;
-        }
-    }
-
-    @Override
-    public void setWork(NPC npc, boolean b) {
-        if (npc == assigned) worked = b;
-    }
-
-    @Override
-    public String toString() {
-        return type.characteristic.toString() + " " + gridPosition.toString();
-    }
-
-    public abstract void work();
-
-    public abstract boolean isNavigable();
-
-    public abstract boolean isFree();*/
 }
