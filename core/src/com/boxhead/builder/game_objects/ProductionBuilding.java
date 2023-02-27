@@ -101,10 +101,6 @@ public class ProductionBuilding extends StorageBuilding {
 
     public void business() {
         for (NPC employee : employees) {
-            /*if (employee.getCurrentBuilding() == this && !employee.hasOrders()) {  //TODO remove
-                job.assign(employee, this);
-                break;
-            }*/
             if (employee.isClockedIn() && !employee.hasOrders()) {
                 job.assign(employee, this);
                 break;

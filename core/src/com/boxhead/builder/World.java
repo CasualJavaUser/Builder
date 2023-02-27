@@ -280,7 +280,7 @@ public class World {
             }
         }
         else if (fieldWork instanceof Harvestable harvestable) {
-            harvestable.startGrowing();
+            harvestable.nextPhase();
         }
         fieldWorks.add(fieldWork);
         addGameObject((GameObject) fieldWork);

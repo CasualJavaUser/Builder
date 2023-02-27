@@ -20,7 +20,7 @@ public class Harvestable extends GameObject implements FieldWork {
     protected transient Harvestables.Type type;
     protected transient TextureRegion[] textureBundle;
     protected transient TextureRegion currentTexture;
-    protected int currentPhase = 0;
+    protected int currentPhase = -1;
     protected BoxCollider collider;
     protected final int productionInterval = 50;
     protected int productionCounter = 0;
@@ -61,14 +61,12 @@ public class Harvestable extends GameObject implements FieldWork {
         };
     }
 
-    public void startGrowing() {
-        if(textureBundle.length > 1) {
-            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime / (textureBundle.length - 1)), this));
-        }
-    }
-
     public Harvestables.Type getType() {
         return type;
+    }
+
+    public int getCurrentPhase() {
+        return currentPhase;
     }
 
     public void nextPhase() {
@@ -163,6 +161,6 @@ public class Harvestable extends GameObject implements FieldWork {
         ois.defaultReadObject();
         type = Harvestables.Type.valueOf(ois.readUTF());
         textureBundle = Textures.getBundle(type.textureId);
-        currentTexture = textureBundle[currentPhase];
+        currentTexture = textureBundle[Math.max(currentPhase, 0)];
     }
 }

@@ -65,8 +65,12 @@ public class FarmBuilding extends ProductionBuilding {
         ownHarvestables.remove(harvestable);
     }
 
-    public Optional<Harvestable> findWorkableField() {
+    public Optional<Harvestable> findReadyForHarvest() {
         return ownHarvestables.stream().filter(Harvestable::isFree).findFirst();
+    }
+
+    public Optional<Harvestable> findNotPlanted() {
+        return ownHarvestables.stream().filter(h -> h.getCurrentPhase() < 0).findFirst();
     }
 
     @Serial
