@@ -58,11 +58,6 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     }
 
     @Override
-    public boolean isNavigable() {
-        return false;
-    }
-
-    @Override
     public void work() {
         if ((float) progress / totalLabour < (float) inventory.getDisplayedAmount() / inventory.getMaxCapacity())
             progress += currentlyWorking;

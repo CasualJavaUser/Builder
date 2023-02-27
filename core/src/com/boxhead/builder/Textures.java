@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Textures {
     private static TextureAtlas buildingAtlas;
@@ -15,6 +17,7 @@ public class Textures {
     private static TextureAtlas environmentAtlas;
 
     private static final HashMap<TextureId, TextureRegion> textures = new HashMap<>();
+    private static final HashMap<TextureId, TextureRegion[]> bundles = new HashMap<>();
     private static final HashMap<TextureId, Animation<TextureRegion>> animations = new HashMap<>();
 
     public static void init() {
@@ -31,6 +34,9 @@ public class Textures {
         loadTextures(npcAtlas, Npc.values());
         loadTextures(resourceAtlas, Resource.values());
         loadTextures(environmentAtlas, Environment.values());
+        loadTextures(environmentAtlas, Harvestables.values());
+
+        loadBundles(environmentAtlas, Harvestables.values());
 
         loadAnimations(npcAtlas, NpcAnimation.values());
     }
@@ -38,6 +44,14 @@ public class Textures {
     public static TextureRegion get(TextureId textureId) {
         if (textures.containsKey(textureId)) {
             return textures.get(textureId);
+        } else {
+            throw new IllegalArgumentException("Texture not found: " + textureId);
+        }
+    }
+
+    public static TextureRegion[] getBundle(TextureId textureId) {
+        if (textures.containsKey(textureId)) {
+            return bundles.get(textureId);
         } else {
             throw new IllegalArgumentException("Texture not found: " + textureId);
         }
@@ -58,6 +72,16 @@ public class Textures {
                 throw new IllegalStateException("Texture '" + textureId.name().toLowerCase() + "' not found in texture atlas");
             }
             textures.put(textureId, atlasRegion);
+        }
+    }
+
+    private static void loadBundles(TextureAtlas textureAtlas, TextureId[] textureIds) {
+        for (TextureId textureId : textureIds) {
+            TextureRegion[] bundle = textureAtlas.findRegions(textureId.name().toLowerCase()).toArray();
+            if (bundle == null) {
+                throw new IllegalStateException("Bundle '" + textureId.name().toLowerCase() + "' not found in texture atlas");
+            }
+            bundles.put(textureId, bundle);
         }
     }
 
@@ -126,7 +150,11 @@ public class Textures {
     }
 
     public enum Environment implements TextureId {
-        PINE_TREE, ROCK1, ROCK2, ROCK3,
+        //PINE_TREE, ROCK1, ROCK2, ROCK3,
         FENCE_T, FENCE_TL, FENCE_L, FENCE_BL, FENCE_B, FENCE_BR, FENCE_R, FENCE_TR
+    }
+
+    public enum Harvestables implements TextureId {
+        PINE_TREE, ROCK1, ROCK2, ROCK3, WHEAT
     }
 }

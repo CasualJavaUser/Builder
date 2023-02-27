@@ -8,6 +8,7 @@ import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Pair;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
 import java.util.*;
@@ -74,8 +75,11 @@ public class BuilderGame extends Game {
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
 
-            out.writeInt(World.getSEED());
+            out.writeInt(World.getSeed());
+            out.writeInt(World.getGridWidth());
+            out.writeInt(World.getGridHeight());
             out.writeInt(World.getTime());
+            World.saveTiles(out);
             saveCollection(World.getGameObjects(), out);
             saveCollection(World.getBuildings(), out);
             saveCollection(World.getFieldWorks(), out);
@@ -95,6 +99,7 @@ public class BuilderGame extends Game {
 
         } catch (IOException e) {
             Popups.showPopup(e.getClass().getName());
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -107,8 +112,10 @@ public class BuilderGame extends Game {
     public static boolean loadFromFile(File file) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
 
-            World.setSEED(in.readInt());
+            World.setSeed(in.readInt());
+            World.setWorldSize(in.readInt(), in.readInt());
             World.setTime(in.readInt());
+            World.loadTiles(in);
             loadCollection(World.getGameObjects(), in);
             loadCollection(World.getBuildings(), in);
             loadCollection(World.getFieldWorks(), in);
@@ -126,6 +133,7 @@ public class BuilderGame extends Game {
 
         } catch (IOException e) {
             Popups.showPopup(e.getClass().getName());
+            e.printStackTrace();
             return false;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

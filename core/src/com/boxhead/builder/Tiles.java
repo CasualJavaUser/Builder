@@ -94,7 +94,7 @@ public class Tiles {
                     Vector2i pos = new Vector2i();
 
                     //if plantation then change tiles
-                    if (constructionSite.getType().isPlantation) {
+                    if (constructionSite.getType().crop != null) {
                         for (int y = 0; y < fieldHeight; y++) {
                             for (int x = 0; x < fieldWidth; x++) {
                                 pos.set(originX + x, originY + y);

@@ -1,7 +1,6 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.*;
@@ -9,6 +8,9 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.*;
 import org.apache.commons.lang3.Range;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 
 public class World {
@@ -26,14 +28,14 @@ public class World {
     private static int temperature;
     private static Vector2i worldSize;
 
-    private static int SEED = 60;
+    private static int seed;
     private static Random random;
     private static final int noiseSize = 100;
 
     private static final int[] storedResources = new int[Resource.values().length];
 
     private static Tile[] tiles;
-    private static TextureRegion[] tileTextures;
+    private static Textures.Tile[] tileTextures;
     private static List<Building> buildings;
     private static List<NPC> npcs;
     private static Set<FieldWork> fieldWorks;
@@ -46,10 +48,11 @@ public class World {
 
     private static final Set<Vector2i> navigableTiles = new HashSet<>();
 
-    public static void init(Vector2i worldSize) {
+    public static void init(int seed, Vector2i worldSize) {
+        World.seed = seed;
         World.worldSize = worldSize;
         tiles = new Tile[worldSize.x * worldSize.y];
-        tileTextures = new TextureRegion[tiles.length];
+        tileTextures = new Textures.Tile[tiles.length];
         buildings = new ArrayList<>();
         npcs = new ArrayList<>();
         fieldWorks = new HashSet<>();
@@ -57,14 +60,17 @@ public class World {
         gameObjects = new SortedList<>(GameObject.gridPositionComparator);
         objectsSumUpToLine = new int[worldSize.y + 1];
 
-        random = new Random(SEED);
+        random = new Random(World.seed);
 
         resetNavigability(worldSize);
+    }
 
+    public static void generate() {
         generateTiles();
         generateObjects();
+    }
 
-        //temp
+    public static void temp() {
         initNPCs(10);
         spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
@@ -128,30 +134,29 @@ public class World {
     }
 
     private static void generateTree(Vector2i pos, float smallFreq, float bigFreq) {
-        Harvestables.Type type = Harvestables.Type.BIG_TREE;  //TODO randomise tree types
         double dx = (double) pos.x / noiseSize;
         double dy = (double) pos.y / noiseSize;
-        double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
-        double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
-        int textureId = random.nextInt(type.textures.length);
+        double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, seed);
+        double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, seed);
 
-        int width = Textures.get(type.textures[textureId]).getRegionWidth() / TILE_SIZE;
+        Harvestable tree  = Harvestables.create(Harvestables.Type.BIG_TREE, pos);  //TODO randomise tree types
+        int width = tree.getTexture().getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
-            placeFieldWork(Harvestables.create(type, pos, textureId));
+            placeFieldWork(tree);
         }
     }
 
     private static void generateRock(Vector2i pos, float smallFreq, float bigFreq) {
-        Harvestables.Type type = Harvestables.Type.STONE;
         double dx = (double) pos.x / noiseSize;
         double dy = (double) pos.y / noiseSize;
-        double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, SEED);
-        double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, SEED);
-        int textureId = random.nextInt(type.textures.length);
+        double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, seed);
+        double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, seed);
 
+        int typeId = random.nextInt(3) + 1;
+        Harvestable rock = Harvestables.create(Harvestables.Type.valueOf("ROCK" + typeId), pos);
         if (smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
-            placeFieldWork(Harvestables.create(type, pos, textureId));
+            placeFieldWork(rock);
         }
     }
 
@@ -166,7 +171,7 @@ public class World {
         double startX = random.nextInt((int) (worldSize.x * (1 - 2 * minDistanceFromEdge))) + (int) (worldSize.x * minDistanceFromEdge);
         for (int i = 0; i < steps.length; i++) {
             double di = (double) i / noiseSize;
-            double noise = PerlinNoise.noise2D(di * noiseFrequency, SEED) * curveMultiplier;
+            double noise = PerlinNoise.noise2D(di * noiseFrequency, seed) * curveMultiplier;
             steps[i] = (int) startX + (int) noise;
             startX += bias;
         }
@@ -329,7 +334,7 @@ public class World {
 
         for (int x = gridULC.x; x <= gridLRC.x; x++) {
             for (int y = gridLRC.y; y <= gridULC.y; y++) {
-                batch.draw(tileTextures[y * worldSize.x + x], x * TILE_SIZE, y * TILE_SIZE);
+                batch.draw(Textures.get(tileTextures[y * worldSize.x + x]), x * TILE_SIZE, y * TILE_SIZE);
             }
         }
     }
@@ -397,17 +402,33 @@ public class World {
         }
     }
 
-    public static void setSEED(int SEED) {
-        World.SEED = SEED;
-        random = new Random(SEED);
+    public static void setSeed(int seed) {
+        World.seed = seed;
+        random = new Random(seed);
     }
 
-    public static int getSEED() {
-        return SEED;
+    public static int getSeed() {
+        return seed;
+    }
+
+    public static void setWorldSize(int width, int height) {
+        worldSize.set(width, height);
     }
 
     public static void setTime(int time) {
         World.time = time;
+    }
+
+    public static void setDay(int day) {
+        World.day = day;
+    }
+
+    public static int getTime() {
+        return time;
+    }
+
+    public static int getDay() {
+        return day;
     }
 
     public static void incrementTime() {
@@ -430,6 +451,21 @@ public class World {
             fullDays++;
         }
         return ((long) day + fullDays) << 32 | resultTime;
+    }
+
+    public static Tile getTile(Vector2i gridPosition) {
+        return tiles[worldSize.x * gridPosition.y + gridPosition.x];
+    }
+
+    public static void setTile(Vector2i gridPosition, Tile tile) {
+        tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
+        tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
+    }
+
+    private static void initNPCs(int num) {
+        for (int i = 0; i < num; i++) {
+            spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+        }
     }
 
     public static SortedList<GameObject> getGameObjects() {
@@ -464,30 +500,25 @@ public class World {
         return worldSize.y;
     }
 
-    public static int getTime() {
-        return time;
-    }
-
     public static Set<Vector2i> getNavigableTiles() {
         return navigableTiles;
     }
 
-    public static Tile getTile(Vector2i gridPosition) {
-        return tiles[worldSize.x * gridPosition.y + gridPosition.x];
+    public static void saveTiles(ObjectOutputStream out) throws IOException {
+        for (Tile tile : tiles) {
+            out.writeUTF(tile.name());
+        }
+        for (Textures.Tile tileTexture : tileTextures) {
+            out.writeUTF(tileTexture.name());
+        }
     }
 
-    public static void setTile(Vector2i gridPosition, Tile tile) {
-        tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
-        tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
-    }
-
-    private static void debug() {
-        Arrays.fill(tiles, Tile.DEFAULT);
-    }
-
-    private static void initNPCs(int num) {
-        for (int i = 0; i < num; i++) {
-            spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+    public static void loadTiles(ObjectInputStream in) throws IOException {
+        for (int i = 0; i < tiles.length; i++) {
+            tiles[i] = Tile.valueOf(in.readUTF());
+        }
+        for (int i = 0; i < tileTextures.length; i++) {
+            tileTextures[i] = Textures.Tile.valueOf(in.readUTF());
         }
     }
 }

@@ -12,6 +12,8 @@ import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Comparator;
 
 public class GameObject implements WorldObject, Serializable {
@@ -74,13 +76,19 @@ public class GameObject implements WorldObject, Serializable {
         try {
         for (Class<?> declaredClass : Textures.class.getDeclaredClasses()) {
             if (declaredClass.getSimpleName().equals(className)) {
-                    textureId = (Textures.TextureId) declaredClass.getField(fieldName).get(declaredClass);
-                    break;
+                //textureId = (Textures.TextureId) declaredClass.getDeclaredField(fieldName).get(declaredClass);
+                //break;
+                for (Field declaredField : declaredClass.getDeclaredFields()) {
+                    if (declaredField.getName().equals(fieldName)) {
+                        textureId = (Textures.TextureId) declaredField.get(declaredClass);
+                        return;
+                    }
+                }
             }
-            throw new IllegalStateException("Texture not found: " + fieldName);
         }
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            throw new IllegalStateException("Texture not found: " + fieldName);
+        throw new IllegalStateException("Texture '" + fieldName + "' not found in enum '" + className + "'");
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Texture '" + fieldName + "' not found in enum '" + className + "'");
         }
     }
 }

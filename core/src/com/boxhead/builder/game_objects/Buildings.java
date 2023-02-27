@@ -113,9 +113,9 @@ public class Buildings {
                 "tool shack", Jobs.FARMER,
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 2),
-                1,
+                3,
                 0,
-                true,
+                Harvestables.Type.WHEAT,
                 new Recipe(Pair.of(Resource.WOOD, 10))
         );
 
@@ -130,10 +130,8 @@ public class Buildings {
         public final BoxCollider relativeCollider;
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
         public final int range;
-        /**
-         * True if this type of building is a plantation. Only applies to farm buildings. (Null if not a farm building)
-         */
-        public final Boolean isPlantation;
+        public final Harvestables.Type crop;
+        public final Animal farmAnimal;
         public final Recipe buildCost;
         /**
          * Returns building's efficiency based on the buildings in range.
@@ -141,7 +139,7 @@ public class Buildings {
         public final Function<Set<Building>, Float> updateEfficiency;
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Boolean isPlantation, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Harvestables.Type crop, Animal farmAnimal, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
             this.texture = texture;
             this.job = job;
             this.service = service;
@@ -153,7 +151,8 @@ public class Buildings {
             this.guestCapacity = guestCapacity;
             this.serviceInterval = serviceInterval;
             this.range = range;
-            this.isPlantation = isPlantation;
+            this.crop = crop;
+            this.farmAnimal = farmAnimal;
             this.buildCost = buildCost;
             this.updateEfficiency = updateEfficiency;
         }
@@ -161,7 +160,7 @@ public class Buildings {
         //service
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
              int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
-            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, range, null, buildCost, updateEfficiency);
+            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, range, null, null, buildCost, updateEfficiency);
         }
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
@@ -182,6 +181,15 @@ public class Buildings {
                     buildCost);
         }
 
+        //farm
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Harvestables.Type crop, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, crop, null, buildCost, (b) -> 1f);
+        }
+
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Animal farmAnimal, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, null, farmAnimal, buildCost, (b) -> 1f);
+        }
+
         //production
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
             this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, range, buildCost, updateEfficiency);
@@ -189,10 +197,6 @@ public class Buildings {
 
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int range, Recipe buildCost) {
             this(texture, name, job, entrancePosition, relativeCollider, npcCapacity, productionInterval, range, buildCost, (b) -> 1f);
-        }
-
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, boolean isPlantation, Recipe buildCost) {
-            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, isPlantation, buildCost, (b) -> 1f);
         }
 
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Recipe buildCost) {
@@ -244,7 +248,7 @@ public class Buildings {
         }
 
         public boolean isFarm() {
-            return isPlantation != null;
+            return crop != null || farmAnimal != null;
         }
 
         public boolean isService() {

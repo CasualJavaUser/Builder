@@ -17,7 +17,9 @@ public interface FieldWork extends WorldObject, Serializable {
 
     boolean isFree();
 
-    boolean isNavigable();
+    default boolean isNavigable() {
+        return false;
+    }
 
     void work();
 

@@ -70,7 +70,7 @@ public class Jobs {
 
         @Override
         public Object getPoI() {
-            return Harvestable.Characteristic.STONE;
+            return Harvestable.Characteristic.ROCK;
         }
 
         @Override
@@ -181,26 +181,30 @@ public class Jobs {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
             FarmBuilding employingFarm = (FarmBuilding) workplace;
-            Optional<FieldHarvestable> fieldWorkOptional = employingFarm.findWorkableField();
+            for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
+                if (employingFarm.isArable(tile)) {
+                    Harvestable newHarvestable = Harvestables.create(employingFarm.getType().crop, tile);
+                    employingFarm.addHarvestable(newHarvestable);
+
+                    assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
+                    assignee.giveOrder(tile);
+                    assignee.giveOrder(newHarvestable);
+                    //TODO wait?
+                    assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
+                    assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
+                    return;
+                }
+            }
+            Optional<Harvestable> fieldWorkOptional = employingFarm.findWorkableField();
             if (fieldWorkOptional.isPresent()) {
                 FieldWork fieldWork = fieldWorkOptional.get();
                 harvesterAssign(assignee, workplace, fieldWork);
-            } else {
-                for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
-                    if (employingFarm.isArable(tile)) {
-                        Harvestable newField = Harvestables.create(Harvestables.Type.FIELD_GRAIN, tile);
-                        employingFarm.addFieldHarvestable((FieldHarvestable) newField);
-                        World.placeFieldWork(newField);
-                        harvesterAssign(assignee, workplace, newField);
-                        return;
-                    }
-                }
             }
         }
 
         @Override
         public void onExit(NPC assignee, ProductionBuilding workplace) {
-            harvesterOnExit(assignee, workplace, Harvestable.Characteristic.FIELD.resource);
+            harvesterOnExit(assignee, workplace, Harvestable.Characteristic.WHEAT.resource);
         }
 
         private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, NPC.INVENTORY_SIZE));
@@ -212,7 +216,7 @@ public class Jobs {
 
         @Override
         public Object getPoI() {
-            return Harvestable.Characteristic.FIELD;
+            return Harvestable.Characteristic.WHEAT;
         }
 
         @Override

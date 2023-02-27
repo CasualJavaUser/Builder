@@ -5,13 +5,17 @@ import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.SortedList;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.Comparator;
 import java.util.Optional;
 
 public class FarmBuilding extends ProductionBuilding {
 
     private BoxCollider fieldCollider;
-    private final SortedList<FieldHarvestable> ownHarvestables;
+    private transient SortedList<Harvestable> ownHarvestables;
 
     public FarmBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
@@ -46,22 +50,41 @@ public class FarmBuilding extends ProductionBuilding {
         if (!fieldCollider.overlaps(gridPosition) || !World.isBuildable(gridPosition))
             return false;
 
-        for (FieldHarvestable harvestable : ownHarvestables) {
+        for (Harvestable harvestable : ownHarvestables) {
             if (harvestable.getGridPosition().equals(gridPosition))
                 return false;
         }
         return true;
     }
 
-    public void addFieldHarvestable(FieldHarvestable harvestable) {
+    public void addHarvestable(Harvestable harvestable) {
         ownHarvestables.add(harvestable);
     }
 
-    public void removeFieldHarvestable(FieldHarvestable harvestable) {
+    public void removeHarvestable(Harvestable harvestable) {
         ownHarvestables.remove(harvestable);
     }
 
-    public Optional<FieldHarvestable> findWorkableField() {
-        return ownHarvestables.stream().filter(FieldHarvestable::isFree).findFirst();
+    public Optional<Harvestable> findWorkableField() {
+        return ownHarvestables.stream().filter(Harvestable::isFree).findFirst();
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        oos.writeInt(ownHarvestables.size());
+        for (Harvestable harvestable : ownHarvestables) {
+            oos.writeObject(harvestable);
+        }
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        int size = ois.readInt();
+        ownHarvestables = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
+        for (int i = 0; i < size; i++) {
+            ownHarvestables.add((Harvestable)ois.readObject());
+        }
     }
 }

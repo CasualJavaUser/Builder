@@ -22,7 +22,7 @@ public class Logic {
             World.incrementTime();
             dailyCycle();
             while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first == World.getDate()) {
-                Harvestable.timeTriggers.remove(0).second.changePhase();
+                Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
             produceResources();
             for (NPC npc : World.getNpcs()) {

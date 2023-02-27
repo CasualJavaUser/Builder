@@ -240,7 +240,7 @@ public class NPC extends GameObject implements Clickable {
             PUT_RESERVED_RESOURCES,
             TAKE_RESERVED_RESOURCES,
             REQUEST_TRANSPORT,
-            END_DELIVERY
+            END_DELIVERY,
         }
     }
 
@@ -269,154 +269,140 @@ public class NPC extends GameObject implements Clickable {
 
     public void giveOrder(Order.Type type, StorageBuilding building) {
         switch (type) {
-            case GO_TO:
-                giveOrder(building.getEntrancePosition());
-                break;
-            case ENTER:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (gridPosition.equals(building.getEntrancePosition())) {
-                            if (building == workplace) {
-                                workplace.employeeEnter(NPC.this);
-                            }
-                            enterBuilding(building);
+            case GO_TO -> giveOrder(building.getEntrancePosition());
+            case ENTER -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (gridPosition.equals(building.getEntrancePosition())) {
+                        if (building == workplace) {
+                            workplace.employeeEnter(NPC.this);
                         }
-                        orderList.removeFirst();
+                        enterBuilding(building);
                     }
-                });
-                break;
-            case EXIT:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (gridPosition.equals(building.getGridPosition())) {
-                            if (building == workplace) {
-                                workplace.employeeExit();
-                            }
-                            gridPosition.set(building.getEntrancePosition());
-                            buildingIsIn = null;
+                    orderList.removeFirst();
+                }
+            });
+            case EXIT -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (gridPosition.equals(building.getGridPosition())) {
+                        if (building == workplace) {
+                            workplace.employeeExit();
                         }
-                        orderList.removeFirst();
+                        gridPosition.set(building.getEntrancePosition());
+                        buildingIsIn = null;
                     }
-                });
-                break;
+                    orderList.removeFirst();
+                }
+            });
         }
     }
 
     public void giveOrder(Order.Type type, FieldWork fieldWork) {
         switch (type) {
-            case GO_TO:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
-                            navigateTo(fieldWork.getCollider());
-                        } else if (followPath()) {
-                            orderList.removeFirst();
-                        }
-                    }
-                });
-                break;
-            case ENTER:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (fieldWork.getCollider().distance(gridPosition) <= Math.sqrt(2d)) {
-                            fieldWork.setWork(NPC.this, true);
-                        }
+            case GO_TO -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
+                        navigateTo(fieldWork.getCollider());
+                    } else if (followPath()) {
                         orderList.removeFirst();
                     }
-                });
-                break;
-            case EXIT:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        fieldWork.dissociateWorker(NPC.this);
-                        orderList.removeFirst();
+                }
+            });
+            case ENTER -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (fieldWork.getCollider().distance(gridPosition) <= Math.sqrt(2d)) {
+                        fieldWork.setWork(NPC.this, true);
                     }
-                });
-                break;
+                    orderList.removeFirst();
+                }
+            });
+            case EXIT -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    fieldWork.dissociateWorker(NPC.this);
+                    orderList.removeFirst();
+                }
+            });
         }
     }
 
     public void giveOrder(Order.Type type) {
         switch (type) {
-            case EXIT:  //if building is known, giveOrder(Order.Type, StorageBuilding) should be used instead
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        exitBuilding();
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            case END_DELIVERY:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        Logistics.getDeliveryList().remove(NPC.this);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
+            case EXIT ->  //if building is known, giveOrder(Order.Type, StorageBuilding) should be used instead
+                    orderList.addLast(new Order() {
+                        @Override
+                        void execute() {
+                            exitBuilding();
+                            orderList.removeFirst();
+                        }
+                    });
+            case END_DELIVERY -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    Logistics.getDeliveryList().remove(NPC.this);
+                    orderList.removeFirst();
+                }
+            });
         }
     }
 
     public void giveOrder(Order.Type type, Resource resource, int amount) {
         switch (type) {
-            case PUT_RESOURCES_TO_BUILDING:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (buildingIsIn == null || !inventory.hasResourceAmount(resource, amount))
-                            throw new IllegalStateException();
+            case PUT_RESOURCES_TO_BUILDING -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (buildingIsIn == null || !inventory.hasResourceAmount(resource, amount))
+                        throw new IllegalStateException();
 
-                        inventory.moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            case TAKE_RESERVED_RESOURCES:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (buildingIsIn == null)
-                            throw new IllegalStateException();
+                    inventory.moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
+                    orderList.removeFirst();
+                }
+            });
+            case TAKE_RESERVED_RESOURCES -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (buildingIsIn == null)
+                        throw new IllegalStateException();
 
-                        buildingIsIn.moveReservedResourcesTo(inventory, resource, amount, NPC.INVENTORY_SIZE);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            case PUT_RESERVED_RESOURCES:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (buildingIsIn == null)
-                            throw new IllegalStateException();
+                    buildingIsIn.moveReservedResourcesTo(inventory, resource, amount, NPC.INVENTORY_SIZE);
+                    orderList.removeFirst();
+                }
+            });
+            case PUT_RESERVED_RESOURCES -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (buildingIsIn == null)
+                        throw new IllegalStateException();
 
-                        buildingIsIn.moveReservedResourcesTo(inventory, resource, -amount, NPC.INVENTORY_SIZE);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            case REQUEST_TRANSPORT:
-                orderList.addLast(new Order() {
-                    @Override
-                    void execute() {
-                        if (buildingIsIn == null)
-                            throw new IllegalStateException();
+                    buildingIsIn.moveReservedResourcesTo(inventory, resource, -amount, NPC.INVENTORY_SIZE);
+                    orderList.removeFirst();
+                }
+            });
+            case REQUEST_TRANSPORT -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    if (buildingIsIn == null)
+                        throw new IllegalStateException();
 
-                        Logistics.requestTransport(buildingIsIn, resource, amount);
-                        orderList.removeFirst();
-                    }
-                });
-                break;
-            default:
-                throw new IllegalArgumentException();
+                    Logistics.requestTransport(buildingIsIn, resource, amount);
+                    orderList.removeFirst();
+                }
+            });
+            default -> throw new IllegalArgumentException();
         }
+    }
+
+    public void giveOrder(Harvestable harvestable) {
+        orderList.addLast(new Order() {
+            @Override
+            void execute() {
+                World.placeFieldWork(harvestable);
+                orderList.removeFirst();
+            }
+        });
     }
 
     public Vector2 getSpritePosition() {

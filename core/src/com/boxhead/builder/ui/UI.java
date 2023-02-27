@@ -249,8 +249,14 @@ public class UI {
                 World.spawnNPC(new NPC((int)(Math.random()*2), position));
             });
 
-            workButton.setOnUp(() -> World.setTime(25170));
-            restButton.setOnUp(() -> World.setTime(57570));
+            workButton.setOnUp(() -> {
+                World.setDay(World.getDay()+1);
+                World.setTime(25170);
+            });
+            restButton.setOnUp(() -> {
+                World.setDay(World.getDay()+1);
+                World.setTime(57570);
+            });
             demolishButton.setOnUp(() -> {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
                 else Buildings.toDemolishingMode();
