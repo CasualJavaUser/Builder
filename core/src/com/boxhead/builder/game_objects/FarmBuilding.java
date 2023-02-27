@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FarmBuilding extends ProductionBuilding {
 
@@ -69,8 +71,11 @@ public class FarmBuilding extends ProductionBuilding {
         return ownHarvestables.stream().filter(Harvestable::isFree).findFirst();
     }
 
-    public Optional<Harvestable> findNotPlanted() {
-        return ownHarvestables.stream().filter(h -> h.getCurrentPhase() < 0).findFirst();
+    @Override
+    public void endWorkday() {
+        super.endWorkday();
+        Set<Harvestable> notPlanted = ownHarvestables.stream().filter(h -> h.getCurrentPhase() < 0).collect(Collectors.toSet());
+        ownHarvestables.removeAll(notPlanted);
     }
 
     @Serial

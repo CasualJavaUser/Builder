@@ -182,16 +182,6 @@ public class Jobs {
         public void assign(NPC assignee, ProductionBuilding workplace) {
             if(!workplace.getAssignedFieldWork().containsKey(assignee)) {
                 FarmBuilding employingFarm = (FarmBuilding) workplace;
-
-                Optional<Harvestable> notPlanted = employingFarm.findNotPlanted();
-                if(notPlanted.isPresent()) {
-                    assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-                    assignee.giveOrder(notPlanted.get().getGridPosition());
-                    assignee.giveOrder(notPlanted.get());
-                    //TODO wait?
-                    return;
-                }
-
                 Optional<Vector2i> arableTile = employingFarm.getFieldCollider().toVector2iList().stream().filter(employingFarm::isArable).findFirst();
                 if (arableTile.isPresent()) {
                     System.out.println(assignee.toString() + "\tgoing to plant");
