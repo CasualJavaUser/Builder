@@ -45,6 +45,10 @@ public class FarmBuilding extends ProductionBuilding {
         return fieldCollider.getGridPosition();
     }
 
+    public Harvestables.Type getCrop() {
+        return type.crop;
+    }
+
     /**
      * Returns true if a new FieldHarvestable can be created on the given tile.
      */

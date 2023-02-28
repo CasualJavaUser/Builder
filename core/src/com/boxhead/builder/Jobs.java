@@ -181,39 +181,44 @@ public class Jobs {
         @Override
         public void assign(NPC assignee, ProductionBuilding workplace) {
             if(!workplace.getAssignedFieldWork().containsKey(assignee)) {
+
                 FarmBuilding employingFarm = (FarmBuilding) workplace;
                 Optional<Vector2i> arableTile = employingFarm.getFieldCollider().toVector2iList().stream().filter(employingFarm::isArable).findFirst();
                 if (arableTile.isPresent()) {
-                    System.out.println(assignee.toString() + "\tgoing to plant");
                     Harvestable newHarvestable = Harvestables.create(employingFarm.getType().crop, arableTile.get());
                     employingFarm.addHarvestable(newHarvestable);
                     assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
                     assignee.giveOrder(arableTile.get());
                     assignee.giveOrder(newHarvestable);
-                    //TODO wait?
+                    //TODO wait
                     return;
                 }
 
                 Optional<Harvestable> readyForHarvest = employingFarm.findReadyForHarvest();
-                if (readyForHarvest.isPresent()) {
-                    FieldWork fieldWork = readyForHarvest.get();
-                    if (!fieldWork.isFree() || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
-                        return;
-
-                    System.out.println(assignee.toString() + "\tgoing to harvest");
-                    if (workplace.reserveSpace(NPC.INVENTORY_SIZE)) {
-                        fieldWork.assignWorker(assignee);
-                        workplace.getAssignedFieldWork().put(assignee, fieldWork);
-                        assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-                        assignee.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
-                        assignee.giveOrder(NPC.Order.Type.ENTER, fieldWork);
-                    }
+                if (assignee.getInventory().isFull()) {
+                    Resource resource = employingFarm.getCrop().characteristic.resource;
+                    assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
+                    assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
+                    assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assignee.getInventory().getResourceAmount(resource));
+                    assignee.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
                     return;
                 }
+
+                if (readyForHarvest.isPresent()) {
+                    if (assignee.isInBuilding() && assignee.getInventory().isEmpty() && !workplace.reserveSpace(NPC.INVENTORY_SIZE)) return;
+
+                    FieldWork fieldWork = readyForHarvest.get();
+                    fieldWork.assignWorker(assignee);
+                    workplace.getAssignedFieldWork().put(assignee, fieldWork);
+                    assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
+                    assignee.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
+                    assignee.giveOrder(NPC.Order.Type.ENTER, fieldWork);
+                    return;
+                }
+
                 assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
                 assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
             }
-            else System.out.println(assignee.toString() + "\tis harvesting");
         }
 
         @Override

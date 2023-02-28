@@ -143,10 +143,10 @@ public class Harvestable extends GameObject implements FieldWork {
 
     protected void exit(Resource resource) {
         assigned.getWorkplace().dissociateFieldWork(assigned);
-        assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-        assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
+        //assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
+        //assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
+        //assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
+        //assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
         dissociateWorker(assigned);
     }
 
