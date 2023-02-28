@@ -21,7 +21,7 @@ public class Logic {
         public void run() {
             World.incrementTime();
             dailyCycle();
-            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first == World.getDate()) {
+            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first <= World.getDate()) {
                 Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
             produceResources();

@@ -20,7 +20,7 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     protected transient Harvestables.Type type;
     protected transient TextureRegion[] textureBundle;
     protected transient TextureRegion currentTexture;
-    protected int currentPhase = 0;
+    protected int currentPhase = -1;
     protected BoxCollider collider;
     protected final int productionInterval = 50;
     protected int productionCounter = 0;
@@ -59,20 +59,20 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
 
             default -> getDefaultCollider();
         };
-
-        if(textureBundle.length > 1) {
-            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime / (textureBundle.length - 1)), this));
-        }
     }
 
     public Harvestables.Type getType() {
         return type;
     }
 
+    public int getCurrentPhase() {
+        return currentPhase;
+    }
+
     public void nextPhase() {
         currentTexture = textureBundle[++currentPhase];
-        if (currentPhase != textureBundle.length-1) {
-            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime/(textureBundle.length-1)), this));
+        if (currentPhase != textureBundle.length - 1) {
+            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime / (textureBundle.length - 1)), this));
         }
     }
 
@@ -108,13 +108,13 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
 
     @Override
     public void work() {
-        if(worked) {
+        if (worked) {
             Resource resource = type.characteristic.resource;
             if (!assigned.getInventory().isFull()) {
                 if (productionCycle()) assigned.getInventory().put(resource, 1);
                 if (amountLeft <= 0) {
                     World.removeFieldWorks(this);
-                    if(assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
+                    if (assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
                     exit(resource);
                 }
             } else exit(resource);
@@ -162,56 +162,6 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
         ois.defaultReadObject();
         type = Harvestables.Type.valueOf(ois.readUTF());
         textureBundle = Textures.getBundle(type.textureId);
-        currentTexture = textureBundle[currentPhase];
+        currentTexture = textureBundle[Math.max(currentPhase, 0)];
     }
-
-    /*protected void exit(Resource resource) {
-        assigned.getWorkplace().dissociateFieldWork(assigned);
-        assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-        if (resource != Resource.NOTHING) {
-            assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-            assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
-        } else {
-            assigned.getWorkplace().cancelReservation(NPC.INVENTORY_SIZE);
-        }
-        worked = false;
-        assigned = null;
-    }
-
-    @Override
-    public Object getCharacteristic() {
-        return type.characteristic;
-    }
-
-    @Override
-    public void assignWorker(NPC npc) {
-        if (isFree()) {
-            assigned = npc;
-        } else throw new IllegalArgumentException();
-    }
-
-    @Override
-    public void dissociateWorker(NPC npc) {
-        if (assigned == npc) {
-            assigned = null;
-            worked = false;
-        }
-    }
-
-    @Override
-    public void setWork(NPC npc, boolean b) {
-        if (npc == assigned) worked = b;
-    }
-
-    @Override
-    public String toString() {
-        return type.characteristic.toString() + " " + gridPosition.toString();
-    }
-
-    public abstract void work();
-
-    public abstract boolean isNavigable();
-
-    public abstract boolean isFree();*/
 }

@@ -12,7 +12,7 @@ public class Harvestables {
         ROCK2(Textures.Harvestables.ROCK2, Harvestable.Characteristic.ROCK, 5, 0),
         ROCK3(Textures.Harvestables.ROCK3, Harvestable.Characteristic.ROCK, 5, 0),
         IRON_ORE(Textures.Harvestables.ROCK1, Harvestable.Characteristic.ROCK, 5, 0),
-        WHEAT(Textures.Harvestables.WHEAT, Harvestable.Characteristic.WHEAT, 2, World.FULL_DAY/3);
+        WHEAT(Textures.Harvestables.WHEAT, Harvestable.Characteristic.WHEAT, 2, World.FULL_DAY / 10);
 
         public final Textures.Harvestables textureId;
         public final Harvestable.Characteristic characteristic;
@@ -30,18 +30,4 @@ public class Harvestables {
     public static Harvestable create(Type type, Vector2i gridPosition) {
         return new Harvestable(type, gridPosition);
     }
-
-    /*public static Harvestable create(Type type, Vector2i gridPosition, int textureId) {
-        Harvestable harvestable = create(type, gridPosition);
-        harvestable.textureId = type.textures[textureId];
-        return harvestable;
-    }
-
-    public static Harvestable create(Type type, Vector2i gridPosition) {
-        if (type.phaseTimes == null) {
-            return new StaticHarvestable(type, gridPosition);
-        } else {
-            return new FieldHarvestable(type, gridPosition);
-        }
-    }*/
 }

@@ -17,6 +17,7 @@ public class World {
 
     public static final int TILE_SIZE = 16;
     public static final int FULL_DAY = 86400;
+    public static final int HOUR = 3600;
 
     /**
      * The size (in tiles) of the biggest GameObject texture.
@@ -139,7 +140,7 @@ public class World {
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, seed);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, seed);
 
-        Harvestable tree  = Harvestables.create(Harvestables.Type.BIG_TREE, pos);  //TODO randomise tree types
+        Harvestable tree = Harvestables.create(Harvestables.Type.BIG_TREE, pos);  //TODO randomise tree types
         int width = tree.getTexture().getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
@@ -271,14 +272,15 @@ public class World {
     }
 
     public static void placeFieldWork(FieldWork fieldWork) {
-        if (!fieldWork.isNavigable()) {
-            makeUnnavigable(fieldWork.getCollider());
-        }
+        makeUnnavigable(fieldWork.getCollider());
+
         if (fieldWork instanceof ConstructionSite constructionSite) {
             buildings.add(constructionSite);
             if (constructionSite.getType().isFarm()) {
                 Tiles.toTilingMode(constructionSite, 3, 12);
             }
+        } else if (fieldWork instanceof Harvestable harvestable) {
+            harvestable.nextPhase();
         }
         fieldWorks.add(fieldWork);
         addGameObject((GameObject) fieldWork);
@@ -296,12 +298,11 @@ public class World {
     }
 
     public static void removeFieldWorks(FieldWork fieldWork) {
-        if (!fieldWork.isNavigable())
-            makeNavigable(fieldWork.getCollider());
+        makeNavigable(fieldWork.getCollider());
         removedFieldWorks.add(fieldWork);
     }
 
-    private static void addGameObject(GameObject gameObject) {
+    public static void addGameObject(GameObject gameObject) {
         gameObjects.add(gameObject);
         for (int y = gameObject.getGridPosition().y + 1; y < objectsSumUpToLine.length; y++) {
             objectsSumUpToLine[y]++;

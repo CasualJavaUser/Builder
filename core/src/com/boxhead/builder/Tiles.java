@@ -107,33 +107,33 @@ public class Tiles {
                         //corners
                         pos.set(originX, originY);
                         if (isFarmable.test(pos))
-                            World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_BL, pos.clone()));
+                            World.addGameObject(new GameObject(Textures.Environment.FENCE_BL, pos.clone()));
                         pos.set(originX, originY + fieldHeight - 1);
                         if (isFarmable.test(pos))
-                            World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_TL, pos.clone()));
+                            World.addGameObject(new GameObject(Textures.Environment.FENCE_TL, pos.clone()));
                         pos.set(originX + fieldWidth - 1, originY + fieldHeight - 1);
                         if (isFarmable.test(pos))
-                            World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_TR, pos.clone()));
+                            World.addGameObject(new GameObject(Textures.Environment.FENCE_TR, pos.clone()));
                         pos.set(originX + fieldWidth - 1, originY);
                         if (isFarmable.test(pos))
-                            World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_BR, pos.clone()));
+                            World.addGameObject(new GameObject(Textures.Environment.FENCE_BR, pos.clone()));
                         //top bottom
                         for (int x = 1; x < fieldWidth - 1; x++) {
                             pos.set(originX + x, originY + fieldHeight - 1);
                             if (isFarmable.test(pos))
-                                World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_T, pos.clone()));
+                                World.addGameObject(new GameObject(Textures.Environment.FENCE_T, pos.clone()));
                             pos.set(originX + x, originY);
                             if (isFarmable.test(pos))
-                                World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_B, pos.clone()));
+                                World.addGameObject(new GameObject(Textures.Environment.FENCE_B, pos.clone()));
                         }
                         //sides
                         for (int y = 1; y < fieldHeight - 1; y++) {
                             pos.set(originX, originY + y);
                             if (isFarmable.test(pos))
-                                World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_L, pos.clone()));
+                                World.addGameObject(new GameObject(Textures.Environment.FENCE_L, pos.clone()));
                             pos.set(originX + fieldWidth - 1, originY + y);
                             if (isFarmable.test(pos))
-                                World.getGameObjects().add(new GameObject(Textures.Environment.FENCE_R, pos.clone()));
+                                World.addGameObject(new GameObject(Textures.Environment.FENCE_R, pos.clone()));
                         }
                     }
 

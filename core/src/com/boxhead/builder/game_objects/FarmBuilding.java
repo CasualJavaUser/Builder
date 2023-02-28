@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FarmBuilding extends ProductionBuilding {
 
@@ -69,6 +71,13 @@ public class FarmBuilding extends ProductionBuilding {
         return ownHarvestables.stream().filter(Harvestable::isFree).findFirst();
     }
 
+    @Override
+    public void endWorkday() {
+        super.endWorkday();
+        Set<Harvestable> notPlanted = ownHarvestables.stream().filter(h -> h.getCurrentPhase() < 0).collect(Collectors.toSet());
+        ownHarvestables.removeAll(notPlanted);
+    }
+
     @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
@@ -84,7 +93,7 @@ public class FarmBuilding extends ProductionBuilding {
         int size = ois.readInt();
         ownHarvestables = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
         for (int i = 0; i < size; i++) {
-            ownHarvestables.add((Harvestable)ois.readObject());
+            ownHarvestables.add((Harvestable) ois.readObject());
         }
     }
 }
