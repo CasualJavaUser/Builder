@@ -21,6 +21,10 @@ public class Pathfinding {
         return path;
     }
 
+    public static Vector2i[] findPathNoCache(Vector2i start, Vector2i destination) {
+        return dijkstra(start, Predicate.isEqual(destination));
+    }
+
     public static Vector2i[] findPath(Vector2i start, BoxCollider area) {
         return dijkstra(start, area.extended()::overlaps);
     }

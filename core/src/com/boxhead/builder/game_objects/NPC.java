@@ -166,7 +166,7 @@ public class NPC extends GameObject implements Clickable {
         alignSprite();
         path = null;
         pathfinding = executor.submit(() -> {
-            path = Pathfinding.findPath(gridPosition.clone(), tile);
+            path = Pathfinding.findPathNoCache(gridPosition.clone(), tile);
             pathStep = 0;
             nextStep = STEP_INTERVAL;
         });
