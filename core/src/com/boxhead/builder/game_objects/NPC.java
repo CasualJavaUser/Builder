@@ -457,6 +457,10 @@ public class NPC extends GameObject implements Clickable {
         return buildingIsIn != null;
     }
 
+    public boolean isInBuilding(StorageBuilding building) {
+        return buildingIsIn == building;
+    }
+
     public boolean isClockedIn() {
         return clockedIn;
     }
