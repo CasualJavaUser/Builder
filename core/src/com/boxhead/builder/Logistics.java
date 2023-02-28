@@ -175,6 +175,10 @@ public class Logistics {
         for (int p = maxPriority; p >= 0; p--) {    //high-priority requests in both supply and output are served first
             while (supplyIterator < supplyRequests.size() && supplyRequests.get(supplyIterator).priority == p) {
                 currentRequest = supplyRequests.get(supplyIterator);
+                if (currentRequest.amount < THE_UNIT) {
+                    supplyIterator++;
+                    continue;
+                }
                 paired = findRequest(outputRequests, currentRequest);
 
                 if (paired.isPresent()) {
@@ -190,6 +194,10 @@ public class Logistics {
 
             while (outputIterator < outputRequests.size() && outputRequests.get(outputIterator).priority == p) {
                 currentRequest = outputRequests.get(outputIterator);
+                if (currentRequest.amount < THE_UNIT) {
+                    outputIterator++;
+                    continue;
+                }
                 paired = findRequest(supplyRequests, currentRequest);
 
                 if (paired.isPresent()) {

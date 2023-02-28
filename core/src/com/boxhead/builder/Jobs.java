@@ -184,7 +184,6 @@ public class Jobs {
                 FarmBuilding employingFarm = (FarmBuilding) workplace;
                 Optional<Vector2i> arableTile = employingFarm.getFieldCollider().toVector2iList().stream().filter(employingFarm::isArable).findFirst();
                 if (arableTile.isPresent()) {
-                    System.out.println(assignee.toString() + "\tgoing to plant");
                     Harvestable newHarvestable = Harvestables.create(employingFarm.getType().crop, arableTile.get());
                     employingFarm.addHarvestable(newHarvestable);
                     assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
@@ -200,7 +199,6 @@ public class Jobs {
                     if (!fieldWork.isFree() || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
                         return;
 
-                    System.out.println(assignee.toString() + "\tgoing to harvest");
                     if (workplace.reserveSpace(NPC.INVENTORY_SIZE)) {
                         fieldWork.assignWorker(assignee);
                         workplace.getAssignedFieldWork().put(assignee, fieldWork);
@@ -213,7 +211,6 @@ public class Jobs {
                 assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
                 assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
             }
-            else System.out.println(assignee.toString() + "\tis harvesting");
         }
 
         @Override

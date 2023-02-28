@@ -89,7 +89,7 @@ public class Inventory implements Serializable {
         int currentUnits = resources.getOrDefault(resource, 0);
 
         if (currentAmount + units > maxCapacity || currentUnits + units < 0)
-            throw new IllegalArgumentException("amount: " + (currentUnits + units) + " (" + resource.name() + ") max capacity: " + maxCapacity);
+            throw new IllegalArgumentException("amount: " + (currentUnits + units) + " (" + resource.name() + ") fill: " + currentAmount + '/' + maxCapacity);
 
         resources.put(resource, currentUnits + units);
         updateMass(resource, units);
