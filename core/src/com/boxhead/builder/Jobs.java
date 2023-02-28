@@ -186,6 +186,7 @@ public class Jobs {
             boolean inWorkplace = assignee.isInBuilding(workplace);
             FarmBuilding employingFarm = (FarmBuilding) workplace;
             Harvestables.Type crop = employingFarm.getCrop();
+            Resource resource = crop.characteristic.resource;
 
             Optional<Vector2i> arableTile = employingFarm.getFieldCollider().toVector2iList().stream().filter(employingFarm::isArable).findFirst();
             if (arableTile.isPresent()) {
@@ -203,7 +204,6 @@ public class Jobs {
 
             if (assignee.getInventory().getAvailableCapacity() < crop.yield) {
                 workplace.getAssignedFieldWork().remove(assignee);
-                Resource resource = crop.characteristic.resource;
                 assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
                 assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
                 assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assignee.getInventory().getResourceAmount(resource));
@@ -228,6 +228,7 @@ public class Jobs {
 
             assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
             assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
+            assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assignee.getInventory().getResourceAmount(resource));
         }
 
         @Override
