@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.utils.Vector2i;
 
 public class Label extends UIElement {
-    String text;
+    private String text;
 
     public Label(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
-        this(texture, parent, layer, position, false, null);
+        this(texture, parent, layer, position, true, null);
     }
 
     public Label(TextureRegion texture, UI.Layer layer, Vector2i position, String text) {
-        this(texture, null, layer, position, false, text);
+        this(texture, null, layer, position, true, text);
     }
 
     public Label(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean visible, String text) {
@@ -26,6 +26,10 @@ public class Label extends UIElement {
         UI.FONT.setColor(tint);
         UI.FONT.draw(batch, text, getGlobalPosition().x + texture.getRegionWidth() + 10, getGlobalPosition().y);
         UI.FONT.setColor(UI.DEFAULT_COLOR);
+    }
+
+    public String getText() {
+        return text;
     }
 
     public void setText(String text) {

@@ -72,6 +72,8 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
                 npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
                 npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
             }
+            World.updateStoredResources(type.buildCost.negate());
+            World.removeFieldWorks(this);
         }
     }
 

@@ -114,7 +114,7 @@ public class Jobs {
     };
 
     public static final Job MINER = new Job() {
-        private final Recipe recipe = new Recipe(Pair.of(Resource.STONE, 5));
+        private final Recipe recipe = new Recipe(Pair.of(Resource.IRON, 5));
 
         @Override
         public Recipe getRecipe() {

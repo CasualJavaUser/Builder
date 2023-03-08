@@ -35,6 +35,7 @@ public class GameScreen implements Screen {
         World.generate();
         World.temp();
         UI.init();
+        UI.getResourceList().initData();
         Logic.init();
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);

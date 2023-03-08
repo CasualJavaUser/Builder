@@ -207,28 +207,14 @@ public class Buildings {
             this(texture, name, job, null, entrancePosition, npcCapacity, productionInterval, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval, Recipe buildCost) {
-            this(texture, null, job, entrancePosition, npcCapacity, productionInterval, buildCost);
-            name = defaultName();
-        }
-
         //residential
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
             this(texture, name, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
-            this(texture, null, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
-            name = defaultName();
-        }
-
         //storage
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost) {
             this(texture, name, null, null, entrancePosition, relativeCollider, 0, 0, 0, 0, buildCost);
-        }
-
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost) {
-            this(texture, name, null, null, entrancePosition, 0, 0, 0, 0, buildCost);
         }
 
         public TextureRegion getTexture() {

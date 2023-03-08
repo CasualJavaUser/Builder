@@ -6,6 +6,7 @@ import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
+import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.SortedList;
@@ -115,6 +116,7 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
                 if (amountLeft <= 0) {
                     World.removeFieldWorks(this);
                     if (assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
+                    World.updateStoredResources(type.characteristic.resource, type.yield);
                     exit(resource);
                 }
             } else exit(resource);

@@ -116,6 +116,7 @@ public class ProductionBuilding extends StorageBuilding {
 
                 if (availability == Inventory.Availability.AVAILABLE) {
                     inventory.put(recipe);
+                    World.updateStoredResources(recipe);
                     productionCounter = 0;
                     Logistics.requestTransport(this, recipe);
                 } else if (availability == Inventory.Availability.LACKS_INPUT) {

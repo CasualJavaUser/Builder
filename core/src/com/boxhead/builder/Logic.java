@@ -35,7 +35,6 @@ public class Logic {
         @Override
         public void run() {
             Logistics.pairRequests();
-            UI.getResourceList().updateData();
             for (NPC npc : World.getNpcs()) {
                 npc.seekJob();
                 npc.seekHouse();

@@ -86,6 +86,8 @@ public class World {
         makeUnnavigable(collider);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 100);
+        storedResources[Resource.WOOD.ordinal()] = 100;
+        storedResources[Resource.STONE.ordinal()] = 100;
 
         collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
         buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
@@ -388,19 +390,19 @@ public class World {
     }
 
     public static int getStored(Resource resource) {
-        updateStoredResources();
         return storedResources[resource.ordinal()];
     }
 
-    public static void updateStoredResources() {
-        Arrays.fill(storedResources, 0);
-        for (Building building : buildings) {
-            for (int i = 0; i < storedResources.length; i++) {
-                if (building instanceof StorageBuilding b) {
-                    storedResources[i] += b.getInventory().getResourceAmount(Resource.values()[i]);
-                }
-            }
+    public static void updateStoredResources(Recipe recipe) {
+        for (Resource resource : recipe.changedResources()) {
+            storedResources[resource.ordinal()] += recipe.getChange(resource);
         }
+        UI.getResourceList().updateData(recipe);
+    }
+
+    public static void updateStoredResources(Resource resource, int amount) {
+        storedResources[resource.ordinal()] += amount;
+        UI.getResourceList().updateData(resource, amount);
     }
 
     public static void setSeed(int seed) {
