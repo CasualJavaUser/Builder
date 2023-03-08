@@ -298,7 +298,7 @@ public class World {
     }
 
     public static void removeFieldWorks(FieldWork fieldWork) {
-        if (!(fieldWork instanceof ConstructionSite)) makeNavigable(fieldWork.getCollider());  //TODO temporary
+        makeNavigable(fieldWork.getCollider());
         removedFieldWorks.add(fieldWork);
     }
 
