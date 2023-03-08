@@ -33,7 +33,6 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     public enum Characteristic {
         TREE(Resource.WOOD),
         ROCK(Resource.STONE),
-        IRON_ORE(Resource.IRON),
         WHEAT(Resource.GRAIN);
 
         public final Resource resource;

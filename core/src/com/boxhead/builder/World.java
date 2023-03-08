@@ -278,10 +278,8 @@ public class World {
 
         if (fieldWork instanceof ConstructionSite constructionSite) {
             buildings.add(constructionSite);
-            if (constructionSite.getType().isFarm()) {
-                Tiles.toTilingMode(constructionSite, 3, 12);
-            }
-        } else if (fieldWork instanceof Harvestable harvestable) {
+        }
+        else if (fieldWork instanceof Harvestable harvestable) {
             harvestable.nextPhase();
         }
         fieldWorks.add(fieldWork);
@@ -300,7 +298,7 @@ public class World {
     }
 
     public static void removeFieldWorks(FieldWork fieldWork) {
-        makeNavigable(fieldWork.getCollider());
+        if (!(fieldWork instanceof ConstructionSite)) makeNavigable(fieldWork.getCollider());  //TODO temporary
         removedFieldWorks.add(fieldWork);
     }
 

@@ -17,12 +17,17 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
-    private BoxCollider fieldCollider = new BoxCollider();
+    private BoxCollider fieldCollider;
     private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
 
     public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour) {
+        this(type, gridPosition, totalLabour, new BoxCollider());
+    }
+
+    public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour, BoxCollider fieldCollider) {
         super(type, type.getConstructionSite(), gridPosition, type.buildCost.sum());
         this.totalLabour = totalLabour;
+        this.fieldCollider = fieldCollider;
 
         Logistics.requestTransport(this, type.buildCost.negate(), Logistics.USE_STORAGE);
         reserveSpace(type.buildCost.sum());

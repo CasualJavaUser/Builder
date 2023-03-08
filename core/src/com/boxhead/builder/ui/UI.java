@@ -612,7 +612,6 @@ public class UI {
             else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInTilingMode()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
-                if(Tiles.getMode() == Tiles.TilingMode.FARM) return;  //TODO temporary solution (turning off tiling mode while placing a farm building)
                 Tiles.turnOffTilingMode();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);

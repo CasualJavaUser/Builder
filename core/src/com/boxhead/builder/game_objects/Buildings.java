@@ -268,35 +268,71 @@ public class Buildings {
             throw new IllegalStateException("Not in building mode");
 
         TextureRegion texture = currentBuilding.getTexture();
-        Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
-        int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
-        int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
+        if(!Tiles.isInFieldMode()) {
+            Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
-        int posX = mouseX - (mouseX % World.TILE_SIZE);
-        int posY = mouseY - (mouseY % World.TILE_SIZE);
+            int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
+            int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
 
-        posX = rangeX.fit(posX);
-        posY = rangeY.fit(posY);
+            int posX = mouseX - (mouseX % World.TILE_SIZE);
+            int posY = mouseY - (mouseY % World.TILE_SIZE);
 
-        if (currentBuilding.range > 0) {
-            showBuildingRange(batch,
-                    posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
-                    posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
-                    currentBuilding.range);
+            posX = rangeX.fit(posX);
+            posY = rangeY.fit(posY);
+
+            if (currentBuilding.range > 0) {
+                showBuildingRange(batch,
+                        posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
+                        posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
+                        currentBuilding.range);
+            }
+            boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
+
+            batch.setColor(UI.SEMI_TRANSPARENT);
+            batch.draw(texture, posX, posY);
+            batch.setColor(UI.DEFAULT_COLOR);
+
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isBuildable) {
+                if (!currentBuilding.isFarm()) {
+                    Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
+                    World.placeFieldWork(new ConstructionSite(currentBuilding, buildingPosition, 100));
+
+                    if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                        isInBuildingMode = false;
+                }
+                else {
+                    Tiles.toFieldMode(
+                            new BoxCollider(
+                                    posX / World.TILE_SIZE,
+                                    posY / World.TILE_SIZE,
+                                    currentBuilding.relativeCollider.getWidth(),
+                                    currentBuilding.relativeCollider.getHeight()),
+                            currentBuilding.farmAnimal != null,
+                            3,
+                            12);
+                }
+            }
         }
-        boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
+        else {
+            batch.setColor(UI.SEMI_TRANSPARENT);
+            batch.draw(
+                    texture,
+                    Tiles.getBuildingCollider().getGridPosition().x * World.TILE_SIZE,
+                    Tiles.getBuildingCollider().getGridPosition().y * World.TILE_SIZE
+            );
+            BoxCollider fieldCollider = Tiles.handleFieldMode(batch);
+            if(fieldCollider != null) {
+                World.placeFieldWork(new ConstructionSite(
+                        currentBuilding,
+                        Tiles.getBuildingCollider().getGridPosition().clone(),
+                        100,
+                        fieldCollider));
 
-        batch.setColor(UI.SEMI_TRANSPARENT);
-        batch.draw(texture, posX, posY);
-        batch.setColor(UI.DEFAULT_COLOR);
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)  && isBuildable) {
-            Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-            World.placeFieldWork(new ConstructionSite(currentBuilding, buildingPosition, 100));
-
-            if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                isInBuildingMode = false;
+                Tiles.turnOffFieldMode();
+                if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                    isInBuildingMode = false;
+            }
         }
     }
 
@@ -330,6 +366,7 @@ public class Buildings {
 
     public static void turnOffBuildingMode() {
         isInBuildingMode = false;
+        Tiles.turnOffFieldMode();
     }
 
     public static void turnOffDemolishingMode() {
