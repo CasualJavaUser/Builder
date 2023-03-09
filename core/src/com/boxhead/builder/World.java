@@ -151,7 +151,10 @@ public class World {
         int width = tree.getTexture().getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
-            placeFieldWork(tree);
+            makeUnnavigable(tree.getCollider());
+            tree.nextPhase();
+            fieldWorks.add(tree);
+            addGameObject(tree);
         }
     }
 
@@ -164,7 +167,10 @@ public class World {
         int typeId = random.nextInt(3) + 1;
         Harvestable rock = Harvestables.create(Harvestables.Type.valueOf("ROCK" + typeId), pos);
         if (smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
-            placeFieldWork(rock);
+            makeUnnavigable(rock.getCollider());
+            rock.nextPhase();
+            fieldWorks.add(rock);
+            addGameObject(rock);
         }
     }
 
