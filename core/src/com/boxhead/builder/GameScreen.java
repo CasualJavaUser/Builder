@@ -32,7 +32,6 @@ public class GameScreen implements Screen {
 
         Textures.init();
         World.init(60, new Vector2i(101, 101));
-        World.generate();
         World.temp();
         UI.init();
         UI.getResourceList().initData();
@@ -65,7 +64,7 @@ public class GameScreen implements Screen {
         }
 
         if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
-        if (InputManager.isKeyPressed(Input.Keys.SPACE)) Logic.pause(!Logic.isPaused());
+        if (InputManager.isKeyPressed(Input.Keys.SPACE) && !UI.isPaused()) Logic.pause(!Logic.isPaused());
 
         drawUI();
 

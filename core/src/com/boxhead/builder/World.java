@@ -49,6 +49,13 @@ public class World {
 
     private static final Set<Vector2i> navigableTiles = new HashSet<>();
 
+    /**
+     * A map of field works that have been either placed or removed. Value of each entry specifies if a given FieldWork has been placed (true) or removed (false).
+     */
+    private static final Map<FieldWork, Boolean> changedFieldWorks = new HashMap<>();
+    private static final Map<Vector2i, Tile> changedTiles = new HashMap<>();
+    private static final List<Vector2i> changedNavigableTiles = new ArrayList<>();
+
     public static void init(int seed, Vector2i worldSize) {
         World.seed = seed;
         World.worldSize = worldSize;
@@ -64,9 +71,7 @@ public class World {
         random = new Random(World.seed);
 
         resetNavigability(worldSize);
-    }
 
-    public static void generate() {
         generateTiles();
         generateObjects();
     }
@@ -283,6 +288,7 @@ public class World {
             harvestable.nextPhase();
         }
         fieldWorks.add(fieldWork);
+        changedFieldWorks.put(fieldWork, true);
         addGameObject((GameObject) fieldWork);
     }
 
@@ -300,6 +306,10 @@ public class World {
     public static void removeFieldWorks(FieldWork fieldWork) {
         makeNavigable(fieldWork.getCollider());
         removedFieldWorks.add(fieldWork);
+        if(changedFieldWorks.containsKey(fieldWork))
+            changedFieldWorks.remove(fieldWork);
+        else
+            changedFieldWorks.put(fieldWork, false);
     }
 
     public static void addGameObject(GameObject gameObject) {
@@ -461,6 +471,7 @@ public class World {
     public static void setTile(Vector2i gridPosition, Tile tile) {
         tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
         tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
+        changedTiles.put(gridPosition.clone(), tile);
     }
 
     private static void initNPCs(int num) {
@@ -505,21 +516,62 @@ public class World {
         return navigableTiles;
     }
 
-    public static void saveTiles(ObjectOutputStream out) throws IOException {
-        for (Tile tile : tiles) {
-            out.writeUTF(tile.name());
-        }
-        for (Textures.Tile tileTexture : tileTextures) {
-            out.writeUTF(tileTexture.name());
+    public static void saveWorld(ObjectOutputStream out) throws IOException {
+        out.writeInt(World.getSeed());
+        out.writeInt(World.getGridWidth());
+        out.writeInt(World.getGridHeight());
+        out.writeInt(World.getTime());
+
+        BuilderGame.saveCollection(buildings, out);
+        BuilderGame.saveCollection(npcs, out);
+        BuilderGame.saveMap(changedFieldWorks, out);
+        out.writeInt(changedTiles.size());
+        for (Vector2i pos : changedTiles.keySet()) {
+            out.writeObject(pos);
+            out.writeUTF(changedTiles.get(pos).name());
         }
     }
 
-    public static void loadTiles(ObjectInputStream in) throws IOException {
-        for (int i = 0; i < tiles.length; i++) {
-            tiles[i] = Tile.valueOf(in.readUTF());
+    public static void loadWorld(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        init(in.readInt(), new Vector2i(in.readInt(), in.readInt()));
+        setTime(in.readInt());
+
+        BuilderGame.loadCollection(buildings, in);
+        BuilderGame.loadCollection(npcs, in);
+        BuilderGame.loadMap(changedFieldWorks, in);
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            changedTiles.put((Vector2i)in.readObject(), Tile.valueOf(in.readUTF()));
         }
-        for (int i = 0; i < tileTextures.length; i++) {
-            tileTextures[i] = Textures.Tile.valueOf(in.readUTF());
+
+        npcs.forEach(World::addGameObject);
+
+        for (Building building : buildings) {
+            addGameObject(building);
+            makeUnnavigable(building.getCollider());
+            if (building.getType() == Buildings.Type.TRANSPORT_OFFICE) {
+                Logistics.getTransportOffices().add((ProductionBuilding) building);
+            } else if (building.getType() == Buildings.Type.STORAGE_BARN) {
+                Logistics.getStorages().add((StorageBuilding) building);
+            }
+        }
+
+
+        for (FieldWork fieldWork : changedFieldWorks.keySet()) {
+            if (changedFieldWorks.get(fieldWork)) {
+                fieldWorks.add(fieldWork);
+                makeUnnavigable(fieldWork.getCollider());
+            }
+            else {
+                fieldWorks.remove(fieldWork);
+                makeNavigable(fieldWork.getCollider());
+            }
+        }
+
+        for (Vector2i pos : changedTiles.keySet()) {
+            System.out.println(pos);
+            tiles[worldSize.x * pos.y + pos.x] = changedTiles.get(pos);
+            tileTextures[worldSize.x * pos.y + pos.x] = changedTiles.get(pos).textures[random.nextInt(changedTiles.get(pos).textures.length)];
         }
     }
 }

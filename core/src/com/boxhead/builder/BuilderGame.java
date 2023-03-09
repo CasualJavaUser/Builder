@@ -8,7 +8,6 @@ import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Pair;
-import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
 import java.util.*;
@@ -75,16 +74,7 @@ public class BuilderGame extends Game {
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
 
-            out.writeInt(World.getSeed());
-            out.writeInt(World.getGridWidth());
-            out.writeInt(World.getGridHeight());
-            out.writeInt(World.getTime());
-            World.saveTiles(out);
-            saveCollection(World.getGameObjects(), out);
-            saveCollection(World.getBuildings(), out);
-            saveCollection(World.getFieldWorks(), out);
-            saveCollection(World.getNpcs(), out);
-            saveCollection(World.getNavigableTiles(), out);
+            World.saveWorld(out);
 
             saveCollection(Logistics.supplyRequests, out);
             saveCollection(Logistics.outputRequests, out);
@@ -112,15 +102,7 @@ public class BuilderGame extends Game {
     public static boolean loadFromFile(File file) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
 
-            World.setSeed(in.readInt());
-            World.setWorldSize(in.readInt(), in.readInt());
-            World.setTime(in.readInt());
-            World.loadTiles(in);
-            loadCollection(World.getGameObjects(), in);
-            loadCollection(World.getBuildings(), in);
-            loadCollection(World.getFieldWorks(), in);
-            loadCollection(World.getNpcs(), in);
-            loadCollection(World.getNavigableTiles(), in);
+            World.loadWorld(in);
 
             loadCollection(Logistics.supplyRequests, in);
             loadCollection(Logistics.outputRequests, in);
@@ -141,21 +123,21 @@ public class BuilderGame extends Game {
         return true;
     }
 
-    private static <T extends Serializable> void saveCollection(Collection<T> collection, ObjectOutputStream out) throws IOException {
+    public static <T extends Serializable> void saveCollection(Collection<T> collection, ObjectOutputStream out) throws IOException {
         out.writeInt(collection.size());
         for (T t : collection) {
             out.writeObject(t);
         }
     }
 
-    private static <K extends Serializable, V extends Serializable> void saveMap(Map<K, V> map, ObjectOutputStream out) throws IOException {
+    public static <K extends Serializable, V extends Serializable> void saveMap(Map<K, V> map, ObjectOutputStream out) throws IOException {
         out.writeInt(map.size());
         for (Map.Entry<K, V> e : map.entrySet()) {
             out.writeObject(Pair.of(e.getKey(), e.getValue()));
         }
     }
 
-    private static <T extends Serializable> void loadCollection(Collection<T> collection, ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public static <T extends Serializable> void loadCollection(Collection<T> collection, ObjectInputStream in) throws IOException, ClassNotFoundException {
         collection.clear();
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
@@ -163,7 +145,7 @@ public class BuilderGame extends Game {
         }
     }
 
-    private static <K extends Serializable, V extends Serializable> void loadMap(Map<K, V> map, ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public static <K extends Serializable, V extends Serializable> void loadMap(Map<K, V> map, ObjectInputStream in) throws IOException, ClassNotFoundException {
         map.clear();
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
