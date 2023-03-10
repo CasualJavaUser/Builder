@@ -13,8 +13,4 @@ public class Job {
     public Recipe getRecipe() {return recipe;}
 
     public Object getPoI() {return null;}
-
-    //public int getRange() {return 0;}
-
-    //public float getEfficiency(Set<Building> buildingsInRange) {return 1;}
 }

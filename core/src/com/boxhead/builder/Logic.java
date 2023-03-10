@@ -49,6 +49,7 @@ public class Logic {
                     npc.giveOrder(NPC.Order.Type.EXIT);
                     npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
                     npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
+                    npc.giveOrder(NPC.Order.Type.CLOCK_IN);
                 }
             }
         } else if (World.getTime() == 57600) { //16:00

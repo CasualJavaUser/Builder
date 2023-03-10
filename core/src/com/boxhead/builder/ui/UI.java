@@ -49,21 +49,25 @@ public class UI {
     private static Button buildButton;
     private static TextArea buildingDescription;
 
+    //infrastructure tab
     private static Button infrastructureTabButton;
     private static UIElement infrastructureTab;
     private static Button storageButton, constructionOfficeButton, transportOfficeButton;
 
+    //housing tab
     private static Button housingTabButton;
     private static UIElement housingTab;
     private static Button logCabinButton;
 
+    //resource tab
     private static Button resourcesTabButton;
     private static UIElement resourcesTab;
     private static Button lumberjackButton, mineButton, stoneGathererButton, toolShackButton;
 
+    //services tab
     private static Button servicesTabButton;
     private static UIElement servicesTab;
-    private static Button serviceButton;
+    private static Button serviceButton, pubButton;
 
     private static Window pauseWindow;
     private static Button resumeButton, loadButton, saveButton, settingsButton, quitButton;
@@ -379,8 +383,10 @@ public class UI {
                 int y = -64;
 
                 serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
+                pubButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
 
                 serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_SERVICE_BUILDING));
+                pubButton.setOnUp(() -> showBuildingStats(Buildings.Type.PUB));
             }
             //endregion
         }
@@ -464,6 +470,7 @@ public class UI {
                 toolShackButton.addToUI();
             servicesTabButton.addToUI();
                 serviceButton.addToUI();
+                pubButton.addToUI();
 
             buildWindowDivider.addToUI();
             buildingImage.addToUI();

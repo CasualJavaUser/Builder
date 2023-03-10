@@ -1,11 +1,13 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Inventory;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class StorageBuilding extends Building {
     /**
@@ -14,6 +16,7 @@ public class StorageBuilding extends Building {
     protected final Vector2i entrancePosition;
     protected final Inventory inventory;
     protected final Inventory reservedInventory;
+    protected final Set<NPC> reservationSet = new HashSet<>();
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
@@ -78,6 +81,18 @@ public class StorageBuilding extends Building {
             reservedInventory.put(resource, -units);
             inventory.put(resource, -units);
         }
+    }
+
+    public void addReservation(NPC reserver) {
+        reservationSet.add(reserver);  //TODO (temporary) npc reservations are separate from actual reservations
+    }
+
+    public void removeReservation(NPC reserver) {
+        reservationSet.remove(reserver);
+    }
+
+    public boolean hasReserved(NPC npc) {
+        return reservationSet.contains(npc);
     }
 
     public int getFreeResources(Resource resource) {

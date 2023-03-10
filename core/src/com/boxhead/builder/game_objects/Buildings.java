@@ -38,7 +38,7 @@ public class Buildings {
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 3),
                 1,
-                100,
+                100,  //TODO ?
                 15,
                 new Recipe(Pair.of(Resource.WOOD, 20))
         ),
@@ -62,7 +62,7 @@ public class Buildings {
                 Textures.Building.SERVICE_FUNGUS,
                 "hospital",
                 Jobs.DOCTOR,
-                Service.HEAL,
+                Services.TREATING,
                 new Vector2i(0, -1),
                 5,
                 100,
@@ -108,14 +108,28 @@ public class Buildings {
                 15,
                 new Recipe(Pair.of(Resource.WOOD, 30))
         ),
-        PLANTATION(
+        PLANTATION (
                 Textures.Building.TOOL_SHACK,
-                "tool shack", Jobs.FARMER,
+                "tool shack",
+                Jobs.FARMER,
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 2),
                 3,
                 0,
                 Harvestables.Type.WHEAT,
+                new Recipe(Pair.of(Resource.WOOD, 10))
+        ),
+        PUB (
+                Textures.Building.FUNGUS,
+                "pub",
+                Jobs.BARTENDER,
+                Services.BARTENDING,
+                new Vector2i(0, -1),
+                new BoxCollider(0, 0, 2, 2),
+                2,
+                200,
+                5,
+                20,
                 new Recipe(Pair.of(Resource.WOOD, 10))
         );
 
@@ -140,6 +154,14 @@ public class Buildings {
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
              int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Harvestables.Type crop, Animal farmAnimal, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+
+            if (    (crop != null && farmAnimal != null) ||
+                    (guestCapacity > 0 && service == null) ||
+                    (npcCapacity > 0 && entrancePosition == null)
+
+            )
+                throw new IllegalArgumentException();
+
             this.texture = texture;
             this.job = job;
             this.service = service;

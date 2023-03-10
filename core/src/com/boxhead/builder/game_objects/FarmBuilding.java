@@ -25,6 +25,10 @@ public class FarmBuilding extends ProductionBuilding {
         ownHarvestables = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
     }
 
+    public Harvestables.Type getCrop() {
+        return type.crop;
+    }
+
     public void setFieldCollider(BoxCollider collider) {
         fieldCollider = collider;
     }

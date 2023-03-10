@@ -575,7 +575,6 @@ public class World {
         }
 
         for (Vector2i pos : changedTiles.keySet()) {
-            System.out.println(pos);
             tiles[worldSize.x * pos.y + pos.x] = changedTiles.get(pos);
             tileTextures[worldSize.x * pos.y + pos.x] = changedTiles.get(pos).textures[random.nextInt(changedTiles.get(pos).textures.length)];
         }

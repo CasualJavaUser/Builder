@@ -36,6 +36,7 @@ public class NPC extends GameObject implements Clickable {
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
     private StorageBuilding buildingIsIn = null;
+    private boolean clockedIn = false;
 
     private Vector2i prevPosition;
     private final Vector2 spritePosition;
@@ -236,6 +237,8 @@ public class NPC extends GameObject implements Clickable {
             GO_TO,
             ENTER,
             EXIT,
+            CLOCK_IN,
+            CLOCK_OUT,
             PUT_RESOURCES_TO_BUILDING,
             PUT_RESERVED_RESOURCES,
             TAKE_RESERVED_RESOURCES,
@@ -346,6 +349,20 @@ public class NPC extends GameObject implements Clickable {
                     orderList.removeFirst();
                 }
             });
+            case CLOCK_IN -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    clockedIn = true;
+                    orderList.removeFirst();
+                }
+            });
+            case CLOCK_OUT -> orderList.addLast(new Order() {
+                @Override
+                void execute() {
+                    clockedIn = false;
+                    orderList.removeFirst();
+                }
+            });
         }
     }
 
@@ -438,6 +455,14 @@ public class NPC extends GameObject implements Clickable {
 
     public boolean isInBuilding() {
         return buildingIsIn != null;
+    }
+
+    public boolean isInBuilding(StorageBuilding building) {
+        return buildingIsIn == building;
+    }
+
+    public boolean isClockedIn() {
+        return clockedIn;
     }
 
     public StorageBuilding getCurrentBuilding() {

@@ -1,9 +1,21 @@
 package com.boxhead.builder;
 
 import com.boxhead.builder.game_objects.NPC;
-import com.boxhead.builder.utils.Pair;
 
-public enum Service {
+public class Service {
+
+    public void applyEffects(int[] guestStats, int multiplier) {}
+
+    public NPC.Stats[] getStats() {
+        return null;
+    }
+
+    public int[] getEffects() {
+        return null;
+    }
+}
+
+/*public enum Service {
     HEAL(Pair.of(NPC.Stats.HEALTH, 1));
 
     private final NPC.Stats[] stats;
@@ -32,4 +44,4 @@ public enum Service {
     public int[] getEffects() {
         return effect;
     }
-}
+}*/

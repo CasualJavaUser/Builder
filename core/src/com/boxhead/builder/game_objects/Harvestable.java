@@ -6,7 +6,6 @@ import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
-import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.SortedList;
@@ -33,7 +32,7 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     public enum Characteristic {
         TREE(Resource.WOOD),
         ROCK(Resource.STONE),
-        WHEAT(Resource.GRAIN);
+        FIELD_CROP(Resource.GRAIN);
 
         public final Resource resource;
 
@@ -55,7 +54,7 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
                     1,
                     1);
 
-            case WHEAT -> new BoxCollider(getGridPosition().x, getGridPosition().y, 0, 0);
+            case FIELD_CROP -> new BoxCollider(getGridPosition().x, getGridPosition().y, 0, 0);
 
             default -> getDefaultCollider();
         };
@@ -116,9 +115,9 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
                     World.removeFieldWorks(this);
                     if (assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
                     World.updateStoredResources(type.characteristic.resource, type.yield);
-                    exit(resource);
+                    exit();
                 }
-            } else exit(resource);
+            } else exit();
         }
     }
 
@@ -142,12 +141,12 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
         return false;
     }
 
-    protected void exit(Resource resource) {
+    protected void exit() {
         assigned.getWorkplace().dissociateFieldWork(assigned);
-        assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
+        /*assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
         assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
         assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-        assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
+        assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);*/
         worked = false;
         assigned = null;
     }

@@ -12,7 +12,7 @@ public class Harvestables {
         ROCK2(Textures.Harvestables.ROCK2, Harvestable.Characteristic.ROCK, 5, 0),
         ROCK3(Textures.Harvestables.ROCK3, Harvestable.Characteristic.ROCK, 5, 0),
         IRON_ORE(Textures.Harvestables.ROCK1, Harvestable.Characteristic.ROCK, 5, 0),
-        WHEAT(Textures.Harvestables.WHEAT, Harvestable.Characteristic.WHEAT, 2, World.FULL_DAY / 10);
+        WHEAT(Textures.Harvestables.WHEAT, Harvestable.Characteristic.FIELD_CROP, 2, World.FULL_DAY / 10);
 
         public final Textures.Harvestables textureId;
         public final Harvestable.Characteristic characteristic;
