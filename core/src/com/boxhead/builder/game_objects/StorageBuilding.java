@@ -16,7 +16,7 @@ public class StorageBuilding extends Building {
     protected final Vector2i entrancePosition;
     protected final Inventory inventory;
     protected final Inventory reservedInventory;
-    protected final Set<NPC> reservationSet = new HashSet<>();
+    protected final Set<Villager> reservationSet = new HashSet<>();
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
@@ -83,16 +83,16 @@ public class StorageBuilding extends Building {
         }
     }
 
-    public void addReservation(NPC reserver) {
+    public void addReservation(Villager reserver) {
         reservationSet.add(reserver);  //TODO (temporary) npc reservations are separate from actual reservations
     }
 
-    public void removeReservation(NPC reserver) {
+    public void removeReservation(Villager reserver) {
         reservationSet.remove(reserver);
     }
 
-    public boolean hasReserved(NPC npc) {
-        return reservationSet.contains(npc);
+    public boolean hasReserved(Villager villager) {
+        return reservationSet.contains(villager);
     }
 
     public int getFreeResources(Resource resource) {

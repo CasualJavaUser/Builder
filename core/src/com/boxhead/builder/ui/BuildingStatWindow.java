@@ -13,7 +13,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
     private Job job;
     private Service service;
     private int npcCapacity;
-    protected Set<NPC> npcs = new HashSet<>();
+    protected Set<Villager> villagers = new HashSet<>();
     private int guestsInside, guestCapacity;
     String warning = "";
 
@@ -40,11 +40,11 @@ public class BuildingStatWindow extends StatWindow<Building> {
         stats = pinnedObject.getName();
         if (pinnedObject instanceof ResidentialBuilding building) {
             npcCapacity = building.getResidentCapacity();
-            npcs = building.getResidents();
+            villagers = building.getResidents();
         }
         else if (pinnedObject instanceof ProductionBuilding building) {
             npcCapacity = building.getType().npcCapacity;
-            npcs = building.getEmployees();
+            villagers = building.getEmployees();
             job = building.getJob();
 
             if (building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
@@ -91,8 +91,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
             setContentWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
-            setContentHeight(getContentHeight() + NPC.SIZE + verticalPadding);
-            int counterWidth = leftPadding + (NPC.SIZE + leftPadding) * npcCapacity;
+            setContentHeight(getContentHeight() + Villager.SIZE + verticalPadding);
+            int counterWidth = leftPadding + (Villager.SIZE + leftPadding) * npcCapacity;
             if(getContentWidth() < counterWidth)
                 setContentWidth(counterWidth);
         }
@@ -112,16 +112,16 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
     private void drawNPCCounter(SpriteBatch batch) {
         int i = 0;
-        for (NPC npc : npcs) {
-            if (npc.getCurrentBuilding() == pinnedObject)
-                batch.draw(npc.getTexture(),
-                        getGlobalPosition().x + leftPadding + (NPC.SIZE + leftPadding) * i++,
+        for (Villager villager : villagers) {
+            if (villager.getCurrentBuilding() == pinnedObject)
+                batch.draw(villager.getTexture(),
+                        getGlobalPosition().x + leftPadding + (Villager.SIZE + leftPadding) * i++,
                         getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(Color.BLACK);
         while (i < npcCapacity) {
             batch.draw(Textures.get(Textures.Npc.IDLE0),
-                    getGlobalPosition().x + leftPadding + (NPC.SIZE + leftPadding) * i++,
+                    getGlobalPosition().x + leftPadding + (Villager.SIZE + leftPadding) * i++,
                     getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(UI.DEFAULT_COLOR);

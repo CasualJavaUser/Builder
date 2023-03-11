@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
-import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -62,7 +62,7 @@ public class UI {
     //resource tab
     private static Button resourcesTabButton;
     private static UIElement resourcesTab;
-    private static Button lumberjackButton, mineButton, stoneGathererButton, toolShackButton;
+    private static Button lumberjackButton, mineButton, stoneGathererButton, plantationButton, ranchButton;
 
     //services tab
     private static Button servicesTabButton;
@@ -250,7 +250,7 @@ public class UI {
 
             npcButton.setOnUp(() -> {
                 Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
-                World.spawnNPC(new NPC((int)(Math.random()*2), position));
+                World.spawnVillager(new Villager((int)(Math.random()*2), position));
             });
 
             workButton.setOnUp(() -> {
@@ -358,12 +358,14 @@ public class UI {
                 lumberjackButton = new Button(Textures.get(Textures.Ui.AXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
                 mineButton = new Button(Textures.get(Textures.Ui.PICKAXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
                 stoneGathererButton = new Button(Textures.get(Textures.Ui.PICKAXE_WITH_STONE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                toolShackButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x + 74, y));
+                plantationButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
+                ranchButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
 
                 lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACKS_HUT));
                 mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
                 stoneGathererButton.setOnUp(() -> showBuildingStats(Buildings.Type.STONE_GATHERERS));
-                toolShackButton.setOnUp(() -> showBuildingStats(Buildings.Type.PLANTATION));
+                plantationButton.setOnUp(() -> showBuildingStats(Buildings.Type.PLANTATION));
+                ranchButton.setOnUp(() -> showBuildingStats(Buildings.Type.RANCH));
             }
             //endregion
 
@@ -467,7 +469,8 @@ public class UI {
                 lumberjackButton.addToUI();
                 mineButton.addToUI();
                 stoneGathererButton.addToUI();
-                toolShackButton.addToUI();
+                plantationButton.addToUI();
+                ranchButton.addToUI();
             servicesTabButton.addToUI();
                 serviceButton.addToUI();
                 pubButton.addToUI();
@@ -601,8 +604,8 @@ public class UI {
         Anchor.BOTTOM_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), 0);
     }
 
-    public static void showNPCStatWindow(NPC npc) {
-        npcStatWindow.pin(npc);
+    public static void showNPCStatWindow(Villager villager) {
+        npcStatWindow.pin(villager);
         npcStatWindow.setVisible(true);
     }
 

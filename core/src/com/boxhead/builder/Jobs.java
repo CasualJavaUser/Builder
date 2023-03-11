@@ -22,15 +22,15 @@ public class Jobs {
     };
 
     public static final Job LUMBERJACK = new Job() {
-        private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, NPC.INVENTORY_SIZE));
+        private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, Villager.INVENTORY_SIZE));
 
         @Override
-        public void assign(NPC assignee, ProductionBuilding workplace) {
+        public void assign(Villager assignee, ProductionBuilding workplace) {
             harvesterAssign(assignee, workplace, Logistics.assignedFieldWork(workplace));
         }
 
         @Override
-        public void onExit(NPC assignee, ProductionBuilding workplace) {
+        public void onExit(Villager assignee, ProductionBuilding workplace) {
             harvesterOnExit(assignee, workplace, Resource.WOOD);
         }
 
@@ -51,15 +51,15 @@ public class Jobs {
     };
 
     public static final Job STONEMASON = new Job() {
-        private final Recipe recipe = new Recipe(Pair.of(Resource.STONE, NPC.INVENTORY_SIZE));
+        private final Recipe recipe = new Recipe(Pair.of(Resource.STONE, Villager.INVENTORY_SIZE));
 
         @Override
-        public void assign(NPC assignee, ProductionBuilding workplace) {
+        public void assign(Villager assignee, ProductionBuilding workplace) {
             harvesterAssign(assignee, workplace, Logistics.assignedFieldWork(workplace));
         }
 
         @Override
-        public void onExit(NPC assignee, ProductionBuilding workplace) {
+        public void onExit(Villager assignee, ProductionBuilding workplace) {
             harvesterOnExit(assignee, workplace, Resource.STONE);
         }
 
@@ -81,23 +81,23 @@ public class Jobs {
 
     public static final Job BUILDER = new Job() {
         @Override
-        public void assign(NPC assignee, ProductionBuilding workplace) {
+        public void assign(Villager assignee, ProductionBuilding workplace) {
             FieldWork fieldWork = Logistics.assignedFieldWork(workplace);
             if (fieldWork == null || !fieldWork.isFree())
                 return;
 
             fieldWork.assignWorker(assignee);
             workplace.getAssignedFieldWork().put(assignee, fieldWork);
-            assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-            assignee.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
-            assignee.giveOrder(NPC.Order.Type.ENTER, fieldWork);
+            assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+            assignee.giveOrder(Villager.Order.Type.GO_TO, fieldWork);
+            assignee.giveOrder(Villager.Order.Type.ENTER, fieldWork);
         }
 
         @Override
-        public void onExit(NPC assignee, ProductionBuilding workplace) {
+        public void onExit(Villager assignee, ProductionBuilding workplace) {
             if (workplace.getAssignedFieldWork().containsKey(assignee)) {
                 FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
-                assignee.giveOrder(NPC.Order.Type.EXIT, fieldWork);
+                assignee.giveOrder(Villager.Order.Type.EXIT, fieldWork);
                 workplace.dissociateFieldWork(assignee);
             }
         }
@@ -129,46 +129,46 @@ public class Jobs {
 
     public static final Job CARRIER = new Job() {
         @Override
-        public void assign(NPC assignee, ProductionBuilding workplace) {
+        public void assign(Villager assignee, ProductionBuilding workplace) {
             Logistics.Order order = Logistics.assignedOrder(workplace);
 
-            if (order == null || order.amount < NPC.INVENTORY_SIZE)
+            if (order == null || order.amount < Villager.INVENTORY_SIZE)
                 return;
 
-            Logistics.removeOrder(order, NPC.INVENTORY_SIZE);
+            Logistics.removeOrder(order, Villager.INVENTORY_SIZE);
             Logistics.getDeliveryList().put(assignee, order);
-            assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-            assignee.giveOrder(NPC.Order.Type.GO_TO, order.sender);
-            assignee.giveOrder(NPC.Order.Type.ENTER, order.sender);
-            assignee.giveOrder(NPC.Order.Type.TAKE_RESERVED_RESOURCES, order.resource, NPC.INVENTORY_SIZE);
-            assignee.giveOrder(NPC.Order.Type.EXIT, order.sender);
-            assignee.giveOrder(NPC.Order.Type.GO_TO, order.recipient);
-            assignee.giveOrder(NPC.Order.Type.ENTER, order.recipient);
-            assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, order.resource, NPC.INVENTORY_SIZE);
-            assignee.giveOrder(NPC.Order.Type.EXIT, order.recipient);
-            assignee.giveOrder(NPC.Order.Type.END_DELIVERY);
-            assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-            assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
+            assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+            assignee.giveOrder(Villager.Order.Type.GO_TO, order.sender);
+            assignee.giveOrder(Villager.Order.Type.ENTER, order.sender);
+            assignee.giveOrder(Villager.Order.Type.TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+            assignee.giveOrder(Villager.Order.Type.EXIT, order.sender);
+            assignee.giveOrder(Villager.Order.Type.GO_TO, order.recipient);
+            assignee.giveOrder(Villager.Order.Type.ENTER, order.recipient);
+            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+            assignee.giveOrder(Villager.Order.Type.EXIT, order.recipient);
+            assignee.giveOrder(Villager.Order.Type.END_DELIVERY);
+            assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
+            assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
         }
 
         @Override
-        public void onExit(NPC assignee, ProductionBuilding workplace) {
+        public void onExit(Villager assignee, ProductionBuilding workplace) {
             Logistics.Order order = Logistics.getDeliveryList().get(assignee);
 
             if (order == null)
                 return;
 
             if (assignee.getInventory().isEmpty()) {
-                assignee.giveOrder(NPC.Order.Type.GO_TO, order.sender);
-                assignee.giveOrder(NPC.Order.Type.ENTER, order.sender);
-                assignee.giveOrder(NPC.Order.Type.TAKE_RESERVED_RESOURCES, order.resource, NPC.INVENTORY_SIZE);
+                assignee.giveOrder(Villager.Order.Type.GO_TO, order.sender);
+                assignee.giveOrder(Villager.Order.Type.ENTER, order.sender);
+                assignee.giveOrder(Villager.Order.Type.TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
             }
-            assignee.giveOrder(NPC.Order.Type.EXIT, order.sender);
-            assignee.giveOrder(NPC.Order.Type.GO_TO, order.recipient);
-            assignee.giveOrder(NPC.Order.Type.ENTER, order.recipient);
-            assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, order.resource, NPC.INVENTORY_SIZE);
-            assignee.giveOrder(NPC.Order.Type.EXIT, order.recipient);
-            assignee.giveOrder(NPC.Order.Type.END_DELIVERY);
+            assignee.giveOrder(Villager.Order.Type.EXIT, order.sender);
+            assignee.giveOrder(Villager.Order.Type.GO_TO, order.recipient);
+            assignee.giveOrder(Villager.Order.Type.ENTER, order.recipient);
+            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+            assignee.giveOrder(Villager.Order.Type.EXIT, order.recipient);
+            assignee.giveOrder(Villager.Order.Type.END_DELIVERY);
         }
 
         @Override
@@ -179,7 +179,7 @@ public class Jobs {
 
     public static final Job FARMER = new Job() {
         @Override
-        public void assign(NPC assignee, ProductionBuilding workplace) {
+        public void assign(Villager assignee, ProductionBuilding workplace) {
             if (workplace.getAssignedFieldWork().containsKey(assignee) || assignee.hasOrders())
                 return;
 
@@ -192,65 +192,60 @@ public class Jobs {
                     FieldWork fieldWork = fieldWorkOptional.get();
                     fieldWork.assignWorker(assignee);
                     workplace.getAssignedFieldWork().put(assignee, fieldWork);
-                    assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-                    assignee.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
-                    assignee.giveOrder(NPC.Order.Type.ENTER, fieldWork);
+                    assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+                    assignee.giveOrder(Villager.Order.Type.GO_TO, fieldWork);
+                    assignee.giveOrder(Villager.Order.Type.ENTER, fieldWork);
                 }
                 else {
                     Resource resource = employingFarm.getCrop().characteristic.resource;
                     int resourceUnits = assignee.getInventory().getResourceAmount(resource);
 
-                    assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-                    assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
-                    assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
-                    assignee.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
-                    workplace.removeReservation(assignee);
+                    assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
+                    assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
+                    assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
+                    assignee.giveOrder(Villager.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
+                    assignee.giveOrder(Villager.Order.Type.REMOVE_RESERVATION);
                 }
                 return;
             }
 
             //plant
-            if (assignee.getInventory().isEmpty()) {
-                for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
-                    if (employingFarm.isArable(tile)) {
-                        Harvestable newHarvestable = Harvestables.create(employingFarm.getCrop(), tile);
-                        employingFarm.addHarvestable(newHarvestable);
+            for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
+                if (employingFarm.isArable(tile)) {
+                    Harvestable newHarvestable = Harvestables.create(employingFarm.getCrop(), tile);
+                    employingFarm.addHarvestable(newHarvestable);
 
-                        assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-                        assignee.giveOrder(tile);
-                        assignee.giveOrder(newHarvestable);
-                        //TODO wait?
-                        return;
-                    }
-                }
-            }
-
-            //if not reserved the reserve
-            if (!employingFarm.hasReserved(assignee) && workplace.getInventory().getAvailableCapacity() >= NPC.INVENTORY_SIZE) {
-                //Optional<Harvestable> fieldWorkOptional = employingFarm.findWorkableField();
-                if (employingFarm.findWorkableField().isPresent()) {
-                    //FieldWork fieldWork = fieldWorkOptional.get();
-                    if (workplace.reserveSpace(NPC.INVENTORY_SIZE)) {
-                        workplace.addReservation(assignee);
-                    }
-                    //TODO maybe add an option to check if and what npc reserved space in a given storage building
+                    assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+                    assignee.giveOrder(tile);
+                    assignee.giveOrder(newHarvestable);
+                    //TODO wait?
                     return;
                 }
             }
 
-            //return
+            //if not reserved the reserve
+            if (    !employingFarm.hasReserved(assignee) &&
+                    workplace.getInventory().getAvailableCapacity() >= Villager.INVENTORY_SIZE &&
+                    employingFarm.findWorkableField().isPresent() &&
+                    workplace.reserveSpace(Villager.INVENTORY_SIZE)
+            ) {
+                workplace.addReservation(assignee);
+                return;
+            }
+
+            //return to workplace
             if (!assignee.isInBuilding(workplace)) {
-                assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-                assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
+                assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
+                assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
             }
         }
 
         @Override
-        public void onExit(NPC assignee, ProductionBuilding workplace) {
+        public void onExit(Villager assignee, ProductionBuilding workplace) {
             harvesterOnExit(assignee, workplace, ((FarmBuilding) workplace).getCrop().characteristic.resource);
         }
 
-        private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, NPC.INVENTORY_SIZE));
+        private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, Villager.INVENTORY_SIZE));
 
         @Override
         public Recipe getRecipe() {
@@ -285,56 +280,53 @@ public class Jobs {
         }
     };
 
-    private static void harvesterAssign(NPC assignee, ProductionBuilding workplace, FieldWork fieldWork) {
-        if (fieldWork == null || !fieldWork.isFree() || workplace.getInventory().getAvailableCapacity() < NPC.INVENTORY_SIZE)
-            return;
+    private static void harvesterAssign(Villager assignee, ProductionBuilding workplace, FieldWork fieldWork) {
+        if (workplace.getAssignedFieldWork().get(assignee) == null) {
+            if (!workplace.hasReserved(assignee)) {
+                if (fieldWork.isFree() &&
+                        workplace.getInventory().getAvailableCapacity() >= Villager.INVENTORY_SIZE &&
+                        workplace.reserveSpace(Villager.INVENTORY_SIZE)
+                ) {
+                    fieldWork.assignWorker(assignee);
+                    workplace.getAssignedFieldWork().put(assignee, fieldWork);
+                    workplace.addReservation(assignee);
+                    assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+                    assignee.giveOrder(Villager.Order.Type.GO_TO, fieldWork);
+                    assignee.giveOrder(Villager.Order.Type.ENTER, fieldWork);
+                }
+            } else {
+                Resource resource = Resource.NOTHING;
+                int resourceUnits = 0;
+                if (!assignee.getInventory().isEmpty()) {
+                    resource = assignee.getInventory().getStoredResources().iterator().next();
+                    resourceUnits = assignee.getInventory().getResourceAmount(resource);
+                }
 
-        if (workplace.reserveSpace(NPC.INVENTORY_SIZE)) {
-            fieldWork.assignWorker(assignee);
-            workplace.getAssignedFieldWork().put(assignee, fieldWork);
-            assignee.giveOrder(NPC.Order.Type.EXIT, workplace);
-            assignee.giveOrder(NPC.Order.Type.GO_TO, fieldWork);
-            assignee.giveOrder(NPC.Order.Type.ENTER, fieldWork);
-        }
-    }
-
-    private static void harvesterOnExit(NPC assignee, ProductionBuilding workplace, Resource resource) {
-        if (workplace.getAssignedFieldWork().containsKey(assignee)) {
-            FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
-            assignee.giveOrder(NPC.Order.Type.EXIT, fieldWork);
-            workplace.dissociateFieldWork(assignee);
-        }
-
-        if (!workplace.hasReserved(assignee)) {
-            int resourceUnits = assignee.getInventory().getResourceAmount(resource);
-
-            assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-            assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
-            assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
-            assignee.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
-            workplace.removeReservation(assignee);
-        }
-    }
-
-    /*private static void harvesterOnExit(NPC assignee, ProductionBuilding workplace, Resource resource) {
-        if (workplace.getAssignedFieldWork().containsKey(assignee)) {
-            FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
-            assignee.giveOrder(NPC.Order.Type.EXIT, fieldWork);
-            workplace.dissociateFieldWork(assignee);
-
-            if (assignee.getInventory().isEmpty()) {
-                workplace.cancelReservation(NPC.INVENTORY_SIZE);
-                return;
+                assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
+                assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
+                assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
+                assignee.giveOrder(Villager.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
+                assignee.giveOrder(Villager.Order.Type.REMOVE_RESERVATION);
             }
         }
+    }
 
-        if (!assignee.getInventory().isEmpty()) {
+    private static void harvesterOnExit(Villager assignee, ProductionBuilding workplace, Resource resource) {
+        assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
+        assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
+
+        if (workplace.hasReserved(assignee)) {
+            if (workplace.getAssignedFieldWork().containsKey(assignee)) {
+                FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
+                assignee.giveOrder(Villager.Order.Type.EXIT, fieldWork);
+                workplace.dissociateFieldWork(assignee);
+            }
+
             int resourceUnits = assignee.getInventory().getResourceAmount(resource);
 
-            assignee.giveOrder(NPC.Order.Type.GO_TO, workplace);
-            assignee.giveOrder(NPC.Order.Type.ENTER, workplace);
-            assignee.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
-            assignee.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
+            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
+            assignee.giveOrder(Villager.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
+            assignee.giveOrder(Villager.Order.Type.REMOVE_RESERVATION);
         }
-    }*/
+    }
 }

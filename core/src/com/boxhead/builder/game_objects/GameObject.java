@@ -48,12 +48,7 @@ public class GameObject implements WorldObject, Serializable {
     }
 
     public void draw(SpriteBatch batch) {
-        int x = gridPosition.x * World.TILE_SIZE;
-        int y = gridPosition.y * World.TILE_SIZE;
-        Vector2 pos = GameScreen.worldToScreenPosition(x, y);
-        if (pos.x + getTexture().getRegionWidth() / GameScreen.camera.zoom > 0 && pos.x < Gdx.graphics.getWidth() &&
-                pos.y + getTexture().getRegionHeight() / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight())
-            batch.draw(getTexture(), x, y);
+            batch.draw(getTexture(), gridPosition.x * World.TILE_SIZE, gridPosition.y * World.TILE_SIZE);
     }
 
     protected BoxCollider getDefaultCollider() {

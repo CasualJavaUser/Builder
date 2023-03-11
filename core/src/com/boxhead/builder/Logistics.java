@@ -12,7 +12,7 @@ public class Logistics {
     /**
      * The smallest amount that is considered worth issuing a transport order.
      */
-    public static final int THE_UNIT = NPC.INVENTORY_SIZE;
+    public static final int THE_UNIT = Villager.INVENTORY_SIZE;
     /**
      * The lowest priority at which storage space or stored resources are used to fulfill requests.
      */
@@ -27,7 +27,7 @@ public class Logistics {
 
     private static final BidirectionalMap<FieldWork, ProductionBuilding> fieldWorkRequests = new BidirectionalMap<>();
     public static final BidirectionalMap<Order, ProductionBuilding> orderRequests = new BidirectionalMap<>();
-    public static final Map<NPC, Order> deliveriesInProgress = new HashMap<>();
+    public static final Map<Villager, Order> deliveriesInProgress = new HashMap<>();
 
     static {
         Comparator<Request> requestComparator = Comparator.comparingInt(r -> r.priority);
@@ -91,7 +91,7 @@ public class Logistics {
             readyOrders.remove(order);
     }
 
-    public static Map<NPC, Order> getDeliveryList() {
+    public static Map<Villager, Order> getDeliveryList() {
         return deliveriesInProgress;
     }
 

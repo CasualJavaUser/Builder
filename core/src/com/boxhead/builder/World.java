@@ -38,7 +38,8 @@ public class World {
     private static Tile[] tiles;
     private static Textures.Tile[] tileTextures;
     private static List<Building> buildings;
-    private static List<NPC> npcs;
+    private static List<Villager> villagers;
+    private static List<Animal> animals;
     private static Set<FieldWork> fieldWorks;
     private static Set<FieldWork> removedFieldWorks;
     private static SortedList<GameObject> gameObjects;
@@ -62,7 +63,8 @@ public class World {
         tiles = new Tile[worldSize.x * worldSize.y];
         tileTextures = new Textures.Tile[tiles.length];
         buildings = new ArrayList<>();
-        npcs = new ArrayList<>();
+        villagers = new ArrayList<>();
+        animals = new ArrayList<>();
         fieldWorks = new HashSet<>();
         removedFieldWorks = new HashSet<>();
         gameObjects = new SortedList<>(GameObject.gridPositionComparator);
@@ -77,8 +79,9 @@ public class World {
     }
 
     public static void temp() {
-        initNPCs(10);
-        spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
+        initVillagers(10);
+        spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
+        spawnAnimal(new Animal(Animal.Type.COW, new Vector2i(10, 10)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
@@ -109,9 +112,9 @@ public class World {
                     return;
                 }
             }
-            for (NPC npc : npcs) {
-                if (npc.isMouseOver()) {
-                    npc.onClick();
+            for (Villager villager : villagers) {
+                if (villager.isMouseOver()) {
+                    villager.onClick();
                     return;
                 }
             }
@@ -255,8 +258,8 @@ public class World {
         }
     }
 
-    public static void placeBuilding(Buildings.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
-        if (!type.isFarm()) throw new IllegalArgumentException("Building type must be a farm");
+    public static void placeFarm(Buildings.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
+        if (!type.isFarm()) throw new IllegalArgumentException("Wrong building type");
 
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
@@ -267,6 +270,17 @@ public class World {
             if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
                 ((ProductionBuilding) b).getBuildingsInRange().add(building);
                 ((ProductionBuilding) b).updateEfficiency();
+            }
+        }
+
+        if (type.farmAnimal != null) {
+            for (int i = 0; i < 10; i++) {
+                Animal animal = new Animal(
+                        Animal.Type.COW,
+                        ((FarmBuilding) building).getFieldCollider().getGridPosition().clone(),
+                        fieldCollider
+                );
+                World.spawnAnimal(animal);
             }
         }
     }
@@ -332,8 +346,12 @@ public class World {
         }
     }
 
-    public static void spawnNPC(NPC npc) {
-        npcs.add(npc);
+    public static void spawnVillager(Villager villager) {
+        villagers.add(villager);
+    }
+
+    public static void spawnAnimal(Animal animal) {
+        animals.add(animal);
     }
 
     public static void drawMap(SpriteBatch batch) {
@@ -365,11 +383,18 @@ public class World {
         Vector2i gridULC = upperLeftCorner.divide(TILE_SIZE);
         Vector2i gridLRC = lowerRightCorner.divide(TILE_SIZE);
 
-        for (NPC npc : npcs) {
-            Vector2 spritePosition = npc.getSpritePosition();
+        for (Villager villager : villagers) {
+            Vector2 spritePosition = villager.getSpritePosition();
             if (spritePosition.x >= gridULC.x && spritePosition.x <= gridLRC.x &&
                     spritePosition.y >= gridLRC.y && spritePosition.y <= gridULC.y)
-                npc.draw(batch);
+                villager.draw(batch);
+        }
+
+        for (Animal animal : animals) {
+            Vector2 spritePosition = animal.getSpritePosition();
+            if (spritePosition.x >= gridULC.x && spritePosition.x <= gridLRC.x &&
+                    spritePosition.y >= gridLRC.y && spritePosition.y <= gridULC.y)
+                animal.draw(batch);
         }
 
         for (int y = gridULC.y + RENDER_BUFFER; y >= gridLRC.y - RENDER_BUFFER; y--) {
@@ -480,10 +505,14 @@ public class World {
         changedTiles.put(gridPosition.clone(), tile);
     }
 
-    private static void initNPCs(int num) {
+    private static void initVillagers(int num) {
         for (int i = 0; i < num; i++) {
-            spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+            spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
         }
+    }
+
+    public static Random getRandom() {
+        return random;
     }
 
     public static SortedList<GameObject> getGameObjects() {
@@ -494,8 +523,12 @@ public class World {
         return buildings;
     }
 
-    public static List<NPC> getNpcs() {
-        return npcs;
+    public static List<Villager> getVillagers() {
+        return villagers;
+    }
+
+    public static List<Animal> getAnimals() {
+        return animals;
     }
 
     public static Set<FieldWork> getFieldWorks() {
@@ -529,7 +562,8 @@ public class World {
         out.writeInt(World.getTime());
 
         BuilderGame.saveCollection(buildings, out);
-        BuilderGame.saveCollection(npcs, out);
+        BuilderGame.saveCollection(villagers, out);
+        BuilderGame.saveCollection(animals, out);
         BuilderGame.saveMap(changedFieldWorks, out);
         out.writeInt(changedTiles.size());
         for (Vector2i pos : changedTiles.keySet()) {
@@ -543,14 +577,15 @@ public class World {
         setTime(in.readInt());
 
         BuilderGame.loadCollection(buildings, in);
-        BuilderGame.loadCollection(npcs, in);
+        BuilderGame.loadCollection(villagers, in);
+        BuilderGame.loadCollection(animals, in);
         BuilderGame.loadMap(changedFieldWorks, in);
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
             changedTiles.put((Vector2i)in.readObject(), Tile.valueOf(in.readUTF()));
         }
 
-        npcs.forEach(World::addGameObject);
+        villagers.forEach(World::addGameObject);
 
         for (Building building : buildings) {
             addGameObject(building);
@@ -560,16 +595,21 @@ public class World {
             } else if (building.getType() == Buildings.Type.STORAGE_BARN) {
                 Logistics.getStorages().add((StorageBuilding) building);
             }
+            if (building.getType().farmAnimal != null) {
+                Tiles.createFence(((FarmBuilding) building).getFieldCollider());
+            }
         }
 
 
         for (FieldWork fieldWork : changedFieldWorks.keySet()) {
             if (changedFieldWorks.get(fieldWork)) {
                 fieldWorks.add(fieldWork);
+                addGameObject((GameObject) fieldWork);
                 makeUnnavigable(fieldWork.getCollider());
             }
             else {
                 fieldWorks.remove(fieldWork);
+                removeGameObject((GameObject) fieldWork);
                 makeNavigable(fieldWork.getCollider());
             }
         }

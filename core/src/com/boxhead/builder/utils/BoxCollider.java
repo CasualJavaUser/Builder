@@ -77,6 +77,10 @@ public class BoxCollider implements Serializable {
         return height;
     }
 
+    public int getArea() {
+        return width * height;
+    }
+
     public void setGridPosition(Vector2i gridPosition) {
         lowerLeftCorner.set(gridPosition);
     }

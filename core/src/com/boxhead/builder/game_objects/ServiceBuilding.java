@@ -13,7 +13,7 @@ import java.util.Set;
 public class ServiceBuilding extends ProductionBuilding {
 
     private transient Service service;
-    private final Set<NPC> guests;
+    private final Set<Villager> guests;
     private int serviceCounter;
 
     public ServiceBuilding(Buildings.Type type, Vector2i gridPosition) {
@@ -25,37 +25,37 @@ public class ServiceBuilding extends ProductionBuilding {
     /**
      * Removes the specified guest from the building.
      *
-     * @param npc guest to be removed from the building
+     * @param villager guest to be removed from the building
      * @return true if the array of guests changed as a result of the call
      */
-    public boolean removeGuest(NPC npc) {
-        return guests.remove(npc);
+    public boolean removeGuest(Villager villager) {
+        return guests.remove(villager);
     }
 
     /**
      * Adds the specified guest to the building.
      *
-     * @param npc guest to be added to the building
+     * @param villager guest to be added to the building
      * @return true if the array of guests changed as a result of the call
      */
-    public boolean addGuest(NPC npc) {
+    public boolean addGuest(Villager villager) {
         if (guests.size() < type.guestCapacity) {
-            return guests.add(npc);
+            return guests.add(villager);
         }
         return false;
     }
 
     public void provideServices() {
-        for (NPC guest : guests) {
+        for (Villager guest : guests) {
             if (guest != null) {
                 service.applyEffects(guest.getStats(), super.employeesInside);
             }
         }
     }
 
-    public boolean provides(NPC.Stats stat) {
+    public boolean provides(Villager.Stats stat) {
         int it = 0;
-        for (NPC.Stats s : service.getStats()) {
+        for (Villager.Stats s : service.getStats()) {
             if (s == stat && service.getEffects()[it] > 0) {
                 return true;
             }

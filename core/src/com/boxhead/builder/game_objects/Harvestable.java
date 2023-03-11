@@ -14,7 +14,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.*;
 import java.util.Comparator;
 
-public class Harvestable extends GameObject implements FieldWork, Serializable {
+public class Harvestable extends GameObject implements FieldWork {
     public static final SortedList<Pair<Long, Harvestable>> timeTriggers = new SortedList<>(Comparator.comparing(pair -> pair.first, Comparator.reverseOrder()));
 
     protected transient Harvestables.Type type;
@@ -26,7 +26,7 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     protected int productionCounter = 0;
     protected int amountLeft;
 
-    protected NPC assigned = null;
+    protected Villager assigned = null;
     protected boolean worked = false;
 
     public enum Characteristic {
@@ -86,15 +86,15 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     }
 
     @Override
-    public void assignWorker(NPC npc) {
+    public void assignWorker(Villager villager) {
         if (isFree()) {
-            assigned = npc;
+            assigned = villager;
         } else throw new IllegalArgumentException();
     }
 
     @Override
-    public void dissociateWorker(NPC npc) {
-        if (assigned == npc) {
+    public void dissociateWorker(Villager villager) {
+        if (assigned == villager) {
             assigned = null;
             worked = false;
         }
@@ -122,8 +122,8 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     }
 
     @Override
-    public void setWork(NPC npc, boolean b) {
-        if (npc == assigned) worked = b;
+    public void setWork(Villager villager, boolean b) {
+        if (villager == assigned) worked = b;
     }
 
     @Override
@@ -143,10 +143,6 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
 
     protected void exit() {
         assigned.getWorkplace().dissociateFieldWork(assigned);
-        /*assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-        assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);*/
         worked = false;
         assigned = null;
     }

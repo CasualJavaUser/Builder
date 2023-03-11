@@ -212,4 +212,42 @@ public class Tiles {
         }
         return null;
     }
+
+    public static void createFence(BoxCollider fieldCollider) {
+        Vector2i origin = fieldCollider.getGridPosition();
+        Vector2i pos = new Vector2i();
+        int fieldWidth = fieldCollider.getWidth();
+        int fieldHeight = fieldCollider.getHeight();
+
+        //corners
+        if (isFarmable.test(pos))
+            World.addGameObject(new GameObject(Textures.Environment.FENCE_BL, pos.clone()));
+        pos.set(origin.x, origin.y + fieldHeight - 1);
+        if (isFarmable.test(pos))
+            World.addGameObject(new GameObject(Textures.Environment.FENCE_TL, pos.clone()));
+        pos.set(origin.x + fieldWidth - 1, origin.y + fieldHeight - 1);
+        if (isFarmable.test(pos))
+            World.addGameObject(new GameObject(Textures.Environment.FENCE_TR, pos.clone()));
+        pos.set(origin.x + fieldWidth - 1, origin.y);
+        if (isFarmable.test(pos))
+            World.addGameObject(new GameObject(Textures.Environment.FENCE_BR, pos.clone()));
+        //top bottom
+        for (int x = 1; x < fieldWidth - 1; x++) {
+            pos.set(origin.x + x, origin.y + fieldHeight - 1);
+            if (isFarmable.test(pos))
+                World.addGameObject(new GameObject(Textures.Environment.FENCE_T, pos.clone()));
+            pos.set(origin.x + x, origin.y);
+            if (isFarmable.test(pos))
+                World.addGameObject(new GameObject(Textures.Environment.FENCE_B, pos.clone()));
+        }
+        //sides
+        for (int y = 1; y < fieldHeight - 1; y++) {
+            pos.set(origin.x, origin.y + y);
+            if (isFarmable.test(pos))
+                World.addGameObject(new GameObject(Textures.Environment.FENCE_L, pos.clone()));
+            pos.set(origin.x + fieldWidth - 1, origin.y + y);
+            if (isFarmable.test(pos))
+                World.addGameObject(new GameObject(Textures.Environment.FENCE_R, pos.clone()));
+        }
+    }
 }

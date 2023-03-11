@@ -2,7 +2,6 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
-import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Pathfinding;
 
 import java.util.Optional;
@@ -25,8 +24,11 @@ public class Logic {
                 Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
             produceResources();
-            for (NPC npc : World.getNpcs()) {
-                npc.executeOrders();
+            for (Villager villager : World.getVillagers()) {
+                villager.executeOrders();
+            }
+            for (Animal animal : World.getAnimals()) {
+                animal.wander();
             }
         }
     };
@@ -35,21 +37,21 @@ public class Logic {
         @Override
         public void run() {
             Logistics.pairRequests();
-            for (NPC npc : World.getNpcs()) {
-                npc.seekJob();
-                npc.seekHouse();
+            for (Villager villager : World.getVillagers()) {
+                villager.seekJob();
+                villager.seekHouse();
             }
         }
     };
 
     private static void dailyCycle() {
         if (World.getTime() == 25200) {   //7:00
-            for (NPC npc : World.getNpcs()) {
-                if (npc.getJob() != Jobs.UNEMPLOYED) {
-                    npc.giveOrder(NPC.Order.Type.EXIT);
-                    npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
-                    npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
-                    npc.giveOrder(NPC.Order.Type.CLOCK_IN);
+            for (Villager villager : World.getVillagers()) {
+                if (villager.getJob() != Jobs.UNEMPLOYED) {
+                    villager.giveOrder(Villager.Order.Type.EXIT);
+                    villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
+                    villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
+                    villager.giveOrder(Villager.Order.Type.CLOCK_IN);
                 }
             }
         } else if (World.getTime() == 57600) { //16:00
@@ -98,11 +100,11 @@ public class Logic {
     }
 
     private static void NPCLife() {
-        for (NPC npc : World.getNpcs()) {
-            npc.executeOrders();
+        for (Villager villager : World.getVillagers()) {
+            villager.executeOrders();
 
-            npc.seekJob();  //todo make these into orders
-            npc.seekHouse();
+            villager.seekJob();  //todo make these into orders
+            villager.seekHouse();
         }
     }
 

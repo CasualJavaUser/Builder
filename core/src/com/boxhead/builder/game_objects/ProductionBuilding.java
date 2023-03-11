@@ -21,15 +21,15 @@ public class ProductionBuilding extends StorageBuilding {
      */
     private static final int stockCycles = 3;
 
-    private static final Map<NPC, FieldWork> emptyMap = new HashMap<>(0);  //do not modify
+    private static final Map<Villager, FieldWork> emptyMap = new HashMap<>(0);  //do not modify
     private static final Set<Building> emptySet = new HashSet<>(0);
 
     protected transient Job job;
     protected float efficiency = 1f;
     protected int jobQuality = 0;
     protected int employeesInside = 0;
-    protected final Set<NPC> employees;
-    protected final Map<NPC, FieldWork> assignedFieldWork;
+    protected final Set<Villager> employees;
+    protected final Map<Villager, FieldWork> assignedFieldWork;
     protected final Set<Building> buildingsInRange;
     protected float productionCounter = 0;
     protected boolean showRange = false;
@@ -60,29 +60,29 @@ public class ProductionBuilding extends StorageBuilding {
     /**
      * Removes the specified employee from the building.
      *
-     * @param npc employee to be removed from the building
+     * @param villager employee to be removed from the building
      */
-    public void removeEmployee(NPC npc) {
-        if (!employees.contains(npc))
+    public void removeEmployee(Villager villager) {
+        if (!employees.contains(villager))
             throw new IllegalArgumentException("Employee does not work here");
-        employees.remove(npc);
+        employees.remove(villager);
     }
 
     /**
      * Adds the specified employee to the building.
      *
-     * @param npc employee to be added to the building
+     * @param villager employee to be added to the building
      */
-    public void addEmployee(NPC npc) {
-        if (employees.contains(npc))
+    public void addEmployee(Villager villager) {
+        if (employees.contains(villager))
             throw new IllegalArgumentException("Employee already works here");
         if (employees.size() < type.npcCapacity) {
-            employees.add(npc);
+            employees.add(villager);
         }
     }
 
-    public void employeeEnter(NPC npc) {
-        if (employees.contains(npc)) {
+    public void employeeEnter(Villager villager) {
+        if (employees.contains(villager)) {
             employeesInside++;
         }
     }
@@ -100,10 +100,10 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public void business() {
-        for (NPC employee : employees) {
+        for (Villager employee : employees) {
             if (employee.isClockedIn() && !employee.hasOrders()) {
                 job.assign(employee, this);
-                break;  //TODO why break?
+                break;
             }
         }
 
@@ -130,19 +130,19 @@ public class ProductionBuilding extends StorageBuilding {
         }
     }
 
-    public void dissociateFieldWork(NPC employee) {
+    public void dissociateFieldWork(Villager employee) {
         assignedFieldWork.remove(employee);
     }
 
     public void endWorkday() {
-        for (NPC employee : employees) {
+        for (Villager employee : employees) {
             employee.clearOrderQueue();
             job.onExit(employee, this);
-            employee.giveOrder(NPC.Order.Type.EXIT, this);
-            employee.giveOrder(NPC.Order.Type.CLOCK_OUT);
+            employee.giveOrder(Villager.Order.Type.EXIT, this);
+            employee.giveOrder(Villager.Order.Type.CLOCK_OUT);
             if (employee.getHome() != null) {
-                employee.giveOrder(NPC.Order.Type.GO_TO, employee.getHome());
-                employee.giveOrder(NPC.Order.Type.ENTER, employee.getHome());
+                employee.giveOrder(Villager.Order.Type.GO_TO, employee.getHome());
+                employee.giveOrder(Villager.Order.Type.ENTER, employee.getHome());
             }
         }
     }
@@ -163,7 +163,7 @@ public class ProductionBuilding extends StorageBuilding {
         return jobQuality;
     }
 
-    public Set<NPC> getEmployees() {
+    public Set<Villager> getEmployees() {
         return employees;
     }
 
@@ -171,7 +171,7 @@ public class ProductionBuilding extends StorageBuilding {
         return employeesInside != 0;
     }
 
-    public Map<NPC, FieldWork> getAssignedFieldWork() {
+    public Map<Villager, FieldWork> getAssignedFieldWork() {
         return assignedFieldWork;
     }
 

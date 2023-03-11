@@ -76,6 +76,8 @@ public class BuilderGame extends Game {
 
             World.saveWorld(out);
 
+            saveCollection(Harvestable.timeTriggers, out);
+
             saveCollection(Logistics.supplyRequests, out);
             saveCollection(Logistics.outputRequests, out);
             saveCollection(Logistics.readyOrders, out);
@@ -103,6 +105,8 @@ public class BuilderGame extends Game {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
 
             World.loadWorld(in);
+
+            loadCollection(Harvestable.timeTriggers, in);
 
             loadCollection(Logistics.supplyRequests, in);
             loadCollection(Logistics.outputRequests, in);
