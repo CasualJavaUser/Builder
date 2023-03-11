@@ -15,6 +15,7 @@ import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -33,56 +34,56 @@ public class UI {
     private static Button activeButton = null;
     private static ScrollPane activeScrollPane = null;
     private static Clickable clickedElement = null;
-    private static Set<UIElement> saveWindowElements = new HashSet<>();
+    private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
-    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, pauseGameButton;
+    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, pauseGameButton;
 
-    private static UIElement timeElementGroup;
-    private static Clock clock;
-    private static Button pauseButton, playButton, x2Button, x3Button;
+    @AddToUI private static UIElement timeElementGroup;
+    @AddToUI private static Clock clock;
+    @AddToUI private static Button pauseButton, playButton, x2Button, x3Button;
 
-    private static ResourceList resourceList;
+    @AddToUI private static ResourceList resourceList;
 
-    private static Window buildingWindow;
-    private static TextArea buildWindowDivider;
-    private static UIElement buildingImage;
-    private static Button buildButton;
-    private static TextArea buildingDescription;
+    @AddToUI private static Window buildingWindow;
+    @AddToUI private static TextArea buildWindowDivider;
+    @AddToUI private static UIElement buildingImage;
+    @AddToUI private static Button buildButton;
+    @AddToUI private static TextArea buildingDescription;
 
     //infrastructure tab
-    private static Button infrastructureTabButton;
-    private static UIElement infrastructureTab;
-    private static Button storageButton, constructionOfficeButton, transportOfficeButton;
+    @AddToUI private static Button infrastructureTabButton;
+    @AddToUI private static UIElement infrastructureTab;
+    @AddToUI private static Button storageButton, constructionOfficeButton, transportOfficeButton;
 
     //housing tab
-    private static Button housingTabButton;
-    private static UIElement housingTab;
-    private static Button logCabinButton;
+    @AddToUI private static Button housingTabButton;
+    @AddToUI private static UIElement housingTab;
+    @AddToUI private static Button logCabinButton;
 
     //resource tab
-    private static Button resourcesTabButton;
-    private static UIElement resourcesTab;
-    private static Button lumberjackButton, mineButton, stoneGathererButton, plantationButton, ranchButton;
+    @AddToUI private static Button resourcesTabButton;
+    @AddToUI private static UIElement resourcesTab;
+    @AddToUI private static Button lumberjackButton, mineButton, stoneGathererButton, plantationButton, ranchButton;
 
     //services tab
-    private static Button servicesTabButton;
-    private static UIElement servicesTab;
-    private static Button serviceButton, pubButton;
+    @AddToUI private static Button servicesTabButton;
+    @AddToUI private static UIElement servicesTab;
+    @AddToUI private static Button serviceButton, pubButton;
 
-    private static Window pauseWindow;
-    private static Button resumeButton, loadButton, saveButton, settingsButton, quitButton;
+    @AddToUI private static Window pauseWindow;
+    @AddToUI private static Button resumeButton, loadButton, saveButton, settingsButton, quitButton;
 
-    private static Window saveWindow;
-    private static TextArea saveText;
-    private static ScrollPane scrollPane;
-    private static Button saveWindowBackButton;
+    @AddToUI private static Window saveWindow;
+    @AddToUI private static TextArea saveText;
+    @AddToUI private static ScrollPane scrollPane;
+    @AddToUI private static Button saveWindowBackButton;
 
-    private static Window settingsWindow;
-    private static TextArea settingsText;
-    private static Button settingsWindowBackButton;
+    @AddToUI private static Window settingsWindow;
+    @AddToUI private static TextArea settingsText;
+    @AddToUI private static Button settingsWindowBackButton;
 
-    private static NPCStatWindow npcStatWindow;
-    private static BuildingStatWindow buildingStatWindow;
+    @AddToUI private static NPCStatWindow npcStatWindow;
+    @AddToUI private static BuildingStatWindow buildingStatWindow;
 
     public static final int PADDING = 10;
     private static boolean isPaused = false;
@@ -434,66 +435,22 @@ public class UI {
     }
 
     private static void addUIElements() {
-        npcStatWindow.addToUI();
-        buildingStatWindow.addToUI();
-
-        buildMenuButton.addToUI();
-        npcButton.addToUI();
-        workButton.addToUI();
-        restButton.addToUI();
-        demolishButton.addToUI();
-        tilingButton.addToUI();
-        pauseGameButton.addToUI();
-
-        clock.addToUI();
-        pauseButton.addToUI();
-        playButton.addToUI();
-        x2Button.addToUI();
-        x3Button.addToUI();
-        resourceList.addToUI();
+        try {
+            Field[] fields = UI.class.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(AddToUI.class)) {
+                    ((UIElement) field.get(UI.class)).addToUI();
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         Layer.BUILDING_MENU.addElement(buildMenuButton);
         Layer.BUILDING_MENU.addElement(npcButton);
         Layer.BUILDING_MENU.addElement(workButton);
         Layer.BUILDING_MENU.addElement(restButton);
         Layer.BUILDING_MENU.addElement(demolishButton);
-
-        buildingWindow.addToUI();
-            infrastructureTabButton.addToUI();
-                storageButton.addToUI();
-                constructionOfficeButton.addToUI();
-                transportOfficeButton.addToUI();
-            housingTabButton.addToUI();
-                logCabinButton.addToUI();
-            resourcesTabButton.addToUI();
-                lumberjackButton.addToUI();
-                mineButton.addToUI();
-                stoneGathererButton.addToUI();
-                plantationButton.addToUI();
-                ranchButton.addToUI();
-            servicesTabButton.addToUI();
-                serviceButton.addToUI();
-                pubButton.addToUI();
-
-            buildWindowDivider.addToUI();
-            buildingImage.addToUI();
-            buildingDescription.addToUI();
-            buildButton.addToUI();
-
-        pauseWindow.addToUI();
-            resumeButton.addToUI();
-            loadButton.addToUI();
-            saveButton.addToUI();
-            settingsButton.addToUI();
-            quitButton.addToUI();
-
-        saveWindow.addToUI();
-            saveText.addToUI();
-            saveWindowBackButton.addToUI();
-
-        settingsWindow.addToUI();
-            settingsText.addToUI();
-            settingsWindowBackButton.addToUI();
     }
 
     public static void drawUI(SpriteBatch batch) {
