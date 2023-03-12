@@ -13,6 +13,7 @@ public class InputManager extends InputAdapter {
     public static Pair<Integer, Integer> UP = Pair.of(Input.Keys.UP, Input.Keys.W);
     public static Pair<Integer, Integer> DOWN = Pair.of(Input.Keys.DOWN, Input.Keys.S);
     public static Pair<Integer, Integer> SHIFT = Pair.of(Input.Keys.SHIFT_LEFT, Input.Keys.SHIFT_RIGHT);
+    public static Pair<Integer, Integer> CONTROL = Pair.of(Input.Keys.CONTROL_LEFT, Input.Keys.CONTROL_RIGHT);
 
     public static final int LEFT_MOUSE = Input.Buttons.LEFT;
     public static final int RIGHT_MOUSE = Input.Buttons.RIGHT;
