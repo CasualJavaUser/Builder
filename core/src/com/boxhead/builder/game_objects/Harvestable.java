@@ -116,7 +116,7 @@ public class Harvestable extends GameObject implements FieldWork {
                 }
                 if (amountLeft <= 0) {
                     World.removeFieldWorks(this);
-                    if (assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
+                    if (assigned.getWorkplace() instanceof PlantationBuilding farm) farm.removeHarvestable(this);
                     exit();
                 }
             } else exit();

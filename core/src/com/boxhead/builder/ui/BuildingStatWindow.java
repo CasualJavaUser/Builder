@@ -47,14 +47,14 @@ public class BuildingStatWindow extends StatWindow<Building> {
             villagers = building.getEmployees();
             job = building.getJob();
 
-            if (building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
-            else if (building.getInventory().checkStorageAvailability(job.getRecipe()) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
+            if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
+            else if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
             else warning = "";
 
             if (building.getEfficiency() != 1) stats += "\nefficiency: " + String.format("%.2f", building.getEfficiency());
             stats += "\njob quality: " + building.getJobQuality();
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
-            for (Resource resource : job.getRecipe().changedResources()) {
+            for (Resource resource : job.getRecipe(building).changedResources()) {
                 stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
                         building.getInventory().getResourceAmount(resource));
             }

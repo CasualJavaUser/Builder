@@ -96,7 +96,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public boolean canProduce() {
-        return hasEmployeesInside() && inventory.checkStorageAvailability(job.getRecipe()) == Inventory.Availability.AVAILABLE;
+        return hasEmployeesInside() && inventory.checkStorageAvailability(job.getRecipe(this)) == Inventory.Availability.AVAILABLE;
     }
 
     public void business() {
@@ -111,7 +111,7 @@ public class ProductionBuilding extends StorageBuilding {
             productionCounter += employeesInside * efficiency;
 
             if (productionCounter >= type.productionInterval) {
-                Recipe recipe = job.getRecipe();
+                Recipe recipe = job.getRecipe(this);
                 Inventory.Availability availability = inventory.checkStorageAvailability(recipe);
 
                 if (availability == Inventory.Availability.AVAILABLE) {
@@ -220,7 +220,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     private void updateIndicator() {
-        switch (inventory.checkStorageAvailability(job.getRecipe())) {
+        switch (inventory.checkStorageAvailability(job.getRecipe(this))) {
             case AVAILABLE: indicator.setVisible(false); break;
             case LACKS_INPUT: indicator.setTexture(Textures.get(Textures.Ui.NO_INPUT));
             case OUTPUT_FULL: indicator.setTexture(Textures.get(Textures.Ui.FULL_OUTPUT));

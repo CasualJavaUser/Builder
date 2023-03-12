@@ -22,7 +22,7 @@ public class Jobs {
     };
 
     public static final Job LUMBERJACK = new Job() {
-        private final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, Villager.INVENTORY_SIZE));
+        final Recipe recipe = new Recipe(Pair.of(Resource.WOOD, Villager.INVENTORY_SIZE));
 
         @Override
         public void assign(Villager assignee, ProductionBuilding workplace) {
@@ -35,7 +35,7 @@ public class Jobs {
         }
 
         @Override
-        public Recipe getRecipe() {
+        public Recipe getRecipe(ProductionBuilding workplace) {
             return recipe;
         }
 
@@ -64,7 +64,7 @@ public class Jobs {
         }
 
         @Override
-        public Recipe getRecipe() {
+        public Recipe getRecipe(ProductionBuilding workplace) {
             return recipe;
         }
 
@@ -117,7 +117,7 @@ public class Jobs {
         private final Recipe recipe = new Recipe(Pair.of(Resource.IRON, 5));
 
         @Override
-        public Recipe getRecipe() {
+        public Recipe getRecipe(ProductionBuilding workplace) {
             return recipe;
         }
 
@@ -183,12 +183,12 @@ public class Jobs {
             if (workplace.getAssignedFieldWork().containsKey(assignee) || assignee.hasOrders())
                 return;
 
-            FarmBuilding employingFarm = (FarmBuilding) workplace;
+            FarmBuilding<? extends FieldWork> employingFarm = (FarmBuilding<? extends FieldWork>) workplace;
 
             //if reserved then harvest
             if (workplace.hasReserved(assignee)) {
-                Optional<Harvestable> fieldWorkOptional = employingFarm.findWorkableField();
-                if(fieldWorkOptional.isPresent() && assignee.getInventory().getAvailableCapacity() >= employingFarm.getCrop().yield) {
+                Optional<? extends FieldWork> fieldWorkOptional = employingFarm.findWorkableFieldWork();
+                if(fieldWorkOptional.isPresent() && assignee.getInventory().getAvailableCapacity() >= employingFarm.getYield()) {
                     FieldWork fieldWork = fieldWorkOptional.get();
                     fieldWork.assignWorker(assignee);
                     workplace.getAssignedFieldWork().put(assignee, fieldWork);
@@ -197,7 +197,7 @@ public class Jobs {
                     assignee.giveOrder(Villager.Order.Type.ENTER, fieldWork);
                 }
                 else {
-                    Resource resource = employingFarm.getCrop().characteristic.resource;
+                    Resource resource = employingFarm.getResource();
                     int resourceUnits = assignee.getInventory().getResourceAmount(resource);
 
                     assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
@@ -209,24 +209,26 @@ public class Jobs {
                 return;
             }
 
-            //plant
-            for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
-                if (employingFarm.isArable(tile)) {
-                    Harvestable newHarvestable = Harvestables.create(employingFarm.getCrop(), tile);
-                    employingFarm.addHarvestable(newHarvestable);
+            //if plantation then plant
+            if (employingFarm instanceof PlantationBuilding plantation) {
+                for (Vector2i tile : employingFarm.getFieldCollider().toVector2iList()) {
+                    if (plantation.isArable(tile)) {
+                        Harvestable newHarvestable = Harvestables.create(plantation.getCrop(), tile);
+                        plantation.addFieldWork(newHarvestable);
 
-                    assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
-                    assignee.giveOrder(tile);
-                    assignee.giveOrder(newHarvestable);
-                    //TODO wait?
-                    return;
+                        assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+                        assignee.giveOrder(tile);
+                        assignee.giveOrder(newHarvestable);
+                        //TODO wait?
+                        return;
+                    }
                 }
             }
 
-            //if not reserved the reserve
+            //if not reserved then reserve
             if (    !employingFarm.hasReserved(assignee) &&
                     workplace.getInventory().getAvailableCapacity() >= Villager.INVENTORY_SIZE &&
-                    employingFarm.findWorkableField().isPresent() &&
+                    employingFarm.findWorkableFieldWork().isPresent() &&
                     workplace.reserveSpace(Villager.INVENTORY_SIZE)
             ) {
                 workplace.addReservation(assignee);
@@ -242,14 +244,12 @@ public class Jobs {
 
         @Override
         public void onExit(Villager assignee, ProductionBuilding workplace) {
-            harvesterOnExit(assignee, workplace, ((FarmBuilding) workplace).getCrop().characteristic.resource);
+            harvesterOnExit(assignee, workplace, ((PlantationBuilding) workplace).getCrop().characteristic.resource);
         }
 
-        private final Recipe recipe = new Recipe(Pair.of(Resource.GRAIN, Villager.INVENTORY_SIZE));
-
         @Override
-        public Recipe getRecipe() {
-            return recipe;
+        public Recipe getRecipe(ProductionBuilding workplace) {
+            return ((FarmBuilding<?>) workplace).getRecipe();
         }
 
         @Override
@@ -270,7 +270,7 @@ public class Jobs {
         );
 
         @Override
-        public Recipe getRecipe() {
+        public Recipe getRecipe(ProductionBuilding workplace) {
             return recipe;
         }
 

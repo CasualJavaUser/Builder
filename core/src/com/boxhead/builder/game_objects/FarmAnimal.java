@@ -59,7 +59,7 @@ public class FarmAnimal extends Animal implements FieldWork {
 
     @Override
     public boolean isFree() {
-        return assigned == null && World.getDate() <= harvestDate;
+        return assigned == null && World.getDate() >= harvestDate;
     }
 
     @Override
@@ -72,6 +72,7 @@ public class FarmAnimal extends Animal implements FieldWork {
                 }
                 if (amountLeft <= 0) {
                     harvestDate = World.calculateDate(type.growthTime);
+                    amountLeft = type.yield;
                     exit();
                 }
             } else exit();

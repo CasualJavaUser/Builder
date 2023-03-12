@@ -1,7 +1,10 @@
 package com.boxhead.builder.game_objects;
 
-import com.boxhead.builder.World;
+import com.boxhead.builder.FieldWork;
+import com.boxhead.builder.Recipe;
+import com.boxhead.builder.Resource;
 import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.SortedList;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -11,26 +14,30 @@ import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public class FarmBuilding extends ProductionBuilding {
+public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuilding {
 
-    private BoxCollider fieldCollider;
-    private transient SortedList<Harvestable> ownHarvestables;
+    protected BoxCollider fieldCollider;
+    protected transient SortedList<T> ownFieldWorks;
+    protected Recipe recipe;
 
     public FarmBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         fieldCollider = new BoxCollider();
-        ownHarvestables = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
-    }
-
-    public Harvestables.Type getCrop() {
-        return type.crop;
+        ownFieldWorks = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
+        recipe = new Recipe(Pair.of(getResource(), Villager.INVENTORY_SIZE));
     }
 
     public void setFieldCollider(BoxCollider collider) {
         fieldCollider = collider;
+    }
+
+    public abstract Resource getResource();
+
+    public abstract int getYield();
+
+    public Recipe getRecipe() {
+        return recipe;
     }
 
     public BoxCollider getFieldCollider() {
@@ -49,45 +56,24 @@ public class FarmBuilding extends ProductionBuilding {
         return fieldCollider.getGridPosition();
     }
 
-    /**
-     * Returns true if a new FieldHarvestable can be created on the given tile.
-     */
-    public boolean isArable(Vector2i gridPosition) {
-        if (!fieldCollider.overlaps(gridPosition) || !World.isBuildable(gridPosition))
-            return false;
-
-        for (Harvestable harvestable : ownHarvestables) {
-            if (harvestable.getGridPosition().equals(gridPosition))
-                return false;
-        }
-        return true;
+    public void addFieldWork(T t) {
+        ownFieldWorks.add(t);
     }
 
-    public void addHarvestable(Harvestable harvestable) {
-        ownHarvestables.add(harvestable);
+    public void removeHarvestable(T t) {
+        ownFieldWorks.remove(t);
     }
 
-    public void removeHarvestable(Harvestable harvestable) {
-        ownHarvestables.remove(harvestable);
-    }
-
-    public Optional<Harvestable> findWorkableField() {
-        return ownHarvestables.stream().filter(Harvestable::isFree).findFirst();
-    }
-
-    @Override
-    public void endWorkday() {
-        super.endWorkday();
-        Set<Harvestable> notPlanted = ownHarvestables.stream().filter(h -> h.getCurrentPhase() < 0).collect(Collectors.toSet());
-        ownHarvestables.removeAll(notPlanted);
+    public Optional<T> findWorkableFieldWork() {
+        return ownFieldWorks.stream().filter(FieldWork::isFree).findFirst();
     }
 
     @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
-        oos.writeInt(ownHarvestables.size());
-        for (Harvestable harvestable : ownHarvestables) {
-            oos.writeObject(harvestable);
+        oos.writeInt(ownFieldWorks.size());
+        for (T t : ownFieldWorks) {
+            oos.writeObject(t);
         }
     }
 
@@ -95,9 +81,9 @@ public class FarmBuilding extends ProductionBuilding {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         int size = ois.readInt();
-        ownHarvestables = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
+        ownFieldWorks = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
         for (int i = 0; i < size; i++) {
-            ownHarvestables.add((Harvestable) ois.readObject());
+            ownFieldWorks.add((T) ois.readObject());
         }
     }
 }

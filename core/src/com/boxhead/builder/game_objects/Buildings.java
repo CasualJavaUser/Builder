@@ -122,7 +122,7 @@ public class Buildings {
         RANCH (
                 Textures.Building.TOOL_SHACK,
                 "ranch",
-                Jobs.UNEMPLOYED,
+                Jobs.FARMER,
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 2),
                 3,
@@ -270,6 +270,14 @@ public class Buildings {
             return crop != null || farmAnimal != null;
         }
 
+        public boolean isPlantation() {
+            return crop != null;
+        }
+
+        public boolean isRanch() {
+            return farmAnimal != null;
+        }
+
         public boolean isService() {
             return service != null;
         }
@@ -288,7 +296,8 @@ public class Buildings {
     }
 
     public static Building create(Type type, Vector2i gridPosition) {
-        if (type.isFarm()) return new FarmBuilding(type, gridPosition);
+        if (type.isPlantation()) return new PlantationBuilding(type, gridPosition);
+        if (type.isRanch()) return new RanchBuilding(type, gridPosition);
         if (type.isService()) return new ServiceBuilding(type, gridPosition);
         if (type.isProduction()) return new ProductionBuilding(type, gridPosition);
         if (type.isResidential()) return new ResidentialBuilding(type, gridPosition);

@@ -55,7 +55,6 @@ public class World {
      */
     private static final Map<FieldWork, Boolean> changedFieldWorks = new HashMap<>();
     private static final Map<Vector2i, Tile> changedTiles = new HashMap<>();
-    private static final List<Vector2i> changedNavigableTiles = new ArrayList<>();
 
     public static void init(int seed, Vector2i worldSize) {
         World.seed = seed;
@@ -265,7 +264,7 @@ public class World {
         buildings.add(building);
         addGameObject(building);
         makeUnnavigable(building.getCollider());
-        ((FarmBuilding) building).setFieldCollider(fieldCollider);
+        ((FarmBuilding<?>) building).setFieldCollider(fieldCollider);
         for (Building b : buildings) {
             if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
                 ((ProductionBuilding) b).getBuildingsInRange().add(building);
@@ -274,13 +273,14 @@ public class World {
         }
 
         if (type.farmAnimal != null) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 2; i++) {  //TODO hardcoded
                 FarmAnimal animal = new FarmAnimal(
                         Animals.Type.COW,
-                        ((FarmBuilding) building).getFieldCollider().getGridPosition().clone(),
+                        ((FarmBuilding<?>) building).getFieldCollider().getGridPosition().clone(),
                         fieldCollider
                 );
                 World.spawnAnimal(animal);
+                ((RanchBuilding) building).addFieldWork(animal);
             }
         }
     }
@@ -596,7 +596,7 @@ public class World {
                 Logistics.getStorages().add((StorageBuilding) building);
             }
             if (building.getType().farmAnimal != null) {
-                Tiles.createFence(((FarmBuilding) building).getFieldCollider());
+                Tiles.createFence(((FarmBuilding<?>) building).getFieldCollider());
             }
         }
 
