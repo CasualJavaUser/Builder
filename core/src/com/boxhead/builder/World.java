@@ -81,7 +81,7 @@ public class World {
     public static void temp() {
         initVillagers(10);
         spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
-        spawnAnimal(new Animal(Animal.Type.COW, new Vector2i(10, 10)));
+        spawnAnimal(new Animal(Animals.Type.COW, new Vector2i(10, 10)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
@@ -275,8 +275,8 @@ public class World {
 
         if (type.farmAnimal != null) {
             for (int i = 0; i < 10; i++) {
-                Animal animal = new Animal(
-                        Animal.Type.COW,
+                FarmAnimal animal = new FarmAnimal(
+                        Animals.Type.COW,
                         ((FarmBuilding) building).getFieldCollider().getGridPosition().clone(),
                         fieldCollider
                 );

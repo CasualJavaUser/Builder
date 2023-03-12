@@ -127,7 +127,7 @@ public class Buildings {
                 new BoxCollider(0, 0, 4, 2),
                 3,
                 0,
-                Animal.Type.COW,
+                Animals.Type.COW,
                 new Recipe(Pair.of(Resource.WOOD, 10))
         ),
         PUB (
@@ -156,7 +156,7 @@ public class Buildings {
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
         public final int range;
         public final Harvestables.Type crop;
-        public final Animal.Type farmAnimal;
+        public final Animals.Type farmAnimal;
         public final Recipe buildCost;
         /**
          * Returns building's efficiency based on the buildings in range.
@@ -164,7 +164,7 @@ public class Buildings {
         public final Function<Set<Building>, Float> updateEfficiency;
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Harvestables.Type crop, Animal.Type farmAnimal, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Harvestables.Type crop, Animals.Type farmAnimal, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
 
             if (    (crop != null && farmAnimal != null) ||
                     (guestCapacity > 0 && service == null) ||
@@ -219,7 +219,7 @@ public class Buildings {
             this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, crop, null, buildCost, (b) -> 1f);
         }
 
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Animal.Type farmAnimal, Recipe buildCost) {
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Animals.Type farmAnimal, Recipe buildCost) {
             this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, null, farmAnimal, buildCost, (b) -> 1f);
         }
 

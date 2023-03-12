@@ -110,11 +110,13 @@ public class Harvestable extends GameObject implements FieldWork {
         if (worked) {
             Resource resource = type.characteristic.resource;
             if (!assigned.getInventory().isFull()) {
-                if (productionCycle()) assigned.getInventory().put(resource, 1);
+                if (productionCycle()) {
+                    assigned.getInventory().put(resource, 1);
+                    World.updateStoredResources(resource, 1);
+                }
                 if (amountLeft <= 0) {
                     World.removeFieldWorks(this);
                     if (assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
-                    World.updateStoredResources(type.characteristic.resource, type.yield);
                     exit();
                 }
             } else exit();

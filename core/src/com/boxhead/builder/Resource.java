@@ -9,5 +9,7 @@ public enum Resource {
     STEEL,
     TOOLS,
     GRAIN,
-    ALCOHOL
+    ALCOHOL,
+    MILK,
+    MEAT
 }
