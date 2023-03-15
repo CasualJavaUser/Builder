@@ -56,7 +56,7 @@ public class World {
     private static final Map<FieldWork, Boolean> changedFieldWorks = new HashMap<>();
     private static final Map<Vector2i, Tile> changedTiles = new HashMap<>();
 
-    public static void init(int seed, Vector2i worldSize) {
+    public static void generate(int seed, Vector2i worldSize) {
         World.seed = seed;
         World.worldSize = worldSize;
         tiles = new Tile[worldSize.x * worldSize.y];
@@ -73,7 +73,9 @@ public class World {
 
         resetNavigability(worldSize);
 
+        LoadingScreen.setMessage("Generating Tiles...");
         generateTiles();
+        LoadingScreen.setMessage("Generating Objects...");
         generateObjects();
     }
 
@@ -560,6 +562,7 @@ public class World {
         out.writeInt(World.getGridWidth());
         out.writeInt(World.getGridHeight());
         out.writeInt(World.getTime());
+        out.writeInt(World.getDay());
 
         BuilderGame.saveCollection(buildings, out);
         BuilderGame.saveCollection(villagers, out);
@@ -573,9 +576,11 @@ public class World {
     }
 
     public static void loadWorld(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        init(in.readInt(), new Vector2i(in.readInt(), in.readInt()));
+        generate(in.readInt(), new Vector2i(in.readInt(), in.readInt()));
         setTime(in.readInt());
+        setDay(in.readInt());
 
+        LoadingScreen.setMessage("Loading objects...");
         BuilderGame.loadCollection(buildings, in);
         BuilderGame.loadCollection(villagers, in);
         BuilderGame.loadCollection(animals, in);

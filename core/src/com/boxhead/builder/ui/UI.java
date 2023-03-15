@@ -3,10 +3,12 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Matrix4;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
@@ -20,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class UI {
+    private static final Matrix4 uiProjection = new Matrix4();
+
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color SEMI_TRANSPARENT_RED = new Color(.86f, .25f, .25f, .4f);
@@ -453,7 +457,9 @@ public class UI {
         Layer.BUILDING_MENU.addElement(demolishButton);
     }
 
-    public static void drawUI(SpriteBatch batch) {
+    public static void drawUI(SpriteBatch batch, OrthographicCamera camera) {
+        updateProjectionMatrix(camera);
+        batch.setProjectionMatrix(uiProjection);
         for (Layer layer : Layer.values()) {
             for (UIElement element : layer.getElements()) {
                 if (element.isVisible()) {
@@ -463,6 +469,19 @@ public class UI {
                 }
             }
         }
+        batch.setProjectionMatrix(camera.combined);
+    }
+
+    public static void drawPopups(SpriteBatch batch, OrthographicCamera camera) {
+        updateProjectionMatrix(camera);
+        batch.setProjectionMatrix(uiProjection);
+        if (Popups.getActivePopup() != null) Popups.getActivePopup().draw(batch);
+        batch.setProjectionMatrix(camera.combined);
+    }
+
+    private static void updateProjectionMatrix(OrthographicCamera camera) {
+        uiProjection.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
+        uiProjection.setTranslation(-1, -1, 0);
     }
 
     public static boolean handleUiInteraction() {
@@ -706,13 +725,11 @@ public class UI {
                 saveButton.setOnUp(() -> {
                     if(isSaving) {
                         Popups.showPopup("Override save?", () -> {
-                            //todo show info popup
                             BuilderGame.saveToFile(saveFile);
                             Layer.SAVE_MENU.setVisible(false);
                         });
                     }
                     else {
-                        //todo show info popup
                         BuilderGame.loadFromFile(saveFile);
                         Layer.SAVE_MENU.setVisible(false);
                     }

@@ -39,7 +39,7 @@ public class Window extends UIElement {
 
             //top edge
             drawEdge(batch, position.x + width + i, position.y + contentHeight + height + height, false, true, false);
-            //botom edge
+            //bottom edge
             drawEdge(batch, position.x + width + i, position.y + height, false, false, false);
             for (int j = 0; j < contentHeight; j++) {
                 drawMiddle(batch, position.x + width + i, position.y + height + j + height);

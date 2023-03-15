@@ -31,7 +31,7 @@ public class GameScreen implements Screen {
         this.uiProjection = new Matrix4();
 
         Textures.init();
-        World.init(60, new Vector2i(101, 101));
+        World.generate(60, new Vector2i(101, 101));
         World.temp();
         UI.init();
         UI.getResourceList().initData();
@@ -66,7 +66,7 @@ public class GameScreen implements Screen {
         if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
         if (InputManager.isKeyPressed(Input.Keys.SPACE) && !UI.isPaused()) Logic.pause(!Logic.isPaused());
 
-        drawUI();
+        UI.drawUI(batch, camera);
 
         batch.end();
         InputManager.resetScroll();
@@ -142,7 +142,7 @@ public class GameScreen implements Screen {
         uiProjection.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
         uiProjection.setTranslation(-1, -1, 0);
         batch.setProjectionMatrix(uiProjection);
-        UI.drawUI(batch);
+        UI.drawUI(batch, camera);
         batch.setProjectionMatrix(camera.combined);
     }
 

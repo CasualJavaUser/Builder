@@ -30,7 +30,7 @@ public class FarmAnimal extends Animal implements FieldWork {
 
     @Override
     public void wander() {
-        if (assigned == null && path == null || followPath()) {
+        if (assigned == null && (path == null || followPath())) {
             if (World.getRandom().nextInt(360) == 0) {
                 navigateTo(pen.toVector2iList().get(World.getRandom().nextInt(pen.getArea())));
             }

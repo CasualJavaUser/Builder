@@ -1,6 +1,5 @@
 package com.boxhead.builder.ui.popup;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.ui.UI;
@@ -13,7 +12,7 @@ public class InfoPopup extends Popup {
     protected InfoPopup(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
         super(texture, parent, layer, position);
         setWindowWidth(160 + UI.PADDING * 3);
-        setWindowHeight(100);
+        setContentHeight((int)(UI.PADDING * 2 + UI.FONT.getCapHeight()));
     }
 
     protected static InfoPopup getInstance() {
@@ -28,5 +27,12 @@ public class InfoPopup extends Popup {
             instance.addToUI();
         }
         return instance;
+    }
+
+    @Override
+    public void setText(String text) {
+        super.setText(text);
+        setContentWidth(UI.PADDING * 2 + text.length() * 8);
+        instance.setLocalPosition(-instance.getWindowWidth()/2, -instance.getWindowHeight()/2);
     }
 }

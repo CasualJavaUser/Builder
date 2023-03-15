@@ -19,7 +19,7 @@ public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuildi
 
     protected BoxCollider fieldCollider;
     protected transient SortedList<T> ownFieldWorks;
-    protected Recipe recipe;
+    protected transient Recipe recipe;
 
     public FarmBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
@@ -85,5 +85,6 @@ public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuildi
         for (int i = 0; i < size; i++) {
             ownFieldWorks.add((T) ois.readObject());
         }
+        recipe = new Recipe(Pair.of(getResource(), Villager.INVENTORY_SIZE));
     }
 }
