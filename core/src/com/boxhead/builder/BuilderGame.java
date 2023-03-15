@@ -7,8 +7,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
-import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Pair;
+import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
 import java.util.*;
@@ -21,12 +21,14 @@ public class BuilderGame extends Game {
     private SpriteBatch batch;
     private static GameScreen gameScreen;
     private static LoadingScreen loadingScreen;
+    private static MenuScreen menuScreen;
 
     private static Screen currentScreen;
 
     private static File saveDirectory;
     private static final ExecutorService loadingExecutor = Executors.newSingleThreadExecutor();
     private static Future<Exception> loadingException;
+    private static long lastSaveTime = 0;
 
     private static BuilderGame instance;
 
@@ -37,6 +39,7 @@ public class BuilderGame extends Game {
         batch = new SpriteBatch();
         gameScreen = new GameScreen(batch);
         loadingScreen = new LoadingScreen(batch);
+        menuScreen = new MenuScreen(batch);
 
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) saveDirectory = new File(System.getenv("APPDATA") + "/Box Head/saves/");
@@ -66,6 +69,7 @@ public class BuilderGame extends Game {
         batch.dispose();
         gameScreen.dispose();
         loadingScreen.dispose();
+        menuScreen.dispose();
         loadingExecutor.shutdownNow();
     }
 
@@ -85,39 +89,53 @@ public class BuilderGame extends Game {
         super.pause();
     }
 
-    public static boolean saveToFile(File file) {
-        try {
-            file.createNewFile();
-
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-
-            World.saveWorld(out);
-
-            saveCollection(Logistics.supplyRequests, out);
-            saveCollection(Logistics.outputRequests, out);
-            saveCollection(Logistics.readyOrders, out);
-            saveCollection(Logistics.storages, out);
-            saveCollection(Logistics.transportOffices, out);
-            saveCollection(Harvestable.timeTriggers, out);
-            saveMap(Logistics.orderRequests, out);
-            saveMap(Logistics.deliveriesInProgress, out);
-
-            out.close();
-
-        } catch (IOException e) {
-            Popups.showPopup(e.getClass().getName());
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public static void generateNewWorld() {
+        toLoadingScreen(menuScreen);
+        loadingException = loadingExecutor.submit(() -> {
+            LoadingScreen.setMessage("Loading...");
+            World.generate((int) (Math.random() * 1000), new Vector2i(2001, 2001));
+            return null;
+        });
     }
 
-    public static boolean saveToFile(String fileName) {
-        return saveToFile(new File(saveDirectory, fileName));
+    public static void saveToFile(File file) {
+        toLoadingScreen(gameScreen);
+        loadingException = loadingExecutor.submit(() -> {
+            LoadingScreen.setMessage("Saving...");
+            try {
+                file.createNewFile();
+
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+
+                World.saveWorld(out);
+
+                saveCollection(Logistics.supplyRequests, out);
+                saveCollection(Logistics.outputRequests, out);
+                saveCollection(Logistics.readyOrders, out);
+                saveCollection(Logistics.storages, out);
+                saveCollection(Logistics.transportOffices, out);
+                saveCollection(Harvestable.timeTriggers, out);
+                saveMap(Logistics.orderRequests, out);
+                saveMap(Logistics.deliveriesInProgress, out);
+
+                out.close();
+
+                lastSaveTime = System.currentTimeMillis();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return e;
+            }
+            return null;
+        });
+    }
+
+    public static void saveToFile(String fileName) {
+        saveToFile(new File(saveDirectory, fileName));
     }
 
     public static void loadFromFile(File file) {
-        getInstance().setScreen(loadingScreen);
+        toLoadingScreen(menuScreen);
         loadingException = loadingExecutor.submit(() -> {
             LoadingScreen.setMessage("Loading...");
             try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
@@ -133,6 +151,8 @@ public class BuilderGame extends Game {
                 loadCollection(Harvestable.timeTriggers, in);
                 loadMap(Logistics.orderRequests, in);
                 loadMap(Logistics.deliveriesInProgress, in);
+
+                lastSaveTime = System.currentTimeMillis();
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -198,6 +218,23 @@ public class BuilderGame extends Game {
 
     public static GameScreen getGameScreen() {
         return gameScreen;
+    }
+
+    public static LoadingScreen getLoadingScreen() {
+        return loadingScreen;
+    }
+
+    public static MenuScreen getMenuScreen() {
+        return menuScreen;
+    }
+
+    public static long timeSinceLastSave() {
+        return System.currentTimeMillis() - lastSaveTime;
+    }
+
+    public static void toLoadingScreen(Screen nextScreen) {
+        BuilderGame.getInstance().setScreen(loadingScreen);
+        LoadingScreen.setNextScreen(nextScreen);
     }
 
     @Override

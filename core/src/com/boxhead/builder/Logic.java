@@ -99,15 +99,6 @@ public class Logic {
         Logistics.clearOrderRequests();
     }
 
-    private static void NPCLife() {
-        for (Villager villager : World.getVillagers()) {
-            villager.executeOrders();
-
-            villager.seekJob();  //todo make these into orders
-            villager.seekHouse();
-        }
-    }
-
     public static void init() {
         Timer.instance().scheduleTask(task, 0, NORMAL_SPEED);
         Timer.instance().scheduleTask(intermittentTask, 1f, 1f);

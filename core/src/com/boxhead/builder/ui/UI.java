@@ -75,7 +75,7 @@ public class UI {
     @AddToUI private static Button serviceButton, pubButton;
 
     @AddToUI private static Window pauseWindow;
-    @AddToUI private static Button resumeButton, loadButton, saveButton, settingsButton, quitButton;
+    @AddToUI private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
 
     @AddToUI private static Window saveWindow;
     @AddToUI private static TextArea saveText;
@@ -167,22 +167,28 @@ public class UI {
             pauseWindow.setTint(WHITE);
 
             int x = -Textures.get(Textures.Ui.BIG_BUTTON).getRegionWidth() / 2;
+            newGameButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "New game");
             resumeButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "Resume");
             loadButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 42), "Load");
             saveButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -32), "Save");
             settingsButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -106), "Settings");
+            quitToMenuButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit to menu");
             quitButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit");
 
+            newGameButton.setOnUp(BuilderGame::generateNewWorld);
             resumeButton.setOnUp(() -> showPauseMenu(false));
             loadButton.setOnUp(UI::showLoadMenu);
             saveButton.setOnUp(UI::showSaveMenu);
             settingsButton.setOnUp(() -> Layer.SETTINGS_MENU.setVisible(true));
+            quitToMenuButton.setOnUp(() -> BuilderGame.getInstance().setScreen(BuilderGame.getMenuScreen()));
             quitButton.setOnUp(() -> Gdx.app.exit());
 
+            newGameButton.setTint(WHITE);
             resumeButton.setTint(WHITE);
             loadButton.setTint(WHITE);
             saveButton.setTint(WHITE);
             settingsButton.setTint(WHITE);
+            quitToMenuButton.setTint(WHITE);
             quitButton.setTint(WHITE);
         }
         //endregion
@@ -472,6 +478,21 @@ public class UI {
         batch.setProjectionMatrix(camera.combined);
     }
 
+    public static void drawMenu(SpriteBatch batch, OrthographicCamera camera) {
+        updateProjectionMatrix(camera);
+        batch.setProjectionMatrix(uiProjection);
+        for (int i = Layer.PAUSE_MENU.ordinal(); i < Layer.values().length; i++) {
+            for (UIElement element : Layer.values()[i].getElements()) {
+                if (element.isVisible()) {
+                    element.enableScissors(batch);
+                    element.draw(batch);
+                    element.disableScissors(batch);
+                }
+            }
+        }
+        batch.setProjectionMatrix(camera.combined);
+    }
+
     public static void drawPopups(SpriteBatch batch, OrthographicCamera camera) {
         updateProjectionMatrix(camera);
         batch.setProjectionMatrix(uiProjection);
@@ -630,7 +651,7 @@ public class UI {
         servicesTabButton.setTint(index == 3 ? DEFAULT_COLOR : PRESSED_COLOR);
     }
 
-    private static void showPauseMenu(boolean open) {
+    public static void showPauseMenu(boolean open) {
         Logic.pause(open);
         isPaused = open;
         DEFAULT_COLOR.set(open ? DARK : WHITE);
@@ -722,28 +743,35 @@ public class UI {
 
         Button saveButton = new Button(Textures.get(isSaving ? Textures.Ui.SAVE : Textures.Ui.LOAD), area, Layer.SAVE_MENU, new Vector2i(PADDING, PADDING));
 
-                saveButton.setOnUp(() -> {
-                    if(isSaving) {
-                        Popups.showPopup("Override save?", () -> {
-                            BuilderGame.saveToFile(saveFile);
-                            Layer.SAVE_MENU.setVisible(false);
-                        });
-                    }
-                    else {
+        saveButton.setOnUp(() -> {
+            if (isSaving) {
+                Popups.showPopup("Override save?", () -> {
+                    BuilderGame.saveToFile(saveFile);
+                    Layer.SAVE_MENU.setVisible(false);
+                });
+            } else {
+                if (BuilderGame.timeSinceLastSave()  > 60_000) {
+                    Popups.showPopup("Load save?", () -> {
                         BuilderGame.loadFromFile(saveFile);
                         Layer.SAVE_MENU.setVisible(false);
-                    }
-                });
+                    });
+                }
+                else {
+                    BuilderGame.loadFromFile(saveFile);
+                    Layer.SAVE_MENU.setVisible(false);
+                }
+            }
+        });
 
         Button deleteButton = new Button(Textures.get(Textures.Ui.DELETE), area, Layer.SAVE_MENU, new Vector2i(PADDING * 2 + 64, PADDING));
 
-                deleteButton.setOnUp(() -> {
-                    Popups.showPopup("Delete file?", () -> {
-                        saveFile.delete();
-                        if(isSaving) showSaveMenu();
-                        else showLoadMenu();
-                    });
-                });
+        deleteButton.setOnUp(() -> {
+            Popups.showPopup("Delete file?", () -> {
+                saveFile.delete();
+                if (isSaving) showSaveMenu();
+                else showLoadMenu();
+            });
+        });
 
         saveWindowElements.add(area);
         saveWindowElements.add(textArea);
@@ -794,5 +822,15 @@ public class UI {
 
     public static ResourceList getResourceList() {
         return resourceList;
+    }
+
+    /**
+     * @param b if true then adjust the pause menu to in-game use. Otherwise, adjusts to main menu.
+     */
+    public static void adjustMenuForInGameUse(boolean b) {
+        resumeButton.setVisible(b);
+        newGameButton.setVisible(!b);
+        quitToMenuButton.setVisible(b);
+        quitButton.setVisible(!b);
     }
 }

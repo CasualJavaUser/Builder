@@ -24,7 +24,7 @@ public class GameScreen implements Screen {
     private final Matrix4 uiProjection;
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
-    private static final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 30;
+    private static final float NORMAL_SPEED = 350, FAST_SPEED = 650, SCROLL_SPEED = 30;
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
@@ -106,6 +106,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        UI.adjustMenuForInGameUse(true);
     }
 
     @Override
@@ -114,8 +115,8 @@ public class GameScreen implements Screen {
 
     private void moveCamera(float deltaTime) {
         final float deltaPosition = InputManager.isKeyDown(InputManager.SHIFT)
-                ? FAST_SPEED * deltaTime
-                : NORMAL_SPEED * deltaTime;
+                ? FAST_SPEED * deltaTime * camera.zoom
+                : NORMAL_SPEED * deltaTime * camera.zoom;
 
         if (InputManager.isKeyDown(InputManager.RIGHT))
             camera.position.x += deltaPosition;
