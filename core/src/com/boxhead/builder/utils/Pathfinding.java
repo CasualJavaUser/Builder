@@ -59,13 +59,11 @@ public class Pathfinding {
      * Removes all paths crossing the given area from the cache
      */
     public static void updateCache(BoxCollider collider) {
-        List<Vector2i> list = collider.toVector2iList();
-
         for (Object pair : cache.values().toArray()) {
             Vector2i[] array = ((Pair<Vector2i[], Integer>)pair).first;
 
             for (Vector2i tile : array) {
-                if (list.contains(tile)) {
+                if (collider.overlaps(tile)) {
                     cache.remove(Pair.of(array[0], array[array.length - 1]));
                     break;
                 }

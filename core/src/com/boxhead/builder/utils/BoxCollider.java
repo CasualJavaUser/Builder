@@ -3,14 +3,15 @@ package com.boxhead.builder.utils;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class BoxCollider implements Serializable {
+public class BoxCollider implements Iterable<Vector2i>, Serializable {
     @Serial
     private static final long serialVersionUID = 2L;
 
-    private Vector2i lowerLeftCorner;
-    private int width, height;
+    private final Vector2i lowerLeftCorner;
+    private final int width, height;
 
     /**
      * Creates a 2D rectangular collider with the lower left corner at v1.
@@ -45,22 +46,22 @@ public class BoxCollider implements Serializable {
         if (gridPosition.x < lowerLeftCorner.x) {
             if (gridPosition.y <= lowerLeftCorner.y)
                 closestTile = lowerLeftCorner;
-            else if (gridPosition.y > lowerLeftCorner.y + height-1)
-                closestTile = lowerLeftCorner.add(0, height-1);
+            else if (gridPosition.y > lowerLeftCorner.y + height - 1)
+                closestTile = lowerLeftCorner.add(0, height - 1);
             else
                 closestTile = new Vector2i(lowerLeftCorner.x, gridPosition.y);
-        } else if (gridPosition.x < lowerLeftCorner.x + width-1) {
+        } else if (gridPosition.x < lowerLeftCorner.x + width - 1) {
             if (gridPosition.y < lowerLeftCorner.y)
                 closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y);
             else
-                closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y + height-1);
+                closestTile = new Vector2i(gridPosition.x, lowerLeftCorner.y + height - 1);
         } else {
             if (gridPosition.y <= lowerLeftCorner.y)
-                closestTile = new Vector2i(lowerLeftCorner.x + width-1, lowerLeftCorner.y);
-            else if (gridPosition.y > lowerLeftCorner.y + height-1)
-                closestTile = new Vector2i(lowerLeftCorner.x + width-1, lowerLeftCorner.y + height-1);
+                closestTile = new Vector2i(lowerLeftCorner.x + width - 1, lowerLeftCorner.y);
+            else if (gridPosition.y > lowerLeftCorner.y + height - 1)
+                closestTile = new Vector2i(lowerLeftCorner.x + width - 1, lowerLeftCorner.y + height - 1);
             else
-                closestTile = new Vector2i(lowerLeftCorner.x + width-1, gridPosition.y);
+                closestTile = new Vector2i(lowerLeftCorner.x + width - 1, gridPosition.y);
         }
         return gridPosition.distance(closestTile);
     }
@@ -100,5 +101,26 @@ public class BoxCollider implements Serializable {
             list.add(new Vector2i(lowerLeftCorner.x + i % width, lowerLeftCorner.y + i / width));
         }
         return list;
+    }
+
+    @Override
+    public Iterator<Vector2i> iterator() {
+        return new Iterator<>() {
+            private int x = 0, y = 0;
+
+            @Override
+            public boolean hasNext() {
+                return y < height;
+            }
+
+            @Override
+            public Vector2i next() {
+                int lastX = x;
+                int lastY = y;
+                y += ++x / width;
+                x = x % width;
+                return lowerLeftCorner.add(lastX, lastY);
+            }
+        };
     }
 }
