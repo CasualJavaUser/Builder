@@ -91,8 +91,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
             setContentWidth(warning.length() * 7 + leftPadding + rightPadding);
         }
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
-            setContentHeight(getContentHeight() + Villager.SIZE + verticalPadding);
-            int counterWidth = leftPadding + (Villager.SIZE + leftPadding) * npcCapacity;
+            setContentHeight(getContentHeight() + Villager.TEXTURE_SIZE + verticalPadding);
+            int counterWidth = leftPadding + (Villager.TEXTURE_SIZE + leftPadding) * npcCapacity;
             if(getContentWidth() < counterWidth)
                 setContentWidth(counterWidth);
         }
@@ -115,13 +115,13 @@ public class BuildingStatWindow extends StatWindow<Building> {
         for (Villager villager : villagers) {
             if (villager.getCurrentBuilding() == pinnedObject)
                 batch.draw(villager.getTexture(),
-                        getGlobalPosition().x + leftPadding + (Villager.SIZE + leftPadding) * i++,
+                        getGlobalPosition().x + leftPadding + (Villager.TEXTURE_SIZE + leftPadding) * i++,
                         getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(Color.BLACK);
         while (i < npcCapacity) {
             batch.draw(Textures.get(Textures.Npc.IDLE0),
-                    getGlobalPosition().x + leftPadding + (Villager.SIZE + leftPadding) * i++,
+                    getGlobalPosition().x + leftPadding + (Villager.TEXTURE_SIZE + leftPadding) * i++,
                     getGlobalPosition().y + verticalPadding);
         }
         batch.setColor(UI.DEFAULT_COLOR);

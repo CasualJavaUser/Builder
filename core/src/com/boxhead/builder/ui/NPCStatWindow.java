@@ -20,11 +20,11 @@ public class NPCStatWindow extends StatWindow<Villager> {
 
         batch.draw(pinnedObject.getTexture(),
                 getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - Villager.SIZE * IMAGE_SCALE,
-                Villager.SIZE * IMAGE_SCALE,
-                Villager.SIZE * IMAGE_SCALE);
+                getGlobalPosition().y + getContentHeight() - Villager.TEXTURE_SIZE * IMAGE_SCALE,
+                Villager.TEXTURE_SIZE * IMAGE_SCALE,
+                Villager.TEXTURE_SIZE * IMAGE_SCALE);
         UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - Villager.SIZE * IMAGE_SCALE);
+                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - Villager.TEXTURE_SIZE * IMAGE_SCALE);
     }
 
     @Override
@@ -50,6 +50,6 @@ public class NPCStatWindow extends StatWindow<Villager> {
     @Override
     protected void updateWindowSize() {
         super.updateWindowSize();
-        setContentHeight(getContentHeight() + verticalPadding + Villager.SIZE * IMAGE_SCALE + 20);
+        setContentHeight(getContentHeight() + verticalPadding + Villager.TEXTURE_SIZE * IMAGE_SCALE + 20);
     }
 }

@@ -85,7 +85,10 @@ public class Logistics {
         return orderRequests.getByValue(building);
     }
 
-    public static void removeOrder(Order order, int units) {
+    public static void removeOrder(Order order, Villager assignee, int units) {
+        deliveriesInProgress.put(assignee, order);
+        order.sender.transferReservationOwnership(null, assignee, order.resource, units);
+        order.recipient.transferReservationOwnership(null, assignee, Resource.NOTHING, units);
         order.amount -= units;
         if (order.amount == 0)
             readyOrders.remove(order);
@@ -359,7 +362,7 @@ public class Logistics {
 
     private static Optional<StorageBuilding> findStorageSpace(Request request) {
         return storages.stream()
-                .filter(storage -> storage.getInventory().getAvailableCapacity() >= THE_UNIT)
+                .filter(storage -> storage.getFreeSpace() >= THE_UNIT)
                 .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
     }
 

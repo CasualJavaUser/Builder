@@ -8,6 +8,8 @@ public class Job {
 
     public void assign(Villager assignee, ProductionBuilding workplace) {}
 
+    public void continuousTask(Villager assignee, ProductionBuilding workplace) {}
+
     public void onExit(Villager assignee, ProductionBuilding workplace) {}
 
     public Recipe getRecipe(ProductionBuilding workplace) {

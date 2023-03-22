@@ -137,8 +137,6 @@ public class Villager extends NPC implements Clickable {
             PUT_RESOURCES_TO_BUILDING,
             PUT_RESERVED_RESOURCES,
             TAKE_RESERVED_RESOURCES,
-            ADD_RESERVATION,
-            REMOVE_RESERVATION,
             REQUEST_TRANSPORT,
             END_DELIVERY,
         }
@@ -260,20 +258,6 @@ public class Villager extends NPC implements Clickable {
                     orderList.removeFirst();
                 }
             });
-            case ADD_RESERVATION -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    workplace.addReservation(Villager.this);
-                    orderList.removeFirst();
-                }
-            });
-            case REMOVE_RESERVATION -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    workplace.removeReservation(Villager.this);
-                    orderList.removeFirst();
-                }
-            });
         }
     }
 
@@ -295,7 +279,7 @@ public class Villager extends NPC implements Clickable {
                     if (buildingIsIn == null)
                         throw new IllegalStateException();
 
-                    buildingIsIn.moveReservedResourcesTo(inventory, resource, amount, Villager.INVENTORY_SIZE);
+                    buildingIsIn.moveReservedResources(Villager.this, buildingIsIn.inventory, inventory, resource, amount);
                     orderList.removeFirst();
                 }
             });
@@ -305,7 +289,7 @@ public class Villager extends NPC implements Clickable {
                     if (buildingIsIn == null)
                         throw new IllegalStateException();
 
-                    buildingIsIn.moveReservedResourcesTo(inventory, resource, -amount, Villager.INVENTORY_SIZE);
+                    buildingIsIn.moveReservedResources(Villager.this, inventory, buildingIsIn.inventory, resource, amount);
                     orderList.removeFirst();
                 }
             });

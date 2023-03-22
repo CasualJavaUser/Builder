@@ -3,6 +3,7 @@ package com.boxhead.builder.game_objects;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Recipe;
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.WorldObject;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.SortedList;
@@ -65,7 +66,7 @@ public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuildi
     }
 
     public Optional<T> findWorkableFieldWork() {
-        return ownFieldWorks.stream().filter(FieldWork::isFree).findFirst();
+        return ownFieldWorks.stream().filter(FieldWork::isFree).min(WorldObject.gridPositionComparator);
     }
 
     @Serial

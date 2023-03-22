@@ -101,9 +101,10 @@ public class ProductionBuilding extends StorageBuilding {
 
     public void business() {
         for (Villager employee : employees) {
-            if (employee.isClockedIn() && !employee.hasOrders()) {
+            if (employee.isClockedIn())
+                job.continuousTask(employee, this);
+            if (employee.isInBuilding(this) && !employee.hasOrders()) {
                 job.assign(employee, this);
-                break;
             }
         }
 

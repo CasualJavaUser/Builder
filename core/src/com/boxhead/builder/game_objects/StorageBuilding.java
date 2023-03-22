@@ -4,10 +4,11 @@ import com.boxhead.builder.Inventory;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StorageBuilding extends Building {
     /**
@@ -15,21 +16,19 @@ public class StorageBuilding extends Building {
      */
     protected final Vector2i entrancePosition;
     protected final Inventory inventory;
-    protected final Inventory reservedInventory;
-    protected final Set<Villager> reservationSet = new HashSet<>();
+    private final Map<Pair<Villager, Resource>, Integer> reservations = new HashMap<>();
+    private final Map<Resource, Integer> reservedTotals = new HashMap<>();
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         entrancePosition = gridPosition.add(type.entrancePosition);
         inventory = new Inventory(200);
-        reservedInventory = new Inventory(200);
     }
 
     public StorageBuilding(Buildings.Type type, Textures.TextureId texture, Vector2i gridPosition, int storageCapacity) {
         super(type, texture, gridPosition);
         entrancePosition = gridPosition.add(type.entrancePosition);
         inventory = new Inventory(storageCapacity);
-        reservedInventory = new Inventory(storageCapacity);
     }
 
     public Vector2i getEntrancePosition() {
@@ -46,60 +45,107 @@ public class StorageBuilding extends Building {
     }
 
     public void reserveResources(Resource resource, int units) {
+        reserveResources(null, resource, units);
+    }
+
+    public void reserveResources(Villager reservee, Resource resource, int units) {
         if (getFreeResources(resource) >= units) {
-            reservedInventory.put(resource, units);
+            updateReservations(reservee, resource, units);
         }
     }
 
     public boolean reserveSpace(int units) {
-        if (inventory.getAvailableCapacity() >= units) {
-            inventory.put(Resource.NOTHING, units);
+        return reserveSpace(null, units);
+    }
+
+    public boolean reserveSpace(Villager reservee, int units) {
+        if (inventory.getAvailableCapacity() >= reservedTotals.getOrDefault(Resource.NOTHING, 0) + units) {
+            updateReservations(reservee, Resource.NOTHING, units);
             return true;
         }
         return false;
     }
 
     public void cancelReservation(int units) {
-        inventory.put(Resource.NOTHING, -units);
+        Pair<Villager, Resource> pair = Pair.of(null, Resource.NOTHING);
+        Integer currentlyReserved = reservations.get(pair);
+        if (currentlyReserved == null || currentlyReserved < units)
+            throw new IllegalArgumentException("cancelling reservation that wasn't made");
+
+        updateReservations(null, Resource.NOTHING, -units);
     }
 
-    public void moveReservedResourcesTo(Inventory otherInventory, Resource resource, int movedUnits, int reservedUnits) {
-        if (movedUnits > 0) {   //move from this to other
-            inventory.moveResourcesTo(otherInventory, resource, movedUnits);
-            reservedInventory.put(resource, -reservedUnits);
-        } else if (movedUnits < 0) {    //move from other to this
-            inventory.put(Resource.NOTHING, -reservedUnits);
-            inventory.moveResourcesTo(otherInventory, resource, movedUnits);
-        }
+    public void cancelReservation(Villager reservee) {
+        Pair<Villager, Resource> pair = Pair.of(reservee, Resource.NOTHING);
+        Integer reservedUnits = reservations.get(pair);
+        if (reservedUnits == null)
+            throw new IllegalArgumentException("cancelling reservation that wasn't made");
+
+        updateReservations(reservee, Resource.NOTHING, -reservedUnits);
     }
 
-    public void putReservedResources(Resource resource, int units) {
-        if (units > 0) {
-            inventory.put(Resource.NOTHING, -units);
-            inventory.put(resource, units);
-        } else if (units < 0) {
-            reservedInventory.put(resource, -units);
-            inventory.put(resource, -units);
-        }
+    public void transferReservationOwnership(Villager currentReservee, Villager newReservee, Resource resource, int units) {
+        Pair<Villager, Resource> pair = Pair.of(currentReservee, resource);
+        Integer reservedUnits = reservations.get(pair);
+
+        if (reservedUnits == null || reservedUnits < units)
+            throw new IllegalArgumentException();
+
+        if (reservedUnits > units)
+            reservations.put(pair, reservedUnits - units);
+        else
+            reservations.remove(pair);
+
+        pair = Pair.of(newReservee, resource);
+        reservedUnits = reservations.get(pair);
+        if (reservedUnits == null)
+            reservations.put(pair, units);
+        else
+            reservations.put(pair, reservedUnits + units);
     }
 
-    public void addReservation(Villager reserver) {
-        reservationSet.add(reserver);  //TODO (temporary) npc reservations are separate from actual reservations
+    public void moveReservedResources(Villager reservee, Inventory source, Inventory destination, Resource resource, int movedUnits) {
+        source.moveResourcesTo(destination, resource, movedUnits);
+        if (this.inventory == source) {
+            updateReservations(reservee, resource, -movedUnits);
+        } else if (this.inventory == destination) {
+            updateReservations(reservee, Resource.NOTHING, -movedUnits);
+        } else throw new IllegalArgumentException();
     }
 
-    public void removeReservation(Villager reserver) {
-        reservationSet.remove(reserver);
-    }
-
-    public boolean hasReserved(Villager villager) {
-        return reservationSet.contains(villager);
+    public boolean hasReserved(Villager villager, Resource resource) {
+        return reservations.containsKey(Pair.of(villager, resource));
     }
 
     public int getFreeResources(Resource resource) {
-        return inventory.getResourceAmount(resource) - reservedInventory.getResourceAmount(resource);
+        return inventory.getResourceAmount(resource) - reservedTotals.getOrDefault(resource, 0);
+    }
+
+    public int getFreeSpace() {
+        return inventory.getAvailableCapacity() - reservedTotals.getOrDefault(Resource.NOTHING, 0);
+    }
+
+    public int getReservedBy(Villager reservee, Resource resource) {
+        Pair<Villager, Resource> pair = Pair.of(reservee, resource);
+        return reservations.getOrDefault(pair, 0);
     }
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    private void updateReservations(Villager reservee, Resource resource, int units) {
+        Pair<Villager, Resource> pair = Pair.of(reservee, resource);
+        int reserved = reservations.getOrDefault(pair, 0) + units;
+        if (reserved == 0)
+            reservations.remove(pair);
+        else
+            reservations.put(pair, reserved);
+
+        reserved = reservedTotals.getOrDefault(resource, 0) + units;
+        if (reserved == 0)
+            reservedTotals.remove(resource);
+        else
+            reservedTotals.put(resource, reserved);
     }
 }

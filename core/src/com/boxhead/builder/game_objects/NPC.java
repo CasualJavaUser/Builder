@@ -31,7 +31,7 @@ public abstract class NPC extends GameObject{
     protected int pathStep;
     protected transient Future<?> pathfinding;
 
-    public static final int SIZE = 16;  //TODO move to Villager?
+    public static final int TEXTURE_SIZE = 16;  //TODO move to Villager?
     private static final int STEP_INTERVAL = 50;
 
     private float stateTime = 0;
