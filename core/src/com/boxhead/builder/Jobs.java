@@ -6,6 +6,8 @@ import com.boxhead.builder.utils.Vector2i;
 
 import java.util.Optional;
 
+import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
+
 public class Jobs {
     public static final Job UNEMPLOYED = new Job() {
         @Override
@@ -98,16 +100,16 @@ public class Jobs {
 
             fieldWork.assignWorker(assignee);
             workplace.getAssignedFieldWork().put(assignee, fieldWork);
-            assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, fieldWork);
-            assignee.giveOrder(Villager.Order.Type.ENTER, fieldWork);
+            assignee.giveOrder(EXIT, workplace);
+            assignee.giveOrder(GO_TO, fieldWork);
+            assignee.giveOrder(ENTER, fieldWork);
         }
 
         @Override
         public void onExit(Villager assignee, ProductionBuilding workplace) {
             if (workplace.getAssignedFieldWork().containsKey(assignee)) {
                 FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
-                assignee.giveOrder(Villager.Order.Type.EXIT, fieldWork);
+                assignee.giveOrder(EXIT, fieldWork);
                 workplace.dissociateFieldWork(assignee);
             }
         }
@@ -146,18 +148,18 @@ public class Jobs {
                 return;
 
             Logistics.removeOrder(order, assignee, Villager.INVENTORY_SIZE);
-            assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, order.sender);
-            assignee.giveOrder(Villager.Order.Type.ENTER, order.sender);
-            assignee.giveOrder(Villager.Order.Type.TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
-            assignee.giveOrder(Villager.Order.Type.EXIT, order.sender);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, order.recipient);
-            assignee.giveOrder(Villager.Order.Type.ENTER, order.recipient);
-            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
-            assignee.giveOrder(Villager.Order.Type.EXIT, order.recipient);
-            assignee.giveOrder(Villager.Order.Type.END_DELIVERY);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
-            assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
+            assignee.giveOrder(EXIT, workplace);
+            assignee.giveOrder(GO_TO, order.sender);
+            assignee.giveOrder(ENTER, order.sender);
+            assignee.giveOrder(TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+            assignee.giveOrder(EXIT, order.sender);
+            assignee.giveOrder(GO_TO, order.recipient);
+            assignee.giveOrder(ENTER, order.recipient);
+            assignee.giveOrder(PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+            assignee.giveOrder(EXIT, order.recipient);
+            assignee.giveOrder(END_DELIVERY);
+            assignee.giveOrder(GO_TO, workplace);
+            assignee.giveOrder(ENTER, workplace);
         }
 
         @Override
@@ -168,16 +170,16 @@ public class Jobs {
                 return;
 
             if (assignee.getInventory().isEmpty()) {
-                assignee.giveOrder(Villager.Order.Type.GO_TO, order.sender);
-                assignee.giveOrder(Villager.Order.Type.ENTER, order.sender);
-                assignee.giveOrder(Villager.Order.Type.TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+                assignee.giveOrder(GO_TO, order.sender);
+                assignee.giveOrder(ENTER, order.sender);
+                assignee.giveOrder(TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
             }
-            assignee.giveOrder(Villager.Order.Type.EXIT, order.sender);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, order.recipient);
-            assignee.giveOrder(Villager.Order.Type.ENTER, order.recipient);
-            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
-            assignee.giveOrder(Villager.Order.Type.EXIT, order.recipient);
-            assignee.giveOrder(Villager.Order.Type.END_DELIVERY);
+            assignee.giveOrder(EXIT, order.sender);
+            assignee.giveOrder(GO_TO, order.recipient);
+            assignee.giveOrder(ENTER, order.recipient);
+            assignee.giveOrder(PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
+            assignee.giveOrder(EXIT, order.recipient);
+            assignee.giveOrder(END_DELIVERY);
         }
 
         @Override
@@ -198,13 +200,13 @@ public class Jobs {
                 return;
 
             if (!farmerAssign(assignee, workplace)) {
-                assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
-                assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
+                assignee.giveOrder(GO_TO, workplace);
+                assignee.giveOrder(ENTER, workplace);
                 if (!assignee.getInventory().isEmpty()) {
                     Resource resource = ((FarmBuilding<? extends FieldWork>) workplace).getResource();
                     int units = assignee.getInventory().getResourceAmount(resource);
-                    assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, resource, units);
-                    assignee.giveOrder(Villager.Order.Type.REQUEST_TRANSPORT, resource, units);
+                    assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, units);
+                    assignee.giveOrder(REQUEST_TRANSPORT, resource, units);
                 }
             }
         }
@@ -257,9 +259,9 @@ public class Jobs {
         workplace.reserveSpace(assignee, defaultYield);
         harvestable.assignWorker(assignee);
         workplace.getAssignedFieldWork().put(assignee, harvestable);
-        assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
-        assignee.giveOrder(Villager.Order.Type.GO_TO, harvestable);
-        assignee.giveOrder(Villager.Order.Type.ENTER, harvestable);
+        assignee.giveOrder(EXIT, workplace);
+        assignee.giveOrder(GO_TO, harvestable);
+        assignee.giveOrder(ENTER, harvestable);
     }
 
     private static void harvesterContinuous(Villager assignee, ProductionBuilding workplace, Resource resource) {
@@ -267,10 +269,10 @@ public class Jobs {
 
         if (!assignee.hasOrders() && (assignee.getInventory().isFull() || readyToReturn)) {
             int resourceAmount = assignee.getInventory().getResourceAmount(resource);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
-            assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
-            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceAmount);
-            assignee.giveOrder(Villager.Order.Type.REQUEST_TRANSPORT, resource, resourceAmount);
+            assignee.giveOrder(GO_TO, workplace);
+            assignee.giveOrder(ENTER, workplace);
+            assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, resourceAmount);
+            assignee.giveOrder(REQUEST_TRANSPORT, resource, resourceAmount);
         }
     }
 
@@ -278,16 +280,16 @@ public class Jobs {
         FieldWork fieldWork = workplace.getAssignedFieldWork().get(assignee);
 
         if (fieldWork != null) {
-            assignee.giveOrder(Villager.Order.Type.EXIT, fieldWork);
+            assignee.giveOrder(EXIT, fieldWork);
             workplace.dissociateFieldWork(assignee);
         }
 
         int resourceUnits = assignee.getInventory().getResourceAmount(resource);
         if (resourceUnits != 0) {
-            assignee.giveOrder(Villager.Order.Type.GO_TO, workplace);
-            assignee.giveOrder(Villager.Order.Type.ENTER, workplace);
-            assignee.giveOrder(Villager.Order.Type.PUT_RESERVED_RESOURCES, resource, resourceUnits);
-            assignee.giveOrder(Villager.Order.Type.REQUEST_TRANSPORT, resource, resourceUnits);
+            assignee.giveOrder(GO_TO, workplace);
+            assignee.giveOrder(ENTER, workplace);
+            assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, resourceUnits);
+            assignee.giveOrder(REQUEST_TRANSPORT, resource, resourceUnits);
         } else if (workplace.hasReserved(assignee, resource)){
             workplace.cancelReservation(assignee);
         }
@@ -303,9 +305,9 @@ public class Jobs {
             FieldWork fieldWork = fieldWorkOptional.get();
             fieldWork.assignWorker(assignee);
             workplace.getAssignedFieldWork().put(assignee, fieldWork);
-            assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
-            assignee.giveOrder(Villager.Order.Type.GO_TO, fieldWork);
-            assignee.giveOrder(Villager.Order.Type.ENTER, fieldWork);
+            assignee.giveOrder(EXIT, workplace);
+            assignee.giveOrder(GO_TO, fieldWork);
+            assignee.giveOrder(ENTER, fieldWork);
             return true;
         } else if (workplace instanceof PlantationBuilding plantation) {
             for (Vector2i tile : employingFarm.getFieldCollider()) {
@@ -313,7 +315,7 @@ public class Jobs {
                     Harvestable newHarvestable = Harvestables.create(plantation.getCrop(), tile);
                     plantation.addFieldWork(newHarvestable);
 
-                    assignee.giveOrder(Villager.Order.Type.EXIT, workplace);
+                    assignee.giveOrder(EXIT, workplace);
                     assignee.giveOrder(tile);
                     assignee.giveOrder(newHarvestable);
                     return true;

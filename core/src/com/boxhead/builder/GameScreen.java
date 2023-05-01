@@ -53,6 +53,7 @@ public class GameScreen implements Screen {
         World.drawMap(batch);
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
+        //World.pathfindingTest(batch);
 
         if (!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);

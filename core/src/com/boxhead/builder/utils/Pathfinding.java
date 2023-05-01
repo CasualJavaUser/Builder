@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 public class Pathfinding {
     private static final Map<Pair<Vector2i, Vector2i>, Pair<Vector2i[], Integer>> cache = new HashMap<>();
+    public static final float SQRT_2 = 1.41421353816986083984375f;
 
     public static Vector2i[] findPath(Vector2i start, Vector2i destination) {
         Pair<Vector2i, Vector2i> pair = Pair.of(start, destination);
@@ -16,17 +17,17 @@ public class Pathfinding {
             return cache.get(pair).first;
         }
 
-        Vector2i[] path = dijkstra(start, Predicate.isEqual(destination));
+        Vector2i[] path = dijkstraHeuristic(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination.distanceComparator());
         cache.put(pair, Pair.of(path, 1));
         return path;
     }
 
     public static Vector2i[] findPathNoCache(Vector2i start, Vector2i destination) {
-        return dijkstra(start, Predicate.isEqual(destination));
+        return dijkstraHeuristic(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination.distanceComparator());
     }
 
     public static Vector2i[] findPath(Vector2i start, BoxCollider area) {
-        return dijkstra(start, area.extended()::overlaps);
+        return dijkstraHeuristic(start, area.extended()::overlaps, new HashSet<>(World.getNavigableTiles()), Comparator.comparingDouble(area::distance));
     }
 
     public static void removeUnusedPaths() {
@@ -44,7 +45,7 @@ public class Pathfinding {
      */
     public static void updateCache(Vector2i gridPosition) {
         for (Object pair : cache.values().toArray()) {
-            Vector2i[] array = ((Pair<Vector2i[], Integer>)pair).first;
+            Vector2i[] array = ((Pair<Vector2i[], Integer>) pair).first;
 
             for (Vector2i tile : array) {
                 if (tile.equals(gridPosition)) {
@@ -60,7 +61,7 @@ public class Pathfinding {
      */
     public static void updateCache(BoxCollider collider) {
         for (Object pair : cache.values().toArray()) {
-            Vector2i[] array = ((Pair<Vector2i[], Integer>)pair).first;
+            Vector2i[] array = ((Pair<Vector2i[], Integer>) pair).first;
 
             for (Vector2i tile : array) {
                 if (collider.overlaps(tile)) {
@@ -71,18 +72,15 @@ public class Pathfinding {
         }
     }
 
-    private static Vector2i[] dijkstra(Vector2i start, Predicate<Vector2i> destination) {
-        if (destination.test(start) || !World.getNavigableTiles().contains(start)) {
-            return new Vector2i[]{start};
-        }
-        HashSet<Vector2i> unvisitedTiles = new HashSet<>(World.getNavigableTiles());
-        HashMap<Vector2i, Double> distanceToTile = new HashMap<>(unvisitedTiles.size(), 1f);
-        SortedList<Vector2i> semiVisited = new SortedList<>(Comparator.comparingDouble(distanceToTile::get)); //unvisited tiles with known distances
-        HashMap<Vector2i, Vector2i> parentTree = new HashMap<>();
-        for (Vector2i tile : unvisitedTiles) {
+    private static Vector2i[] dijkstraHeuristic(Vector2i start, Predicate<Vector2i> destination, Set<Vector2i> navigableTiles, Comparator<Vector2i> heuristic) {
+        Map<Vector2i, Double> distanceToTile = new HashMap<>(navigableTiles.size());
+        Map<Vector2i, Vector2i> parentTree = new HashMap<>();
+        SortedSet<Vector2i> semiVisited = new TreeSet<>(heuristic); //tiles to which distances are known
+
+        for (Vector2i tile : navigableTiles) {
             distanceToTile.put(tile, Double.MAX_VALUE);
         }
-        distanceToTile.replace(start, 0d);
+        distanceToTile.put(start, 0d);
         semiVisited.add(start);
 
         int x = start.x, y = start.y;
@@ -91,45 +89,31 @@ public class Pathfinding {
 
         while (!destination.test(currentTile)) {
             float distanceModifier = 1f / World.getTile(currentTile).speed;
+            float diagonalDistanceModifier = SQRT_2 * distanceModifier;
 
             tempTile = new Vector2i(x + 1, y);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x - 1, y);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x, y + 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x, y - 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, distanceModifier);
             tempTile = new Vector2i(x + 1, y + 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, diagonalDistanceModifier);
             tempTile = new Vector2i(x - 1, y + 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, diagonalDistanceModifier);
             tempTile = new Vector2i(x + 1, y - 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, diagonalDistanceModifier);
             tempTile = new Vector2i(x - 1, y - 1);
-            calcDistance(unvisitedTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, Math.sqrt(2) * distanceModifier);
+            calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, diagonalDistanceModifier);
 
-            unvisitedTiles.remove(currentTile);
+            navigableTiles.remove(currentTile);
             semiVisited.remove(currentTile);
 
-            boolean pathExists = false;
-            for (Vector2i tile : unvisitedTiles) {
-                if (distanceToTile.get(tile) < Double.MAX_VALUE) {
-                    pathExists = true;
-                    break;
-                }
-            }
-            if (!pathExists) {
-                return new Vector2i[]{start};   //no path
-            }
+            if (semiVisited.isEmpty()) return new Vector2i[]{start};
 
-            for (int i = semiVisited.size() - 1; i >= 0; i--) {
-                Vector2i vector2i = semiVisited.get(i);
-                if (unvisitedTiles.contains(vector2i)) {
-                    currentTile = vector2i;
-                    break;
-                }
-            }
+            currentTile = semiVisited.first();
             x = currentTile.x;
             y = currentTile.y;
         }
@@ -150,19 +134,20 @@ public class Pathfinding {
         return finalPath;
     }
 
-    private static void calcDistance(HashSet<Vector2i> unvisitedTiles,
-                                     HashMap<Vector2i, Double> distanceToTile,
-                                     HashMap<Vector2i, Vector2i> parentTree,
-                                     SortedList<Vector2i> semiVisited,
+    private static void calcDistance(Set<Vector2i> navigableTiles,
+                                     Map<Vector2i, Double> distanceToTile,
+                                     Map<Vector2i, Vector2i> parentTree,
+                                     Set<Vector2i> semiVisited,
                                      Vector2i currentTile,
                                      Vector2i tempTile,
                                      double distance) {
-        if (unvisitedTiles.contains(tempTile) && distanceToTile.get(tempTile) > distanceToTile.get(currentTile) + distance) {
-            distanceToTile.replace(tempTile, distanceToTile.get(currentTile) + distance);
-            semiVisited.remove(tempTile);
-            semiVisited.add(tempTile);
-            parentTree.remove(tempTile);
-            parentTree.put(tempTile, currentTile);
+        if (navigableTiles.contains(tempTile)) {
+            double currentDistance = distanceToTile.get(currentTile) + distance;
+            if (distanceToTile.get(tempTile) > currentDistance) {
+                distanceToTile.put(tempTile, currentDistance);
+                semiVisited.add(tempTile);
+                parentTree.put(tempTile, currentTile);
+            }
         }
     }
 }

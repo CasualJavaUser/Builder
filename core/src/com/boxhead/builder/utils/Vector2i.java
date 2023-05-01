@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Comparator;
 
 public class Vector2i implements Cloneable, Serializable {
     @Serial
@@ -69,6 +70,10 @@ public class Vector2i implements Cloneable, Serializable {
         return (xDiff * xDiff) + (yDiff * yDiff);
     }
 
+    public Comparator<Vector2i> distanceComparator() {
+        return Comparator.comparingInt(vector -> vector.distanceScore(this));
+    }
+
     public long gridHash() {
         return (long) y << 32 | x;
     }
@@ -107,5 +112,23 @@ public class Vector2i implements Cloneable, Serializable {
 
     public static Vector2i zero() {
         return new Vector2i(0, 0);
+    }
+
+    public static Vector2i[] line(Vector2i end1, Vector2i end2) {
+        Vector2 floatVector = end1.toVector2();
+
+        int diffX = end2.x - end1.x;
+        int diffY = end2.y - end1.y;
+        int length = Math.max(Math.abs(diffX), Math.abs(diffY));
+        float fDiffX = (float) diffX / length;
+        float fDiffY = (float) diffY / length;
+        Vector2i[] line = new Vector2i[length + 1];
+        line[0] = end1.clone();
+        line[length] = end2.clone();
+        for (int i = 1; i < length; i++) {
+            floatVector.add(fDiffX, fDiffY);
+            line[i] = new Vector2i((int) (floatVector.x + 0.5f), (int) (floatVector.y + 0.5f));
+        }
+        return line;
     }
 }

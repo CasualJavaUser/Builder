@@ -422,6 +422,15 @@ public class World {
         }
     }
 
+    public static void pathfindingTest(SpriteBatch batch) {
+        Vector2i mousePos = new Vector2i(GameScreen.getMouseWorldPosition()).divide(TILE_SIZE);
+        Vector2i[] path = Pathfinding.findPath(Vector2i.zero(), mousePos);
+
+        for (Vector2i vector2i : path) {
+            batch.draw(Textures.get(Textures.Tile.DEFAULT), vector2i.x * TILE_SIZE, vector2i.y * TILE_SIZE);
+        }
+    }
+
     public static boolean isBuildable(Vector2i position) {
         if (worldSize.x * position.y + position.x < tiles.length) {
             Tile tile = getTile(position);
