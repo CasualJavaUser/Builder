@@ -1,6 +1,6 @@
 package com.boxhead.builder;
 
-import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -11,19 +11,15 @@ import java.util.Optional;
 public interface FieldWork extends WorldObject, Serializable {
     Object getCharacteristic();
 
-    void assignWorker(NPC npc);
+    void assignWorker(Villager villager);
 
-    void dissociateWorker(NPC npc);
+    void dissociateWorker(Villager villager);
 
     boolean isFree();
 
-    default boolean isNavigable() {
-        return false;
-    }
-
     void work();
 
-    void setWork(NPC npc, boolean b);
+    void setWork(Villager villager, boolean b);
 
     BoxCollider getCollider();
 

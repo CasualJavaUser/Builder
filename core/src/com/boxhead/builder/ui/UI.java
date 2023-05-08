@@ -3,22 +3,27 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Matrix4;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
-import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class UI {
+    private static final Matrix4 uiProjection = new Matrix4();
+
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color SEMI_TRANSPARENT_RED = new Color(.86f, .25f, .25f, .4f);
@@ -33,52 +38,56 @@ public class UI {
     private static Button activeButton = null;
     private static ScrollPane activeScrollPane = null;
     private static Clickable clickedElement = null;
-    private static Set<UIElement> saveWindowElements = new HashSet<>();
+    private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
-    private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, pauseGameButton;
+    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, pauseGameButton;
 
-    private static UIElement timeElementGroup;
-    private static Clock clock;
-    private static Button pauseButton, playButton, x2Button, x3Button;
+    @AddToUI private static UIElement timeElementGroup;
+    @AddToUI private static Clock clock;
+    @AddToUI private static Button pauseButton, playButton, x2Button, x3Button;
 
-    private static ResourceList resourceList;
+    @AddToUI private static ResourceList resourceList;
 
-    private static Window buildingWindow;
-    private static TextArea buildWindowDivider;
-    private static UIElement buildingImage;
-    private static Button buildButton;
-    private static TextArea buildingDescription;
+    @AddToUI private static Window buildingWindow;
+    @AddToUI private static TextArea buildWindowDivider;
+    @AddToUI private static UIElement buildingImage;
+    @AddToUI private static Button buildButton;
+    @AddToUI private static TextArea buildingDescription;
 
-    private static Button infrastructureTabButton;
-    private static UIElement infrastructureTab;
-    private static Button storageButton, constructionOfficeButton, transportOfficeButton;
+    //infrastructure tab
+    @AddToUI private static Button infrastructureTabButton;
+    @AddToUI private static UIElement infrastructureTab;
+    @AddToUI private static Button storageButton, constructionOfficeButton, transportOfficeButton;
 
-    private static Button housingTabButton;
-    private static UIElement housingTab;
-    private static Button logCabinButton;
+    //housing tab
+    @AddToUI private static Button housingTabButton;
+    @AddToUI private static UIElement housingTab;
+    @AddToUI private static Button logCabinButton;
 
-    private static Button resourcesTabButton;
-    private static UIElement resourcesTab;
-    private static Button lumberjackButton, mineButton, stoneGathererButton, toolShackButton;
+    //resource tab
+    @AddToUI private static Button resourcesTabButton;
+    @AddToUI private static UIElement resourcesTab;
+    @AddToUI private static Button lumberjackButton, mineButton, stoneGathererButton, plantationButton, ranchButton;
 
-    private static Button servicesTabButton;
-    private static UIElement servicesTab;
-    private static Button serviceButton;
+    //services tab
+    @AddToUI private static Button servicesTabButton;
+    @AddToUI private static UIElement servicesTab;
+    @AddToUI private static Button serviceButton, pubButton;
 
-    private static Window pauseWindow;
-    private static Button resumeButton, loadButton, saveButton, settingsButton, quitButton;
+    @AddToUI private static Window pauseWindow;
+    @AddToUI private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
 
-    private static Window saveWindow;
-    private static TextArea saveText;
-    private static ScrollPane scrollPane;
-    private static Button saveWindowBackButton;
+    @AddToUI private static Window saveWindow;
+    @AddToUI private static TextArea saveText;
+    @AddToUI private static ScrollPane scrollPane;
+    @AddToUI private static Button saveWindowBackButton;
 
-    private static Window settingsWindow;
-    private static TextArea settingsText;
-    private static Button settingsWindowBackButton;
+    @AddToUI private static Window settingsWindow;
+    @AddToUI private static TextArea settingsText;
+    @AddToUI private static Button settingsWindowBackButton;
 
-    private static NPCStatWindow npcStatWindow;
-    private static BuildingStatWindow buildingStatWindow;
+    @AddToUI private static NPCStatWindow npcStatWindow;
+    @AddToUI private static BuildingStatWindow buildingStatWindow;
 
     public static final int PADDING = 10;
     private static boolean isPaused = false;
@@ -108,7 +117,8 @@ public class UI {
         PAUSE_MENU(false),
         SAVE_MENU(false),
         SETTINGS_MENU(false),
-        POPUP(false);
+        POPUP(false),
+        CONSOLE(false);
 
         private final List<UIElement> elements;
         private boolean isVisible;
@@ -158,22 +168,28 @@ public class UI {
             pauseWindow.setTint(WHITE);
 
             int x = -Textures.get(Textures.Ui.BIG_BUTTON).getRegionWidth() / 2;
+            newGameButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "New game");
             resumeButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "Resume");
             loadButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 42), "Load");
             saveButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -32), "Save");
             settingsButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -106), "Settings");
+            quitToMenuButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit to menu");
             quitButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit");
 
+            newGameButton.setOnUp(BuilderGame::generateNewWorld);
             resumeButton.setOnUp(() -> showPauseMenu(false));
             loadButton.setOnUp(UI::showLoadMenu);
             saveButton.setOnUp(UI::showSaveMenu);
             settingsButton.setOnUp(() -> Layer.SETTINGS_MENU.setVisible(true));
+            quitToMenuButton.setOnUp(() -> BuilderGame.getInstance().setScreen(BuilderGame.getMenuScreen()));
             quitButton.setOnUp(() -> Gdx.app.exit());
 
+            newGameButton.setTint(WHITE);
             resumeButton.setTint(WHITE);
             loadButton.setTint(WHITE);
             saveButton.setTint(WHITE);
             settingsButton.setTint(WHITE);
+            quitToMenuButton.setTint(WHITE);
             quitButton.setTint(WHITE);
         }
         //endregion
@@ -246,12 +262,12 @@ public class UI {
 
             npcButton.setOnUp(() -> {
                 Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
-                World.spawnNPC(new NPC((int)(Math.random()*2), position));
+                World.spawnVillager(new Villager((int)(Math.random()*2), position));
             });
 
             workButton.setOnUp(() -> {
                 World.setDay(World.getDay()+1);
-                World.setTime(25170);
+                World.setTime(28770);
             });
             restButton.setOnUp(() -> {
                 World.setDay(World.getDay()+1);
@@ -261,7 +277,7 @@ public class UI {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
                 else Buildings.toDemolishingMode();
             });
-            tilingButton.setOnUp(() -> Tiles.toTilingMode(Tiles.TilingMode.SINGLE));
+            tilingButton.setOnUp(() -> Tiles.toTilingMode(Tiles.TilingMode.PATH));
             pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
@@ -354,12 +370,14 @@ public class UI {
                 lumberjackButton = new Button(Textures.get(Textures.Ui.AXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
                 mineButton = new Button(Textures.get(Textures.Ui.PICKAXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
                 stoneGathererButton = new Button(Textures.get(Textures.Ui.PICKAXE_WITH_STONE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                toolShackButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x + 74, y));
+                plantationButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
+                ranchButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
 
                 lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACKS_HUT));
                 mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
                 stoneGathererButton.setOnUp(() -> showBuildingStats(Buildings.Type.STONE_GATHERERS));
-                toolShackButton.setOnUp(() -> showBuildingStats(Buildings.Type.PLANTATION));
+                plantationButton.setOnUp(() -> showBuildingStats(Buildings.Type.PLANTATION));
+                ranchButton.setOnUp(() -> showBuildingStats(Buildings.Type.RANCH));
             }
             //endregion
 
@@ -379,8 +397,10 @@ public class UI {
                 int y = -64;
 
                 serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
+                pubButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
 
                 serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_SERVICE_BUILDING));
+                pubButton.setOnUp(() -> showBuildingStats(Buildings.Type.PUB));
             }
             //endregion
         }
@@ -426,67 +446,27 @@ public class UI {
     }
 
     private static void addUIElements() {
-        npcStatWindow.addToUI();
-        buildingStatWindow.addToUI();
-
-        buildMenuButton.addToUI();
-        npcButton.addToUI();
-        workButton.addToUI();
-        restButton.addToUI();
-        demolishButton.addToUI();
-        tilingButton.addToUI();
-        pauseGameButton.addToUI();
-
-        clock.addToUI();
-        pauseButton.addToUI();
-        playButton.addToUI();
-        x2Button.addToUI();
-        x3Button.addToUI();
-        resourceList.addToUI();
+        try {
+            Field[] fields = UI.class.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(AddToUI.class)) {
+                    ((UIElement) field.get(UI.class)).addToUI();
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         Layer.BUILDING_MENU.addElement(buildMenuButton);
         Layer.BUILDING_MENU.addElement(npcButton);
         Layer.BUILDING_MENU.addElement(workButton);
         Layer.BUILDING_MENU.addElement(restButton);
         Layer.BUILDING_MENU.addElement(demolishButton);
-
-        buildingWindow.addToUI();
-            infrastructureTabButton.addToUI();
-                storageButton.addToUI();
-                constructionOfficeButton.addToUI();
-                transportOfficeButton.addToUI();
-            housingTabButton.addToUI();
-                logCabinButton.addToUI();
-            resourcesTabButton.addToUI();
-                lumberjackButton.addToUI();
-                mineButton.addToUI();
-                stoneGathererButton.addToUI();
-                toolShackButton.addToUI();
-            servicesTabButton.addToUI();
-                serviceButton.addToUI();
-
-            buildWindowDivider.addToUI();
-            buildingImage.addToUI();
-            buildingDescription.addToUI();
-            buildButton.addToUI();
-
-        pauseWindow.addToUI();
-            resumeButton.addToUI();
-            loadButton.addToUI();
-            saveButton.addToUI();
-            settingsButton.addToUI();
-            quitButton.addToUI();
-
-        saveWindow.addToUI();
-            saveText.addToUI();
-            saveWindowBackButton.addToUI();
-
-        settingsWindow.addToUI();
-            settingsText.addToUI();
-            settingsWindowBackButton.addToUI();
     }
 
-    public static void drawUI(SpriteBatch batch) {
+    public static void drawUI(SpriteBatch batch, OrthographicCamera camera) {
+        updateProjectionMatrix(camera);
+        batch.setProjectionMatrix(uiProjection);
         for (Layer layer : Layer.values()) {
             for (UIElement element : layer.getElements()) {
                 if (element.isVisible()) {
@@ -496,6 +476,34 @@ public class UI {
                 }
             }
         }
+        batch.setProjectionMatrix(camera.combined);
+    }
+
+    public static void drawMenu(SpriteBatch batch, OrthographicCamera camera) {
+        updateProjectionMatrix(camera);
+        batch.setProjectionMatrix(uiProjection);
+        for (int i = Layer.PAUSE_MENU.ordinal(); i < Layer.values().length; i++) {
+            for (UIElement element : Layer.values()[i].getElements()) {
+                if (element.isVisible()) {
+                    element.enableScissors(batch);
+                    element.draw(batch);
+                    element.disableScissors(batch);
+                }
+            }
+        }
+        batch.setProjectionMatrix(camera.combined);
+    }
+
+    public static void drawPopups(SpriteBatch batch, OrthographicCamera camera) {
+        updateProjectionMatrix(camera);
+        batch.setProjectionMatrix(uiProjection);
+        if (Popups.getActivePopup() != null) Popups.getActivePopup().draw(batch);
+        batch.setProjectionMatrix(camera.combined);
+    }
+
+    private static void updateProjectionMatrix(OrthographicCamera camera) {
+        uiProjection.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
+        uiProjection.setTranslation(-1, -1, 0);
     }
 
     public static boolean handleUiInteraction() {
@@ -594,8 +602,8 @@ public class UI {
         Anchor.BOTTOM_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), 0);
     }
 
-    public static void showNPCStatWindow(NPC npc) {
-        npcStatWindow.pin(npc);
+    public static void showNPCStatWindow(Villager villager) {
+        npcStatWindow.pin(villager);
         npcStatWindow.setVisible(true);
     }
 
@@ -612,7 +620,6 @@ public class UI {
             else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInTilingMode()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
-                if(Tiles.getMode() == Tiles.TilingMode.FARM) return;  //TODO temporary solution (turning off tiling mode while placing a farm building)
                 Tiles.turnOffTilingMode();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
@@ -645,7 +652,7 @@ public class UI {
         servicesTabButton.setTint(index == 3 ? DEFAULT_COLOR : PRESSED_COLOR);
     }
 
-    private static void showPauseMenu(boolean open) {
+    public static void showPauseMenu(boolean open) {
         Logic.pause(open);
         isPaused = open;
         DEFAULT_COLOR.set(open ? DARK : WHITE);
@@ -721,6 +728,10 @@ public class UI {
         UI.activeButton = activeButton;
     }
 
+    public static void setActiveScrollPane(ScrollPane activeScrollPane) {
+        UI.activeScrollPane = activeScrollPane;
+    }
+
     private static void createSaveField(File saveFile, boolean isSaving) {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
 
@@ -737,30 +748,35 @@ public class UI {
 
         Button saveButton = new Button(Textures.get(isSaving ? Textures.Ui.SAVE : Textures.Ui.LOAD), area, Layer.SAVE_MENU, new Vector2i(PADDING, PADDING));
 
-                saveButton.setOnUp(() -> {
-                    if(isSaving) {
-                        Popups.showPopup("Override save?", () -> {
-                            //todo show info popup
-                            BuilderGame.saveToFile(saveFile);
-                            Layer.SAVE_MENU.setVisible(false);
-                        });
-                    }
-                    else {
-                        //todo show info popup
+        saveButton.setOnUp(() -> {
+            if (isSaving) {
+                Popups.showPopup("Override save?", () -> {
+                    BuilderGame.saveToFile(saveFile);
+                    Layer.SAVE_MENU.setVisible(false);
+                });
+            } else {
+                if (BuilderGame.timeSinceLastSave()  > 60_000) {
+                    Popups.showPopup("Load save?", () -> {
                         BuilderGame.loadFromFile(saveFile);
                         Layer.SAVE_MENU.setVisible(false);
-                    }
-                });
+                    });
+                }
+                else {
+                    BuilderGame.loadFromFile(saveFile);
+                    Layer.SAVE_MENU.setVisible(false);
+                }
+            }
+        });
 
         Button deleteButton = new Button(Textures.get(Textures.Ui.DELETE), area, Layer.SAVE_MENU, new Vector2i(PADDING * 2 + 64, PADDING));
 
-                deleteButton.setOnUp(() -> {
-                    Popups.showPopup("Delete file?", () -> {
-                        saveFile.delete();
-                        if(isSaving) showSaveMenu();
-                        else showLoadMenu();
-                    });
-                });
+        deleteButton.setOnUp(() -> {
+            Popups.showPopup("Delete file?", () -> {
+                saveFile.delete();
+                if (isSaving) showSaveMenu();
+                else showLoadMenu();
+            });
+        });
 
         saveWindowElements.add(area);
         saveWindowElements.add(textArea);
@@ -811,5 +827,23 @@ public class UI {
 
     public static ResourceList getResourceList() {
         return resourceList;
+    }
+
+    /**
+     * @param b if true then adjust the pause menu to in-game use. Otherwise, adjusts to main menu.
+     */
+    public static void adjustMenuForInGameUse(boolean b) {
+        resumeButton.setVisible(b);
+        newGameButton.setVisible(!b);
+        quitToMenuButton.setVisible(b);
+        quitButton.setVisible(!b);
+    }
+
+    public static NPCStatWindow getNpcStatWindow() {
+        return npcStatWindow;
+    }
+
+    public static BuildingStatWindow getBuildingStatWindow() {
+        return buildingStatWindow;
     }
 }

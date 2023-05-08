@@ -22,6 +22,11 @@ public class Buildings {
     private static Type currentBuilding;
     private static Range<Integer> rangeX, rangeY;
 
+    public enum Shift {
+        EIGHT_TO_FOUR,
+        ELEVEN_TO_SEVEN
+    }
+
     public enum Type {
         LOG_CABIN (
                 Textures.Building.LOG_CABIN,
@@ -38,7 +43,7 @@ public class Buildings {
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 3),
                 1,
-                100,
+                0,
                 15,
                 new Recipe(Pair.of(Resource.WOOD, 20))
         ),
@@ -62,7 +67,7 @@ public class Buildings {
                 Textures.Building.SERVICE_FUNGUS,
                 "hospital",
                 Jobs.DOCTOR,
-                Service.HEAL,
+                Service.TREATING,
                 new Vector2i(0, -1),
                 5,
                 100,
@@ -108,14 +113,40 @@ public class Buildings {
                 15,
                 new Recipe(Pair.of(Resource.WOOD, 30))
         ),
-        PLANTATION(
+        PLANTATION (
                 Textures.Building.TOOL_SHACK,
-                "tool shack", Jobs.FARMER,
+                "plantation",
+                Jobs.FARMER,
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 2),
                 3,
                 0,
                 Harvestables.Type.WHEAT,
+                new Recipe(Pair.of(Resource.WOOD, 10))
+        ),
+        RANCH (
+                Textures.Building.TOOL_SHACK,
+                "ranch",
+                Jobs.FARMER,
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 2),
+                3,
+                0,
+                Animals.Type.COW,
+                new Recipe(Pair.of(Resource.WOOD, 10))
+        ),
+        PUB (
+                Textures.Building.FUNGUS,
+                "pub",
+                Jobs.BARTENDER,
+                Service.BARTENDING,
+                new Vector2i(0, -1),
+                new BoxCollider(0, 0, 2, 2),
+                2,
+                200,
+                5,
+                20,
+                Shift.ELEVEN_TO_SEVEN,
                 new Recipe(Pair.of(Resource.WOOD, 10))
         );
 
@@ -129,9 +160,10 @@ public class Buildings {
         public final Vector2i entrancePosition;
         public final BoxCollider relativeCollider;
         public final int npcCapacity, productionInterval, guestCapacity, serviceInterval;
+        public final Shift shift;
         public final int range;
         public final Harvestables.Type crop;
-        public final Animal farmAnimal;
+        public final Animals.Type farmAnimal;
         public final Recipe buildCost;
         /**
          * Returns building's efficiency based on the buildings in range.
@@ -139,7 +171,15 @@ public class Buildings {
         public final Function<Set<Building>, Float> updateEfficiency;
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Harvestables.Type crop, Animal farmAnimal, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Shift shift, int range, Harvestables.Type crop, Animals.Type farmAnimal, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+
+            if (    (crop != null && farmAnimal != null) ||
+                    (guestCapacity > 0 && service == null) ||
+                    (npcCapacity > 0 && entrancePosition == null)
+
+            )
+                throw new IllegalArgumentException();
+
             this.texture = texture;
             this.job = job;
             this.service = service;
@@ -150,6 +190,7 @@ public class Buildings {
             this.productionInterval = productionInterval;
             this.guestCapacity = guestCapacity;
             this.serviceInterval = serviceInterval;
+            this.shift = shift;
             this.range = range;
             this.crop = crop;
             this.farmAnimal = farmAnimal;
@@ -159,13 +200,18 @@ public class Buildings {
 
         //service
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
-             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
-            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, range, null, null, buildCost, updateEfficiency);
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Shift shift, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
+            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, shift, range, null, null, buildCost, updateEfficiency);
+        }
+
+        Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
+             int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Shift shift, Recipe buildCost) {
+            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, shift, 0, buildCost, (b) -> 1f);
         }
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition, BoxCollider relativeCollider,
              int npcCapacity, int productionInterval, int guestCapacity, int serviceInterval, Recipe buildCost) {
-            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, 0, buildCost, (b) -> 1f);
+            this(texture, name, job, service, entrancePosition, relativeCollider, npcCapacity, productionInterval, guestCapacity, serviceInterval, Shift.EIGHT_TO_FOUR, 0, buildCost, (b) -> 1f);
         }
 
         Type(Textures.Building texture, String name, Job job, Service service, Vector2i entrancePosition,
@@ -183,16 +229,16 @@ public class Buildings {
 
         //farm
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Harvestables.Type crop, Recipe buildCost) {
-            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, crop, null, buildCost, (b) -> 1f);
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, Shift.EIGHT_TO_FOUR, 0, crop, null, buildCost, (b) -> 1f);
         }
 
-        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Animal farmAnimal, Recipe buildCost) {
-            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, 0, null, farmAnimal, buildCost, (b) -> 1f);
+        Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, Animals.Type farmAnimal, Recipe buildCost) {
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, Shift.EIGHT_TO_FOUR, 0, null, farmAnimal, buildCost, (b) -> 1f);
         }
 
         //production
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int range, Recipe buildCost, Function<Set<Building>, Float> updateEfficiency) {
-            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, range, buildCost, updateEfficiency);
+            this(texture, name, job, null, entrancePosition, relativeCollider, npcCapacity, productionInterval, 0, 0, Shift.EIGHT_TO_FOUR, range, buildCost, updateEfficiency);
         }
 
         Type(Textures.Building texture, String name, Job job, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, int productionInterval, int range, Recipe buildCost) {
@@ -207,28 +253,14 @@ public class Buildings {
             this(texture, name, job, null, entrancePosition, npcCapacity, productionInterval, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, Job job, Vector2i entrancePosition, int npcCapacity, int productionInterval, Recipe buildCost) {
-            this(texture, null, job, entrancePosition, npcCapacity, productionInterval, buildCost);
-            name = defaultName();
-        }
-
         //residential
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
             this(texture, name, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
         }
 
-        Type(Textures.Building texture, Vector2i entrancePosition, BoxCollider relativeCollider, int npcCapacity, Recipe buildCost) {
-            this(texture, null, null, null, entrancePosition, relativeCollider, npcCapacity, 0, 0, 0, buildCost);
-            name = defaultName();
-        }
-
         //storage
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost) {
             this(texture, name, null, null, entrancePosition, relativeCollider, 0, 0, 0, 0, buildCost);
-        }
-
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost) {
-            this(texture, name, null, null, entrancePosition, 0, 0, 0, 0, buildCost);
         }
 
         public TextureRegion getTexture() {
@@ -251,6 +283,14 @@ public class Buildings {
             return crop != null || farmAnimal != null;
         }
 
+        public boolean isPlantation() {
+            return crop != null;
+        }
+
+        public boolean isRanch() {
+            return farmAnimal != null;
+        }
+
         public boolean isService() {
             return service != null;
         }
@@ -269,7 +309,8 @@ public class Buildings {
     }
 
     public static Building create(Type type, Vector2i gridPosition) {
-        if (type.isFarm()) return new FarmBuilding(type, gridPosition);
+        if (type.isPlantation()) return new PlantationBuilding(type, gridPosition);
+        if (type.isRanch()) return new RanchBuilding(type, gridPosition);
         if (type.isService()) return new ServiceBuilding(type, gridPosition);
         if (type.isProduction()) return new ProductionBuilding(type, gridPosition);
         if (type.isResidential()) return new ResidentialBuilding(type, gridPosition);
@@ -282,35 +323,71 @@ public class Buildings {
             throw new IllegalStateException("Not in building mode");
 
         TextureRegion texture = currentBuilding.getTexture();
-        Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
-        int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
-        int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
+        if(!Tiles.isInFieldMode()) {
+            Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
-        int posX = mouseX - (mouseX % World.TILE_SIZE);
-        int posY = mouseY - (mouseY % World.TILE_SIZE);
+            int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
+            int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
 
-        posX = rangeX.fit(posX);
-        posY = rangeY.fit(posY);
+            int posX = mouseX - (mouseX % World.TILE_SIZE);
+            int posY = mouseY - (mouseY % World.TILE_SIZE);
 
-        if (currentBuilding.range > 0) {
-            showBuildingRange(batch,
-                    posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
-                    posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
-                    currentBuilding.range);
+            posX = rangeX.fit(posX);
+            posY = rangeY.fit(posY);
+
+            if (currentBuilding.range > 0) {
+                showBuildingRange(batch,
+                        posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
+                        posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
+                        currentBuilding.range);
+            }
+            boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
+
+            batch.setColor(UI.SEMI_TRANSPARENT);
+            batch.draw(texture, posX, posY);
+            batch.setColor(UI.DEFAULT_COLOR);
+
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isBuildable) {
+                if (!currentBuilding.isFarm()) {
+                    Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
+                    World.placeFieldWork(new ConstructionSite(currentBuilding, buildingPosition, 100));
+
+                    if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                        isInBuildingMode = false;
+                }
+                else {
+                    Tiles.toFieldMode(
+                            new BoxCollider(
+                                    posX / World.TILE_SIZE,
+                                    posY / World.TILE_SIZE,
+                                    currentBuilding.relativeCollider.getWidth(),
+                                    currentBuilding.relativeCollider.getHeight()),
+                            currentBuilding.farmAnimal != null,
+                            3,
+                            12);
+                }
+            }
         }
-        boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
+        else {
+            batch.setColor(UI.SEMI_TRANSPARENT);
+            batch.draw(
+                    texture,
+                    Tiles.getBuildingCollider().getGridPosition().x * World.TILE_SIZE,
+                    Tiles.getBuildingCollider().getGridPosition().y * World.TILE_SIZE
+            );
+            BoxCollider fieldCollider = Tiles.handleFieldMode(batch);
+            if(fieldCollider != null) {
+                World.placeFieldWork(new ConstructionSite(
+                        currentBuilding,
+                        Tiles.getBuildingCollider().getGridPosition().clone(),
+                        100,
+                        fieldCollider));
 
-        batch.setColor(UI.SEMI_TRANSPARENT);
-        batch.draw(texture, posX, posY);
-        batch.setColor(UI.DEFAULT_COLOR);
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)  && isBuildable) {
-            Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-            World.placeFieldWork(new ConstructionSite(currentBuilding, buildingPosition, 100));
-
-            if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                isInBuildingMode = false;
+                Tiles.turnOffFieldMode();
+                if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                    isInBuildingMode = false;
+            }
         }
     }
 
@@ -344,6 +421,7 @@ public class Buildings {
 
     public static void turnOffBuildingMode() {
         isInBuildingMode = false;
+        Tiles.turnOffFieldMode();
     }
 
     public static void turnOffDemolishingMode() {

@@ -17,12 +17,17 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
-    private BoxCollider fieldCollider = new BoxCollider();
-    private final Map<NPC, Boolean> assigned = new HashMap<>(capacity, 1f);
+    private BoxCollider fieldCollider;
+    private final Map<Villager, Boolean> assigned = new HashMap<>(capacity, 1f);
 
     public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour) {
+        this(type, gridPosition, totalLabour, new BoxCollider());
+    }
+
+    public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour, BoxCollider fieldCollider) {
         super(type, type.getConstructionSite(), gridPosition, type.buildCost.sum());
         this.totalLabour = totalLabour;
+        this.fieldCollider = fieldCollider;
 
         Logistics.requestTransport(this, type.buildCost.negate(), Logistics.USE_STORAGE);
         reserveSpace(type.buildCost.sum());
@@ -39,16 +44,16 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     }
 
     @Override
-    public void assignWorker(NPC npc) {
+    public void assignWorker(Villager villager) {
         if (assigned.size() < capacity) {
-            assigned.put(npc, false);
+            assigned.put(villager, false);
         } else
             throw new IllegalArgumentException("Assignment over capacity");
     }
 
     @Override
-    public void dissociateWorker(NPC npc) {
-        assigned.remove(npc);
+    public void dissociateWorker(Villager villager) {
+        assigned.remove(villager);
         updateCurrentlyWorking();
     }
 
@@ -65,20 +70,21 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
         if (progress >= totalLabour) {
             World.removeFieldWorks(this);
             if (!type.isFarm()) World.placeBuilding(type, gridPosition);
-            else World.placeBuilding(type, gridPosition, fieldCollider);
+            else World.placeFarm(type, gridPosition, fieldCollider);
 
-            for (NPC npc : assigned.keySet()) {
-                npc.getWorkplace().dissociateFieldWork(npc);
-                npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
-                npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
+            for (Villager villager : assigned.keySet()) {
+                villager.getWorkplace().dissociateFieldWork(villager);
+                villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
+                villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
             }
+            World.updateStoredResources(type.buildCost.negate());
         }
     }
 
     @Override
-    public void setWork(NPC npc, boolean b) {
-        if (assigned.containsKey(npc)) {
-            assigned.replace(npc, b);
+    public void setWork(Villager villager, boolean b) {
+        if (assigned.containsKey(villager)) {
+            assigned.replace(villager, b);
             updateCurrentlyWorking();
         }
     }

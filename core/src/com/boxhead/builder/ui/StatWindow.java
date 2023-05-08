@@ -95,4 +95,8 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     private Range<Float> getPinnedObjectBoundsY() {
         return Range.between(-pinnedObject.getTexture().getRegionHeight() / GameScreen.camera.zoom, (float)Gdx.graphics.getHeight());
     }
+
+    public T getPinnedObject() {
+        return pinnedObject;
+    }
 }

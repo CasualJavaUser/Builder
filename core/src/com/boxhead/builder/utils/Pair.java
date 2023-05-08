@@ -19,8 +19,22 @@ public class Pair<A, B> implements Serializable {
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof Pair)) return false;
+        Object otherFirst = ((Pair<?, ?>) other).first;
+        Object otherSecond = ((Pair<?, ?>) other).second;
 
-        return ((Pair<?, ?>) other).first.equals(first) && ((Pair<?, ?>) other).second.equals(second);
+        boolean equalFirst;
+        if (first == null || otherFirst == null) {
+            equalFirst = first == otherFirst;
+        } else
+            equalFirst = first.equals(otherFirst);
+
+        boolean equalSecond;
+        if (second == null || otherSecond == null) {
+            equalSecond = second == otherSecond;
+        } else
+            equalSecond = second.equals(otherSecond);
+
+        return equalFirst && equalSecond;
     }
 
     @Override

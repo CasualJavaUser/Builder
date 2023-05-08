@@ -73,7 +73,11 @@ public abstract class Popups {
         if(activePopup != null) activePopup.setVisible(false);
     }
 
-    public static InfoPopup getInfoPopup() {
-        return infoPopup;
+    public static Popup getActivePopup() {
+        return activePopup;
+    }
+
+    public static void setText(String text) {
+        if (activePopup != null) activePopup.setText(text);
     }
 }

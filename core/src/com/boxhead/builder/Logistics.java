@@ -12,7 +12,7 @@ public class Logistics {
     /**
      * The smallest amount that is considered worth issuing a transport order.
      */
-    public static final int THE_UNIT = NPC.INVENTORY_SIZE;
+    public static final int THE_UNIT = Villager.INVENTORY_SIZE;
     /**
      * The lowest priority at which storage space or stored resources are used to fulfill requests.
      */
@@ -27,7 +27,7 @@ public class Logistics {
 
     private static final BidirectionalMap<FieldWork, ProductionBuilding> fieldWorkRequests = new BidirectionalMap<>();
     public static final BidirectionalMap<Order, ProductionBuilding> orderRequests = new BidirectionalMap<>();
-    public static final Map<NPC, Order> deliveriesInProgress = new HashMap<>();
+    public static final Map<Villager, Order> deliveriesInProgress = new HashMap<>();
 
     static {
         Comparator<Request> requestComparator = Comparator.comparingInt(r -> r.priority);
@@ -85,13 +85,16 @@ public class Logistics {
         return orderRequests.getByValue(building);
     }
 
-    public static void removeOrder(Order order, int units) {
+    public static void removeOrder(Order order, Villager assignee, int units) {
+        deliveriesInProgress.put(assignee, order);
+        order.sender.transferReservationOwnership(null, assignee, order.resource, units);
+        order.recipient.transferReservationOwnership(null, assignee, Resource.NOTHING, units);
         order.amount -= units;
         if (order.amount == 0)
             readyOrders.remove(order);
     }
 
-    public static Map<NPC, Order> getDeliveryList() {
+    public static Map<Villager, Order> getDeliveryList() {
         return deliveriesInProgress;
     }
 
@@ -175,6 +178,10 @@ public class Logistics {
         for (int p = maxPriority; p >= 0; p--) {    //high-priority requests in both supply and output are served first
             while (supplyIterator < supplyRequests.size() && supplyRequests.get(supplyIterator).priority == p) {
                 currentRequest = supplyRequests.get(supplyIterator);
+                if (currentRequest.amount < THE_UNIT) {
+                    supplyIterator++;
+                    continue;
+                }
                 paired = findRequest(outputRequests, currentRequest);
 
                 if (paired.isPresent()) {
@@ -190,6 +197,10 @@ public class Logistics {
 
             while (outputIterator < outputRequests.size() && outputRequests.get(outputIterator).priority == p) {
                 currentRequest = outputRequests.get(outputIterator);
+                if (currentRequest.amount < THE_UNIT) {
+                    outputIterator++;
+                    continue;
+                }
                 paired = findRequest(supplyRequests, currentRequest);
 
                 if (paired.isPresent()) {
@@ -351,7 +362,7 @@ public class Logistics {
 
     private static Optional<StorageBuilding> findStorageSpace(Request request) {
         return storages.stream()
-                .filter(storage -> storage.getInventory().getAvailableCapacity() >= THE_UNIT)
+                .filter(storage -> storage.getFreeSpace() >= THE_UNIT)
                 .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
     }
 

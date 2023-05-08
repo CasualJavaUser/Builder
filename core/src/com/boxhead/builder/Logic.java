@@ -2,13 +2,11 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
-import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Pathfinding;
 
 import java.util.Optional;
 
 public class Logic {
-
     public static final float NORMAL_SPEED = 0.005f;
     public static final float SPEED_X2 = 0.0025f;
     public static final float SPEED_X3 = 0.00125f;
@@ -21,12 +19,20 @@ public class Logic {
         public void run() {
             World.incrementTime();
             dailyCycle();
-            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first == World.getDate()) {
+            while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first <= World.getDate()) {
                 Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
             produceResources();
-            for (NPC npc : World.getNpcs()) {
-                npc.executeOrders();
+            for (Villager villager : World.getVillagers()) {
+                villager.executeOrders();
+                villager.incrementAge();
+                villager.progressStats();
+                /*if (!villager.hasOrders())
+                    villager.wander();*/
+            }
+            for (Animal animal : World.getAnimals()) {
+                animal.wander();
+                animal.incrementAge();
             }
         }
     };
@@ -35,21 +41,38 @@ public class Logic {
         @Override
         public void run() {
             Logistics.pairRequests();
-            UI.getResourceList().updateData();
-            for (NPC npc : World.getNpcs()) {
-                npc.seekJob();
-                npc.seekHouse();
+            for (Villager villager : World.getVillagers()) {
+                villager.seekJob();
+                villager.seekHouse();
             }
         }
     };
 
     private static void dailyCycle() {
-        if (World.getTime() == 25200) {   //7:00
-            for (NPC npc : World.getNpcs()) {
-                if (npc.getJob() != Jobs.UNEMPLOYED) {
-                    npc.giveOrder(NPC.Order.Type.EXIT);
-                    npc.giveOrder(NPC.Order.Type.GO_TO, npc.getWorkplace());
-                    npc.giveOrder(NPC.Order.Type.ENTER, npc.getWorkplace());
+        switch (World.getTime()) {
+            case 28800:
+                startWorkday(Buildings.Shift.EIGHT_TO_FOUR);
+                break;
+            case 39600:
+                startWorkday(Buildings.Shift.ELEVEN_TO_SEVEN);
+                break;
+            case 57600:
+                endWorkday(Buildings.Shift.EIGHT_TO_FOUR);
+                break;
+            case 68400:
+                endWorkday(Buildings.Shift.ELEVEN_TO_SEVEN);
+                break;
+            case 0:
+                Pathfinding.removeUnusedPaths();
+        }
+
+        /*if (World.getTime() == 28800) {   //8:00
+            for (Villager villager : World.getVillagers()) {
+                if (villager.getJob() != Jobs.UNEMPLOYED && villager.getWorkplace().getType().shift == Buildings.Shift.EIGHT_TO_FOUR) {
+                    villager.giveOrder(Villager.Order.Type.EXIT);
+                    villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
+                    villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
+                    villager.giveOrder(Villager.Order.Type.CLOCK_IN);
                 }
             }
         } else if (World.getTime() == 57600) { //16:00
@@ -60,6 +83,25 @@ public class Logic {
             }
         } else if (World.getTime() == 0) {  //0:00
             Pathfinding.removeUnusedPaths();
+        }*/
+    }
+
+    private static void startWorkday(Buildings.Shift shift) {
+        for (Villager villager : World.getVillagers()) {
+            if (villager.getJob() != Jobs.UNEMPLOYED && villager.getWorkplace().getType().shift == shift) {
+                villager.giveOrder(Villager.Order.Type.EXIT);
+                villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
+                villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
+                villager.giveOrder(Villager.Order.Type.CLOCK_IN);
+            }
+        }
+    }
+
+    private static void endWorkday(Buildings.Shift shift) {
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ProductionBuilding && building.getType().shift == shift) {
+                ((ProductionBuilding) building).endWorkday();
+            }
         }
     }
 
@@ -95,15 +137,6 @@ public class Logic {
         World.removeFieldWorks();
         Logistics.clearFieldWorkRequests();
         Logistics.clearOrderRequests();
-    }
-
-    private static void NPCLife() {
-        for (NPC npc : World.getNpcs()) {
-            npc.executeOrders();
-
-            npc.seekJob();  //todo make these into orders
-            npc.seekHouse();
-        }
     }
 
     public static void init() {

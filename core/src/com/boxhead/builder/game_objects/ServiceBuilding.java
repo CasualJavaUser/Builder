@@ -1,6 +1,7 @@
 package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.Service;
+import com.boxhead.builder.Stat;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.IOException;
@@ -10,62 +11,69 @@ import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.boxhead.builder.game_objects.Villager.Order.Type.EXIT;
+import static com.boxhead.builder.game_objects.Villager.Order.Type.GO_TO;
+
 public class ServiceBuilding extends ProductionBuilding {
 
     private transient Service service;
-    private final Set<NPC> guests;
-    private int serviceCounter;
+    private final Set<Villager> guests;
+    private int reserved = 0;
 
     public ServiceBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         this.service = type.service;
-        guests = new HashSet<>(type.guestCapacity, 1f);
-    }
-
-    /**
-     * Removes the specified guest from the building.
-     *
-     * @param npc guest to be removed from the building
-     * @return true if the array of guests changed as a result of the call
-     */
-    public boolean removeGuest(NPC npc) {
-        return guests.remove(npc);
-    }
-
-    /**
-     * Adds the specified guest to the building.
-     *
-     * @param npc guest to be added to the building
-     * @return true if the array of guests changed as a result of the call
-     */
-    public boolean addGuest(NPC npc) {
-        if (guests.size() < type.guestCapacity) {
-            return guests.add(npc);
-        }
-        return false;
+        guests = new HashSet<>(type.guestCapacity);
     }
 
     public void provideServices() {
-        for (NPC guest : guests) {
+        for (Villager guest : guests) {
             if (guest != null) {
-                service.applyEffects(guest.getStats(), super.employeesInside);
+                service.applyEffects(guest, super.employeesInside);
+
+                boolean isFulfilled = true;
+                for (Stat stat : service.getEffects().keySet()) {
+                    boolean condition;
+                    if (stat.isIncreasing)
+                        condition = guest.getStats()[stat.ordinal()] < 99; //TODO
+                    else
+                        condition = guest.getStats()[stat.ordinal()] > 1; //TODO
+
+                    if (!condition) {
+                        isFulfilled = false;
+                    }
+                }
+                if (isFulfilled) {
+                    guest.giveOrder(EXIT, this);
+                    if (guest.getHome() != null) {
+                        guest.giveOrder(GO_TO, guest.getHome());
+                    }
+                }
             }
         }
     }
 
-    public boolean provides(NPC.Stats stat) {
-        int it = 0;
-        for (NPC.Stats s : service.getStats()) {
-            if (s == stat && service.getEffects()[it] > 0) {
-                return true;
-            }
-            it++;
+    public void guestEnter(Villager villager) {
+        if (canProvideService()) {
+            guests.add(villager);
         }
-        return false;
     }
 
-    public int getGuestsInside() {
-        return guests.size();
+    public void reserve() {
+        reserved++;
+    }
+
+    public void guestExit(Villager villager) {
+        guests.remove(villager);
+        reserved--;
+    }
+
+    public Set<Villager> getGuests() {
+        return guests;
+    }
+
+    public boolean canProvideService() {
+        return reserved < type.guestCapacity && employeesInside > 0 && !inventory.isEmpty();
     }
 
     @Serial

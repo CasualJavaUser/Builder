@@ -3,11 +3,10 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
-import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.game_objects.Villager;
 
-public class NPCStatWindow extends StatWindow<NPC> {
+public class NPCStatWindow extends StatWindow<Villager> {
     private String job = null, name = null;
-    private int[] npcStatList = null;
     private final int IMAGE_SCALE = 4;
 
     public NPCStatWindow(UI.Layer layer) {
@@ -20,11 +19,11 @@ public class NPCStatWindow extends StatWindow<NPC> {
 
         batch.draw(pinnedObject.getTexture(),
                 getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - NPC.SIZE * IMAGE_SCALE,
-                NPC.SIZE * IMAGE_SCALE,
-                NPC.SIZE * IMAGE_SCALE);
+                getGlobalPosition().y + getContentHeight() - Villager.TEXTURE_SIZE * IMAGE_SCALE,
+                Villager.TEXTURE_SIZE * IMAGE_SCALE,
+                Villager.TEXTURE_SIZE * IMAGE_SCALE);
         UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - NPC.SIZE * IMAGE_SCALE);
+                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - Villager.TEXTURE_SIZE * IMAGE_SCALE);
     }
 
     @Override
@@ -37,12 +36,18 @@ public class NPCStatWindow extends StatWindow<NPC> {
     protected void updateStats() {
         name = pinnedObject.getName() + " " + pinnedObject.getSurname();
         job = pinnedObject.getJob().toString();
-        npcStatList = pinnedObject.getStats();
 
-        stats = name + "\n" + job;
+        stats = "";
+
+        if (Debug.isOpen()) {
+            stats += "ID: " + pinnedObject.getId() + "\n";
+        }
+
+        stats += name + "\n" + job;
+        stats += "\nage: " + pinnedObject.ageInYears();
         String stat;
-        for (int i = 0; i < NPC.Stats.values().length; i++) {
-            stat = NPC.Stats.values()[i].toString().toLowerCase() + ": " + pinnedObject.getStats()[i];
+        for (int i = 0; i < Stat.values().length; i++) {
+            stat = Stat.values()[i].toString().toLowerCase() + ": " + (int)pinnedObject.getStats()[i];
             stats += "\n" + stat;
         }
     }
@@ -50,6 +55,6 @@ public class NPCStatWindow extends StatWindow<NPC> {
     @Override
     protected void updateWindowSize() {
         super.updateWindowSize();
-        setContentHeight(getContentHeight() + verticalPadding + NPC.SIZE * IMAGE_SCALE + 20);
+        setContentHeight(getContentHeight() + verticalPadding + Villager.TEXTURE_SIZE * IMAGE_SCALE + 20);
     }
 }

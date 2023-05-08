@@ -7,22 +7,22 @@ import java.util.Set;
 
 public class ResidentialBuilding extends StorageBuilding {
 
-    private final Set<NPC> residents;
+    private final Set<Villager> residents;
 
     public ResidentialBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         residents = new HashSet<>(type.npcCapacity, 1f);
     }
 
-    public boolean addResident(NPC npc) {
+    public boolean addResident(Villager villager) {
         if (residents.size() < type.npcCapacity) {
-            return residents.add(npc);
+            return residents.add(villager);
         }
         return false;
     }
 
-    public boolean removeResident(NPC npc) {
-        return residents.remove(npc);
+    public boolean removeResident(Villager villager) {
+        return residents.remove(villager);
     }
 
     public boolean hasFreePlaces() {
@@ -33,7 +33,7 @@ public class ResidentialBuilding extends StorageBuilding {
         return type.npcCapacity;
     }
 
-    public Set<NPC> getResidents() {
+    public Set<Villager> getResidents() {
         return residents;
     }
 }

@@ -10,6 +10,6 @@ public class DesktopLauncher {
 		config.setForegroundFPS(60);
 		config.setWindowedMode(960, 640);
 		config.setTitle("Builder");
-		new Lwjgl3Application(new BuilderGame(), config);
+		new Lwjgl3Application(BuilderGame.getInstance(), config);
 	}
 }

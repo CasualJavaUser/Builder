@@ -1,177 +1,87 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.boxhead.builder.*;
-import com.boxhead.builder.ui.Clickable;
-import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.Logic;
+import com.boxhead.builder.Textures;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
-import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Pathfinding;
+import com.boxhead.builder.utils.Vector2i;
 
-import java.io.*;
-import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class NPC extends GameObject implements Clickable {
-    public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
-    public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
+public abstract class NPC extends GameObject{
 
     public static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
-    public static final int INVENTORY_SIZE = 10;
+
+    private static int nextId = 0;
+    private final int id;
+
+    protected transient TextureRegion currentTexture;
+    protected transient Animation<TextureRegion> walkLeft;
+    protected transient Animation<TextureRegion> walkRight;
+
+    protected Vector2i prevPosition;
+    protected final Vector2 spritePosition;
+    protected int nextStep;
+
+    protected Vector2i[] path = null;
+    protected int pathStep;
+    protected transient Future<?> pathfinding;
+
+    /**
+     * age in ticks
+     */
+    protected long age = 0;
+
+    public static final int TEXTURE_SIZE = 16;  //TODO move to Villager?
     private static final int STEP_INTERVAL = 50;
 
-    private final String name, surname;
-    private final int[] stats = new int[Stats.values().length];
-    private final int skin;
-    private transient TextureRegion currentTexture;
-    private transient Animation<TextureRegion> walkLeft;
-    private transient Animation<TextureRegion> walkRight;
+    private float stateTime = 0;
 
-    private ProductionBuilding workplace = null;
-    private ResidentialBuilding home = null;
-    private StorageBuilding buildingIsIn = null;
-
-    private Vector2i prevPosition;
-    private final Vector2 spritePosition;
-    private int nextStep;
-
-    private Vector2i[] path = null;
-    private int pathStep;
-    private transient Future<?> pathfinding;
-
-    private final LinkedList<NPC.Order> orderList = new LinkedList<>();
-
-    private final Inventory inventory = new Inventory(INVENTORY_SIZE);
-
-    float stateTime = 0;
-
-    public static final int SIZE = 16;
-
-    public enum Stats {
-        AGE,
-        HEALTH
-    }
-
-    public NPC(int skin, Vector2i position) {
-        super(Textures.Npc.valueOf("IDLE" + skin), position);
-        this.skin = skin;
-        prevPosition = position;
-        spritePosition = position.toVector2();
-        name = NAMES[(int) (Math.random() * NAMES.length)];
-        surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
-
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
+    public NPC(Textures.TextureId textureId, Vector2i gridPosition) {
+        super(textureId, gridPosition);
+        prevPosition = gridPosition;
+        spritePosition = gridPosition.toVector2();
         currentTexture = getTexture();  //idle texture
+        id = nextId;
+        nextId++;
     }
 
     @Override
     public void draw(SpriteBatch batch) {
-        if (!isInBuilding()) {
-            float x = spritePosition.x * World.TILE_SIZE;
-            float y = spritePosition.y * World.TILE_SIZE;
-            Vector2 pos = GameScreen.worldToScreenPosition(x, y);
+        if (prevPosition.equals(gridPosition)) {
+            stateTime = 0;
+            currentTexture = getTexture();
+        } else if (!Logic.isPaused()) {
+            stateTime += 0.01f / (Logic.getTickSpeed() * 200);
 
-            if (pos.x + SIZE / GameScreen.camera.zoom > 0 && pos.x < Gdx.graphics.getWidth() &&
-                    pos.y + SIZE / GameScreen.camera.zoom > 0 && pos.y < Gdx.graphics.getHeight()) {
-                if (prevPosition.equals(gridPosition)) {
-                    stateTime = 0;
-                    currentTexture = getTexture();
-                }
-                else if(!Logic.isPaused()) {
-                    stateTime += 0.01f / (Logic.getTickSpeed() * 200);
-
-                    if (prevPosition.x > gridPosition.x) {
-                        currentTexture = walkLeft.getKeyFrame(stateTime, true);
-                    } else {
-                        currentTexture = walkRight.getKeyFrame(stateTime, true);
-                    }
-                }
-
-                batch.draw(currentTexture, x, y);
+            if (prevPosition.x > gridPosition.x) {
+                currentTexture = walkLeft.getKeyFrame(stateTime, true);
+            } else {
+                currentTexture = walkRight.getKeyFrame(stateTime, true);
             }
         }
+
+        batch.draw(currentTexture, spritePosition.x * World.TILE_SIZE, spritePosition.y * World.TILE_SIZE);
     }
 
-    public void seekJob() {
-        Optional<ProductionBuilding> bestJobOptional = World.getBuildings().stream()
-                .filter(building -> building instanceof ProductionBuilding)
-                .map(building -> (ProductionBuilding) building)
-                .filter(ProductionBuilding::isHiring)
-                .max(Comparator.comparing(ProductionBuilding::getJobQuality));
-
-        if (bestJobOptional.isPresent()) {
-            final ProductionBuilding bestJob = bestJobOptional.get();
-
-            if (workplace == null) {
-                bestJob.addEmployee(this);
-                workplace = bestJob;
-            } else if (bestJob.getJobQuality() > workplace.getJobQuality()) {
-                workplace.removeEmployee(this);
-                bestJob.addEmployee(this);
-                workplace = bestJob;
-            }
-        }
-    }
-
-    public void seekHouse() {
-        Optional<ResidentialBuilding> bestHouseOptional = World.getBuildings().stream()
-                .filter(building -> building instanceof ResidentialBuilding)
-                .map(building -> (ResidentialBuilding) building)
-                .filter(ResidentialBuilding::hasFreePlaces)
-                .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
-
-        if (bestHouseOptional.isPresent()) {
-            ResidentialBuilding bestHouse = bestHouseOptional.get();
-
-            if (home == null) {
-                bestHouse.addResident(this);
-                home = bestHouse;
-            } else if (workplace != null &&
-                    home.getGridPosition().distanceScore(workplace.getGridPosition()) < bestHouse.getGridPosition().distanceScore(workplace.getGridPosition())) {
-                home.removeResident(this);
-                bestHouse.addResident(this);
-                home = bestHouse;
-            }
-        }
-    }
-
-    public void enterBuilding(StorageBuilding building) {
-        if (gridPosition.equals(building.getEntrancePosition())) {
-            gridPosition.set(building.getGridPosition());
-            buildingIsIn = building;
-        }
-    }
-
-    public void exitBuilding() {
-        StorageBuilding building = StorageBuilding.getByCoordinates(gridPosition);
-        if (building != null) {
-            gridPosition.set(building.getEntrancePosition());
-        }
-        buildingIsIn = null;
-    }
-
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    private void navigateTo(Vector2i tile) {
+    protected void navigateTo(Vector2i tile) {
         alignSprite();
         path = null;
         pathfinding = executor.submit(() -> {
-            path = Pathfinding.findPath(gridPosition.clone(), tile);
+            path = Pathfinding.findPathNoCache(gridPosition.clone(), tile);
             pathStep = 0;
             nextStep = STEP_INTERVAL;
         });
     }
 
-    private void navigateTo(BoxCollider collider) {
+    protected void navigateTo(BoxCollider collider) {
         alignSprite();
         path = null;
         pathfinding = executor.submit(() -> {
@@ -186,7 +96,7 @@ public class NPC extends GameObject implements Clickable {
      *
      * @return <b>true</b> if destination is reached, <b>false</b> otherwise.
      */
-    private boolean followPath() {
+    protected boolean followPath() {
         if (path == null || !pathfinding.isDone()) {
             return false;
         }
@@ -212,258 +122,31 @@ public class NPC extends GameObject implements Clickable {
         return false;
     }
 
-    private void alignSprite() {
+    protected void alignSprite() {
         spritePosition.set(gridPosition.x, gridPosition.y);
         prevPosition.set(gridPosition);
-    }
-
-    @Override
-    public boolean isMouseOver() {
-        Vector2 mousePos = GameScreen.getMouseWorldPosition();
-        return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + currentTexture.getRegionWidth()) &&
-                mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + currentTexture.getRegionHeight());
-    }
-
-    @Override
-    public void onClick() {
-        UI.showNPCStatWindow(this);
-    }
-
-    public static abstract class Order implements Serializable {
-        abstract void execute();
-
-        public enum Type {
-            GO_TO,
-            ENTER,
-            EXIT,
-            PUT_RESOURCES_TO_BUILDING,
-            PUT_RESERVED_RESOURCES,
-            TAKE_RESERVED_RESOURCES,
-            REQUEST_TRANSPORT,
-            END_DELIVERY,
-        }
-    }
-
-    public void executeOrders() {
-        if (!orderList.isEmpty()) {
-            orderList.getFirst().execute();
-        }
-    }
-
-    public void clearOrderQueue() {
-        orderList.clear();
-    }
-
-    public void giveOrder(Vector2i tile) {
-        orderList.addLast(new Order() {
-            @Override
-            void execute() {
-                if (pathfinding == null || pathfinding.isDone() && (path == null || !path[path.length - 1].equals(tile))) {
-                    navigateTo(tile);
-                } else if (followPath()) {
-                    orderList.removeFirst();
-                }
-            }
-        });
-    }
-
-    public void giveOrder(Order.Type type, StorageBuilding building) {
-        switch (type) {
-            case GO_TO -> giveOrder(building.getEntrancePosition());
-            case ENTER -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (gridPosition.equals(building.getEntrancePosition())) {
-                        if (building == workplace) {
-                            workplace.employeeEnter(NPC.this);
-                        }
-                        enterBuilding(building);
-                    }
-                    orderList.removeFirst();
-                }
-            });
-            case EXIT -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (gridPosition.equals(building.getGridPosition())) {
-                        if (building == workplace) {
-                            workplace.employeeExit();
-                        }
-                        gridPosition.set(building.getEntrancePosition());
-                        buildingIsIn = null;
-                    }
-                    orderList.removeFirst();
-                }
-            });
-        }
-    }
-
-    public void giveOrder(Order.Type type, FieldWork fieldWork) {
-        switch (type) {
-            case GO_TO -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
-                        navigateTo(fieldWork.getCollider());
-                    } else if (followPath()) {
-                        orderList.removeFirst();
-                    }
-                }
-            });
-            case ENTER -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (fieldWork.getCollider().distance(gridPosition) <= Math.sqrt(2d)) {
-                        fieldWork.setWork(NPC.this, true);
-                    }
-                    orderList.removeFirst();
-                }
-            });
-            case EXIT -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    fieldWork.dissociateWorker(NPC.this);
-                    orderList.removeFirst();
-                }
-            });
-        }
-    }
-
-    public void giveOrder(Order.Type type) {
-        switch (type) {
-            case EXIT ->  //if building is known, giveOrder(Order.Type, StorageBuilding) should be used instead
-                    orderList.addLast(new Order() {
-                        @Override
-                        void execute() {
-                            exitBuilding();
-                            orderList.removeFirst();
-                        }
-                    });
-            case END_DELIVERY -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    Logistics.getDeliveryList().remove(NPC.this);
-                    orderList.removeFirst();
-                }
-            });
-        }
-    }
-
-    public void giveOrder(Order.Type type, Resource resource, int amount) {
-        switch (type) {
-            case PUT_RESOURCES_TO_BUILDING -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (buildingIsIn == null || !inventory.hasResourceAmount(resource, amount))
-                        throw new IllegalStateException();
-
-                    inventory.moveResourcesTo(buildingIsIn.getInventory(), resource, amount);
-                    orderList.removeFirst();
-                }
-            });
-            case TAKE_RESERVED_RESOURCES -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (buildingIsIn == null)
-                        throw new IllegalStateException();
-
-                    buildingIsIn.moveReservedResourcesTo(inventory, resource, amount, NPC.INVENTORY_SIZE);
-                    orderList.removeFirst();
-                }
-            });
-            case PUT_RESERVED_RESOURCES -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (buildingIsIn == null)
-                        throw new IllegalStateException();
-
-                    buildingIsIn.moveReservedResourcesTo(inventory, resource, -amount, NPC.INVENTORY_SIZE);
-                    orderList.removeFirst();
-                }
-            });
-            case REQUEST_TRANSPORT -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (buildingIsIn == null)
-                        throw new IllegalStateException();
-
-                    Logistics.requestTransport(buildingIsIn, resource, amount);
-                    orderList.removeFirst();
-                }
-            });
-            default -> throw new IllegalArgumentException();
-        }
-    }
-
-    public void giveOrder(Harvestable harvestable) {
-        orderList.addLast(new Order() {
-            @Override
-            void execute() {
-                World.placeFieldWork(harvestable);
-                orderList.removeFirst();
-            }
-        });
     }
 
     public Vector2 getSpritePosition() {
         return spritePosition;
     }
 
-    public ProductionBuilding getWorkplace() {
-        return workplace;
+    public abstract void wander();
+
+    protected Vector2i randomPosInRange(int range) {
+        double angle = World.getRandom().nextDouble() * 2 * Math.PI;
+        return gridPosition.add((int)(Math.cos(angle) * range), (int)(Math.sin(angle) * range));
     }
 
-    public String getName() {
-        return name;
+    public void incrementAge() {
+        age++;
     }
 
-    public String getSurname() {
-        return surname;
+    public long ageInYears() {
+        return age / (World.FULL_DAY / 8);  //TODO temp value
     }
 
-    public Job getJob() {
-        if (workplace == null)
-            return Jobs.UNEMPLOYED;
-        else
-            return workplace.getJob();
-    }
-
-    public ResidentialBuilding getHome() {
-        return home;
-    }
-
-    public int[] getStats() {
-        return stats;
-    }
-
-    public boolean isInBuilding() {
-        return buildingIsIn != null;
-    }
-
-    public StorageBuilding getCurrentBuilding() {
-        return buildingIsIn;
-    }
-
-    public boolean hasOrders() {
-        return !orderList.isEmpty();
-    }
-
-    @Override
-    public String toString() {
-        return name + " " + surname;
-    }
-
-    @Serial
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-    }
-
-    @Serial
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        ois.defaultReadObject();
-        textureId = Textures.Npc.valueOf("IDLE" + skin);
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
-        currentTexture = getTexture();
+    public int getId() {
+        return id;
     }
 }

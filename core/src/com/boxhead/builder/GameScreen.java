@@ -24,18 +24,19 @@ public class GameScreen implements Screen {
     private final Matrix4 uiProjection;
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
-    private static final float NORMAL_SPEED = 250, FAST_SPEED = 450, SCROLL_SPEED = 30;
+    private static final float NORMAL_SPEED = 350, FAST_SPEED = 650, SCROLL_SPEED = 30;
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
         this.uiProjection = new Matrix4();
 
         Textures.init();
-        World.init(60, new Vector2i(101, 101));
-        World.generate();
+        World.generate(60, new Vector2i(101, 101));
         World.temp();
         UI.init();
+        UI.getResourceList().initData();
         Logic.init();
+        Debug.init();
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
         camera.update();
@@ -44,7 +45,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        if (!UI.isPaused()) {
+        if (!UI.isPaused() && !Debug.isOpen()) {
             scroll();
             moveCamera(deltaTime);
         }
@@ -53,6 +54,7 @@ public class GameScreen implements Screen {
         World.drawMap(batch);
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
+        //World.pathfindingTest(batch);
 
         if (!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
@@ -64,11 +66,22 @@ public class GameScreen implements Screen {
         }
 
         if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
-        if (InputManager.isKeyPressed(Input.Keys.SPACE)) Logic.pause(!Logic.isPaused());
+        if (InputManager.isKeyPressed(Input.Keys.SPACE) && !UI.isPaused() && !Debug.isOpen()) Logic.pause(!Logic.isPaused());
 
-        drawUI();
+        UI.drawUI(batch, camera);
 
         batch.end();
+
+        if (InputManager.isKeyPressed(Input.Keys.GRAVE)) {
+            if (!Debug.isOpen())
+                Debug.openConsole();
+            else
+                Debug.quit();
+        }
+
+        if (Debug.isOpen())
+            Debug.handleInput();
+
         InputManager.resetScroll();
     }
 
@@ -106,6 +119,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        UI.adjustMenuForInGameUse(true);
     }
 
     @Override
@@ -114,8 +128,8 @@ public class GameScreen implements Screen {
 
     private void moveCamera(float deltaTime) {
         final float deltaPosition = InputManager.isKeyDown(InputManager.SHIFT)
-                ? FAST_SPEED * deltaTime
-                : NORMAL_SPEED * deltaTime;
+                ? FAST_SPEED * deltaTime * camera.zoom
+                : NORMAL_SPEED * deltaTime * camera.zoom;
 
         if (InputManager.isKeyDown(InputManager.RIGHT))
             camera.position.x += deltaPosition;
@@ -142,7 +156,7 @@ public class GameScreen implements Screen {
         uiProjection.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
         uiProjection.setTranslation(-1, -1, 0);
         batch.setProjectionMatrix(uiProjection);
-        UI.drawUI(batch);
+        UI.drawUI(batch, camera);
         batch.setProjectionMatrix(camera.combined);
     }
 

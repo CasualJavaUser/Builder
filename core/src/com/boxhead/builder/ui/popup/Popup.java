@@ -14,6 +14,10 @@ public abstract class Popup extends Window {
         super(texture, parent, layer, position, true);
     }
 
+    public void setText(String text) {
+        this.text = text;
+    }
+
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);

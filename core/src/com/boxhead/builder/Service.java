@@ -1,35 +1,31 @@
 package com.boxhead.builder;
 
-import com.boxhead.builder.game_objects.NPC;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.Pair;
 
-public enum Service {
-    HEAL(Pair.of(NPC.Stats.HEALTH, 1));
+import java.util.HashMap;
+import java.util.Map;
 
-    private final NPC.Stats[] stats;
-    private final int[] effect;
+public enum Service {
+    BARTENDING(Pair.of(Stat.HUNGER, -0.02f)),
+    TREATING(Pair.of(Stat.HEALTH, 0.02f));
+
+    private final Map<Stat, Float> effects = new HashMap<>();
 
     @SafeVarargs
-    Service(Pair<NPC.Stats, Integer>... effects) {
-        stats = new NPC.Stats[effects.length];
-        effect = new int[effects.length];
-        for (int i = 0; i < effects.length; i++) {
-            stats[i] = effects[i].first;
-            effect[i] = effects[i].second;
+    Service(Pair<Stat, Float>... effects) {
+        for (Pair<Stat, Float> effect : effects) {
+            this.effects.put(effect.first, effect.second);
         }
     }
 
-    public void applyEffects(int[] npcStats, int multiplier) {
-        for (int i = 0; i < stats.length; i++) {
-            npcStats[stats[i].ordinal()] += effect[i] * multiplier;
+    public void applyEffects(Villager villager, int multiplier) {
+        for (Stat stat : effects.keySet()) {
+            villager.getStats()[stat.ordinal()] += (effects.get(stat) * multiplier) - stat.getRate(villager);
         }
     }
 
-    public NPC.Stats[] getStats() {
-        return stats;
-    }
-
-    public int[] getEffects() {
-        return effect;
+    public Map<Stat, Float> getEffects() {
+        return effects;
     }
 }

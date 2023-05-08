@@ -142,11 +142,11 @@ public class Textures {
 
         SERVICE, CONSTRUCTION_OFFICE,
         WINDOW, MENU_WINDOW, WIDE_AREA,
-        CLOSE_BUTTON, TEXT_FIELD
+        CLOSE_BUTTON, TEXT_FIELD, WIDE_TEXT_FIELD
     }
 
     public enum Resource implements TextureId {
-        NOTHING, WOOD, STONE, IRON, COAL, STEEL, TOOLS, GRAIN
+        NOTHING, WOOD, STONE, IRON, COAL, STEEL, TOOLS, GRAIN, ALCOHOL, MILK, MEAT
     }
 
     public enum Environment implements TextureId {

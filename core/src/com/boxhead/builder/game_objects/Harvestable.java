@@ -14,26 +14,25 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.*;
 import java.util.Comparator;
 
-public class Harvestable extends GameObject implements FieldWork, Serializable {
+public class Harvestable extends GameObject implements FieldWork {
     public static final SortedList<Pair<Long, Harvestable>> timeTriggers = new SortedList<>(Comparator.comparing(pair -> pair.first, Comparator.reverseOrder()));
 
     protected transient Harvestables.Type type;
     protected transient TextureRegion[] textureBundle;
     protected transient TextureRegion currentTexture;
-    protected int currentPhase = 0;
+    protected int currentPhase = -1;
     protected BoxCollider collider;
     protected final int productionInterval = 50;
     protected int productionCounter = 0;
     protected int amountLeft;
 
-    protected NPC assigned = null;
+    protected Villager assigned = null;
     protected boolean worked = false;
 
     public enum Characteristic {
         TREE(Resource.WOOD),
         ROCK(Resource.STONE),
-        IRON_ORE(Resource.IRON),
-        WHEAT(Resource.GRAIN);
+        FIELD_CROP(Resource.GRAIN);
 
         public final Resource resource;
 
@@ -55,24 +54,24 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
                     1,
                     1);
 
-            case WHEAT -> new BoxCollider(getGridPosition().x, getGridPosition().y, 0, 0);
+            case FIELD_CROP -> new BoxCollider(getGridPosition().x, getGridPosition().y, 0, 0);
 
             default -> getDefaultCollider();
         };
-
-        if(textureBundle.length > 1) {
-            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime / (textureBundle.length - 1)), this));
-        }
     }
 
     public Harvestables.Type getType() {
         return type;
     }
 
+    public int getCurrentPhase() {
+        return currentPhase;
+    }
+
     public void nextPhase() {
         currentTexture = textureBundle[++currentPhase];
-        if (currentPhase != textureBundle.length-1) {
-            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime/(textureBundle.length-1)), this));
+        if (currentPhase != textureBundle.length - 1) {
+            Harvestable.timeTriggers.add(Pair.of(World.calculateDate(type.growthTime / (textureBundle.length - 1)), this));
         }
     }
 
@@ -87,15 +86,15 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
     }
 
     @Override
-    public void assignWorker(NPC npc) {
+    public void assignWorker(Villager villager) {
         if (isFree()) {
-            assigned = npc;
+            assigned = villager;
         } else throw new IllegalArgumentException();
     }
 
     @Override
-    public void dissociateWorker(NPC npc) {
-        if (assigned == npc) {
+    public void dissociateWorker(Villager villager) {
+        if (assigned == villager) {
             assigned = null;
             worked = false;
         }
@@ -108,22 +107,25 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
 
     @Override
     public void work() {
-        if(worked) {
+        if (worked) {
             Resource resource = type.characteristic.resource;
             if (!assigned.getInventory().isFull()) {
-                if (productionCycle()) assigned.getInventory().put(resource, 1);
+                if (productionCycle()) {
+                    assigned.getInventory().put(resource, 1);
+                    World.updateStoredResources(resource, 1);
+                }
                 if (amountLeft <= 0) {
                     World.removeFieldWorks(this);
-                    if(assigned.getWorkplace() instanceof FarmBuilding farm) farm.removeHarvestable(this);
-                    exit(resource);
+                    if (assigned.getWorkplace() instanceof PlantationBuilding farm) farm.removeHarvestable(this);
+                    exit();
                 }
-            } else exit(resource);
+            } else exit();
         }
     }
 
     @Override
-    public void setWork(NPC npc, boolean b) {
-        if (npc == assigned) worked = b;
+    public void setWork(Villager villager, boolean b) {
+        if (villager == assigned) worked = b;
     }
 
     @Override
@@ -141,12 +143,8 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
         return false;
     }
 
-    protected void exit(Resource resource) {
+    protected void exit() {
         assigned.getWorkplace().dissociateFieldWork(assigned);
-        assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-        assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
         worked = false;
         assigned = null;
     }
@@ -162,56 +160,6 @@ public class Harvestable extends GameObject implements FieldWork, Serializable {
         ois.defaultReadObject();
         type = Harvestables.Type.valueOf(ois.readUTF());
         textureBundle = Textures.getBundle(type.textureId);
-        currentTexture = textureBundle[currentPhase];
+        currentTexture = textureBundle[Math.max(currentPhase, 0)];
     }
-
-    /*protected void exit(Resource resource) {
-        assigned.getWorkplace().dissociateFieldWork(assigned);
-        assigned.giveOrder(NPC.Order.Type.GO_TO, assigned.getWorkplace());
-        assigned.giveOrder(NPC.Order.Type.ENTER, assigned.getWorkplace());
-        if (resource != Resource.NOTHING) {
-            assigned.giveOrder(NPC.Order.Type.PUT_RESERVED_RESOURCES, resource, assigned.getInventory().getResourceAmount(resource));
-            assigned.giveOrder(NPC.Order.Type.REQUEST_TRANSPORT, resource, NPC.INVENTORY_SIZE);
-        } else {
-            assigned.getWorkplace().cancelReservation(NPC.INVENTORY_SIZE);
-        }
-        worked = false;
-        assigned = null;
-    }
-
-    @Override
-    public Object getCharacteristic() {
-        return type.characteristic;
-    }
-
-    @Override
-    public void assignWorker(NPC npc) {
-        if (isFree()) {
-            assigned = npc;
-        } else throw new IllegalArgumentException();
-    }
-
-    @Override
-    public void dissociateWorker(NPC npc) {
-        if (assigned == npc) {
-            assigned = null;
-            worked = false;
-        }
-    }
-
-    @Override
-    public void setWork(NPC npc, boolean b) {
-        if (npc == assigned) worked = b;
-    }
-
-    @Override
-    public String toString() {
-        return type.characteristic.toString() + " " + gridPosition.toString();
-    }
-
-    public abstract void work();
-
-    public abstract boolean isNavigable();
-
-    public abstract boolean isFree();*/
 }

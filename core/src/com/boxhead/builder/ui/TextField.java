@@ -69,7 +69,16 @@ public class TextField extends UIElement implements Clickable {
     public void write() {
         char key = InputManager.getKeyTyped();
         if (key >= ' ' && key <= '~') text += key;
-        else if (key == '\b' && text.length() > 0) text = text.substring(0, text.length()-1);
+        else if (key == '\b' && text.length() > 0) {
+            if (!InputManager.isKeyDown(InputManager.CONTROL)) {
+                text = text.substring(0, text.length() - 1);
+            }
+            else {
+                text = text.stripTrailing();
+                if (!text.contains(" ")) text = "";
+                else text = text.substring(0, text.lastIndexOf(" "));
+            }
+        }
     }
 
     public void setText(String text) {

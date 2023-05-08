@@ -17,6 +17,7 @@ public class World {
 
     public static final int TILE_SIZE = 16;
     public static final int FULL_DAY = 86400;
+    public static final int HOUR = 3600;
 
     /**
      * The size (in tiles) of the biggest GameObject texture.
@@ -37,7 +38,8 @@ public class World {
     private static Tile[] tiles;
     private static Textures.Tile[] tileTextures;
     private static List<Building> buildings;
-    private static List<NPC> npcs;
+    private static List<Villager> villagers;
+    private static List<Animal> animals;
     private static Set<FieldWork> fieldWorks;
     private static Set<FieldWork> removedFieldWorks;
     private static SortedList<GameObject> gameObjects;
@@ -48,13 +50,20 @@ public class World {
 
     private static final Set<Vector2i> navigableTiles = new HashSet<>();
 
-    public static void init(int seed, Vector2i worldSize) {
+    /**
+     * A map of field works that have been either placed or removed. Value of each entry specifies if a given FieldWork has been placed (true) or removed (false).
+     */
+    private static final Map<FieldWork, Boolean> changedFieldWorks = new HashMap<>();
+    private static final Map<Vector2i, Tile> changedTiles = new HashMap<>();
+
+    public static void generate(int seed, Vector2i worldSize) {
         World.seed = seed;
         World.worldSize = worldSize;
         tiles = new Tile[worldSize.x * worldSize.y];
         tileTextures = new Textures.Tile[tiles.length];
         buildings = new ArrayList<>();
-        npcs = new ArrayList<>();
+        villagers = new ArrayList<>();
+        animals = new ArrayList<>();
         fieldWorks = new HashSet<>();
         removedFieldWorks = new HashSet<>();
         gameObjects = new SortedList<>(GameObject.gridPositionComparator);
@@ -63,16 +72,17 @@ public class World {
         random = new Random(World.seed);
 
         resetNavigability(worldSize);
-    }
 
-    public static void generate() {
+        LoadingScreen.setMessage("Generating Tiles...");
         generateTiles();
+        LoadingScreen.setMessage("Generating Objects...");
         generateObjects();
     }
 
     public static void temp() {
-        initNPCs(10);
-        spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
+        initVillagers(10);
+        spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
+        //spawnAnimal(new Animal(Animals.Type.COW, new Vector2i(10, 10)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
@@ -85,6 +95,8 @@ public class World {
         makeUnnavigable(collider);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 100);
+        storedResources[Resource.WOOD.ordinal()] = 100;
+        storedResources[Resource.STONE.ordinal()] = 100;
 
         collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
         buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
@@ -101,9 +113,9 @@ public class World {
                     return;
                 }
             }
-            for (NPC npc : npcs) {
-                if (npc.isMouseOver()) {
-                    npc.onClick();
+            for (Villager villager : villagers) {
+                if (villager.isMouseOver()) {
+                    villager.onClick();
                     return;
                 }
             }
@@ -139,11 +151,14 @@ public class World {
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, seed);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, seed);
 
-        Harvestable tree  = Harvestables.create(Harvestables.Type.BIG_TREE, pos);  //TODO randomise tree types
+        Harvestable tree = Harvestables.create(Harvestables.Type.BIG_TREE, pos);  //TODO randomise tree types
         int width = tree.getTexture().getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
-            placeFieldWork(tree);
+            makeUnnavigable(tree.getCollider());
+            tree.nextPhase();
+            fieldWorks.add(tree);
+            addGameObject(tree);
         }
     }
 
@@ -156,7 +171,10 @@ public class World {
         int typeId = random.nextInt(3) + 1;
         Harvestable rock = Harvestables.create(Harvestables.Type.valueOf("ROCK" + typeId), pos);
         if (smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
-            placeFieldWork(rock);
+            makeUnnavigable(rock.getCollider());
+            rock.nextPhase();
+            fieldWorks.add(rock);
+            addGameObject(rock);
         }
     }
 
@@ -241,18 +259,30 @@ public class World {
         }
     }
 
-    public static void placeBuilding(Buildings.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
-        if (!type.isFarm()) throw new IllegalArgumentException("Building type must be a farm");
+    public static void placeFarm(Buildings.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
+        if (!type.isFarm()) throw new IllegalArgumentException("Wrong building type");
 
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
         addGameObject(building);
         makeUnnavigable(building.getCollider());
-        ((FarmBuilding) building).setFieldCollider(fieldCollider);
+        ((FarmBuilding<?>) building).setFieldCollider(fieldCollider);
         for (Building b : buildings) {
             if (b instanceof ProductionBuilding && ((ProductionBuilding) b).isBuildingInRange(building)) {
                 ((ProductionBuilding) b).getBuildingsInRange().add(building);
                 ((ProductionBuilding) b).updateEfficiency();
+            }
+        }
+
+        if (type.farmAnimal != null) {
+            for (int i = 0; i < 2; i++) {  //TODO hardcoded
+                FarmAnimal animal = new FarmAnimal(
+                        Animals.Type.COW,
+                        ((FarmBuilding<?>) building).getFieldCollider().getGridPosition().clone(),
+                        fieldCollider
+                );
+                World.spawnAnimal(animal);
+                ((RanchBuilding) building).addFieldWork(animal);
             }
         }
     }
@@ -271,16 +301,16 @@ public class World {
     }
 
     public static void placeFieldWork(FieldWork fieldWork) {
-        if (!fieldWork.isNavigable()) {
-            makeUnnavigable(fieldWork.getCollider());
-        }
+        makeUnnavigable(fieldWork.getCollider());
+
         if (fieldWork instanceof ConstructionSite constructionSite) {
             buildings.add(constructionSite);
-            if (constructionSite.getType().isFarm()) {
-                Tiles.toTilingMode(constructionSite, 3, 12);
-            }
+        }
+        else if (fieldWork instanceof Harvestable harvestable) {
+            harvestable.nextPhase();
         }
         fieldWorks.add(fieldWork);
+        changedFieldWorks.put(fieldWork, true);
         addGameObject((GameObject) fieldWork);
     }
 
@@ -296,12 +326,15 @@ public class World {
     }
 
     public static void removeFieldWorks(FieldWork fieldWork) {
-        if (!fieldWork.isNavigable())
-            makeNavigable(fieldWork.getCollider());
+        makeNavigable(fieldWork.getCollider());
         removedFieldWorks.add(fieldWork);
+        if(changedFieldWorks.containsKey(fieldWork))
+            changedFieldWorks.remove(fieldWork);
+        else
+            changedFieldWorks.put(fieldWork, false);
     }
 
-    private static void addGameObject(GameObject gameObject) {
+    public static void addGameObject(GameObject gameObject) {
         gameObjects.add(gameObject);
         for (int y = gameObject.getGridPosition().y + 1; y < objectsSumUpToLine.length; y++) {
             objectsSumUpToLine[y]++;
@@ -315,8 +348,12 @@ public class World {
         }
     }
 
-    public static void spawnNPC(NPC npc) {
-        npcs.add(npc);
+    public static void spawnVillager(Villager villager) {
+        villagers.add(villager);
+    }
+
+    public static void spawnAnimal(Animal animal) {
+        animals.add(animal);
     }
 
     public static void drawMap(SpriteBatch batch) {
@@ -348,11 +385,18 @@ public class World {
         Vector2i gridULC = upperLeftCorner.divide(TILE_SIZE);
         Vector2i gridLRC = lowerRightCorner.divide(TILE_SIZE);
 
-        for (NPC npc : npcs) {
-            Vector2 spritePosition = npc.getSpritePosition();
+        for (Villager villager : villagers) {
+            Vector2 spritePosition = villager.getSpritePosition();
             if (spritePosition.x >= gridULC.x && spritePosition.x <= gridLRC.x &&
                     spritePosition.y >= gridLRC.y && spritePosition.y <= gridULC.y)
-                npc.draw(batch);
+                villager.draw(batch);
+        }
+
+        for (Animal animal : animals) {
+            Vector2 spritePosition = animal.getSpritePosition();
+            if (spritePosition.x >= gridULC.x && spritePosition.x <= gridLRC.x &&
+                    spritePosition.y >= gridLRC.y && spritePosition.y <= gridULC.y)
+                animal.draw(batch);
         }
 
         for (int y = gridULC.y + RENDER_BUFFER; y >= gridLRC.y - RENDER_BUFFER; y--) {
@@ -378,6 +422,15 @@ public class World {
         }
     }
 
+    public static void pathfindingTest(SpriteBatch batch) {
+        Vector2i mousePos = new Vector2i(GameScreen.getMouseWorldPosition()).divide(TILE_SIZE);
+        Vector2i[] path = Pathfinding.findPath(Vector2i.zero(), mousePos);
+
+        for (Vector2i vector2i : path) {
+            batch.draw(Textures.get(Textures.Tile.DEFAULT), vector2i.x * TILE_SIZE, vector2i.y * TILE_SIZE);
+        }
+    }
+
     public static boolean isBuildable(Vector2i position) {
         if (worldSize.x * position.y + position.x < tiles.length) {
             Tile tile = getTile(position);
@@ -387,19 +440,19 @@ public class World {
     }
 
     public static int getStored(Resource resource) {
-        updateStoredResources();
         return storedResources[resource.ordinal()];
     }
 
-    public static void updateStoredResources() {
-        Arrays.fill(storedResources, 0);
-        for (Building building : buildings) {
-            for (int i = 0; i < storedResources.length; i++) {
-                if (building instanceof StorageBuilding b) {
-                    storedResources[i] += b.getInventory().getResourceAmount(Resource.values()[i]);
-                }
-            }
+    public static void updateStoredResources(Recipe recipe) {
+        for (Resource resource : recipe.changedResources()) {
+            storedResources[resource.ordinal()] += recipe.getChange(resource);
         }
+        UI.getResourceList().updateData(recipe);
+    }
+
+    public static void updateStoredResources(Resource resource, int amount) {
+        storedResources[resource.ordinal()] += amount;
+        UI.getResourceList().updateData(resource, amount);
     }
 
     public static void setSeed(int seed) {
@@ -460,12 +513,17 @@ public class World {
     public static void setTile(Vector2i gridPosition, Tile tile) {
         tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
         tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
+        changedTiles.put(gridPosition.clone(), tile);
     }
 
-    private static void initNPCs(int num) {
+    private static void initVillagers(int num) {
         for (int i = 0; i < num; i++) {
-            spawnNPC(new NPC((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+            spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
         }
+    }
+
+    public static Random getRandom() {
+        return random;
     }
 
     public static SortedList<GameObject> getGameObjects() {
@@ -476,8 +534,12 @@ public class World {
         return buildings;
     }
 
-    public static List<NPC> getNpcs() {
-        return npcs;
+    public static List<Villager> getVillagers() {
+        return villagers;
+    }
+
+    public static List<Animal> getAnimals() {
+        return animals;
     }
 
     public static Set<FieldWork> getFieldWorks() {
@@ -504,21 +566,71 @@ public class World {
         return navigableTiles;
     }
 
-    public static void saveTiles(ObjectOutputStream out) throws IOException {
-        for (Tile tile : tiles) {
-            out.writeUTF(tile.name());
-        }
-        for (Textures.Tile tileTexture : tileTextures) {
-            out.writeUTF(tileTexture.name());
+    public static void saveWorld(ObjectOutputStream out) throws IOException {
+        out.writeInt(World.getSeed());
+        out.writeInt(World.getGridWidth());
+        out.writeInt(World.getGridHeight());
+        out.writeInt(World.getTime());
+        out.writeInt(World.getDay());
+
+        BuilderGame.saveCollection(buildings, out);
+        BuilderGame.saveCollection(villagers, out);
+        BuilderGame.saveCollection(animals, out);
+        BuilderGame.saveMap(changedFieldWorks, out);
+        out.writeInt(changedTiles.size());
+        for (Vector2i pos : changedTiles.keySet()) {
+            out.writeObject(pos);
+            out.writeUTF(changedTiles.get(pos).name());
         }
     }
 
-    public static void loadTiles(ObjectInputStream in) throws IOException {
-        for (int i = 0; i < tiles.length; i++) {
-            tiles[i] = Tile.valueOf(in.readUTF());
+    public static void loadWorld(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        generate(in.readInt(), new Vector2i(in.readInt(), in.readInt()));
+        setTime(in.readInt());
+        setDay(in.readInt());
+
+        LoadingScreen.setMessage("Loading objects...");
+        BuilderGame.loadCollection(buildings, in);
+        BuilderGame.loadCollection(villagers, in);
+        BuilderGame.loadCollection(animals, in);
+        BuilderGame.loadMap(changedFieldWorks, in);
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            changedTiles.put((Vector2i)in.readObject(), Tile.valueOf(in.readUTF()));
         }
-        for (int i = 0; i < tileTextures.length; i++) {
-            tileTextures[i] = Textures.Tile.valueOf(in.readUTF());
+
+        villagers.forEach(World::addGameObject);
+
+        for (Building building : buildings) {
+            addGameObject(building);
+            makeUnnavigable(building.getCollider());
+            if (building.getType() == Buildings.Type.TRANSPORT_OFFICE) {
+                Logistics.getTransportOffices().add((ProductionBuilding) building);
+            } else if (building.getType() == Buildings.Type.STORAGE_BARN) {
+                Logistics.getStorages().add((StorageBuilding) building);
+            }
+            if (building.getType().farmAnimal != null) {
+                Tiles.createFence(((FarmBuilding<?>) building).getFieldCollider());
+            }
+        }
+
+
+        for (FieldWork fieldWork : changedFieldWorks.keySet()) {
+            if (changedFieldWorks.get(fieldWork)) {
+                fieldWorks.add(fieldWork);
+                addGameObject((GameObject) fieldWork);
+                makeUnnavigable(fieldWork.getCollider());
+            }
+            else {
+                fieldWorks.remove(fieldWork);
+                removeGameObject((GameObject) fieldWork);
+                makeNavigable(fieldWork.getCollider());
+            }
+        }
+
+        for (Vector2i pos : changedTiles.keySet()) {
+            tiles[worldSize.x * pos.y + pos.x] = changedTiles.get(pos);
+            tileTextures[worldSize.x * pos.y + pos.x] = changedTiles.get(pos).textures[random.nextInt(changedTiles.get(pos).textures.length)];
         }
     }
 }
