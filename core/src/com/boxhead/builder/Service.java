@@ -21,7 +21,10 @@ public enum Service {
 
     public void applyEffects(Villager villager, int multiplier) {
         for (Stat stat : effects.keySet()) {
-            villager.getStats()[stat.ordinal()] += (effects.get(stat) * multiplier) - stat.getRate(villager);
+            float villagerStat = villager.getStats()[stat.ordinal()];
+             if (villagerStat >= -0.1 && villagerStat <= 100.1) {
+                 villager.getStats()[stat.ordinal()] += (effects.get(stat) * multiplier) - stat.getRate(villager);
+             }
         }
     }
 

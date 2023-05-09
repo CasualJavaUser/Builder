@@ -94,9 +94,9 @@ public class World {
         placeBuilding(Buildings.Type.STORAGE_BARN, buildingPosition);
         makeUnnavigable(collider);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
-        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 100);
+        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.GRAIN, 100);
         storedResources[Resource.WOOD.ordinal()] = 100;
-        storedResources[Resource.STONE.ordinal()] = 100;
+        storedResources[Resource.GRAIN.ordinal()] = 100;
 
         collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
         buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);

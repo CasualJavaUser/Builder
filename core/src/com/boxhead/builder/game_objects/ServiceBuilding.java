@@ -11,8 +11,7 @@ import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.boxhead.builder.game_objects.Villager.Order.Type.EXIT;
-import static com.boxhead.builder.game_objects.Villager.Order.Type.GO_TO;
+import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
 public class ServiceBuilding extends ProductionBuilding {
 
@@ -27,23 +26,30 @@ public class ServiceBuilding extends ProductionBuilding {
     }
 
     public void provideServices() {
+        for (Villager employee : employees) {
+            if (employee.isClockedIn()) {
+                service.applyEffects(employee, 1);
+            }
+        }
         for (Villager guest : guests) {
             if (guest != null) {
                 service.applyEffects(guest, super.employeesInside);
 
-                boolean isFulfilled = true;
+                boolean isReadyToLeave = true;
                 for (Stat stat : service.getEffects().keySet()) {
+                    int acceptableStage = guest.isClockedIn() ? stat.urgent : stat.isIncreasing ? 0 : 100;
                     boolean condition;
                     if (stat.isIncreasing)
-                        condition = guest.getStats()[stat.ordinal()] < 99; //TODO
+                        condition = guest.getStats()[stat.ordinal()] < acceptableStage;
                     else
-                        condition = guest.getStats()[stat.ordinal()] > 1; //TODO
+                        condition = guest.getStats()[stat.ordinal()] > acceptableStage;
 
                     if (!condition) {
-                        isFulfilled = false;
+                        isReadyToLeave = false;
+                        break;
                     }
                 }
-                if (isFulfilled) {
+                if (isReadyToLeave) {
                     guest.giveOrder(EXIT, this);
                     if (guest.getHome() != null) {
                         guest.giveOrder(GO_TO, guest.getHome());
@@ -54,9 +60,7 @@ public class ServiceBuilding extends ProductionBuilding {
     }
 
     public void guestEnter(Villager villager) {
-        if (canProvideService()) {
-            guests.add(villager);
-        }
+        guests.add(villager);
     }
 
     public void reserve() {
@@ -72,8 +76,12 @@ public class ServiceBuilding extends ProductionBuilding {
         return guests;
     }
 
+    public boolean hasFreeSpaces() {
+        return reserved < type.guestCapacity;
+    }
+
     public boolean canProvideService() {
-        return reserved < type.guestCapacity && employeesInside > 0 && !inventory.isEmpty();
+        return employeesInside > 0 && !inventory.isEmpty();
     }
 
     @Serial

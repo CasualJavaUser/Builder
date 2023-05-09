@@ -16,7 +16,8 @@ public enum Stat {
                 if (pub != null) {
                     pub.reserve();
                     villager.giveOrder(CLOCK_OUT);
-                    villager.giveOrder(pub.getEntrancePosition());
+                    villager.giveOrder(EXIT, villager.getWorkplace());
+                    villager.giveOrder(GO_TO, pub);
                     villager.giveOrder(pub);
                 }
             }),
@@ -25,7 +26,8 @@ public enum Stat {
             villager -> {
                 if (villager.getHome() != null) {
                     villager.giveOrder(CLOCK_OUT);
-                    villager.giveOrder(villager.getHome().getEntrancePosition());
+                    villager.giveOrder(EXIT, villager.getWorkplace());
+                    villager.giveOrder(GO_TO, villager.getHome());
                     villager.giveOrder(ENTER, villager.getHome());
                 }
             }),

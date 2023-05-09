@@ -102,6 +102,7 @@ public class Villager extends NPC implements Clickable {
                 .filter(building -> building.type == type)
                 .map(building -> (ServiceBuilding) building)
                 .filter(ServiceBuilding::canProvideService)
+                .filter(ServiceBuilding::hasFreeSpaces)
                 .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
 
         return bestServiceOptional.orElse(null);
@@ -358,15 +359,14 @@ public class Villager extends NPC implements Clickable {
     public void progressStats() {
         for (int i = 0; i < stats.length; i++) {
             Stat stat = Stat.values()[i];
-            float stage = isClockedIn() ? stat.critical : stat.urgent;
-            //float prevStage = stats[i];
+            float threshold = isClockedIn() ? stat.critical : stat.urgent;
 
             boolean condition;
             if (stat.isIncreasing) {
-                condition = stats[i] >= stage;  //for stats that increase over time (e.g. hunger)
+                condition = stats[i] >= threshold;  //for stats that increase over time (e.g. hunger)
                 if (stats[i] < 100f) stats[i] += stat.getRate(this);
             } else {
-                condition = stats[i] <= stage;  //for stats that decrease over time (e.g. health)
+                condition = stats[i] <= threshold;  //for stats that decrease over time (e.g. health)
                 if (stats[i] > 0f) stats[i] += stat.getRate(this);
             }
 
