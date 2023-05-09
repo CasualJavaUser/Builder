@@ -143,7 +143,6 @@ public class ProductionBuilding extends StorageBuilding {
             employee.giveOrder(Villager.Order.Type.CLOCK_OUT);
             if (employee.getHome() != null) {
                 employee.giveOrder(Villager.Order.Type.GO_TO, employee.getHome());
-                employee.giveOrder(Villager.Order.Type.ENTER, employee.getHome());
             }
         }
     }

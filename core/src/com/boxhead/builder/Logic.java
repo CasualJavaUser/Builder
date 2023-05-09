@@ -50,7 +50,6 @@ public class Logic {
                 if (villager.getJob() != Jobs.UNEMPLOYED) {
                     villager.giveOrder(Villager.Order.Type.EXIT);
                     villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
-                    villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
                     villager.giveOrder(Villager.Order.Type.CLOCK_IN);
                 }
             }

@@ -167,7 +167,10 @@ public class Villager extends NPC implements Clickable {
 
     public void giveOrder(Order.Type type, StorageBuilding building) {
         switch (type) {
-            case GO_TO -> giveOrder(building.getEntrancePosition());
+            case GO_TO -> {
+                giveOrder(building.getEntrancePosition());
+                giveOrder(Order.Type.ENTER, building);
+            }
             case ENTER -> orderList.addLast(new Order() {
                 @Override
                 void execute() {
@@ -198,16 +201,19 @@ public class Villager extends NPC implements Clickable {
 
     public void giveOrder(Order.Type type, FieldWork fieldWork) {
         switch (type) {
-            case GO_TO -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
-                        navigateTo(fieldWork.getCollider());
-                    } else if (followPath()) {
-                        orderList.removeFirst();
+            case GO_TO -> {
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
+                            navigateTo(fieldWork.getCollider());
+                        } else if (followPath()) {
+                            orderList.removeFirst();
+                        }
                     }
-                }
-            });
+                });
+                giveOrder(Order.Type.ENTER, fieldWork);
+            }
             case ENTER -> orderList.addLast(new Order() {
                 @Override
                 void execute() {
