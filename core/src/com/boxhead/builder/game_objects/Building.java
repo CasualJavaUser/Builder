@@ -17,6 +17,9 @@ public class Building extends GameObject implements Clickable {
     protected transient Buildings.Type type;
     protected BoxCollider collider;
 
+    private static int nextId = 0;
+    private final int id;
+
     public Building (Buildings.Type type, Vector2i gridPosition) {
         this(type, type.texture, gridPosition);
     }
@@ -25,6 +28,8 @@ public class Building extends GameObject implements Clickable {
         super(texture, gridPosition);
         this.type = type;
         collider = type.relativeCollider.cloneAndTranslate(gridPosition);
+        id = nextId;
+        nextId++;
     }
 
     public String getName() {
@@ -37,6 +42,10 @@ public class Building extends GameObject implements Clickable {
 
     public Buildings.Type getType() {
         return type;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override

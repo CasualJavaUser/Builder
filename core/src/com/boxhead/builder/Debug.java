@@ -2,8 +2,10 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.Input;
 import com.boxhead.builder.game_objects.Animal;
+import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.*;
+import com.boxhead.builder.utils.Action;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.lang.annotation.ElementType;
@@ -27,7 +29,7 @@ public class Debug {
     private static int lastCommandIndex = -1;
     private final static int MAX_LINES = 20;
 
-    private Debug() {};
+    private Debug() {}
 
     @Exclude
     public static void init() {
@@ -37,7 +39,7 @@ public class Debug {
 
         console = new Window(Textures.get(Textures.Ui.WINDOW), UI.Anchor.TOP_LEFT.getElement(), UI.Layer.CONSOLE, Vector2i.zero());
         console.setWindowWidth(600);
-        console.setContentHeight((int)(UI.FONT.getLineHeight() * MAX_LINES) + 10);
+        console.setContentHeight((int)(UI.FONT.getLineHeight() * MAX_LINES) + UI.PADDING);
         console.setLocalPosition(0, -console.getWindowHeight());
 
         textField = new TextField("Command", Textures.get(Textures.Ui.WIDE_TEXT_FIELD), console, UI.Layer.CONSOLE, Vector2i.zero());
@@ -61,26 +63,33 @@ public class Debug {
 
         lastCommands = new ArrayList<>();
 
-        accept.setOnClick(() -> {
-            String[] input = textField.getText().split(" ");
-            lastCommands.add(textField.getText());
-            lastCommandIndex = lastCommands.size();
-            textField.setText("");
-            for (Method method : availableMethods) {
-                if (method.getName().equals(input[0])) {
-                    try {
-                        method.invoke(Debug.class, (Object[]) Arrays.copyOfRange(input, 1, input.length));
+        accept.setOnClick(new Action() {
+            @Override
+            @Exclude
+            public void execute() {
+                String[] input = textField.getText().split(" ");
+                lastCommands.add(textField.getText());
+                lastCommandIndex = lastCommands.size();
+                textField.setText("");
+                for (Method method : availableMethods) {
+                    if (method.getName().equals(input[0])) {
+                        try {
+                            method.invoke(Debug.class, (Object[]) Arrays.copyOfRange(input, 1, input.length));
+                        }
+                        catch (IllegalAccessException e) {
+                            log(e.getMessage());
+                        }
+                        catch (InvocationTargetException e) {
+                            log(e.getTargetException().getClass().getSimpleName() + ": " + e.getTargetException().getMessage());
+                        }
+                        catch (IllegalArgumentException e) {
+                            log("Wrong number of arguments (expected: " + method.getParameters().length + ")");
+                        }
+                        return;
                     }
-                    catch (IllegalAccessException | InvocationTargetException e) {
-                        log(e.getMessage());
-                    }
-                    catch (IllegalArgumentException e) {
-                        log("Wrong number of arguments (expected: " + method.getParameters().length + ")");
-                    }
-                    return;
                 }
+                log("Method \"" + input[0] + "\" not found");
             }
-            log("Method \"" + input[0] + "\" not found");
         });
 
         console.setTint(UI.WHITE);
@@ -123,22 +132,12 @@ public class Debug {
         }
     }
 
-    @Exclude
-    private static Integer tryParseInt(String number) {
-        try {
-            return Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            log(e.getMessage());
-        }
-        return null;
-    }
-
     public static void quit() {
         UI.Layer.CONSOLE.setVisible(false);
     }
 
     public static void log(String message) {
-        log += message + "\n";
+        log += message + "\n\n";
         String[] lines = log.split("\n");
         String text = "";
         for (int i = 0; i < MAX_LINES; i++) {
@@ -147,9 +146,14 @@ public class Debug {
         textArea.setText(text);
     }
 
-    public static void selectNPC(String id) {
-        Integer i = tryParseInt(id);
-        if (i == null) return;
+    public static void help() {
+        for (Method method : availableMethods) {
+            log(method.getName() + " " + method.getParameters().length);
+        }
+    }
+
+    public static void selectNPC(String id) throws NumberFormatException {
+        int i = Integer.parseInt(id);
         for (Villager villager : World.getVillagers()) {
             if (villager.getId() == i) {
                 villager.onClick();
@@ -168,26 +172,56 @@ public class Debug {
         log(UI.getNpcStatWindow().getPinnedObject().toString());
     }
 
-    public static void getNPC(String id) {
-        Integer i = tryParseInt(id);
-        if (i == null) return;
-
+    public static void getNPC(String id) throws NumberFormatException {
+        int i = Integer.parseInt(id);
         for (Villager villager : World.getVillagers()) {
             if (villager.getId() == i) {
                 log(villager.toString());
+                return;
             }
         }
         for (Animal animal : World.getAnimals()) {
             if (animal.getId() == i) {
                 log(animal.toString());
+                return;
             }
         }
+        log("Villager with id " + id + " not found");
     }
 
-    public static void setTickSpeed(String speed) {
-        Integer s = tryParseInt(speed);
-        if (s == null) return;
+    public static void selectBuilding(String id) throws NumberFormatException {
+        int i = Integer.parseInt(id);
+        for (Building building : World.getBuildings()) {
+            if (building.getId() == i) {
+                building.onClick();
+                log("Building selected");
+                return;
+            }
+        }
+        log("Building with id " + id + " not found");
+    }
 
+    public static void getSelectedBuilding() {
+        if (UI.getBuildingStatWindow().getPinnedObject() == null) {
+            log("No building selected");
+            return;
+        }
+        log(UI.getBuildingStatWindow().getPinnedObject().toString());
+    }
+
+    public static void getBuilding(String id) throws NumberFormatException {
+        int i = Integer.parseInt(id);
+        for (Building building : World.getBuildings()) {
+            if (building.getId() == i) {
+                log(building.toString());
+                return;
+            }
+        }
+        log("Building with id " + id + " not found");
+    }
+
+    public static void setTickSpeed(String speed) throws NumberFormatException {
+        int s = Integer.parseInt(speed);
         Logic.setTickSpeed(Logic.NORMAL_SPEED / s);
         log("Tick speed set to " + (Logic.NORMAL_SPEED / s));
     }
@@ -213,19 +247,15 @@ public class Debug {
             t = 57570;
         } else if (time.contains(":")) {
             try {
-                Integer hours = tryParseInt(time.split(":")[0]);
-                Integer minutes = tryParseInt(time.split(":")[1]);
-                if (hours == null || minutes == null)
-                    return;
+                int hours = Integer.parseInt(time.split(":")[0]);
+                int minutes = Integer.parseInt(time.split(":")[1]);
 
                 t = hours * 3600 + minutes * 60;
             } catch (Exception e) {
                 log(e.getMessage());
             }
         } else {
-            if (tryParseInt(time) != null) {
-                t = tryParseInt(time);
-            }
+            t = Integer.parseInt(time);
         }
 
         int hours = t/3600;

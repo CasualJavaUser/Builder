@@ -236,6 +236,20 @@ public class ProductionBuilding extends StorageBuilding {
         }
     }
 
+    @Override
+    public String toString() {
+        return type.name +
+                "\njob: " + job +
+                "\nefficiency: " + efficiency +
+                "\njobQuality: " + jobQuality +
+                "\nemployees: " + employees.size() + " / " + type.npcCapacity +
+                "\nemployeesInside: " + employeesInside +
+                "\nassignedFieldWork: " + assignedFieldWork +
+                "\nbuildingsInRange: " + buildingsInRange.size() +
+                "\nproductionCounter: " + productionCounter +
+                "\nshowRange: " + showRange;
+    }
+
     @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();

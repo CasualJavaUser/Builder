@@ -9,7 +9,6 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class TextField extends UIElement implements Clickable {
     private String prompt, text = "";
-    private final int padding = 10;
 
     public TextField(String prompt, TextureRegion background, UIElement parent, UI.Layer layer, Vector2i position) {
         super(background, parent, layer, position);
@@ -31,17 +30,17 @@ public class TextField extends UIElement implements Clickable {
 
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor(
-                getGlobalPosition().x + padding,
+                getGlobalPosition().x + UI.PADDING,
                 getGlobalPosition().y,
-                texture.getRegionWidth() - padding * 2,
+                texture.getRegionWidth() - UI.PADDING * 2,
                 texture.getRegionHeight());
 
         UI.FONT.draw(
                 batch,
                 txt,
-                getGlobalPosition().x + padding,
+                getGlobalPosition().x + UI.PADDING,
                 getGlobalPosition().y + (texture.getRegionHeight() + UI.FONT.getCapHeight())/2f - 2,
-                texture.getRegionWidth() - padding*2,
+                texture.getRegionWidth() - UI.PADDING*2,
                 0,
                 false);
         UI.FONT.setColor(UI.DEFAULT_COLOR);

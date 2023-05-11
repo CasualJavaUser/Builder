@@ -38,6 +38,11 @@ public class BuildingStatWindow extends StatWindow<Building> {
     @Override
     protected void updateStats() {
         stats = pinnedObject.getName();
+
+        if (Debug.isOpen()) {
+            stats += "\nID: " + pinnedObject.getId();
+        }
+
         if (pinnedObject instanceof ResidentialBuilding building) {
             warning = "";
             npcCapacity = building.getResidentCapacity();
