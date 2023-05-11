@@ -600,6 +600,7 @@ public class UI {
         Anchor.TOP_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Anchor.BOTTOM_LEFT.getElement().setGlobalPosition(0, 0);
         Anchor.BOTTOM_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), 0);
+        scrollPane.updateScissors();
     }
 
     public static void showNPCStatWindow(Villager villager) {
@@ -795,9 +796,9 @@ public class UI {
 
         scrollPane.addElement(area);
 
-        textArea.setScissors(area.getScissors());
-        saveButton.setScissors(area.getScissors());
-        deleteButton.setScissors(area.getScissors());
+        textArea.setScissors(scrollPane.getScissors());
+        saveButton.setScissors(scrollPane.getScissors());
+        deleteButton.setScissors(scrollPane.getScissors());
     }
 
     private static void showBuildingStats(Buildings.Type building) {

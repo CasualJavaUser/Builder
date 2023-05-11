@@ -5,8 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
-import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Rectangle;
 import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
@@ -176,10 +175,11 @@ public class UIElement {
             batch.flush();
             Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
             Gdx.gl.glScissor(
-                    (int)scissors.getX(),
-                    (int)scissors.getY(),
-                    (int)scissors.getWidth(),
-                    (int)scissors.getHeight());
+                    scissors.x,
+                    scissors.y,
+                    scissors.width,
+                    scissors.height
+            );
         }
     }
 

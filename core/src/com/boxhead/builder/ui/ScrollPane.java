@@ -10,7 +10,6 @@ import java.util.*;
 public class ScrollPane extends UIElement {
     private Set<UIElement> elements = new HashSet<>();
     private UIElement firstElement = null, lastElement = null;
-    private final int padding = 10;
     private int width, height;
     private Vector2i nextPos;
     private boolean scrollable = false;
@@ -20,6 +19,12 @@ public class ScrollPane extends UIElement {
         this.width = width;
         this.height = height;
         nextPos = new Vector2i(width/2, height);
+        setScissors(
+                getGlobalPosition().x,
+                getGlobalPosition().y,
+                width,
+                height
+        );
     }
 
     public ScrollPane(UIElement parent, UI.Layer layer, int x1, int y1, int x2, int y2) {
@@ -31,19 +36,20 @@ public class ScrollPane extends UIElement {
         lastElement = element;
 
         elements.add(element);
-        element.setScissors(
-                getGlobalPosition().x,
-                getGlobalPosition().y,
-                width,
-                height);
         element.setParent(this);
         element.setLocalPosition(
                 nextPos.x - element.getWidth() / 2,
                 nextPos.y - element.getHeight());
-        nextPos.set(nextPos.x, nextPos.y - element.getHeight() - padding);
+        nextPos.set(nextPos.x, nextPos.y - element.getHeight() - UI.PADDING);
+        element.setScissors(getScissors());
 
         if(firstElement.getGlobalPosition().y + firstElement.getHeight() - lastElement.getGlobalPosition().y > height)
             scrollable = true;
+    }
+
+    public void updateScissors() {
+        getScissors().x = getGlobalPosition().x;
+        getScissors().y = getGlobalPosition().y;
     }
 
     public void clear() {
