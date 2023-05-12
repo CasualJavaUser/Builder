@@ -10,6 +10,8 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.*;
 import java.util.*;
 
+import static com.boxhead.builder.Stat.*;
+
 public class Villager extends NPC implements Clickable {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
@@ -357,17 +359,16 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void progressStats() {
-        stats[0] += Stat.HUNGER.rate;
-        if (clockedIn)
-            stats[1] += Stat.TIREDNESS.rate * 2;
-        else if (home != null && home.equals(buildingIsIn))
-            stats[1] -= Stat.TIREDNESS.rate * 2;
-        else
-            stats[1] += Stat.TIREDNESS.rate;
+        stats[HUNGER.ordinal()] += HUNGER.rate;
 
-        for (int i = 2; i < stats.length; i++) {
-            stats[i] += Stat.values()[i].rate;
-        }
+        if (clockedIn)
+            stats[TIREDNESS.ordinal()] += TIREDNESS.rate * 2;
+        else if (home != null && home.equals(buildingIsIn))
+            stats[TIREDNESS.ordinal()] -= TIREDNESS.rate * 2;
+        else
+            stats[TIREDNESS.ordinal()] += TIREDNESS.rate;
+
+        stats[HEALTH.ordinal()] += HEALTH.rate;
     }
 
     public void fulfillNeeds() {
@@ -447,7 +448,7 @@ public class Villager extends NPC implements Clickable {
         String stat;
         for (int i = 0; i < Stat.values().length; i++) {
             stat = Stat.values()[i].toString().toLowerCase() + ": " + (int)stats[i];
-            s += "\n" + stat;
+            s = s.concat("\n" + stat);
         }
 
         s += "\norder list size: " + orderList.size() +
