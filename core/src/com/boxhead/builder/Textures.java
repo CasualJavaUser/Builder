@@ -116,7 +116,8 @@ public class Textures {
         DEFAULT,
         DIRT,
         GRASS1, GRASS2, GRASS3,
-        WATER1, WATER2
+        WATER1, WATER2,
+        PATH_CROSS, PATH_LR, PATH_TB, PATH_TL, PATH_TR, PATH_BR, PATH_BL, PATH_T_L, PATH_T_T, PATH_T_R, PATH_T_B
     }
 
     public enum Npc implements TextureId {

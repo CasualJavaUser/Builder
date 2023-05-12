@@ -439,6 +439,10 @@ public class World {
         } else return false;
     }
 
+    public static boolean isBuildable(int x, int y) {
+        return isBuildable(new Vector2i(x, y));
+    }
+
     public static int getStored(Resource resource) {
         return storedResources[resource.ordinal()];
     }
@@ -510,10 +514,26 @@ public class World {
         return tiles[worldSize.x * gridPosition.y + gridPosition.x];
     }
 
+    public static Tile getTile(int x, int y) {
+        return tiles[worldSize.x * y + x];
+    }
+
     public static void setTile(Vector2i gridPosition, Tile tile) {
         tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
         tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
         changedTiles.put(gridPosition.clone(), tile);
+    }
+
+    public static void setTile(int x, int y, Tile tile) {
+        tiles[worldSize.x * y + x] = tile;
+        tileTextures[worldSize.x * y + x] = tile.textures[random.nextInt(tile.textures.length)];
+        changedTiles.put(new Vector2i(x, y), tile);
+    }
+
+    public static void setTile(int x, int y, Tile tile, Textures.Tile texture) {
+        tiles[worldSize.x * y + x] = tile;
+        tileTextures[worldSize.x * y + x] = texture;
+        changedTiles.put(new Vector2i(x, y), tile);
     }
 
     private static void initVillagers(int num) {

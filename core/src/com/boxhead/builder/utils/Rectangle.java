@@ -9,4 +9,17 @@ public class Rectangle {
         this.width = width;
         this.height = height;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Rectangle rectangle = (Rectangle) o;
+        return x == rectangle.x && y == rectangle.y && width == rectangle.width && height == rectangle.height;
+    }
+
+    /*@Override
+    public int hashCode() {
+        return Objects.hash(x, y, width, height);
+    }*/
 }

@@ -357,6 +357,20 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void progressStats() {
+        stats[0] += Stat.HUNGER.rate;
+        if (clockedIn)
+            stats[1] += Stat.TIREDNESS.rate * 2;
+        else if (home != null && home.equals(buildingIsIn))
+            stats[1] -= Stat.TIREDNESS.rate * 2;
+        else
+            stats[1] += Stat.TIREDNESS.rate;
+
+        for (int i = 2; i < stats.length; i++) {
+            stats[i] += Stat.values()[i].rate;
+        }
+    }
+
+    public void fulfillNeeds() {
         for (int i = 0; i < stats.length; i++) {
             Stat stat = Stat.values()[i];
             float threshold = isClockedIn() ? stat.critical : stat.urgent;
@@ -364,10 +378,8 @@ public class Villager extends NPC implements Clickable {
             boolean condition;
             if (stat.isIncreasing) {
                 condition = stats[i] >= threshold;  //for stats that increase over time (e.g. hunger)
-                if (stats[i] < 100f) stats[i] += stat.getRate(this);
             } else {
                 condition = stats[i] <= threshold;  //for stats that decrease over time (e.g. health)
-                if (stats[i] > 0f) stats[i] += stat.getRate(this);
             }
 
             if (condition) {
@@ -375,23 +387,6 @@ public class Villager extends NPC implements Clickable {
             }
         }
     }
-
-    /*public void fulfillNeeds() {
-        for (int i = 0; i < stats.length; i++) {
-            Stat stat = Stat.values()[i];
-            float stage = isClockedIn() ? stat.critical : stat.urgent;
-
-            boolean condition;
-            if (stat.isIncreasing)
-                condition = stats[i] >= stage;  //for stats that increase over time (e.g. hunger)
-            else
-                condition = stats[i] <= stage;  //for stats that decrease over time (e.g. health)
-
-            if (condition) {
-                stat.fulfillNeed(this);
-            }
-        }
-    }*/
 
     public ProductionBuilding getWorkplace() {
         return workplace;

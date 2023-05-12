@@ -27,6 +27,7 @@ public class Logic {
                 villager.executeOrders();
                 villager.incrementAge();
                 villager.progressStats();
+                villager.fulfillNeeds();
                 /*if (!villager.hasOrders())
                     villager.wander();*/
             }

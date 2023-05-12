@@ -277,7 +277,7 @@ public class UI {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
                 else Buildings.toDemolishingMode();
             });
-            tilingButton.setOnUp(() -> Tiles.toTilingMode(Tiles.TilingMode.PATH));
+            tilingButton.setOnUp(() -> Tiles.toPathMode(Tile.PATH));
             pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
@@ -618,10 +618,10 @@ public class UI {
             if (Layer.BUILDING_MENU.isVisible()) {
                 Layer.BUILDING_MENU.setVisible(false);
             }
-            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInTilingMode()) {
+            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
-                Tiles.turnOffTilingMode();
+                Tiles.turnOffPathMode();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
                 npcStatWindow.setVisible(false);

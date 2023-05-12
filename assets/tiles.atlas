@@ -1,61 +1,138 @@
 
 tiles.png
-size: 256, 32
+size: 64, 128
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 default
   rotate: false
-  xy: 1, 1
+  xy: 19, 109
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 dirt
   rotate: false
-  xy: 73, 1
+  xy: 37, 91
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grass1
   rotate: false
-  xy: 37, 1
+  xy: 37, 109
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grass2
   rotate: false
-  xy: 109, 1
+  xy: 19, 19
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grass3
   rotate: false
-  xy: 55, 1
+  xy: 19, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 left_river_bank
   rotate: false
-  xy: 127, 1
+  xy: 37, 37
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-water1
+path_bl
+  rotate: false
+  xy: 19, 91
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_br
+  rotate: false
+  xy: 1, 109
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_cross
+  rotate: false
+  xy: 37, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_lr
+  rotate: false
+  xy: 1, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_b
+  rotate: false
+  xy: 19, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_l
+  rotate: false
+  xy: 1, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_r
+  rotate: false
+  xy: 1, 37
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_t
+  rotate: false
+  xy: 1, 19
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_tb
   rotate: false
   xy: 19, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+path_tl
+  rotate: false
+  xy: 1, 91
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_tr
+  rotate: false
+  xy: 37, 73
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+water1
+  rotate: false
+  xy: 1, 73
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 water2
   rotate: false
-  xy: 91, 1
+  xy: 19, 37
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

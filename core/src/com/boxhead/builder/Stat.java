@@ -10,7 +10,7 @@ import java.util.function.Function;
 import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
 public enum Stat {
-    HUNGER(50, 80, 60, villager -> 0.001f,
+    HUNGER(50, 80, 60, 0.001f,
             villager -> {
                 ServiceBuilding pub = villager.seekNearestService(Buildings.Type.PUB);
                 if (pub != null) {
@@ -22,7 +22,7 @@ public enum Stat {
                 }
             }),
 
-    TIREDNESS(70, 90, 0, villager -> villager.isClockedIn() ? 0.002f : 0.001f,
+    TIREDNESS(70, 90, 0, 0.001f,
             villager -> {
                 if (villager.getHome() != null) {
                     villager.giveOrder(CLOCK_OUT);
@@ -32,13 +32,13 @@ public enum Stat {
                 }
             }),
 
-    HEALTH(70, 20, 100, villager -> -0.001f,
+    HEALTH(70, 20, 100, -0.001f,
             villager -> {
 
             });
 
     public final int urgent, critical;
-    public final Function<Villager, Float> getRate;
+    public final float rate;
     public final float initVal;
     public final Consumer<Villager> fulfillNeed;
     /**
@@ -46,17 +46,13 @@ public enum Stat {
      */
     public final boolean isIncreasing;
 
-    Stat(int urgent, int critical, float initVal,  Function<Villager, Float> getRate, Consumer<Villager> fulfillNeed) {
+    Stat(int urgent, int critical, float initVal,  float rate, Consumer<Villager> fulfillNeed) {
         this.urgent = urgent;
         this.critical = critical;
         this.initVal = initVal;
-        this.getRate = getRate;
+        this.rate = rate;
         this.fulfillNeed = fulfillNeed;
-        isIncreasing = (urgent < critical);
-    }
-
-    public float getRate(Villager villager) {
-        return getRate.apply(villager);
+        isIncreasing = rate > 0;
     }
 
     public void fulfillNeed(Villager villager) {
