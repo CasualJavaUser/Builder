@@ -1,26 +1,15 @@
 package com.boxhead.builder;
 
-import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.game_objects.ServiceBuilding;
 import com.boxhead.builder.game_objects.Villager;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
 public enum Stat {
     HUNGER(50, 80, 60, 0.001f,
-            villager -> {
-                ServiceBuilding pub = villager.seekNearestService(Buildings.Type.PUB);
-                if (pub != null) {
-                    pub.reserve();
-                    villager.giveOrder(CLOCK_OUT);
-                    villager.giveOrder(EXIT, villager.getWorkplace());
-                    villager.giveOrder(GO_TO, pub);
-                    villager.giveOrder(pub);
-                }
-            }),
+            villager -> standardSeekService(villager, Service.BARTENDING)),
 
     TIREDNESS(70, 90, 0, 0.001f,
             villager -> {
@@ -28,14 +17,11 @@ public enum Stat {
                     villager.giveOrder(CLOCK_OUT);
                     villager.giveOrder(EXIT, villager.getWorkplace());
                     villager.giveOrder(GO_TO, villager.getHome());
-                    villager.giveOrder(ENTER, villager.getHome());
                 }
             }),
 
     HEALTH(70, 20, 100, -0.001f,
-            villager -> {
-
-            });
+            villager -> standardSeekService(villager, Service.HEALTHCARE));
 
     public final int urgent, critical;
     public final float rate;
@@ -57,5 +43,16 @@ public enum Stat {
 
     public void fulfillNeed(Villager villager) {
         fulfillNeed.accept(villager);
+    }
+
+    private static void standardSeekService(Villager villager, Service service) {
+        ServiceBuilding serviceBuilding = villager.seekNearestService(service);
+        if (serviceBuilding == null) return;
+
+        serviceBuilding.reserve();
+        villager.giveOrder(CLOCK_OUT);
+        villager.giveOrder(EXIT, villager.getWorkplace());
+        villager.giveOrder(GO_TO, serviceBuilding);
+        villager.giveOrder(serviceBuilding);
     }
 }

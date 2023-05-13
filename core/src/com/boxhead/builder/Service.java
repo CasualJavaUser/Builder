@@ -8,7 +8,7 @@ import java.util.Map;
 
 public enum Service {
     BARTENDING(Pair.of(Stat.HUNGER, -0.02f)),
-    TREATING(Pair.of(Stat.HEALTH, 0.02f));
+    HEALTHCARE(Pair.of(Stat.HEALTH, 0.02f));
 
     private final Map<Stat, Float> effects = new HashMap<>();
 

@@ -399,7 +399,7 @@ public class UI {
                 serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
                 pubButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
 
-                serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_SERVICE_BUILDING));
+                serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.HOSPITAL));
                 pubButton.setOnUp(() -> showBuildingStats(Buildings.Type.PUB));
             }
             //endregion

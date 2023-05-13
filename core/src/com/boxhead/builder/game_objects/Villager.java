@@ -95,13 +95,9 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
-    public ServiceBuilding seekNearestService(Buildings.Type type) {
-        if (!type.isService())
-            throw new IllegalArgumentException("Given type is not service");
-
+    public ServiceBuilding seekNearestService(Service service) {
         Optional<ServiceBuilding> bestServiceOptional = World.getBuildings().stream()
-                .filter(building -> building instanceof ServiceBuilding)
-                .filter(building -> building.type == type)
+                .filter(building -> building instanceof ServiceBuilding && building.type.service == service)
                 .map(building -> (ServiceBuilding) building)
                 .filter(ServiceBuilding::canProvideService)
                 .filter(ServiceBuilding::hasFreeSpaces)
@@ -192,7 +188,10 @@ public class Villager extends NPC implements Clickable {
 
     public void giveOrder(Order.Type type, StorageBuilding building) {
         switch (type) {
-            case GO_TO -> giveOrder(building.getEntrancePosition());
+            case GO_TO -> {
+                giveOrder(building.getEntrancePosition());
+                giveOrder(Order.Type.ENTER, building);
+            }
             case ENTER -> orderList.addLast(new Order() {
                 @Override
                 void execute() {
@@ -210,7 +209,7 @@ public class Villager extends NPC implements Clickable {
                 void execute() {
                     if (gridPosition.equals(building.getGridPosition())) {
                         if (building == workplace) {
-                            workplace.employeeExit();
+                            workplace.employeeExit(Villager.this);
                         }
                         if (building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getGuests().contains(Villager.this)) {
                             serviceBuilding.guestExit(Villager.this);
@@ -239,16 +238,19 @@ public class Villager extends NPC implements Clickable {
 
     public void giveOrder(Order.Type type, FieldWork fieldWork) {
         switch (type) {
-            case GO_TO -> orderList.addLast(new Order() {
-                @Override
-                void execute() {
-                    if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
-                        navigateTo(fieldWork.getCollider());
-                    } else if (followPath()) {
-                        orderList.removeFirst();
+            case GO_TO -> {
+                orderList.addLast(new Order() {
+                    @Override
+                    void execute() {
+                        if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
+                            navigateTo(fieldWork.getCollider());
+                        } else if (followPath()) {
+                            orderList.removeFirst();
+                        }
                     }
-                }
-            });
+                });
+                giveOrder(Order.Type.ENTER, fieldWork);
+            }
             case ENTER -> orderList.addLast(new Order() {
                 @Override
                 void execute() {
@@ -372,6 +374,8 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void fulfillNeeds() {
+        if (!orderList.isEmpty()) return;
+
         for (int i = 0; i < stats.length; i++) {
             Stat stat = Stat.values()[i];
             float threshold = isClockedIn() ? stat.critical : stat.urgent;

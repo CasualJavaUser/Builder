@@ -102,7 +102,6 @@ public class Jobs {
             workplace.getAssignedFieldWork().put(assignee, fieldWork);
             assignee.giveOrder(EXIT, workplace);
             assignee.giveOrder(GO_TO, fieldWork);
-            assignee.giveOrder(ENTER, fieldWork);
         }
 
         @Override
@@ -150,16 +149,13 @@ public class Jobs {
             Logistics.removeOrder(order, assignee, Villager.INVENTORY_SIZE);
             assignee.giveOrder(EXIT, workplace);
             assignee.giveOrder(GO_TO, order.sender);
-            assignee.giveOrder(ENTER, order.sender);
             assignee.giveOrder(TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
             assignee.giveOrder(EXIT, order.sender);
             assignee.giveOrder(GO_TO, order.recipient);
-            assignee.giveOrder(ENTER, order.recipient);
             assignee.giveOrder(PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
             assignee.giveOrder(EXIT, order.recipient);
             assignee.giveOrder(END_DELIVERY);
             assignee.giveOrder(GO_TO, workplace);
-            assignee.giveOrder(ENTER, workplace);
         }
 
         @Override
@@ -171,12 +167,10 @@ public class Jobs {
 
             if (assignee.getInventory().isEmpty()) {
                 assignee.giveOrder(GO_TO, order.sender);
-                assignee.giveOrder(ENTER, order.sender);
                 assignee.giveOrder(TAKE_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
             }
             assignee.giveOrder(EXIT, order.sender);
             assignee.giveOrder(GO_TO, order.recipient);
-            assignee.giveOrder(ENTER, order.recipient);
             assignee.giveOrder(PUT_RESERVED_RESOURCES, order.resource, Villager.INVENTORY_SIZE);
             assignee.giveOrder(EXIT, order.recipient);
             assignee.giveOrder(END_DELIVERY);
@@ -201,7 +195,6 @@ public class Jobs {
 
             if (!farmerAssign(assignee, workplace)) {
                 assignee.giveOrder(GO_TO, workplace);
-                assignee.giveOrder(ENTER, workplace);
                 if (!assignee.getInventory().isEmpty()) {
                     Resource resource = ((FarmBuilding<? extends FieldWork>) workplace).getResource();
                     int units = assignee.getInventory().getResourceAmount(resource);
@@ -218,7 +211,10 @@ public class Jobs {
 
         @Override
         public Recipe getRecipe(ProductionBuilding workplace) {
-            return ((FarmBuilding<?>) workplace).getRecipe();
+            if (workplace != null)
+                return ((FarmBuilding<?>) workplace).getRecipe();
+            else
+                return new Recipe(Pair.of(Resource.GRAIN, 10));
         }
 
         @Override
@@ -261,7 +257,6 @@ public class Jobs {
         workplace.getAssignedFieldWork().put(assignee, harvestable);
         assignee.giveOrder(EXIT, workplace);
         assignee.giveOrder(GO_TO, harvestable);
-        assignee.giveOrder(ENTER, harvestable);
     }
 
     private static void harvesterContinuous(Villager assignee, ProductionBuilding workplace, Resource resource) {
@@ -270,7 +265,6 @@ public class Jobs {
         if (!assignee.hasOrders() && (assignee.getInventory().isFull() || readyToReturn)) {
             int resourceAmount = assignee.getInventory().getResourceAmount(resource);
             assignee.giveOrder(GO_TO, workplace);
-            assignee.giveOrder(ENTER, workplace);
             assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, resourceAmount);
             assignee.giveOrder(REQUEST_TRANSPORT, resource, resourceAmount);
         }
@@ -287,7 +281,6 @@ public class Jobs {
         int resourceUnits = assignee.getInventory().getResourceAmount(resource);
         if (resourceUnits != 0) {
             assignee.giveOrder(GO_TO, workplace);
-            assignee.giveOrder(ENTER, workplace);
             assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, resourceUnits);
             assignee.giveOrder(REQUEST_TRANSPORT, resource, resourceUnits);
         } else if (workplace.hasReserved(assignee, resource)){
@@ -307,7 +300,6 @@ public class Jobs {
             workplace.getAssignedFieldWork().put(assignee, fieldWork);
             assignee.giveOrder(EXIT, workplace);
             assignee.giveOrder(GO_TO, fieldWork);
-            assignee.giveOrder(ENTER, fieldWork);
             return true;
         } else if (workplace instanceof PlantationBuilding plantation) {
             for (Vector2i tile : employingFarm.getFieldCollider()) {

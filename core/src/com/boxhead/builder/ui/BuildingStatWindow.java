@@ -49,7 +49,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
             villagers = building.getResidents();
         }
         else if (pinnedObject instanceof ProductionBuilding building) {
-            npcCapacity = building.getType().npcCapacity;
+            npcCapacity = building.getType().workerCapacity;
             villagers = building.getEmployees();
             job = building.getJob();
 

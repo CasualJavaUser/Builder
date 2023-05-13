@@ -50,58 +50,40 @@ public class Logic {
     };
 
     private static void dailyCycle() {
-        switch (World.getTime()) {
+        switch (World.getTime()) {  //todo make it not-hardcoded
             case 28800:
-                startWorkday(Buildings.Shift.EIGHT_TO_FOUR);
+                endWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
+                startWorkday(Job.ShiftTime.EIGHT_FOUR);
                 break;
             case 39600:
-                startWorkday(Buildings.Shift.ELEVEN_TO_SEVEN);
+                startWorkday(Job.ShiftTime.ELEVEN_SEVEN);
                 break;
             case 57600:
-                endWorkday(Buildings.Shift.EIGHT_TO_FOUR);
+                endWorkday(Job.ShiftTime.EIGHT_FOUR);
+                startWorkday(Job.ShiftTime.FOUR_MIDNIGHT);
                 break;
             case 68400:
-                endWorkday(Buildings.Shift.ELEVEN_TO_SEVEN);
+                endWorkday(Job.ShiftTime.ELEVEN_SEVEN);
                 break;
             case 0:
+                endWorkday(Job.ShiftTime.FOUR_MIDNIGHT);
+                startWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
                 Pathfinding.removeUnusedPaths();
         }
-
-        /*if (World.getTime() == 28800) {   //8:00
-            for (Villager villager : World.getVillagers()) {
-                if (villager.getJob() != Jobs.UNEMPLOYED && villager.getWorkplace().getType().shift == Buildings.Shift.EIGHT_TO_FOUR) {
-                    villager.giveOrder(Villager.Order.Type.EXIT);
-                    villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
-                    villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
-                    villager.giveOrder(Villager.Order.Type.CLOCK_IN);
-                }
-            }
-        } else if (World.getTime() == 57600) { //16:00
-            for (Building building : World.getBuildings()) {
-                if (building instanceof ProductionBuilding) {
-                    ((ProductionBuilding) building).endWorkday();
-                }
-            }
-        } else if (World.getTime() == 0) {  //0:00
-            Pathfinding.removeUnusedPaths();
-        }*/
     }
 
-    private static void startWorkday(Buildings.Shift shift) {
-        for (Villager villager : World.getVillagers()) {
-            if (villager.getJob() != Jobs.UNEMPLOYED && villager.getWorkplace().getType().shift == shift) {
-                villager.giveOrder(Villager.Order.Type.EXIT);
-                villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
-                villager.giveOrder(Villager.Order.Type.ENTER, villager.getWorkplace());
-                villager.giveOrder(Villager.Order.Type.CLOCK_IN);
+    private static void startWorkday(Job.ShiftTime shift) {
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ProductionBuilding workplace) {
+                workplace.startShift(shift);
             }
         }
     }
 
-    private static void endWorkday(Buildings.Shift shift) {
+    private static void endWorkday(Job.ShiftTime shift) {
         for (Building building : World.getBuildings()) {
-            if (building instanceof ProductionBuilding && building.getType().shift == shift) {
-                ((ProductionBuilding) building).endWorkday();
+            if (building instanceof ProductionBuilding workplace) {
+                workplace.endShift(shift);
             }
         }
     }

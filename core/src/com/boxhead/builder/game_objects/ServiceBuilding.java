@@ -81,7 +81,7 @@ public class ServiceBuilding extends ProductionBuilding {
     }
 
     public boolean canProvideService() {
-        return employeesInside > 0 && !inventory.isEmpty();
+        return employeesInside > 0/* && !inventory.isEmpty()*/;
     }
 
     @Serial
@@ -95,7 +95,6 @@ public class ServiceBuilding extends ProductionBuilding {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());
         textureId = type.texture;
-        job = type.job;
         service = type.service;
         instantiateIndicator();
     }
