@@ -1,9 +1,11 @@
 package com.boxhead.builder.utils;
 
+import com.boxhead.builder.Tile;
 import com.boxhead.builder.World;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 
 public class Pathfinding {
     private static final Map<Pair<Vector2i, Vector2i>, Pair<Vector2i[], Integer>> cache = new HashMap<>();
@@ -17,17 +19,17 @@ public class Pathfinding {
             return cache.get(pair).first;
         }
 
-        Vector2i[] path = dijkstraHeuristic(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination.distanceComparator());
+        Vector2i[] path = A_star(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination::distance);
         cache.put(pair, Pair.of(path, 1));
         return path;
     }
 
     public static Vector2i[] findPathNoCache(Vector2i start, Vector2i destination) {
-        return dijkstraHeuristic(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination.distanceComparator());
+        return A_star(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination::distance);
     }
 
     public static Vector2i[] findPath(Vector2i start, BoxCollider area) {
-        return dijkstraHeuristic(start, area.extended()::overlaps, new HashSet<>(World.getNavigableTiles()), Comparator.comparingDouble(area::distance));
+        return A_star(start, area.extended()::overlaps, new HashSet<>(World.getNavigableTiles()), area::distance);
     }
 
     public static void removeUnusedPaths() {
@@ -72,10 +74,10 @@ public class Pathfinding {
         }
     }
 
-    private static Vector2i[] dijkstraHeuristic(Vector2i start, Predicate<Vector2i> destination, Set<Vector2i> navigableTiles, Comparator<Vector2i> heuristic) {
+    private static Vector2i[] A_star(Vector2i start, Predicate<Vector2i> destination, Set<Vector2i> navigableTiles, ToDoubleFunction<Vector2i> distance) {
         Map<Vector2i, Double> distanceToTile = new HashMap<>(navigableTiles.size());
-        Map<Vector2i, Vector2i> parentTree = new HashMap<>();
-        SortedSet<Vector2i> semiVisited = new TreeSet<>(heuristic); //tiles to which distances are known
+        Map<Vector2i, Vector2i> parentTree = new HashMap<>((int) distance.applyAsDouble(start) * 3);
+        SortedSet<Vector2i> semiVisited = new TreeSet<>(Comparator.comparingDouble(vector -> (distance.applyAsDouble(vector) * Tile.minDistanceModifier) + distanceToTile.get(vector))); //tiles to which distances are known
 
         for (Vector2i tile : navigableTiles) {
             distanceToTile.put(tile, Double.MAX_VALUE);
@@ -144,7 +146,13 @@ public class Pathfinding {
         if (navigableTiles.contains(tempTile)) {
             double currentDistance = distanceToTile.get(currentTile) + distance;
             if (distanceToTile.get(tempTile) > currentDistance) {
+                semiVisited.remove(tempTile);
                 distanceToTile.put(tempTile, currentDistance);
+                while (semiVisited.contains(tempTile)) {    //finding the next closest float
+                    long cast = Double.doubleToRawLongBits(currentDistance);
+                    currentDistance = Double.longBitsToDouble(++cast);
+                    distanceToTile.put(tempTile, currentDistance);
+                }
                 semiVisited.add(tempTile);
                 parentTree.put(tempTile, currentTile);
             }

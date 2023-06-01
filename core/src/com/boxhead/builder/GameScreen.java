@@ -31,6 +31,7 @@ public class GameScreen implements Screen {
         this.uiProjection = new Matrix4();
 
         Textures.init();
+        Tile.init();
         World.generate(60, new Vector2i(101, 101));
         World.temp();
         UI.init();
