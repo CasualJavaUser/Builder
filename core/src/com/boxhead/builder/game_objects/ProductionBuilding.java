@@ -165,13 +165,26 @@ public class ProductionBuilding extends StorageBuilding {
                 continue;
 
             for (Villager employee : shift.employees) {
+                if (employee.isClockedIn()) {
+                    employee.clearOrderQueue();
+                    shift.job.onExit(employee, this);
+                    employee.giveOrder(EXIT, this);
+                    employee.giveOrder(CLOCK_OUT);
+                    if (employee.getHome() != null) {
+                        employee.giveOrder(GO_TO, employee.getHome());
+                    }
+                }
+            }
+        }
+    }
+
+    public void endShift(Villager employee) {
+        for (Shift shift : shifts) {
+            if (shift.employees.contains(employee)) {
                 employee.clearOrderQueue();
                 shift.job.onExit(employee, this);
                 employee.giveOrder(EXIT, this);
                 employee.giveOrder(CLOCK_OUT);
-                if (employee.getHome() != null) {
-                    employee.giveOrder(GO_TO, employee.getHome());
-                }
             }
         }
     }
@@ -195,7 +208,18 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public Job getJob() {
-        return shifts.stream().findFirst().orElse(null).job;
+        Optional<Shift> jobOptional = shifts.stream().findFirst();
+        if (jobOptional.isPresent())
+            return jobOptional.get().job;
+        return null;
+    }
+
+    public Shift getShift(Villager employee) {
+        for (Shift shift : shifts) {
+            if (shift.employees.contains(employee))
+                return shift;
+        }
+        return null;
     }
 
     public float getEfficiency() {

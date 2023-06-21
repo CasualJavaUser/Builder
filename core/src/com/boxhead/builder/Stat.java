@@ -14,8 +14,9 @@ public enum Stat {
     TIREDNESS(70, 90, 0, 0.001f,
             villager -> {
                 if (villager.getHome() != null) {
-                    villager.giveOrder(CLOCK_OUT);
-                    villager.giveOrder(EXIT, villager.getWorkplace());
+                    if (villager.isClockedIn()) {
+                        villager.getWorkplace().endShift(villager);
+                    }
                     villager.giveOrder(GO_TO, villager.getHome());
                 }
             }),
@@ -23,17 +24,17 @@ public enum Stat {
     HEALTH(70, 20, 100, -0.001f,
             villager -> standardSeekService(villager, Service.HEALTHCARE));
 
-    public final int urgent, critical;
+    public final int mild, critical;
     public final float rate;
     public final float initVal;
-    public final Consumer<Villager> fulfillNeed;
+    private final Consumer<Villager> fulfillNeed;
     /**
      * is increasing or decreasing over time
      */
     public final boolean isIncreasing;
 
-    Stat(int urgent, int critical, float initVal,  float rate, Consumer<Villager> fulfillNeed) {
-        this.urgent = urgent;
+    Stat(int mild, int critical, float initVal, float rate, Consumer<Villager> fulfillNeed) {
+        this.mild = mild;
         this.critical = critical;
         this.initVal = initVal;
         this.rate = rate;
@@ -49,10 +50,10 @@ public enum Stat {
         ServiceBuilding serviceBuilding = villager.seekNearestService(service);
         if (serviceBuilding == null) return;
 
+        if (villager.isClockedIn()) {
+            villager.getWorkplace().endShift(villager);
+        }
         serviceBuilding.reserve();
-        villager.giveOrder(CLOCK_OUT);
-        villager.giveOrder(EXIT, villager.getWorkplace());
-        villager.giveOrder(GO_TO, serviceBuilding);
         villager.giveOrder(serviceBuilding);
     }
 }

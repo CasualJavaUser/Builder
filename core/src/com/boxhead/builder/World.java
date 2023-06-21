@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.*;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

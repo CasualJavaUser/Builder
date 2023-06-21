@@ -11,7 +11,7 @@ import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 import java.util.Set;
 import java.util.function.Function;

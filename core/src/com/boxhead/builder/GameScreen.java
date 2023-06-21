@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 public class GameScreen implements Screen {
 

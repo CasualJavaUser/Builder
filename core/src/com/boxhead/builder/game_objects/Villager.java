@@ -25,6 +25,7 @@ public class Villager extends NPC implements Clickable {
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
     private StorageBuilding buildingIsIn = null;
+    private StorageBuilding destinationBuilding = null;
     private boolean clockedIn = false;
 
     private final LinkedList<Order> orderList = new LinkedList<>();
@@ -189,6 +190,7 @@ public class Villager extends NPC implements Clickable {
     public void giveOrder(Order.Type type, StorageBuilding building) {
         switch (type) {
             case GO_TO -> {
+                destinationBuilding = building;
                 giveOrder(building.getEntrancePosition());
                 giveOrder(Order.Type.ENTER, building);
             }
@@ -201,6 +203,7 @@ public class Villager extends NPC implements Clickable {
                         }
                         enterBuilding(building);
                     }
+                    destinationBuilding = null;
                     orderList.removeFirst();
                 }
             });
@@ -224,6 +227,7 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void giveOrder(ServiceBuilding serviceBuilding) {
+        giveOrder(serviceBuilding.getEntrancePosition());
         orderList.addLast(new Order() {
             @Override
             void execute() {
@@ -374,11 +378,9 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void fulfillNeeds() {
-        if (!orderList.isEmpty()) return;
-
         for (int i = 0; i < stats.length; i++) {
             Stat stat = Stat.values()[i];
-            float threshold = isClockedIn() ? stat.critical : stat.urgent;
+            float threshold = clockedIn ? stat.critical : stat.mild;
 
             boolean condition;
             if (stat.isIncreasing) {
@@ -387,8 +389,12 @@ public class Villager extends NPC implements Clickable {
                 condition = stats[i] <= threshold;  //for stats that decrease over time (e.g. health)
             }
 
-            if (condition) {
+            boolean alreadyFulfilling = (buildingIsIn != null && buildingIsIn.type.service != null && buildingIsIn.type.service.getEffects().containsKey(stat))
+                    || (destinationBuilding != null && destinationBuilding.type.service != null && destinationBuilding.type.service.getEffects().containsKey(stat));
+
+            if (condition && !alreadyFulfilling) {
                 stat.fulfillNeed(this);
+                return;
             }
         }
     }
@@ -409,7 +415,14 @@ public class Villager extends NPC implements Clickable {
         if (workplace == null)
             return Jobs.UNEMPLOYED;
         else
-            return workplace.getJob();
+            return getWorkShift().job;
+    }
+
+    public ProductionBuilding.Shift getWorkShift() {
+        if (workplace == null)
+            return null;
+
+        return workplace.getShift(this);
     }
 
     public ResidentialBuilding getHome() {
@@ -460,7 +473,7 @@ public class Villager extends NPC implements Clickable {
                 "\nhome: " + homeType +
                 "\nworkplace: " + workplaceType +
                 "\nis in building: " + isInBuilding() +
-                "\nbuilding is in: " + buildingIsIn +
+                "\nbuilding is in: " + (buildingIsIn != null ? buildingIsIn.getName() + " (id: " + buildingIsIn.getId() + ")" : "") +
                 "\ninventory: " + inventory;
 
         return s;

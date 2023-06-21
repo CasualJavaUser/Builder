@@ -41,5 +41,10 @@ public class Job {
 
             return start < otherEnd && otherShift.start < thisEnd;
         }
+
+        public boolean overlaps(int time) {
+            int apparentEndTime = start < end ? end : end + World.FULL_DAY;
+            return time >= start && time <= apparentEndTime;
+        }
     }
 }

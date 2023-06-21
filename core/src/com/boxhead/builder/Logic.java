@@ -27,9 +27,6 @@ public class Logic {
                 villager.executeOrders();
                 villager.incrementAge();
                 villager.progressStats();
-                villager.fulfillNeeds();
-                /*if (!villager.hasOrders())
-                    villager.wander();*/
             }
             for (Animal animal : World.getAnimals()) {
                 animal.wander();
@@ -45,6 +42,7 @@ public class Logic {
             for (Villager villager : World.getVillagers()) {
                 villager.seekJob();
                 villager.seekHouse();
+                villager.fulfillNeeds();
             }
         }
     };

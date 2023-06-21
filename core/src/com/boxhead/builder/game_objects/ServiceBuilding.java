@@ -1,7 +1,9 @@
 package com.boxhead.builder.game_objects;
 
+import com.boxhead.builder.Jobs;
 import com.boxhead.builder.Service;
 import com.boxhead.builder.Stat;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.IOException;
@@ -37,7 +39,7 @@ public class ServiceBuilding extends ProductionBuilding {
 
                 boolean isReadyToLeave = true;
                 for (Stat stat : service.getEffects().keySet()) {
-                    int acceptableStage = guest.isClockedIn() ? stat.urgent : stat.isIncreasing ? 0 : 100;
+                    int acceptableStage = guest.isClockedIn() ? stat.mild : stat.isIncreasing ? 0 : 100;
                     boolean condition;
                     if (stat.isIncreasing)
                         condition = guest.getStats()[stat.ordinal()] < acceptableStage;
@@ -51,7 +53,10 @@ public class ServiceBuilding extends ProductionBuilding {
                 }
                 if (isReadyToLeave) {
                     guest.giveOrder(EXIT, this);
-                    if (guest.getHome() != null) {
+                    if (guest.getJob() != Jobs.UNEMPLOYED && guest.getWorkShift().shiftTime.overlaps(World.getTime())) {    //back to work
+                        guest.giveOrder(GO_TO, guest.getWorkplace());
+                        guest.giveOrder(CLOCK_IN);
+                    } else if (guest.getHome() != null) {
                         guest.giveOrder(GO_TO, guest.getHome());
                     }
                 }

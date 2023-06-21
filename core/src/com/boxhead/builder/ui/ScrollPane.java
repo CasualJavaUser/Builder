@@ -3,7 +3,7 @@ package com.boxhead.builder.ui;
 import com.badlogic.gdx.Gdx;
 import com.boxhead.builder.InputManager;
 import com.boxhead.builder.utils.Vector2i;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 import java.util.*;
 
