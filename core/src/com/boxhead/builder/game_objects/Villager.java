@@ -227,14 +227,11 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void giveOrder(ServiceBuilding serviceBuilding) {
-        giveOrder(serviceBuilding.getEntrancePosition());
+        giveOrder(Order.Type.GO_TO, serviceBuilding);
         orderList.addLast(new Order() {
             @Override
             void execute() {
-                if (gridPosition.equals(serviceBuilding.getEntrancePosition())) {
-                    serviceBuilding.guestEnter(Villager.this);
-                    enterBuilding(serviceBuilding);
-                }
+                serviceBuilding.guestEnter(Villager.this);
                 orderList.removeFirst();
             }
         });
@@ -380,7 +377,7 @@ public class Villager extends NPC implements Clickable {
     public void fulfillNeeds() {
         for (int i = 0; i < stats.length; i++) {
             Stat stat = Stat.values()[i];
-            float threshold = clockedIn ? stat.critical : stat.mild;
+            float threshold = isWorkTime() ? stat.critical : stat.mild;
 
             boolean condition;
             if (stat.isIncreasing) {
@@ -415,14 +412,13 @@ public class Villager extends NPC implements Clickable {
         if (workplace == null)
             return Jobs.UNEMPLOYED;
         else
-            return getWorkShift().job;
+            return workplace.getShift(this).job;
     }
 
-    public ProductionBuilding.Shift getWorkShift() {
-        if (workplace == null)
-            return null;
+    public boolean isWorkTime() {
+        if (workplace == null) return false;
 
-        return workplace.getShift(this);
+        return workplace.getShift(this).shiftTime.overlaps(World.getTime());
     }
 
     public ResidentialBuilding getHome() {
@@ -460,11 +456,11 @@ public class Villager extends NPC implements Clickable {
         if (home != null) homeType = home.getType().toString();
         if (workplace != null) workplaceType = workplace.getType().toString();
 
-        String s =  name + " " + surname + "\nage: " + ageInYears();
+        String s = name + " " + surname + "\nage: " + ageInYears();
 
         String stat;
         for (int i = 0; i < Stat.values().length; i++) {
-            stat = Stat.values()[i].toString().toLowerCase() + ": " + (int)stats[i];
+            stat = Stat.values()[i].toString().toLowerCase() + ": " + (int) stats[i];
             s = s.concat("\n" + stat);
         }
 

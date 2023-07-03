@@ -119,7 +119,8 @@ public class Buildings {
                 2,
                 Service.BARTENDING,
                 20,
-                5
+                5,
+                200
         ),
         HOSPITAL(
                 Textures.Building.SERVICE_FUNGUS,
@@ -261,6 +262,11 @@ public class Buildings {
 
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, Job.ShiftTime shiftTime, int workerCapacity, Service service, int serviceInterval, int guestCapacity) {
             this(texture, name, entrancePosition, buildCost, new ProductionBuilding.Shift[]{new ProductionBuilding.Shift(job, shiftTime, workerCapacity)}, service, serviceInterval, null, null, 0, guestCapacity, 0, 0, null);
+        }
+
+        //service that is also producing
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, Job.ShiftTime shiftTime, int workerCapacity, Service service, int serviceInterval, int guestCapacity, int productionInterval) {
+            this(texture, name, entrancePosition, buildCost, new ProductionBuilding.Shift[]{new ProductionBuilding.Shift(job, shiftTime, workerCapacity)}, service, serviceInterval, null, null, 0, guestCapacity, productionInterval, 0, null);
         }
 
         public TextureRegion getTexture() {
