@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 public class GameScreen implements Screen {
 
@@ -31,11 +31,13 @@ public class GameScreen implements Screen {
         this.uiProjection = new Matrix4();
 
         Textures.init();
+        Tile.init();
         World.generate(60, new Vector2i(101, 101));
         World.temp();
         UI.init();
         UI.getResourceList().initData();
         Logic.init();
+        Debug.init();
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
         camera.update();
@@ -44,7 +46,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BLACK);
-        if (!UI.isPaused()) {
+        if (!UI.isPaused() && !Debug.isOpen()) {
             scroll();
             moveCamera(deltaTime);
         }
@@ -58,18 +60,29 @@ public class GameScreen implements Screen {
         if (!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
             else if (Buildings.isInDemolishingMode()) Buildings.handleDemolishingMode();
-            else if (Tiles.isInTilingMode()) Tiles.handleTilingMode(batch);
+            else if (Tiles.isInPathMode()) Tiles.handlePathMode(batch);
             else {
                 World.handleNpcsAndBuildingsOnClick();
             }
         }
 
         if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
-        if (InputManager.isKeyPressed(Input.Keys.SPACE) && !UI.isPaused()) Logic.pause(!Logic.isPaused());
+        if (InputManager.isKeyPressed(Input.Keys.SPACE) && !UI.isPaused() && !Debug.isOpen()) Logic.pause(!Logic.isPaused());
 
         UI.drawUI(batch, camera);
 
         batch.end();
+
+        if (InputManager.isKeyPressed(Input.Keys.GRAVE)) {
+            if (!Debug.isOpen())
+                Debug.openConsole();
+            else
+                Debug.quit();
+        }
+
+        if (Debug.isOpen())
+            Debug.handleInput();
+
         InputManager.resetScroll();
     }
 

@@ -11,11 +11,11 @@ public class ResidentialBuilding extends StorageBuilding {
 
     public ResidentialBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        residents = new HashSet<>(type.npcCapacity, 1f);
+        residents = new HashSet<>(type.residentCapacity);
     }
 
     public boolean addResident(Villager villager) {
-        if (residents.size() < type.npcCapacity) {
+        if (residents.size() < type.residentCapacity) {
             return residents.add(villager);
         }
         return false;
@@ -26,11 +26,11 @@ public class ResidentialBuilding extends StorageBuilding {
     }
 
     public boolean hasFreePlaces() {
-        return residents.size() < type.npcCapacity;
+        return residents.size() < type.residentCapacity;
     }
 
     public int getResidentCapacity() {
-        return type.npcCapacity;
+        return type.residentCapacity;
     }
 
     public Set<Villager> getResidents() {

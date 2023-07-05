@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects;
 
+import com.boxhead.builder.Job;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
@@ -42,8 +43,8 @@ public class PlantationBuilding extends FarmBuilding<Harvestable> {
     }
 
     @Override
-    public void endWorkday() {
-        super.endWorkday();
+    public void endShift(Job.ShiftTime shift) {
+        super.endShift(shift);
         Set<Harvestable> notPlanted = ownFieldWorks.stream().filter(h -> h.getCurrentPhase() < 0).collect(Collectors.toSet());
         ownFieldWorks.removeAll(notPlanted);
     }

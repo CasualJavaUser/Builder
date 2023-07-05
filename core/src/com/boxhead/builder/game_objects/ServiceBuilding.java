@@ -1,6 +1,8 @@
 package com.boxhead.builder.game_objects;
 
+import com.boxhead.builder.Jobs;
 import com.boxhead.builder.Service;
+import com.boxhead.builder.Stat;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.IOException;
@@ -10,62 +12,85 @@ import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
+
 public class ServiceBuilding extends ProductionBuilding {
 
     private transient Service service;
     private final Set<Villager> guests;
-    private int serviceCounter;
+    private int reserved = 0;
 
     public ServiceBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         this.service = type.service;
-        guests = new HashSet<>(type.guestCapacity, 1f);
-    }
-
-    /**
-     * Removes the specified guest from the building.
-     *
-     * @param villager guest to be removed from the building
-     * @return true if the array of guests changed as a result of the call
-     */
-    public boolean removeGuest(Villager villager) {
-        return guests.remove(villager);
-    }
-
-    /**
-     * Adds the specified guest to the building.
-     *
-     * @param villager guest to be added to the building
-     * @return true if the array of guests changed as a result of the call
-     */
-    public boolean addGuest(Villager villager) {
-        if (guests.size() < type.guestCapacity) {
-            return guests.add(villager);
-        }
-        return false;
+        guests = new HashSet<>(type.guestCapacity);
     }
 
     public void provideServices() {
+        for (Villager employee : employees) {
+            if (employee.isClockedIn()) {
+                service.applyEffects(employee, 1);
+            }
+        }
         for (Villager guest : guests) {
             if (guest != null) {
-                service.applyEffects(guest.getStats(), super.employeesInside);
+                service.applyEffects(guest, super.employeesInside);
+
+                boolean isReadyToLeave = true;
+                for (Stat stat : service.getEffects().keySet()) {
+                    int acceptableStage;
+                    if (guest.isWorkTime()) {
+                        acceptableStage = stat.mild;
+                    } else {
+                        acceptableStage = stat.isIncreasing ? 0 : 100;
+                    }
+                    boolean condition;
+                    if (stat.isIncreasing)
+                        condition = guest.getStats()[stat.ordinal()] < acceptableStage;
+                    else
+                        condition = guest.getStats()[stat.ordinal()] > acceptableStage;
+
+                    if (!condition) {
+                        isReadyToLeave = false;
+                        break;
+                    }
+                }
+                if (isReadyToLeave) {
+                    guest.giveOrder(EXIT, this);
+                    if (guest.getJob() != Jobs.UNEMPLOYED && guest.isWorkTime()) {    //back to work
+                        guest.giveOrder(GO_TO, guest.getWorkplace());
+                        guest.giveOrder(CLOCK_IN);
+                    } else if (guest.getHome() != null) {
+                        guest.giveOrder(GO_TO, guest.getHome());
+                    }
+                }
             }
         }
     }
 
-    public boolean provides(Villager.Stats stat) {
-        int it = 0;
-        for (Villager.Stats s : service.getStats()) {
-            if (s == stat && service.getEffects()[it] > 0) {
-                return true;
-            }
-            it++;
-        }
-        return false;
+    public void guestEnter(Villager villager) {
+        guests.add(villager);
     }
 
-    public int getGuestsInside() {
-        return guests.size();
+    public void reserve() {
+        reserved++;
+    }
+
+    public void guestExit(Villager villager) {
+        guests.remove(villager);
+        reserved--;
+    }
+
+    public Set<Villager> getGuests() {
+        return guests;
+    }
+
+    public boolean hasFreeSpaces() {
+        return reserved < type.guestCapacity;
+    }
+
+    public boolean canProvideService() {
+        return employeesInside > 0/* && !inventory.isEmpty()*/;
     }
 
     @Serial
@@ -79,7 +104,6 @@ public class ServiceBuilding extends ProductionBuilding {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());
         textureId = type.texture;
-        job = type.job;
         service = type.service;
         instantiateIndicator();
     }

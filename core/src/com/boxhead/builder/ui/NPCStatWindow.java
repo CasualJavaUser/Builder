@@ -7,7 +7,6 @@ import com.boxhead.builder.game_objects.Villager;
 
 public class NPCStatWindow extends StatWindow<Villager> {
     private String job = null, name = null;
-    private int[] npcStatList = null;
     private final int IMAGE_SCALE = 4;
 
     public NPCStatWindow(UI.Layer layer) {
@@ -37,12 +36,18 @@ public class NPCStatWindow extends StatWindow<Villager> {
     protected void updateStats() {
         name = pinnedObject.getName() + " " + pinnedObject.getSurname();
         job = pinnedObject.getJob().toString();
-        npcStatList = pinnedObject.getStats();
 
-        stats = name + "\n" + job;
+        stats = "";
+
+        if (Debug.isOpen()) {
+            stats += "ID: " + pinnedObject.getId() + "\n";
+        }
+
+        stats += name + "\n" + job;
+        stats += "\nage: " + pinnedObject.ageInYears();
         String stat;
-        for (int i = 0; i < Villager.Stats.values().length; i++) {
-            stat = Villager.Stats.values()[i].toString().toLowerCase() + ": " + pinnedObject.getStats()[i];
+        for (int i = 0; i < Stat.values().length; i++) {
+            stat = Stat.values()[i].toString().toLowerCase() + ": " + (int)pinnedObject.getStats()[i];
             stats += "\n" + stat;
         }
     }

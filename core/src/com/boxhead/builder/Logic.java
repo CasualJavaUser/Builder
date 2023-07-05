@@ -7,7 +7,6 @@ import com.boxhead.builder.utils.Pathfinding;
 import java.util.Optional;
 
 public class Logic {
-
     public static final float NORMAL_SPEED = 0.005f;
     public static final float SPEED_X2 = 0.0025f;
     public static final float SPEED_X3 = 0.00125f;
@@ -26,9 +25,12 @@ public class Logic {
             produceResources();
             for (Villager villager : World.getVillagers()) {
                 villager.executeOrders();
+                villager.incrementAge();
+                villager.progressStats();
             }
             for (Animal animal : World.getAnimals()) {
                 animal.wander();
+                animal.incrementAge();
             }
         }
     };
@@ -40,27 +42,47 @@ public class Logic {
             for (Villager villager : World.getVillagers()) {
                 villager.seekJob();
                 villager.seekHouse();
+                villager.fulfillNeeds();
             }
         }
     };
 
     private static void dailyCycle() {
-        if (World.getTime() == 25200) {   //7:00
-            for (Villager villager : World.getVillagers()) {
-                if (villager.getJob() != Jobs.UNEMPLOYED) {
-                    villager.giveOrder(Villager.Order.Type.EXIT);
-                    villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
-                    villager.giveOrder(Villager.Order.Type.CLOCK_IN);
-                }
+        switch (World.getTime()) {  //todo make it not-hardcoded
+            case 28800:
+                endWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
+                startWorkday(Job.ShiftTime.EIGHT_FOUR);
+                break;
+            case 39600:
+                startWorkday(Job.ShiftTime.ELEVEN_SEVEN);
+                break;
+            case 57600:
+                endWorkday(Job.ShiftTime.EIGHT_FOUR);
+                startWorkday(Job.ShiftTime.FOUR_MIDNIGHT);
+                break;
+            case 68400:
+                endWorkday(Job.ShiftTime.ELEVEN_SEVEN);
+                break;
+            case 0:
+                endWorkday(Job.ShiftTime.FOUR_MIDNIGHT);
+                startWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
+                Pathfinding.removeUnusedPaths();
+        }
+    }
+
+    private static void startWorkday(Job.ShiftTime shift) {
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ProductionBuilding workplace) {
+                workplace.startShift(shift);
             }
-        } else if (World.getTime() == 57600) { //16:00
-            for (Building building : World.getBuildings()) {
-                if (building instanceof ProductionBuilding) {
-                    ((ProductionBuilding) building).endWorkday();
-                }
+        }
+    }
+
+    private static void endWorkday(Job.ShiftTime shift) {
+        for (Building building : World.getBuildings()) {
+            if (building instanceof ProductionBuilding workplace) {
+                workplace.endShift(shift);
             }
-        } else if (World.getTime() == 0) {  //0:00
-            Pathfinding.removeUnusedPaths();
         }
     }
 

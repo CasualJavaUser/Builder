@@ -211,7 +211,10 @@ public class Jobs {
 
         @Override
         public Recipe getRecipe(ProductionBuilding workplace) {
-            return ((FarmBuilding<?>) workplace).getRecipe();
+            if (workplace != null)
+                return ((FarmBuilding<?>) workplace).getRecipe();
+            else
+                return new Recipe(Pair.of(Resource.GRAIN, 10));
         }
 
         @Override
@@ -262,7 +265,6 @@ public class Jobs {
         if (!assignee.hasOrders() && (assignee.getInventory().isFull() || readyToReturn)) {
             int resourceAmount = assignee.getInventory().getResourceAmount(resource);
             assignee.giveOrder(GO_TO, workplace);
-            //assignee.giveOrder(ENTER, workplace);
             assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, resourceAmount);
             assignee.giveOrder(REQUEST_TRANSPORT, resource, resourceAmount);
         }

@@ -38,12 +38,18 @@ public class BuildingStatWindow extends StatWindow<Building> {
     @Override
     protected void updateStats() {
         stats = pinnedObject.getName();
+
+        if (Debug.isOpen()) {
+            stats += "\nID: " + pinnedObject.getId();
+        }
+
         if (pinnedObject instanceof ResidentialBuilding building) {
+            warning = "";
             npcCapacity = building.getResidentCapacity();
             villagers = building.getResidents();
         }
         else if (pinnedObject instanceof ProductionBuilding building) {
-            npcCapacity = building.getType().npcCapacity;
+            npcCapacity = building.getType().workerCapacity;
             villagers = building.getEmployees();
             job = building.getJob();
 
@@ -53,6 +59,11 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
             if (building.getEfficiency() != 1) stats += "\nefficiency: " + String.format("%.2f", building.getEfficiency());
             stats += "\njob quality: " + building.getJobQuality();
+
+            if (pinnedObject instanceof ServiceBuilding serviceBuilding) {
+                stats += "\nguests: " + serviceBuilding.getGuests().size() + " / " + serviceBuilding.getType().guestCapacity;
+            }
+
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : job.getRecipe(building).changedResources()) {
                 stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
@@ -60,6 +71,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }
         }
         else if (pinnedObject instanceof StorageBuilding building) {
+            warning = "";
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : building.getInventory().getStoredResources()) {
                 if (resource != Resource.NOTHING) {

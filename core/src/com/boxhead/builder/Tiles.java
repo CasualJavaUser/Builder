@@ -13,48 +13,55 @@ import com.boxhead.builder.utils.Vector2i;
 import java.util.function.Predicate;
 
 public class Tiles {
-    private static boolean isInTilingMode = false;
+    private static boolean isInPathMode = false;
     private static boolean isInFieldMode = false;
-    private static int originX = -1, originY = -1;
+    //private static int originX = -1, originY = -1;
+    private static Vector2i origin = null;
     private static BoxCollider buildingCollider = null;
     private static boolean isRanch;
     private static int minSize = 0, maxSize = 0;
-    private static TilingMode mode;
+    private static Tile pathTile = null;
+    //private static TilingMode mode;
 
     private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.DIRT;
 
-    public enum TilingMode {
+    /*public enum TilingMode {
         SINGLE,
         PATH,
         AREA
-    }
+    }*/
 
-    public static TilingMode getMode() {
+    /*public static TilingMode getMode() {
         return mode;
-    }
+    }*/
 
     public static BoxCollider getBuildingCollider() {
         return buildingCollider;
     }
 
-    public static boolean isInTilingMode() {
-        return isInTilingMode;
+    public static boolean isInPathMode() {
+        return isInPathMode;
     }
 
     public static boolean isInFieldMode() {
         return isInFieldMode;
     }
 
-    public static void toTilingMode(TilingMode mode) {
+    /*public static void toTilingMode(TilingMode mode) {
         Tiles.mode = mode;
         isInTilingMode = true;
         isInFieldMode = false;
+    }*/
+
+    public static void toPathMode(Tile pathTile) {
+        isInPathMode = true;
+        isInFieldMode = false;
+        Tiles.pathTile = pathTile;
     }
 
-    public static void turnOffTilingMode() {
-        originX = -1;
-        originY = -1;
-        isInTilingMode = false;
+    public static void turnOffPathMode() {
+        origin = null;
+        isInPathMode = false;
     }
 
     public static void toFieldMode(BoxCollider buildingCollider, boolean isRanch, int minSize, int maxSize) {
@@ -64,104 +71,171 @@ public class Tiles {
         Tiles.isRanch = isRanch;
         Tiles.minSize = minSize;
         Tiles.maxSize = maxSize;
-        originX = buildingCollider.getGridPosition().x;
-        originY = buildingCollider.getGridPosition().y;
+        //originX = buildingCollider.getGridPosition().x;
+        //originY = buildingCollider.getGridPosition().y;
+        origin = new Vector2i(
+                buildingCollider.getGridPosition().x,
+                buildingCollider.getGridPosition().y
+        );
         isInFieldMode = true;
-        isInTilingMode = false;
+        isInPathMode = false;
     }
 
     public static void turnOffFieldMode() {
         isInFieldMode = false;
     }
 
-    public static void handleTilingMode(SpriteBatch batch) {  //TODO tiling mode in progress
-        if (!isInTilingMode || isInFieldMode)
-            throw new IllegalStateException("Not in tiling mode");
+    public static void handlePathMode(SpriteBatch batch) {
+        if (!isInPathMode || isInFieldMode)
+            throw new IllegalStateException("Not in path mode");
 
         Vector2 mousePos = GameScreen.getMouseWorldPosition();
         int mouseGridX = (int) (mousePos.x / World.TILE_SIZE);
         int mouseGridY = (int) (mousePos.y / World.TILE_SIZE);
-        int fieldWidth = Math.abs(mouseGridX - originX) + 1;
-        int fieldHeight = Math.abs(mouseGridY - originY) + 1;
 
-        batch.setColor(UI.SEMI_TRANSPARENT);
+        if (origin == null) {
+            setBatchColorForTile(batch, mouseGridX, mouseGridY);
+            batch.draw(Textures.get(Textures.Tile.DEFAULT), mouseGridX * World.TILE_SIZE, mouseGridY * World.TILE_SIZE);
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                origin = new Vector2i(mouseGridX, mouseGridY);
+            }
+        }
+        else {
+            int width = Math.abs(mouseGridX - origin.x);
+            int height = Math.abs(mouseGridY - origin.y);
+            int temp;
+            boolean buildPath = Gdx.input.isButtonJustPressed(Input.Buttons.LEFT);
 
-        switch (mode) {
-            case AREA:
-                if (originX >= 0 && originY >= 0) {
-                    TileRect.draw(batch, Textures.get(Textures.Tile.DEFAULT), originX, originY, mouseGridX, mouseGridY);
-                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) turnOffTilingMode();
-                } else {
-                    batch.draw(Textures.get(Textures.Tile.DEFAULT), mousePos.x, mousePos.y);
-                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-                        originX = mouseGridX;
-                        originY = mouseGridY;
+            if (width >= height) {
+                temp = Math.min(origin.x, mouseGridX);
+                for (int i = 0; i <= width; i++) {
+                    if (!buildPath) {
+                        setBatchColorForTile(batch, temp + i, origin.y);
+                        batch.draw(Textures.get(Textures.Tile.DEFAULT), (temp + i) * World.TILE_SIZE, origin.y * World.TILE_SIZE);
+                    }
+                    else if (World.isBuildable(temp + i, origin.y)) {
+                        boolean[] neighbours = new boolean[4];
+                        if (i > 0) neighbours[3] = true;
+                        if (i < width) neighbours[1] = true;
+                        if (World.getTile(temp + i, origin.y + 1).equals(pathTile)) neighbours[0] = true;
+                        if (World.getTile(temp + i, origin.y - 1).equals(pathTile)) neighbours[2] = true;
+                        World.setTile(temp + i, origin.y, pathTile, getTextureForTile(neighbours, pathTile));
                     }
                 }
-                break;
-            case PATH:
-                if (originX >= 0 && originY >= 0) {
-                    if (fieldWidth >= fieldHeight) {
-                        int temp = Math.min(originX, mouseGridX);
-                        for (int i = 0; i <= fieldWidth; i++) {
-                            batch.draw(Textures.get(Textures.Tile.DEFAULT), (temp + i) * World.TILE_SIZE, originY * World.TILE_SIZE);
-                        }
-                    } else {
-                        int temp = Math.min(originY, mouseGridY);
-                        for (int i = 0; i <= fieldHeight; i++) {
-                            batch.draw(Textures.get(Textures.Tile.DEFAULT), originX * World.TILE_SIZE, (temp + i) * World.TILE_SIZE);
-                        }
+            } else {
+                temp = Math.min(origin.y, mouseGridY);
+                for (int i = 0; i <= height; i++) {
+                    if (!buildPath) {
+                        setBatchColorForTile(batch, origin.x, temp + i);
+                        batch.draw(Textures.get(Textures.Tile.DEFAULT), origin.x * World.TILE_SIZE, (temp + i) * World.TILE_SIZE);
                     }
-                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) turnOffTilingMode();
-                } else {
-                    batch.draw(Textures.get(Textures.Tile.DEFAULT), mousePos.x, mousePos.y);
-                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-                        originX = mouseGridX;
-                        originY = mouseGridY;
+                    else if (World.isBuildable(origin.x, temp + i)) {
+                        boolean[] neighbours = new boolean[4];
+                        if (i > 0) neighbours[2] = true;
+                        if (i < height) neighbours[0] = true;
+                        if (World.getTile(origin.x + 1, temp + i).equals(pathTile)) neighbours[1] = true;
+                        if (World.getTile(origin.x - 1, temp + i).equals(pathTile)) neighbours[3] = true;
+                        World.setTile(origin.x, temp + i, pathTile, getTextureForTile(neighbours, pathTile));
                     }
                 }
-                break;
-            case SINGLE:
-                batch.draw(Textures.get(Textures.Tile.DEFAULT), mousePos.x, mousePos.y);
-                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) turnOffTilingMode();
+            }
+            if (buildPath) {
+                turnOffPathMode();
+            }
         }
 
         batch.setColor(UI.DEFAULT_COLOR);
     }
 
     /**
+     * @return texture of the tile based on neighbouring tiles
+     */
+    private static Textures.Tile getTextureForTile(boolean[] neighbours, Tile tile) {
+        int count = 0;
+        for (boolean n : neighbours) {
+            if (n) count++;
+        }
+
+        if (count == 4) {
+            return tile.textures[0];
+        }
+        else if (count == 3) {
+            if (!neighbours[0])
+                return tile.textures[3];
+            else if (!neighbours[1])
+                return tile.textures[4];
+            else if (!neighbours[2])
+                return tile.textures[1];
+            else if (!neighbours[3])
+                return tile.textures[2];
+        }
+        else if (count == 2) {
+            if (neighbours[0]) {
+                if (neighbours[1])
+                    return tile.textures[5];
+                else if (neighbours[2])
+                    return tile.textures[10];
+                else if (neighbours[3])
+                    return tile.textures[8];
+            }
+            else if (neighbours[2]) {
+                if (neighbours[1])
+                    return tile.textures[6];
+                else if (neighbours[3])
+                    return tile.textures[7];
+            }
+            else
+                return tile.textures[9];
+        }
+        else if (count == 1) {
+            if (neighbours[0] || neighbours[2])
+                return tile.textures[10];
+            else
+                return tile.textures[9];
+        }
+        return tile.textures[0];
+    }
+
+    private static void setBatchColorForTile(SpriteBatch batch, int x, int y) {
+        if (World.isBuildable(x, y))
+            batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
+        else
+            batch.setColor(UI.SEMI_TRANSPARENT_RED);
+    }
+
+    /**
      * @return the collider of the field only after it has been placed. Otherwise, null.
      */
     public static BoxCollider handleFieldMode(SpriteBatch batch) {
-        if (!isInFieldMode || isInTilingMode)
+        if (!isInFieldMode || isInPathMode)
             throw new IllegalStateException("Not in field mode");
 
         Vector2 mousePos = GameScreen.getMouseWorldPosition();
         int mouseGridX = (int) (mousePos.x / World.TILE_SIZE);
         int mouseGridY = (int) (mousePos.y / World.TILE_SIZE);
-        int fieldWidth = Math.abs(mouseGridX - originX) + 1;
-        int fieldHeight = Math.abs(mouseGridY - originY) + 1;
+        int fieldWidth = Math.abs(mouseGridX - origin.x) + 1;
+        int fieldHeight = Math.abs(mouseGridY - origin.y) + 1;
 
         batch.setColor(UI.SEMI_TRANSPARENT);
 
         if (mouseGridX >= buildingCollider.getGridPosition().x + buildingCollider.getWidth())
-            originX = buildingCollider.getGridPosition().x;
+            origin.x = buildingCollider.getGridPosition().x;
         else if (mouseGridX < buildingCollider.getGridPosition().x)
-            originX = buildingCollider.getGridPosition().x + buildingCollider.getWidth() - 1;
+            origin.x = buildingCollider.getGridPosition().x + buildingCollider.getWidth() - 1;
 
         if (mouseGridY < buildingCollider.getGridPosition().y)
-            originY = buildingCollider.getGridPosition().y - 1;
+            origin.y = buildingCollider.getGridPosition().y - 1;
         else if (mouseGridY >= buildingCollider.getGridPosition().y + buildingCollider.getHeight())
-            originY = buildingCollider.getGridPosition().y + buildingCollider.getHeight();
+            origin.y = buildingCollider.getGridPosition().y + buildingCollider.getHeight();
 
         boolean withinLimits = fieldWidth >= minSize && fieldHeight >= minSize && fieldWidth < maxSize && fieldHeight < maxSize;
         if (withinLimits) batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
         else batch.setColor(UI.SEMI_TRANSPARENT_RED);
-        TileRect.draw(batch, Textures.get(Textures.Tile.DEFAULT), isFarmable, originX, originY, mouseGridX, mouseGridY);
+        TileRect.draw(batch, Textures.get(Textures.Tile.DEFAULT), isFarmable, origin.x, origin.y, mouseGridX, mouseGridY);
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && withinLimits) {
-            if (mouseGridX < originX) originX -= fieldWidth - 1;
-            if (mouseGridY < originY) originY -= fieldHeight - 1;
+            if (mouseGridX < origin.x) origin.x -= fieldWidth - 1;
+            if (mouseGridY < origin.y) origin.y -= fieldHeight - 1;
 
             Vector2i pos = new Vector2i();
 
@@ -169,7 +243,7 @@ public class Tiles {
             if (!isRanch) {
                 for (int y = 0; y < fieldHeight; y++) {
                     for (int x = 0; x < fieldWidth; x++) {
-                        pos.set(originX + x, originY + y);
+                        pos.set(origin.x + x, origin.y + y);
                         if (isFarmable.test(pos)) World.setTile(pos, Tile.DIRT);
                     }
                 }
@@ -177,38 +251,38 @@ public class Tiles {
             //if not then build fence
             else {
                 //corners
-                pos.set(originX, originY);
+                pos.set(origin.x, origin.y);
                 if (isFarmable.test(pos))
                     World.addGameObject(new GameObject(Textures.Environment.FENCE_BL, pos.clone()));
-                pos.set(originX, originY + fieldHeight - 1);
+                pos.set(origin.x, origin.y + fieldHeight - 1);
                 if (isFarmable.test(pos))
                     World.addGameObject(new GameObject(Textures.Environment.FENCE_TL, pos.clone()));
-                pos.set(originX + fieldWidth - 1, originY + fieldHeight - 1);
+                pos.set(origin.x + fieldWidth - 1, origin.y + fieldHeight - 1);
                 if (isFarmable.test(pos))
                     World.addGameObject(new GameObject(Textures.Environment.FENCE_TR, pos.clone()));
-                pos.set(originX + fieldWidth - 1, originY);
+                pos.set(origin.x + fieldWidth - 1, origin.y);
                 if (isFarmable.test(pos))
                     World.addGameObject(new GameObject(Textures.Environment.FENCE_BR, pos.clone()));
                 //top bottom
                 for (int x = 1; x < fieldWidth - 1; x++) {
-                    pos.set(originX + x, originY + fieldHeight - 1);
+                    pos.set(origin.x + x, origin.y + fieldHeight - 1);
                     if (isFarmable.test(pos))
                         World.addGameObject(new GameObject(Textures.Environment.FENCE_T, pos.clone()));
-                    pos.set(originX + x, originY);
+                    pos.set(origin.x + x, origin.y);
                     if (isFarmable.test(pos))
                         World.addGameObject(new GameObject(Textures.Environment.FENCE_B, pos.clone()));
                 }
                 //sides
                 for (int y = 1; y < fieldHeight - 1; y++) {
-                    pos.set(originX, originY + y);
+                    pos.set(origin.x, origin.y + y);
                     if (isFarmable.test(pos))
                         World.addGameObject(new GameObject(Textures.Environment.FENCE_L, pos.clone()));
-                    pos.set(originX + fieldWidth - 1, originY + y);
+                    pos.set(origin.x + fieldWidth - 1, origin.y + y);
                     if (isFarmable.test(pos))
                         World.addGameObject(new GameObject(Textures.Environment.FENCE_R, pos.clone()));
                 }
             }
-            return new BoxCollider(originX, originY, fieldWidth, fieldHeight);
+            return new BoxCollider(origin.x, origin.y, fieldWidth, fieldHeight);
         }
         return null;
     }

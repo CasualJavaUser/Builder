@@ -75,7 +75,7 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
             for (Villager villager : assigned.keySet()) {
                 villager.getWorkplace().dissociateFieldWork(villager);
                 villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
-                }
+            }
             World.updateStoredResources(type.buildCost.negate());
         }
     }

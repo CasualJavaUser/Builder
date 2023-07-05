@@ -10,6 +10,8 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.*;
 import java.util.*;
 
+import static com.boxhead.builder.Stat.*;
+
 public class Villager extends NPC implements Clickable {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
@@ -17,28 +19,28 @@ public class Villager extends NPC implements Clickable {
     public static final int INVENTORY_SIZE = 10;
 
     private final String name, surname;
-    private final int[] stats = new int[Stats.values().length];
+    private final float[] stats = new float[Stat.values().length];
     private final int skin;
 
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
     private StorageBuilding buildingIsIn = null;
+    private StorageBuilding destinationBuilding = null;
     private boolean clockedIn = false;
 
-    private final LinkedList<Villager.Order> orderList = new LinkedList<>();
+    private final LinkedList<Order> orderList = new LinkedList<>();
 
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
-
-    public enum Stats {
-        AGE,
-        HEALTH
-    }
 
     public Villager(int skin, Vector2i gridPosition) {
         super(Textures.Npc.valueOf("IDLE" + skin), gridPosition);
         this.skin = skin;
         name = NAMES[(int) (Math.random() * NAMES.length)];
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
+
+        for (int i = 0; i < stats.length; i++) {
+            stats[i] = Stat.values()[i].initVal;
+        }
 
         walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
         walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
@@ -94,6 +96,17 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
+    public ServiceBuilding seekNearestService(Service service) {
+        Optional<ServiceBuilding> bestServiceOptional = World.getBuildings().stream()
+                .filter(building -> building instanceof ServiceBuilding && building.type.service == service)
+                .map(building -> (ServiceBuilding) building)
+                .filter(ServiceBuilding::canProvideService)
+                .filter(ServiceBuilding::hasFreeSpaces)
+                .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
+
+        return bestServiceOptional.orElse(null);
+    }
+
     public void enterBuilding(StorageBuilding building) {
         if (gridPosition.equals(building.getEntrancePosition())) {
             gridPosition.set(building.getGridPosition());
@@ -107,6 +120,15 @@ public class Villager extends NPC implements Clickable {
             gridPosition.set(building.getEntrancePosition());
         }
         buildingIsIn = null;
+    }
+
+    @Override
+    public void wander() {
+        if (World.getRandom().nextInt(360) == 0) {
+            Vector2i randomPos = randomPosInRange(5);
+            if (World.getNavigableTiles().contains(randomPos))
+                giveOrder(randomPos);
+        }
     }
 
     public Inventory getInventory() {
@@ -168,6 +190,7 @@ public class Villager extends NPC implements Clickable {
     public void giveOrder(Order.Type type, StorageBuilding building) {
         switch (type) {
             case GO_TO -> {
+                destinationBuilding = building;
                 giveOrder(building.getEntrancePosition());
                 giveOrder(Order.Type.ENTER, building);
             }
@@ -180,6 +203,7 @@ public class Villager extends NPC implements Clickable {
                         }
                         enterBuilding(building);
                     }
+                    destinationBuilding = null;
                     orderList.removeFirst();
                 }
             });
@@ -188,7 +212,10 @@ public class Villager extends NPC implements Clickable {
                 void execute() {
                     if (gridPosition.equals(building.getGridPosition())) {
                         if (building == workplace) {
-                            workplace.employeeExit();
+                            workplace.employeeExit(Villager.this);
+                        }
+                        if (building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getGuests().contains(Villager.this)) {
+                            serviceBuilding.guestExit(Villager.this);
                         }
                         gridPosition.set(building.getEntrancePosition());
                         buildingIsIn = null;
@@ -197,6 +224,17 @@ public class Villager extends NPC implements Clickable {
                 }
             });
         }
+    }
+
+    public void giveOrder(ServiceBuilding serviceBuilding) {
+        giveOrder(Order.Type.GO_TO, serviceBuilding);
+        orderList.addLast(new Order() {
+            @Override
+            void execute() {
+                serviceBuilding.guestEnter(Villager.this);
+                orderList.removeFirst();
+            }
+        });
     }
 
     public void giveOrder(Order.Type type, FieldWork fieldWork) {
@@ -323,6 +361,41 @@ public class Villager extends NPC implements Clickable {
         });
     }
 
+    public void progressStats() {
+        stats[HUNGER.ordinal()] += HUNGER.rate;
+
+        if (clockedIn)
+            stats[TIREDNESS.ordinal()] += TIREDNESS.rate * 2;
+        else if (home != null && home.equals(buildingIsIn))
+            stats[TIREDNESS.ordinal()] -= TIREDNESS.rate * 2;
+        else
+            stats[TIREDNESS.ordinal()] += TIREDNESS.rate;
+
+        stats[HEALTH.ordinal()] += HEALTH.rate;
+    }
+
+    public void fulfillNeeds() {
+        for (int i = 0; i < stats.length; i++) {
+            Stat stat = Stat.values()[i];
+            float threshold = isWorkTime() ? stat.critical : stat.mild;
+
+            boolean condition;
+            if (stat.isIncreasing) {
+                condition = stats[i] >= threshold;  //for stats that increase over time (e.g. hunger)
+            } else {
+                condition = stats[i] <= threshold;  //for stats that decrease over time (e.g. health)
+            }
+
+            boolean alreadyFulfilling = (buildingIsIn != null && buildingIsIn.type.service != null && buildingIsIn.type.service.getEffects().containsKey(stat))
+                    || (destinationBuilding != null && destinationBuilding.type.service != null && destinationBuilding.type.service.getEffects().containsKey(stat));
+
+            if (condition && !alreadyFulfilling) {
+                stat.fulfillNeed(this);
+                return;
+            }
+        }
+    }
+
     public ProductionBuilding getWorkplace() {
         return workplace;
     }
@@ -339,14 +412,20 @@ public class Villager extends NPC implements Clickable {
         if (workplace == null)
             return Jobs.UNEMPLOYED;
         else
-            return workplace.getJob();
+            return workplace.getShift(this).job;
+    }
+
+    public boolean isWorkTime() {
+        if (workplace == null) return false;
+
+        return workplace.getShift(this).shiftTime.overlaps(World.getTime());
     }
 
     public ResidentialBuilding getHome() {
         return home;
     }
 
-    public int[] getStats() {
+    public float[] getStats() {
         return stats;
     }
 
@@ -372,7 +451,28 @@ public class Villager extends NPC implements Clickable {
 
     @Override
     public String toString() {
-        return name + " " + surname;
+        String homeType = null;
+        String workplaceType = null;
+        if (home != null) homeType = home.getType().toString();
+        if (workplace != null) workplaceType = workplace.getType().toString();
+
+        String s = name + " " + surname + "\nage: " + ageInYears();
+
+        String stat;
+        for (int i = 0; i < Stat.values().length; i++) {
+            stat = Stat.values()[i].toString().toLowerCase() + ": " + (int) stats[i];
+            s = s.concat("\n" + stat);
+        }
+
+        s += "\norder list size: " + orderList.size() +
+                "\nclocked in: " + clockedIn +
+                "\nhome: " + homeType +
+                "\nworkplace: " + workplaceType +
+                "\nis in building: " + isInBuilding() +
+                "\nbuilding is in: " + (buildingIsIn != null ? buildingIsIn.getName() + " (id: " + buildingIsIn.getId() + ")" : "") +
+                "\ninventory: " + inventory;
+
+        return s;
     }
 
     @Serial

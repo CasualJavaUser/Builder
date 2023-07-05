@@ -20,17 +20,13 @@ public class Animal extends NPC {
         walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT0"));
     }
 
+    @Override
     public void wander() {
         if (path == null || followPath()) {
             if (World.getRandom().nextInt(360) == 0) {
                 navigateTo(randomPosInRange(10));
             }
         }
-    }
-
-    private Vector2i randomPosInRange(int range) {
-        double angle = World.getRandom().nextDouble() * 2 * Math.PI;
-        return new Vector2i((int)(Math.cos(angle) * range), (int)(Math.sin(angle) * range));
     }
 
     @Serial

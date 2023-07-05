@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.*;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -82,7 +82,7 @@ public class World {
     public static void temp() {
         initVillagers(10);
         spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
-        spawnAnimal(new Animal(Animals.Type.COW, new Vector2i(10, 10)));
+        //spawnAnimal(new Animal(Animals.Type.COW, new Vector2i(10, 10)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
@@ -94,9 +94,9 @@ public class World {
         placeBuilding(Buildings.Type.STORAGE_BARN, buildingPosition);
         makeUnnavigable(collider);
         StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
-        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 100);
+        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.GRAIN, 100);
         storedResources[Resource.WOOD.ordinal()] = 100;
-        storedResources[Resource.STONE.ordinal()] = 100;
+        storedResources[Resource.GRAIN.ordinal()] = 100;
 
         collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
         buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
@@ -424,10 +424,12 @@ public class World {
 
     public static void pathfindingTest(SpriteBatch batch) {
         Vector2i mousePos = new Vector2i(GameScreen.getMouseWorldPosition()).divide(TILE_SIZE);
-        Vector2i[] path = Pathfinding.findPath(Vector2i.zero(), mousePos);
+        if (World.getNavigableTiles().contains(mousePos)) {
+            Vector2i[] path = Pathfinding.findPathNoCache(Vector2i.zero(), mousePos);
 
-        for (Vector2i vector2i : path) {
-            batch.draw(Textures.get(Textures.Tile.DEFAULT), vector2i.x * TILE_SIZE, vector2i.y * TILE_SIZE);
+            for (Vector2i vector2i : path) {
+                batch.draw(Textures.get(Textures.Tile.DEFAULT), vector2i.x * TILE_SIZE, vector2i.y * TILE_SIZE);
+            }
         }
     }
 
@@ -437,6 +439,10 @@ public class World {
             return tile != Tile.WATER &&
                     navigableTiles.contains(position);
         } else return false;
+    }
+
+    public static boolean isBuildable(int x, int y) {
+        return isBuildable(new Vector2i(x, y));
     }
 
     public static int getStored(Resource resource) {
@@ -510,10 +516,26 @@ public class World {
         return tiles[worldSize.x * gridPosition.y + gridPosition.x];
     }
 
+    public static Tile getTile(int x, int y) {
+        return tiles[worldSize.x * y + x];
+    }
+
     public static void setTile(Vector2i gridPosition, Tile tile) {
         tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
         tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
         changedTiles.put(gridPosition.clone(), tile);
+    }
+
+    public static void setTile(int x, int y, Tile tile) {
+        tiles[worldSize.x * y + x] = tile;
+        tileTextures[worldSize.x * y + x] = tile.textures[random.nextInt(tile.textures.length)];
+        changedTiles.put(new Vector2i(x, y), tile);
+    }
+
+    public static void setTile(int x, int y, Tile tile, Textures.Tile texture) {
+        tiles[worldSize.x * y + x] = tile;
+        tileTextures[worldSize.x * y + x] = texture;
+        changedTiles.put(new Vector2i(x, y), tile);
     }
 
     private static void initVillagers(int num) {

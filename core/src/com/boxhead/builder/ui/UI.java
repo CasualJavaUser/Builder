@@ -117,7 +117,8 @@ public class UI {
         PAUSE_MENU(false),
         SAVE_MENU(false),
         SETTINGS_MENU(false),
-        POPUP(false);
+        POPUP(false),
+        CONSOLE(false);
 
         private final List<UIElement> elements;
         private boolean isVisible;
@@ -266,7 +267,7 @@ public class UI {
 
             workButton.setOnUp(() -> {
                 World.setDay(World.getDay()+1);
-                World.setTime(25170);
+                World.setTime(28770);
             });
             restButton.setOnUp(() -> {
                 World.setDay(World.getDay()+1);
@@ -276,7 +277,7 @@ public class UI {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
                 else Buildings.toDemolishingMode();
             });
-            tilingButton.setOnUp(() -> Tiles.toTilingMode(Tiles.TilingMode.SINGLE));
+            tilingButton.setOnUp(() -> Tiles.toPathMode(Tile.PATH));
             pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
@@ -398,7 +399,7 @@ public class UI {
                 serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
                 pubButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
 
-                serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.DEFAULT_SERVICE_BUILDING));
+                serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.HOSPITAL));
                 pubButton.setOnUp(() -> showBuildingStats(Buildings.Type.PUB));
             }
             //endregion
@@ -599,6 +600,7 @@ public class UI {
         Anchor.TOP_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Anchor.BOTTOM_LEFT.getElement().setGlobalPosition(0, 0);
         Anchor.BOTTOM_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), 0);
+        scrollPane.updateScissors();
     }
 
     public static void showNPCStatWindow(Villager villager) {
@@ -616,10 +618,10 @@ public class UI {
             if (Layer.BUILDING_MENU.isVisible()) {
                 Layer.BUILDING_MENU.setVisible(false);
             }
-            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInTilingMode()) {
+            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
-                Tiles.turnOffTilingMode();
+                Tiles.turnOffPathMode();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
                 npcStatWindow.setVisible(false);
@@ -727,6 +729,10 @@ public class UI {
         UI.activeButton = activeButton;
     }
 
+    public static void setActiveScrollPane(ScrollPane activeScrollPane) {
+        UI.activeScrollPane = activeScrollPane;
+    }
+
     private static void createSaveField(File saveFile, boolean isSaving) {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
 
@@ -790,9 +796,9 @@ public class UI {
 
         scrollPane.addElement(area);
 
-        textArea.setScissors(area.getScissors());
-        saveButton.setScissors(area.getScissors());
-        deleteButton.setScissors(area.getScissors());
+        textArea.setScissors(scrollPane.getScissors());
+        saveButton.setScissors(scrollPane.getScissors());
+        deleteButton.setScissors(scrollPane.getScissors());
     }
 
     private static void showBuildingStats(Buildings.Type building) {
@@ -832,5 +838,13 @@ public class UI {
         newGameButton.setVisible(!b);
         quitToMenuButton.setVisible(b);
         quitButton.setVisible(!b);
+    }
+
+    public static NPCStatWindow getNpcStatWindow() {
+        return npcStatWindow;
+    }
+
+    public static BuildingStatWindow getBuildingStatWindow() {
+        return buildingStatWindow;
     }
 }

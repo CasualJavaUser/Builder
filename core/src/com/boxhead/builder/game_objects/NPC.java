@@ -19,6 +19,9 @@ public abstract class NPC extends GameObject{
 
     public static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
 
+    private static int nextId = 0;
+    private final int id;
+
     protected transient TextureRegion currentTexture;
     protected transient Animation<TextureRegion> walkLeft;
     protected transient Animation<TextureRegion> walkRight;
@@ -31,6 +34,11 @@ public abstract class NPC extends GameObject{
     protected int pathStep;
     protected transient Future<?> pathfinding;
 
+    /**
+     * age in ticks
+     */
+    protected long age = 0;
+
     public static final int TEXTURE_SIZE = 16;  //TODO move to Villager?
     private static final int STEP_INTERVAL = 50;
 
@@ -41,6 +49,8 @@ public abstract class NPC extends GameObject{
         prevPosition = gridPosition;
         spritePosition = gridPosition.toVector2();
         currentTexture = getTexture();  //idle texture
+        id = nextId;
+        nextId++;
     }
 
     @Override
@@ -119,5 +129,24 @@ public abstract class NPC extends GameObject{
 
     public Vector2 getSpritePosition() {
         return spritePosition;
+    }
+
+    public abstract void wander();
+
+    protected Vector2i randomPosInRange(int range) {
+        double angle = World.getRandom().nextDouble() * 2 * Math.PI;
+        return gridPosition.add((int)(Math.cos(angle) * range), (int)(Math.sin(angle) * range));
+    }
+
+    public void incrementAge() {
+        age++;
+    }
+
+    public long ageInYears() {
+        return age / (World.FULL_DAY / 8);  //TODO temp value
+    }
+
+    public int getId() {
+        return id;
     }
 }

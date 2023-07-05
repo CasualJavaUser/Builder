@@ -16,7 +16,7 @@ public class StorageBuilding extends Building {
      */
     protected final Vector2i entrancePosition;
     protected final Inventory inventory;
-    private final Map<Pair<Villager, Resource>, Integer> reservations = new HashMap<>();
+    private final Map<Pair<Villager, Resource>, Integer> inventoryReservations = new HashMap<>();
     private final Map<Resource, Integer> reservedTotals = new HashMap<>();
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
@@ -68,7 +68,7 @@ public class StorageBuilding extends Building {
 
     public void cancelReservation(int units) {
         Pair<Villager, Resource> pair = Pair.of(null, Resource.NOTHING);
-        Integer currentlyReserved = reservations.get(pair);
+        Integer currentlyReserved = inventoryReservations.get(pair);
         if (currentlyReserved == null || currentlyReserved < units)
             throw new IllegalArgumentException("cancelling reservation that wasn't made");
 
@@ -77,7 +77,7 @@ public class StorageBuilding extends Building {
 
     public void cancelReservation(Villager reservee) {
         Pair<Villager, Resource> pair = Pair.of(reservee, Resource.NOTHING);
-        Integer reservedUnits = reservations.get(pair);
+        Integer reservedUnits = inventoryReservations.get(pair);
         if (reservedUnits == null)
             throw new IllegalArgumentException("cancelling reservation that wasn't made");
 
@@ -86,22 +86,22 @@ public class StorageBuilding extends Building {
 
     public void transferReservationOwnership(Villager currentReservee, Villager newReservee, Resource resource, int units) {
         Pair<Villager, Resource> pair = Pair.of(currentReservee, resource);
-        Integer reservedUnits = reservations.get(pair);
+        Integer reservedUnits = inventoryReservations.get(pair);
 
         if (reservedUnits == null || reservedUnits < units)
             throw new IllegalArgumentException();
 
         if (reservedUnits > units)
-            reservations.put(pair, reservedUnits - units);
+            inventoryReservations.put(pair, reservedUnits - units);
         else
-            reservations.remove(pair);
+            inventoryReservations.remove(pair);
 
         pair = Pair.of(newReservee, resource);
-        reservedUnits = reservations.get(pair);
+        reservedUnits = inventoryReservations.get(pair);
         if (reservedUnits == null)
-            reservations.put(pair, units);
+            inventoryReservations.put(pair, units);
         else
-            reservations.put(pair, reservedUnits + units);
+            inventoryReservations.put(pair, reservedUnits + units);
     }
 
     public void moveReservedResources(Villager reservee, Inventory source, Inventory destination, Resource resource, int movedUnits) {
@@ -114,7 +114,7 @@ public class StorageBuilding extends Building {
     }
 
     public boolean hasReserved(Villager villager, Resource resource) {
-        return reservations.containsKey(Pair.of(villager, resource));
+        return inventoryReservations.containsKey(Pair.of(villager, resource));
     }
 
     public int getFreeResources(Resource resource) {
@@ -127,7 +127,7 @@ public class StorageBuilding extends Building {
 
     public int getReservedBy(Villager reservee, Resource resource) {
         Pair<Villager, Resource> pair = Pair.of(reservee, resource);
-        return reservations.getOrDefault(pair, 0);
+        return inventoryReservations.getOrDefault(pair, 0);
     }
 
     public Inventory getInventory() {
@@ -136,11 +136,11 @@ public class StorageBuilding extends Building {
 
     private void updateReservations(Villager reservee, Resource resource, int units) {
         Pair<Villager, Resource> pair = Pair.of(reservee, resource);
-        int reserved = reservations.getOrDefault(pair, 0) + units;
+        int reserved = inventoryReservations.getOrDefault(pair, 0) + units;
         if (reserved == 0)
-            reservations.remove(pair);
+            inventoryReservations.remove(pair);
         else
-            reservations.put(pair, reserved);
+            inventoryReservations.put(pair, reserved);
 
         reserved = reservedTotals.getOrDefault(resource, 0) + units;
         if (reserved == 0)

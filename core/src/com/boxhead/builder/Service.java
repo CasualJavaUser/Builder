@@ -1,16 +1,34 @@
 package com.boxhead.builder;
 
 import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.utils.Pair;
 
-public class Service {
+import java.util.HashMap;
+import java.util.Map;
 
-    public void applyEffects(int[] guestStats, int multiplier) {}
+public enum Service {
+    BARTENDING(Pair.of(Stat.HUNGER, -0.02f)),
+    HEALTHCARE(Pair.of(Stat.HEALTH, 0.02f));
 
-    public Villager.Stats[] getStats() {
-        return null;
+    private final Map<Stat, Float> effects = new HashMap<>();
+
+    @SafeVarargs
+    Service(Pair<Stat, Float>... effects) {
+        for (Pair<Stat, Float> effect : effects) {
+            this.effects.put(effect.first, effect.second);
+        }
     }
 
-    public int[] getEffects() {
-        return null;
+    public void applyEffects(Villager villager, int multiplier) {
+        for (Stat stat : effects.keySet()) {
+            float villagerStat = villager.getStats()[stat.ordinal()];
+            if ((stat.isIncreasing && villagerStat >= 0.0) || (!stat.isIncreasing && villagerStat <= 100.0)) {
+                villager.getStats()[stat.ordinal()] += (effects.get(stat) * multiplier) - stat.rate;
+            }
+        }
+    }
+
+    public Map<Stat, Float> getEffects() {
+        return effects;
     }
 }
