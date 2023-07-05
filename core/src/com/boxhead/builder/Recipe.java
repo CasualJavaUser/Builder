@@ -11,7 +11,7 @@ public class Recipe {
 
     @SafeVarargs
     public Recipe(Pair<Resource, Integer>... resources) {
-        changes = new HashMap<>(resources.length, 1f);
+        changes = new HashMap<>(resources.length);
 
         for (Pair<Resource, Integer> pair : resources) {
             changes.put(pair.first, pair.second);
@@ -19,7 +19,7 @@ public class Recipe {
     }
 
     private Recipe(int initialCapacity) {
-        changes = new HashMap<>(initialCapacity, 1f);
+        changes = new HashMap<>(initialCapacity);
     }
 
     public int getChange(Resource resource) {
@@ -47,6 +47,10 @@ public class Recipe {
 
     public Set<Resource> changedResources() {
         return changes.keySet();
+    }
+
+    public boolean isEmpty() {
+        return changes.isEmpty();
     }
 
     @Override

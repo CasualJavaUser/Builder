@@ -141,4 +141,13 @@ public class Inventory implements Serializable {
         currentAmount += units;
         if (resource != Resource.NOTHING) displayedAmount += units;
     }
+
+    @Override
+    public String toString() {
+        String s = displayedAmount + " (" + currentAmount + ") / " + maxCapacity;
+        for (Map.Entry<Resource, Integer> entry : resources.entrySet()) {
+            s += entry.getKey().name().toLowerCase() + ": " + entry.getValue();
+        }
+        return s;
+    }
 }

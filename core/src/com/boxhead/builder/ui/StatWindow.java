@@ -7,7 +7,7 @@ import com.boxhead.builder.GameScreen;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.GameObject;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected T pinnedObject = null;
@@ -94,5 +94,9 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
 
     private Range<Float> getPinnedObjectBoundsY() {
         return Range.between(-pinnedObject.getTexture().getRegionHeight() / GameScreen.camera.zoom, (float)Gdx.graphics.getHeight());
+    }
+
+    public T getPinnedObject() {
+        return pinnedObject;
     }
 }

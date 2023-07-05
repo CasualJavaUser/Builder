@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Vector2i;
-import org.apache.commons.lang3.Range;
+import com.boxhead.builder.utils.Range;
 
 public class DraggableWindow extends Window implements Clickable {
     protected boolean isDragged = false;

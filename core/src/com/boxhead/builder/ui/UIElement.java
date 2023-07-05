@@ -5,8 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
-import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Rectangle;
 import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
@@ -106,8 +105,10 @@ public class UIElement {
     }
 
     public boolean isVisible() {
-        if(parent == null) return isVisible;
-        else return isVisible && parent.isVisible() && layer.isVisible();
+        boolean b = isVisible;
+        if (parent != null) b = b && parent.isVisible;
+        if (layer != null) b = b && layer.isVisible();
+        return b;
     }
 
     public void setVisible(boolean visible) {
@@ -174,10 +175,11 @@ public class UIElement {
             batch.flush();
             Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
             Gdx.gl.glScissor(
-                    (int)scissors.getX(),
-                    (int)scissors.getY(),
-                    (int)scissors.getWidth(),
-                    (int)scissors.getHeight());
+                    scissors.x,
+                    scissors.y,
+                    scissors.width,
+                    scissors.height
+            );
         }
     }
 
