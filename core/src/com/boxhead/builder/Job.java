@@ -25,7 +25,9 @@ public class Job {
         FOUR_MIDNIGHT(16),
         MIDNIGHT_EIGHT(0),
 
-        ELEVEN_SEVEN(11);
+        ELEVEN_SEVEN(11),
+        SEVEN_THREE(19),
+        THREE_ELEVEN(3);
 
         public final int start;
         public final int end;

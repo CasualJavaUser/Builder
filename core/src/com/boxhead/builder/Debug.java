@@ -3,6 +3,7 @@ package com.boxhead.builder;
 import com.badlogic.gdx.Input;
 import com.boxhead.builder.game_objects.Animal;
 import com.boxhead.builder.game_objects.Building;
+import com.boxhead.builder.game_objects.ProductionBuilding;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.*;
 import com.boxhead.builder.utils.Action;
@@ -273,6 +274,28 @@ public class Debug {
         int minutes = t/60 - hours * 60;
         int seconds = t - hours * 3600 - minutes * 60;
         log(hours + ":" + minutes + ":" + seconds);
+    }
+
+    public static void enableShift(String buildingId, String shiftIndex) {
+        int bi = Integer.parseInt(buildingId);
+        int si = Integer.parseInt(shiftIndex);
+
+        for (Building building : World.getBuildings()) {
+            if (building.getId() == bi) {
+                ((ProductionBuilding) building).setShiftActivity(si, true);
+            }
+        }
+    }
+
+    public static void disableShift(String buildingId, String shiftIndex) {
+        int bi = Integer.parseInt(buildingId);
+        int si = Integer.parseInt(shiftIndex);
+
+        for (Building building : World.getBuildings()) {
+            if (building.getId() == bi) {
+                ((ProductionBuilding) building).setShiftActivity(si, false);
+            }
+        }
     }
 
     /**

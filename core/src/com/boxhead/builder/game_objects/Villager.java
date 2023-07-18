@@ -396,6 +396,13 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
+    public void looseJob() {
+        if (buildingIsIn == workplace || destinationBuilding == workplace) {
+            workplace.endShift(this);
+        }
+        workplace = null;
+    }
+
     public ProductionBuilding getWorkplace() {
         return workplace;
     }

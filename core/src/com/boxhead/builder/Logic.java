@@ -49,6 +49,10 @@ public class Logic {
 
     private static void dailyCycle() {
         switch (World.getTime()) {  //todo make it not-hardcoded
+            case 10800:
+                endWorkday(Job.ShiftTime.SEVEN_THREE);
+                startWorkday(Job.ShiftTime.THREE_ELEVEN);
+                break;
             case 28800:
                 endWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
                 startWorkday(Job.ShiftTime.EIGHT_FOUR);
@@ -62,6 +66,7 @@ public class Logic {
                 break;
             case 68400:
                 endWorkday(Job.ShiftTime.ELEVEN_SEVEN);
+                startWorkday(Job.ShiftTime.SEVEN_THREE);
                 break;
             case 0:
                 endWorkday(Job.ShiftTime.FOUR_MIDNIGHT);

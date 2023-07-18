@@ -810,7 +810,7 @@ public class UI {
 
         String description = "";
         description += "build cost:\n" + building.buildCost;
-        if (building.job != null && building.range != 0) description += "\n\nrange: " + building.range;
+        if (building.mainJob != null && building.range != 0) description += "\n\nrange: " + building.range;
 
         buildingDescription.setText(description);
         buildingDescription.setLocalPosition(
