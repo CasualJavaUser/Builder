@@ -8,19 +8,27 @@ public class TextArea extends UIElement {
     private String text;
     private int targetWidth, halign;
 
-    public TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, boolean center) {
-        this(texture, text, parent, layer, position, texture.getRegionWidth(), center);
+    public enum Align {
+        LEFT, CENTER, RIGHT
     }
 
-    public TextArea(String text, UIElement parent, UI.Layer layer, Vector2i position, int targetWidth, boolean center) {
-        this(null, text, parent, layer, position, targetWidth, center);
+    public TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, Align align) {
+        this(texture, text, parent, layer, position, texture.getRegionWidth(), align);
     }
 
-    private TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, int targetWidth, boolean center) {
+    public TextArea(String text, UIElement parent, UI.Layer layer, Vector2i position, int targetWidth, Align align) {
+        this(null, text, parent, layer, position, targetWidth, align);
+    }
+
+    private TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, int targetWidth, Align align) {
         super(texture, parent, layer, position);
         this.text = text;
         this.targetWidth = targetWidth;
-        halign = center ? 1 : -1;
+        halign = switch (align) {
+            case LEFT -> -1;
+            case CENTER -> 1;
+            case RIGHT -> 0;
+        };
     }
 
     public void setText(String text) {

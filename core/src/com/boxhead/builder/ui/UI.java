@@ -182,7 +182,14 @@ public class UI {
         saveWindow.setContentHeight(500);
         saveWindow.setLocalPosition(-saveWindow.getWindowWidth() / 2, -saveWindow.getWindowHeight() / 2);
 
-        saveText = new TextArea("Save", saveWindow, Layer.SAVE_MENU, new Vector2i(0, saveWindow.getWindowHeight() - saveWindow.getEdgeWidth() - PADDING), saveWindow.getWindowWidth(), true);
+        saveText = new TextArea(
+                "Save",
+                saveWindow,
+                Layer.SAVE_MENU,
+                new Vector2i(0, saveWindow.getWindowHeight() - saveWindow.getEdgeWidth() - PADDING),
+                saveWindow.getWindowWidth(),
+                TextArea.Align.CENTER
+        );
 
         scrollPane = new ScrollPane(
                 saveWindow,
@@ -212,7 +219,14 @@ public class UI {
             settingsWindow.setContentHeight(500);
             settingsWindow.setLocalPosition(-settingsWindow.getWindowWidth() / 2, -settingsWindow.getWindowHeight() / 2);
 
-            settingsText = new TextArea("Settings", settingsWindow, Layer.SETTINGS_MENU, new Vector2i(0, settingsWindow.getWindowHeight() - 25), settingsWindow.getWindowWidth(), true);
+            settingsText = new TextArea(
+                    "Settings",
+                    settingsWindow,
+                    Layer.SETTINGS_MENU,
+                    new Vector2i(0, settingsWindow.getWindowHeight() - 25),
+                    settingsWindow.getWindowWidth(),
+                    TextArea.Align.CENTER
+            );
 
             settingsWindowBackButton = new Button(
                     Textures.get(Textures.Ui.SMALL_BUTTON),
@@ -518,7 +532,7 @@ public class UI {
         SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
 
         if (saves.size() == 0) {
-            TextArea textArea = new TextArea(Textures.get(Textures.Ui.WIDE_AREA), "No saves", scrollPane, Layer.SAVE_MENU, new Vector2i(), true);
+            TextArea textArea = new TextArea(Textures.get(Textures.Ui.WIDE_AREA), "No saves", scrollPane, Layer.SAVE_MENU, new Vector2i(), TextArea.Align.CENTER);
             textArea.setTint(WHITE);
             textArea.addToUI();
             scrollPane.addElement(textArea);
@@ -592,7 +606,8 @@ public class UI {
                 Layer.SAVE_MENU,
                 new Vector2i(158, area.getHeight() - 15),
                 area.getWidth() - 148,
-                true);
+                TextArea.Align.CENTER
+        );
 
         Button saveButton = new Button(Textures.get(isSaving ? Textures.Ui.SAVE : Textures.Ui.LOAD), area, Layer.SAVE_MENU, new Vector2i(PADDING, PADDING));
 
@@ -689,7 +704,7 @@ public class UI {
             setContentHeight(400);
             setLocalPosition(-getWindowWidth() / 2, -getWindowHeight() / 2);
 
-            divider = new TextArea(Textures.get(Textures.Ui.DIVIDER), "", this, Layer.IN_GAME, new Vector2i(), true);
+            divider = new TextArea(Textures.get(Textures.Ui.DIVIDER), "", this, Layer.IN_GAME, new Vector2i(), TextArea.Align.CENTER);
             divider.setLocalPosition(
                     texture.getRegionWidth() + PADDING,
                     texture.getRegionHeight() + 128 + PADDING * 2
@@ -697,7 +712,7 @@ public class UI {
 
             buildingImage = new UIElement(null, this, Layer.IN_GAME, new Vector2i(getEdgeWidth() + PADDING, getEdgeWidth() + PADDING));
 
-            descriptionArea = new TextArea("", this, Layer.IN_GAME, new Vector2i(), 200, false);
+            descriptionArea = new TextArea("", this, Layer.IN_GAME, new Vector2i(), 200, TextArea.Align.LEFT);
 
             buildButton = new Button(
                     Textures.get(Textures.Ui.BUILD),
@@ -835,11 +850,13 @@ public class UI {
         final TextArea[] textAreas;
         final TextArea[] timeLabels;
         final CheckBox[] checkBoxes;
+        final UIElement timelineTop;
+        final UIElement[] timelineSegments;
         final Buildings.Type[] types;
 
         ShiftMenu() {
-            super(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, Vector2i.zero(), true);
-            window = new Window(Textures.get(Textures.Ui.WINDOW), this, Layer.IN_GAME, Vector2i.zero(), true);
+            super(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, Vector2i.zero(), false);
+            window = new Window(Textures.get(Textures.Ui.WINDOW), this, layer, Vector2i.zero(), true);
             window.setContentWidth((window.getEdgeWidth() + PADDING) * 2 + NAME_WIDTH + COLUMN_WIDTH * 3);
 
             types = Arrays.stream(Buildings.Type.values()).filter(Buildings.Type::isProduction).toArray(Buildings.Type[]::new);
@@ -847,25 +864,33 @@ public class UI {
             textAreas = new TextArea[types.length];
             timeLabels = new TextArea[6];
             checkBoxes = new CheckBox[types.length * 3];
+            timelineSegments = new UIElement[types.length];
 
-            int y = -5 - window.getEdgeWidth() - PADDING;
-            int height = 0;
+            int y = -window.getEdgeWidth() - PADDING;
+            int height = PADDING;
             int columnOffset = window.getEdgeWidth() + PADDING + NAME_WIDTH + (COLUMN_WIDTH - 32) / 2;
             int shiftOffset = 18;
 
-            timeLabels[0] = new TextArea("3:00",   this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + shiftOffset, y), COLUMN_WIDTH, true);
-            timeLabels[1] = new TextArea("11:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH + shiftOffset, y), COLUMN_WIDTH, true);
-            timeLabels[2] = new TextArea("19:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2 + shiftOffset, y), COLUMN_WIDTH, true);
+            timeLabels[0] = new TextArea("3:00",   this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + shiftOffset, y), COLUMN_WIDTH, TextArea.Align.CENTER);
+            timeLabels[1] = new TextArea("11:00",  this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH + shiftOffset, y), COLUMN_WIDTH, TextArea.Align.CENTER);
+            timeLabels[2] = new TextArea("19:00",  this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2 + shiftOffset, y), COLUMN_WIDTH, TextArea.Align.CENTER);
 
-            y -= (int)FONT.getLineHeight() + PADDING;
-            height += FONT.getLineHeight() + PADDING;
+            y -= (int)FONT.getLineHeight() + 5;
+            height += FONT.getLineHeight() + 5;
 
-            timeLabels[3] = new TextArea("0:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH, y), COLUMN_WIDTH, true);
-            timeLabels[4] = new TextArea("8:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH, y), COLUMN_WIDTH, true);
-            timeLabels[5] = new TextArea("16:00", this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2, y), COLUMN_WIDTH, true);
+            timeLabels[3] = new TextArea("0:00",  this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH, y), COLUMN_WIDTH, TextArea.Align.CENTER);
+            timeLabels[4] = new TextArea("8:00",  this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH, y), COLUMN_WIDTH, TextArea.Align.CENTER);
+            timeLabels[5] = new TextArea("16:00", this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2, y), COLUMN_WIDTH, TextArea.Align.CENTER);
 
-            y -= (int)FONT.getLineHeight() + PADDING;
-            height += FONT.getLineHeight() + PADDING;
+            y -= (int)FONT.getLineHeight() + PADDING * 3;
+            height += FONT.getLineHeight() + PADDING * 3;
+
+            timelineTop = new UIElement(
+                    Textures.get(Textures.Ui.TIMELINE_TOP),
+                    this,
+                    layer,
+                    new Vector2i(columnOffset, y - (int)FONT.getLineHeight() + 32)
+            );
 
             for (int i = 0; i < types.length; i++) {
                 Buildings.Type type = types[i];
@@ -873,22 +898,31 @@ public class UI {
                 textAreas[i] = new TextArea(
                         type.name,
                         this,
-                        Layer.IN_GAME,
+                        layer,
                         new Vector2i(window.getEdgeWidth() + PADDING, y),
                         NAME_WIDTH,
-                        false
+                        TextArea.Align.RIGHT
+                );
+
+                timelineSegments[i] = new UIElement(
+                        Textures.get(Textures.Ui.TIMELINE_SEGMENT),
+                        this,
+                        layer,
+                        new Vector2i(columnOffset, y - (int)FONT.getLineHeight())
                 );
 
                 for (int j = 0; j < 3; j++) {
                     int x = columnOffset + COLUMN_WIDTH * j;
                     if (type.isService())
                         x += shiftOffset;
+
                     checkBoxes[i * 3 + j] = new CheckBox(
                             this,
-                            Layer.IN_GAME,
+                            layer,
                             new Vector2i(x, y - (int)FONT.getLineHeight()),
                             type.shifts[j]
                     );
+
                     int shiftIndex = j;
                     checkBoxes[i * 3 + j].setOnUp((active) -> type.setShiftActivity(shiftIndex, active));
                 }
@@ -897,7 +931,7 @@ public class UI {
             }
 
             height -= 15;
-            height += PADDING * 2;
+            height += PADDING;
             window.setContentHeight(height);
             window.setLocalPosition(0, -window.getWindowHeight());
         }
@@ -906,6 +940,10 @@ public class UI {
         public void addToUI() {
             super.addToUI();
             window.addToUI();
+            timelineTop.addToUI();
+            for (UIElement segment : timelineSegments) {
+                segment.addToUI();
+            }
             for (TextArea timeLabel : timeLabels) {
                 timeLabel.addToUI();
             }

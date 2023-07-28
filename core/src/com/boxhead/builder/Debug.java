@@ -52,7 +52,7 @@ public class Debug {
                 UI.Layer.CONSOLE,
                 new Vector2i(console.getEdgeWidth() + UI.PADDING, console.getWindowHeight() - console.getEdgeWidth() - UI.PADDING),
                 console.getWindowWidth(),
-                false);
+                TextArea.Align.LEFT);
 
         accept = new Button(null, UI.Layer.CONSOLE, Vector2i.zero());
 
