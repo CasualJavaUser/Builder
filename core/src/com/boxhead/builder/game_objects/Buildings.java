@@ -13,6 +13,7 @@ import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Range;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -152,6 +153,12 @@ public class Buildings {
         public final Function<Set<Building>, Float> updateEfficiency;
         public transient Job mainJob;
 
+        public boolean[] shifts = new boolean[] {false, true, false};
+
+        static {
+            Arrays.fill(HOSPITAL.shifts, true);
+        }
+
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost, Job[] jobs,
              Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int residentCapacity, int guestCapacity,
              int workersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
@@ -276,6 +283,17 @@ public class Buildings {
                 return Textures.Building.valueOf(texture.name() + "_CS");
             } catch (IllegalArgumentException e) {
                 return texture;
+            }
+        }
+
+        public void setShiftActivity(int index, boolean active) {
+            if (!this.isProduction())
+                throw new IllegalStateException();
+
+            for (Building building : World.getBuildings()) {
+                if (building.type == this) {
+                    ((ProductionBuilding) building).setShiftActivity(index, active);
+                }
             }
         }
 

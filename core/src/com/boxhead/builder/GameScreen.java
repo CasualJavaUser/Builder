@@ -22,6 +22,7 @@ public class GameScreen implements Screen {
     public static final Viewport viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
     private final SpriteBatch batch;
     private final Matrix4 uiProjection;
+    private static Vector2 mouseWorldPos = new Vector2(0, 0);
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
     private static final float NORMAL_SPEED = 350, FAST_SPEED = 650, SCROLL_SPEED = 30;
@@ -45,6 +46,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float deltaTime) {
+        updateMouseWorldPosition();
+
         ScreenUtils.clear(Color.BLACK);
         if (!UI.isPaused() && !Debug.isOpen()) {
             scroll();
@@ -87,7 +90,11 @@ public class GameScreen implements Screen {
     }
 
     public static Vector2 getMouseWorldPosition() {
-        return viewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+        return new Vector2(mouseWorldPos);
+    }
+
+    private static void updateMouseWorldPosition() {
+        mouseWorldPos.set(viewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY())));
     }
 
     public static Vector2 worldToScreenPosition(Vector2i position) {

@@ -49,15 +49,15 @@ public class ProductionBuilding extends StorageBuilding {
         if (shiftsPerJob != 3) throw new IllegalStateException();
         if (type.isService()) {
             for (int i = 0; i < type.jobs.length; i++) {
-                shifts[i * shiftsPerJob] = new Shift(type.jobs[i], Job.ShiftTime.ELEVEN_SEVEN, type.workersPerShift);
-                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.SEVEN_THREE, 0);
-                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.THREE_ELEVEN, 0);
+                shifts[i * shiftsPerJob]     = new Shift(type.jobs[i], Job.ShiftTime.THREE_ELEVEN, type.shifts[0] ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.ELEVEN_SEVEN, type.shifts[1] ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.SEVEN_THREE,  type.shifts[2] ? type.workersPerShift : 0);
             }
         } else {
             for (int i = 0; i < type.jobs.length; i++) {
-                shifts[i * shiftsPerJob] = new Shift(type.jobs[i], Job.ShiftTime.EIGHT_FOUR, type.workersPerShift);
-                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.FOUR_MIDNIGHT, 0);
-                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.MIDNIGHT_EIGHT, 0);
+                shifts[i * shiftsPerJob]     = new Shift(type.jobs[i], Job.ShiftTime.MIDNIGHT_EIGHT,type.shifts[0] ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.EIGHT_FOUR,    type.shifts[1] ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.FOUR_MIDNIGHT, type.shifts[2] ? type.workersPerShift : 0);
             }
         }
 
@@ -317,7 +317,7 @@ public class ProductionBuilding extends StorageBuilding {
     protected void instantiateIndicator() {
         indicator = new UIElement(
                 Textures.get(Textures.Ui.FULL_OUTPUT),
-                UI.Layer.BUILDINGS,
+                UI.Layer.WORLD,
                 new Vector2i(),
                 false);
         indicator.addToUI();

@@ -106,7 +106,7 @@ public class UIElement {
 
     public boolean isVisible() {
         boolean b = isVisible;
-        if (parent != null) b = b && parent.isVisible;
+        if (parent != null) b = b && parent.isVisible();
         if (layer != null) b = b && layer.isVisible();
         return b;
     }

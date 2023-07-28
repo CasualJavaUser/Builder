@@ -14,12 +14,18 @@ import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.popup.Popups;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.File;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 public class UI {
     private static final Matrix4 uiProjection = new Matrix4();
@@ -40,7 +46,7 @@ public class UI {
     private static Clickable clickedElement = null;
     private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
-    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, pauseGameButton;
+    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, pauseGameButton;
 
     @AddToUI private static UIElement timeElementGroup;
     @AddToUI private static Clock clock;
@@ -48,31 +54,8 @@ public class UI {
 
     @AddToUI private static ResourceList resourceList;
 
-    @AddToUI private static Window buildingWindow;
-    @AddToUI private static TextArea buildWindowDivider;
-    @AddToUI private static UIElement buildingImage;
-    @AddToUI private static Button buildButton;
-    @AddToUI private static TextArea buildingDescription;
-
-    //infrastructure tab
-    @AddToUI private static Button infrastructureTabButton;
-    @AddToUI private static UIElement infrastructureTab;
-    @AddToUI private static Button storageButton, constructionOfficeButton, transportOfficeButton;
-
-    //housing tab
-    @AddToUI private static Button housingTabButton;
-    @AddToUI private static UIElement housingTab;
-    @AddToUI private static Button logCabinButton;
-
-    //resource tab
-    @AddToUI private static Button resourcesTabButton;
-    @AddToUI private static UIElement resourcesTab;
-    @AddToUI private static Button lumberjackButton, mineButton, stoneGathererButton, plantationButton, ranchButton;
-
-    //services tab
-    @AddToUI private static Button servicesTabButton;
-    @AddToUI private static UIElement servicesTab;
-    @AddToUI private static Button serviceButton, pubButton;
+    @AddToUI private static BuildingMenu buildingMenu;
+    @AddToUI private static ShiftMenu shiftMenu;
 
     @AddToUI private static Window pauseWindow;
     @AddToUI private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
@@ -111,9 +94,8 @@ public class UI {
     }
 
     public enum Layer {
-        BUILDINGS(true),
+        WORLD(true),
         IN_GAME(true),
-        BUILDING_MENU(false),
         PAUSE_MENU(false),
         SAVE_MENU(false),
         SETTINGS_MENU(false),
@@ -249,16 +231,17 @@ public class UI {
         //region mainButtonGroup
         {
             int x = PADDING;
-            buildMenuButton = new Button(Textures.get(Textures.Ui.HAMMER), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x, PADDING));
-            npcButton = new Button(Textures.get(Textures.Ui.NPC), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            workButton = new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            restButton = new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            demolishButton = new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            tilingButton = new Button(Textures.get(Textures.Ui.FUNGUS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            buildMenuButton =   new Button(Textures.get(Textures.Ui.HAMMER), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x, PADDING));
+            npcButton =         new Button(Textures.get(Textures.Ui.NPC), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            workButton =        new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            restButton =        new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            demolishButton =    new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            tilingButton =      new Button(Textures.get(Textures.Ui.FUNGUS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            shiftMenuButton =   new Button(Textures.get(Textures.Ui.FUNGUS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
 
             pauseGameButton = new Button(Textures.get(Textures.Ui.PAUSE_GAME), Anchor.BOTTOM_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(-48 - PADDING, PADDING));
 
-            buildMenuButton.setOnUp(() -> Layer.BUILDING_MENU.setVisible(!Layer.BUILDING_MENU.isVisible()));
+            buildMenuButton.setOnUp(() -> buildingMenu.setVisible(!buildingMenu.isVisible()));
 
             npcButton.setOnUp(() -> {
                 Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
@@ -278,131 +261,8 @@ public class UI {
                 else Buildings.toDemolishingMode();
             });
             tilingButton.setOnUp(() -> Tiles.toPathMode(Tile.PATH));
+            shiftMenuButton.setOnUp(() -> shiftMenu.setVisible(!shiftMenu.isVisible()));
             pauseGameButton.setOnUp(() -> showPauseMenu(true));
-        }
-        //endregion
-
-        //region buildingWindow
-        {
-            buildingWindow = new Window(Textures.get(Textures.Ui.WINDOW), Anchor.CENTER.getElement(), Layer.BUILDING_MENU, new Vector2i(), true);
-            buildingWindow.setContentWidth(454);
-            buildingWindow.setContentHeight(400);
-            buildingWindow.setLocalPosition(-buildingWindow.getWindowWidth() / 2, -buildingWindow.getWindowHeight() / 2);
-
-            buildWindowDivider = new TextArea(Textures.get(Textures.Ui.DIVIDER), "", buildingWindow, Layer.BUILDING_MENU, new Vector2i(), true);
-            buildWindowDivider.setLocalPosition(
-                    buildingWindow.getTexture().getRegionWidth() + PADDING,
-                    buildingWindow.getTexture().getRegionHeight() + 128 + PADDING * 2
-            );
-
-            buildingImage = new UIElement(null, buildingWindow, Layer.BUILDING_MENU, new Vector2i(buildingWindow.getEdgeWidth() + PADDING, buildingWindow.getEdgeWidth() + PADDING));
-
-            buildingDescription = new TextArea("", buildingWindow, Layer.BUILDING_MENU, new Vector2i(), 200, false);
-
-            buildButton = new Button(
-                    Textures.get(Textures.Ui.BUILD),
-                    buildingWindow, Layer.BUILDING_MENU,
-                    new Vector2i(buildingWindow.getWindowWidth() - buildingWindow.getEdgeWidth() - 64 - PADDING, buildingWindow.getEdgeWidth() + PADDING));
-            buildButton.setVisible(false);
-
-            int tabX = PADDING;
-
-            //region infrastructureTab
-            {
-                infrastructureTabButton = new Button(Textures.get(Textures.Ui.INFRASTRUCTURE_TAB), buildingWindow, Layer.BUILDING_MENU, new Vector2i(tabX, buildingWindow.getWindowHeight()-5));
-                infrastructureTabButton.setOnUp(() -> setVisibleTab(0));
-
-                infrastructureTab = new UIElement(
-                        buildingWindow,
-                        Layer.BUILDING_MENU,
-                        new Vector2i(buildingWindow.getEdgeWidth() + PADDING, buildingWindow.getWindowHeight() - buildingWindow.getEdgeWidth() - PADDING),
-                        true);
-
-                int x = 0;
-                int y = -64;
-
-                storageButton = new Button(Textures.get(Textures.Ui.BARN), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x, y));
-                constructionOfficeButton = new Button(Textures.get(Textures.Ui.BIG_HAMMER), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                transportOfficeButton = new Button(Textures.get(Textures.Ui.CARRIAGE), infrastructureTab, Layer.BUILDING_MENU, new Vector2i(x + 74, y));
-
-                storageButton.setOnUp(() -> showBuildingStats(Buildings.Type.STORAGE_BARN));
-                constructionOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.BUILDERS_HUT));
-                transportOfficeButton.setOnUp(() -> showBuildingStats(Buildings.Type.TRANSPORT_OFFICE));
-            }
-            //endregion
-
-            //region housingTab
-            {
-                housingTabButton = new Button(Textures.get(Textures.Ui.HOUSING_TAB), buildingWindow, Layer.BUILDING_MENU, new Vector2i(tabX += 32 + PADDING, buildingWindow.getWindowHeight()-5));
-                housingTabButton.setOnUp(() -> setVisibleTab(1));
-                housingTabButton.setTint(PRESSED_COLOR);
-
-                housingTab = new UIElement(
-                        buildingWindow,
-                        Layer.BUILDING_MENU,
-                        new Vector2i(buildingWindow.getEdgeWidth() + PADDING, buildingWindow.getWindowHeight() - buildingWindow.getEdgeWidth() - PADDING),
-                        false);
-
-                int x = 0;
-                int y = -64;
-
-                logCabinButton = new Button(Textures.get(Textures.Ui.HOUSE), housingTab, Layer.BUILDING_MENU, new Vector2i(x, y));
-
-                logCabinButton.setOnUp(() -> showBuildingStats(Buildings.Type.LOG_CABIN));
-            }
-            //endregion
-
-            //region resourcesTab
-            {
-                resourcesTabButton = new Button(Textures.get(Textures.Ui.RESOURCES_TAB), buildingWindow, Layer.BUILDING_MENU, new Vector2i(tabX += 32 + PADDING, buildingWindow.getWindowHeight()-5));
-                resourcesTabButton.setOnUp(() -> setVisibleTab(2));
-                resourcesTabButton.setTint(PRESSED_COLOR);
-
-                resourcesTab = new UIElement(
-                        buildingWindow,
-                        Layer.BUILDING_MENU,
-                        new Vector2i(buildingWindow.getEdgeWidth() + PADDING, buildingWindow.getWindowHeight() - buildingWindow.getEdgeWidth() - PADDING),
-                        false);
-
-                int x = 0;
-                int y = -64;
-
-                lumberjackButton = new Button(Textures.get(Textures.Ui.AXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
-                mineButton = new Button(Textures.get(Textures.Ui.PICKAXE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                stoneGathererButton = new Button(Textures.get(Textures.Ui.PICKAXE_WITH_STONE), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                plantationButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-                ranchButton = new Button(Textures.get(Textures.Building.TOOL_SHACK), resourcesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-
-                lumberjackButton.setOnUp(() -> showBuildingStats(Buildings.Type.LUMBERJACKS_HUT));
-                mineButton.setOnUp(() -> showBuildingStats(Buildings.Type.MINE));
-                stoneGathererButton.setOnUp(() -> showBuildingStats(Buildings.Type.STONE_GATHERERS));
-                plantationButton.setOnUp(() -> showBuildingStats(Buildings.Type.PLANTATION));
-                ranchButton.setOnUp(() -> showBuildingStats(Buildings.Type.RANCH));
-            }
-            //endregion
-
-            //region serviceTab
-            {
-                servicesTabButton = new Button(Textures.get(Textures.Ui.SERVICES_TAB), buildingWindow, Layer.BUILDING_MENU, new Vector2i(tabX += 32 + PADDING, buildingWindow.getWindowHeight()-5));
-                servicesTabButton.setOnUp(() -> setVisibleTab(3));
-                servicesTabButton.setTint(PRESSED_COLOR);
-
-                servicesTab = new UIElement(
-                        buildingWindow,
-                        Layer.BUILDING_MENU,
-                        new Vector2i(buildingWindow.getEdgeWidth() + PADDING, buildingWindow.getWindowHeight() - buildingWindow.getEdgeWidth() - PADDING),
-                        false);
-
-                int x = 0;
-                int y = -64;
-
-                serviceButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x, y));
-                pubButton = new Button(Textures.get(Textures.Ui.SERVICE), servicesTab, Layer.BUILDING_MENU, new Vector2i(x += 74, y));
-
-                serviceButton.setOnUp(() -> showBuildingStats(Buildings.Type.HOSPITAL));
-                pubButton.setOnUp(() -> showBuildingStats(Buildings.Type.PUB));
-            }
-            //endregion
         }
         //endregion
 
@@ -437,6 +297,12 @@ public class UI {
         x3Button.setOnClick(() -> Logic.setTickSpeed(Logic.SPEED_X3));
         //endregion
 
+        buildingMenu = new BuildingMenu();
+        shiftMenu = new ShiftMenu();
+
+        buildingMenu.setVisible(false);
+        //shiftMenu.setVisible(false);
+
         npcStatWindow = new NPCStatWindow(Layer.IN_GAME);
         buildingStatWindow = new BuildingStatWindow(Layer.IN_GAME);
 
@@ -456,12 +322,6 @@ public class UI {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
-        Layer.BUILDING_MENU.addElement(buildMenuButton);
-        Layer.BUILDING_MENU.addElement(npcButton);
-        Layer.BUILDING_MENU.addElement(workButton);
-        Layer.BUILDING_MENU.addElement(restButton);
-        Layer.BUILDING_MENU.addElement(demolishButton);
     }
 
     public static void drawUI(SpriteBatch batch, OrthographicCamera camera) {
@@ -614,11 +474,10 @@ public class UI {
     }
 
     public static void onEscape() {
-        if (!isPaused) {
-            if (Layer.BUILDING_MENU.isVisible()) {
-                Layer.BUILDING_MENU.setVisible(false);
-            }
-            else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
+        if (buildingMenu.isVisible()) {
+            buildingMenu.setVisible(false);
+        } else if (!isPaused) {
+            if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
                 Tiles.turnOffPathMode();
@@ -639,18 +498,6 @@ public class UI {
             if(Layer.values()[i].isVisible()) return Layer.values()[i];
         }
         return null;
-    }
-
-    private static void setVisibleTab(int index) {
-        infrastructureTab.setVisible(index == 0);
-        housingTab.setVisible(index == 1);
-        resourcesTab.setVisible(index == 2);
-        servicesTab.setVisible(index == 3);
-
-        infrastructureTabButton.setTint(index == 0 ? DEFAULT_COLOR : PRESSED_COLOR);
-        housingTabButton.setTint(index == 1 ? DEFAULT_COLOR : PRESSED_COLOR);
-        resourcesTabButton.setTint(index == 2 ? DEFAULT_COLOR : PRESSED_COLOR);
-        servicesTabButton.setTint(index == 3 ? DEFAULT_COLOR : PRESSED_COLOR);
     }
 
     public static void showPauseMenu(boolean open) {
@@ -801,31 +648,6 @@ public class UI {
         deleteButton.setScissors(scrollPane.getScissors());
     }
 
-    private static void showBuildingStats(Buildings.Type building) {
-        float scale = 128f / building.getTexture().getRegionHeight();
-        if (building.getTexture().getRegionWidth() * scale > 192) scale = 192f / building.getTexture().getRegionWidth();
-        buildingImage.setScale(scale);
-        buildingImage.setTexture(building.getTexture());
-        buildWindowDivider.setText(building.name);
-
-        String description = "";
-        description += "build cost:\n" + building.buildCost;
-        if (building.mainJob != null && building.range != 0) description += "\n\nrange: " + building.range;
-
-        buildingDescription.setText(description);
-        buildingDescription.setLocalPosition(
-                buildingImage.getLocalPosition().x + (int)(buildingImage.getWidth() * scale) + PADDING,
-                buildingImage.getLocalPosition().y + (int)(buildingImage.getHeight() * scale)
-                );
-
-        buildButton.setOnUp(() -> {
-            Buildings.toBuildingMode(building);
-            Layer.BUILDING_MENU.setVisible(false);
-        });
-
-        buildButton.setVisible(true);
-    }
-
     public static ResourceList getResourceList() {
         return resourceList;
     }
@@ -846,5 +668,258 @@ public class UI {
 
     public static BuildingStatWindow getBuildingStatWindow() {
         return buildingStatWindow;
+    }
+
+    private static class BuildingMenu extends Window {
+        private final TextArea divider;
+        private final UIElement buildingImage;
+        private final Button buildButton;
+        private final TextArea descriptionArea;
+
+        private final Button infrastructureTabButton;
+        private final Button housingTabButton;
+        private final Button resourcesTabButton;
+        private final Button servicesTabButton;
+
+        private final Tab[] tabs;
+
+        BuildingMenu() {
+            super(Textures.get(Textures.Ui.WINDOW), Anchor.CENTER.getElement(), Layer.IN_GAME, new Vector2i());
+            setContentWidth(454);
+            setContentHeight(400);
+            setLocalPosition(-getWindowWidth() / 2, -getWindowHeight() / 2);
+
+            divider = new TextArea(Textures.get(Textures.Ui.DIVIDER), "", this, Layer.IN_GAME, new Vector2i(), true);
+            divider.setLocalPosition(
+                    texture.getRegionWidth() + PADDING,
+                    texture.getRegionHeight() + 128 + PADDING * 2
+            );
+
+            buildingImage = new UIElement(null, this, Layer.IN_GAME, new Vector2i(getEdgeWidth() + PADDING, getEdgeWidth() + PADDING));
+
+            descriptionArea = new TextArea("", this, Layer.IN_GAME, new Vector2i(), 200, false);
+
+            buildButton = new Button(
+                    Textures.get(Textures.Ui.BUILD),
+                    this,
+                    Layer.IN_GAME,
+                    new Vector2i(getWindowWidth() - getEdgeWidth() - 64 - PADDING, getEdgeWidth() + PADDING));
+            buildButton.setVisible(false);
+
+            tabs = new Tab[4];
+
+            tabs[0] = new Tab(this, true,
+                    Pair.of(Buildings.Type.STORAGE_BARN, Textures.Ui.BARN),
+                    Pair.of(Buildings.Type.BUILDERS_HUT, Textures.Ui.BIG_HAMMER),
+                    Pair.of(Buildings.Type.TRANSPORT_OFFICE, Textures.Ui.CARRIAGE)
+            );
+
+            tabs[1] = new Tab(this, false,
+                    Pair.of(Buildings.Type.LOG_CABIN, Textures.Ui.HOUSE)
+            );
+
+            tabs[2] = new Tab(this, false,
+                    Pair.of(Buildings.Type.LUMBERJACKS_HUT, Textures.Ui.AXE),
+                    Pair.of(Buildings.Type.MINE, Textures.Ui.PICKAXE),
+                    Pair.of(Buildings.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
+                    Pair.of(Buildings.Type.PLANTATION, Textures.Ui.FUNGUS),
+                    Pair.of(Buildings.Type.RANCH, Textures.Ui.FUNGUS)
+            );
+
+            tabs[3] = new Tab(this, false,
+                    Pair.of(Buildings.Type.HOSPITAL, Textures.Ui.SERVICE),
+                    Pair.of(Buildings.Type.PUB, Textures.Ui.SERVICE)
+            );
+
+            int x = PADDING;
+            infrastructureTabButton = new Button(Textures.get(Textures.Ui.INFRASTRUCTURE_TAB), this, Layer.IN_GAME, new Vector2i(x, getWindowHeight()-5));
+            housingTabButton = new Button(Textures.get(Textures.Ui.HOUSING_TAB), this, Layer.IN_GAME, new Vector2i(x += 32 + PADDING, getWindowHeight()-5));
+            resourcesTabButton = new Button(Textures.get(Textures.Ui.RESOURCES_TAB), this, Layer.IN_GAME, new Vector2i(x += 32 + PADDING, getWindowHeight()-5));
+            servicesTabButton = new Button(Textures.get(Textures.Ui.SERVICES_TAB), this, Layer.IN_GAME, new Vector2i(x += 32 + PADDING, getWindowHeight()-5));
+
+            infrastructureTabButton.setOnUp(() -> showTab(0));
+            housingTabButton.setOnUp(() -> showTab(1));
+            resourcesTabButton.setOnUp(() -> showTab(2));
+            servicesTabButton.setOnUp(() -> showTab(3));
+        }
+
+        private void showTab(int tabIndex) {
+            for (int i = 0; i < tabs.length; i++) {
+                tabs[i].setVisible(i == tabIndex);
+            }
+        }
+
+        private void showBuildingStats(Buildings.Type building) {
+            float scale = 128f / building.getTexture().getRegionHeight();
+            if (building.getTexture().getRegionWidth() * scale > 192) scale = 192f / building.getTexture().getRegionWidth();
+            buildingImage.setScale(scale);
+            buildingImage.setTexture(building.getTexture());
+            divider.setText(building.name);
+
+            String description = "";
+            description += "build cost:\n" + building.buildCost;
+            if (building.isProduction() && building.range != 0) description += "\n\nrange: " + building.range;
+
+            descriptionArea.setText(description);
+            descriptionArea.setLocalPosition(
+                    buildingImage.getLocalPosition().x + (int)(buildingImage.getWidth() * scale) + PADDING,
+                    buildingImage.getLocalPosition().y + (int)(buildingImage.getHeight() * scale)
+            );
+
+            buildButton.setOnUp(() -> {
+                Buildings.toBuildingMode(building);
+                buildingMenu.setVisible(false);
+            });
+
+            buildButton.setVisible(true);
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            divider.addToUI();
+            buildingImage.addToUI();
+            buildButton.addToUI();
+            descriptionArea.addToUI();
+            infrastructureTabButton.addToUI();
+            housingTabButton.addToUI();
+            resourcesTabButton.addToUI();
+            servicesTabButton.addToUI();
+            for (Tab tab : tabs) {
+                tab.addToUI();
+            }
+        }
+
+        private class Tab extends UIElement {
+            private static final int ROW_LENGTH = 6;
+
+            private final Button[] buttons;
+
+            @SafeVarargs
+            public Tab(Window parent, boolean visible, Pair<Buildings.Type, Textures.Ui>... buttons) {
+                super(
+                        parent,
+                        Layer.IN_GAME,
+                        new Vector2i(parent.getEdgeWidth() + PADDING, parent.getWindowHeight() - parent.getEdgeWidth() - PADDING),
+                        visible
+                );
+
+                this.buttons = new Button[buttons.length];
+
+                int x = 0, y = -64;
+                for (int i = 0; i < buttons.length; i++) {
+                    Pair<Buildings.Type, Textures.Ui> pair = buttons[i];
+                    if (i%ROW_LENGTH == 0) x = 0;
+                    Button button = new Button(Textures.get(pair.second), this, Layer.IN_GAME, new Vector2i(x, y));
+                    button.setOnUp(() -> showBuildingStats(pair.first));
+                    x += 74;
+                    this.buttons[i] = button;
+                }
+            }
+
+            @Override
+            public void addToUI() {
+                super.addToUI();
+                for (Button button : buttons) {
+                    button.addToUI();
+                }
+            }
+        }
+    }
+
+    private static class ShiftMenu extends UIElement {
+        private static final int COLUMN_WIDTH = 48;
+        private static final int NAME_WIDTH = 210;
+
+        final Window window;
+        final TextArea[] textAreas;
+        final TextArea[] timeLabels;
+        final CheckBox[] checkBoxes;
+        final Buildings.Type[] types;
+
+        ShiftMenu() {
+            super(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, Vector2i.zero(), true);
+            window = new Window(Textures.get(Textures.Ui.WINDOW), this, Layer.IN_GAME, Vector2i.zero(), true);
+            window.setContentWidth((window.getEdgeWidth() + PADDING) * 2 + NAME_WIDTH + COLUMN_WIDTH * 3);
+
+            types = Arrays.stream(Buildings.Type.values()).filter(Buildings.Type::isProduction).toArray(Buildings.Type[]::new);
+
+            textAreas = new TextArea[types.length];
+            timeLabels = new TextArea[6];
+            checkBoxes = new CheckBox[types.length * 3];
+
+            int y = -5 - window.getEdgeWidth() - PADDING;
+            int height = 0;
+            int columnOffset = window.getEdgeWidth() + PADDING + NAME_WIDTH + (COLUMN_WIDTH - 32) / 2;
+            int shiftOffset = 18;
+
+            timeLabels[0] = new TextArea("3:00",   this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + shiftOffset, y), COLUMN_WIDTH, true);
+            timeLabels[1] = new TextArea("11:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH + shiftOffset, y), COLUMN_WIDTH, true);
+            timeLabels[2] = new TextArea("19:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2 + shiftOffset, y), COLUMN_WIDTH, true);
+
+            y -= (int)FONT.getLineHeight() + PADDING;
+            height += FONT.getLineHeight() + PADDING;
+
+            timeLabels[3] = new TextArea("0:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH, y), COLUMN_WIDTH, true);
+            timeLabels[4] = new TextArea("8:00",  this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH, y), COLUMN_WIDTH, true);
+            timeLabels[5] = new TextArea("16:00", this, Layer.IN_GAME, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2, y), COLUMN_WIDTH, true);
+
+            y -= (int)FONT.getLineHeight() + PADDING;
+            height += FONT.getLineHeight() + PADDING;
+
+            for (int i = 0; i < types.length; i++) {
+                Buildings.Type type = types[i];
+
+                textAreas[i] = new TextArea(
+                        type.name,
+                        this,
+                        Layer.IN_GAME,
+                        new Vector2i(window.getEdgeWidth() + PADDING, y),
+                        NAME_WIDTH,
+                        false
+                );
+
+                for (int j = 0; j < 3; j++) {
+                    int x = columnOffset + COLUMN_WIDTH * j;
+                    if (type.isService())
+                        x += shiftOffset;
+                    checkBoxes[i * 3 + j] = new CheckBox(
+                            this,
+                            Layer.IN_GAME,
+                            new Vector2i(x, y - (int)FONT.getLineHeight()),
+                            type.shifts[j]
+                    );
+                    int shiftIndex = j;
+                    checkBoxes[i * 3 + j].setOnUp((active) -> type.setShiftActivity(shiftIndex, active));
+                }
+                y -= 35;
+                height += FONT.getLineHeight() + 15;
+            }
+
+            height -= 15;
+            height += PADDING * 2;
+            window.setContentHeight(height);
+            window.setLocalPosition(0, -window.getWindowHeight());
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            window.addToUI();
+            for (TextArea timeLabel : timeLabels) {
+                timeLabel.addToUI();
+            }
+            for (TextArea textArea : textAreas) {
+                textArea.addToUI();
+            }
+            for (CheckBox checkBox : checkBoxes) {
+                checkBox.addToUI();
+            }
+        }
+    }
+
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    private @interface AddToUI {
     }
 }

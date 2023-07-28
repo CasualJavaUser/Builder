@@ -143,7 +143,7 @@ public class Textures {
 
         SERVICE, CONSTRUCTION_OFFICE,
         WINDOW, MENU_WINDOW, WIDE_AREA,
-        CLOSE_BUTTON, TEXT_FIELD, WIDE_TEXT_FIELD
+        CLOSE_BUTTON, TEXT_FIELD, WIDE_TEXT_FIELD, CHECK_BOX, CHECK
     }
 
     public enum Resource implements TextureId {
