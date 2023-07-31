@@ -49,15 +49,15 @@ public class ProductionBuilding extends StorageBuilding {
         if (shiftsPerJob != 3) throw new IllegalStateException();
         if (type.isService()) {
             for (int i = 0; i < type.jobs.length; i++) {
-                shifts[i * shiftsPerJob]     = new Shift(type.jobs[i], Job.ShiftTime.THREE_ELEVEN, type.shifts[0] ? type.workersPerShift : 0);
-                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.ELEVEN_SEVEN, type.shifts[1] ? type.workersPerShift : 0);
-                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.SEVEN_THREE,  type.shifts[2] ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob]     = new Shift(type.jobs[i], Job.ShiftTime.THREE_ELEVEN, type.getShiftActivity(0) ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.ELEVEN_SEVEN, type.getShiftActivity(1) ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.SEVEN_THREE,  type.getShiftActivity(2) ? type.workersPerShift : 0);
             }
         } else {
             for (int i = 0; i < type.jobs.length; i++) {
-                shifts[i * shiftsPerJob]     = new Shift(type.jobs[i], Job.ShiftTime.MIDNIGHT_EIGHT,type.shifts[0] ? type.workersPerShift : 0);
-                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.EIGHT_FOUR,    type.shifts[1] ? type.workersPerShift : 0);
-                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.FOUR_MIDNIGHT, type.shifts[2] ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob]     = new Shift(type.jobs[i], Job.ShiftTime.MIDNIGHT_EIGHT,type.getShiftActivity(0) ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 1] = new Shift(type.jobs[i], Job.ShiftTime.EIGHT_FOUR,    type.getShiftActivity(1) ? type.workersPerShift : 0);
+                shifts[i * shiftsPerJob + 2] = new Shift(type.jobs[i], Job.ShiftTime.FOUR_MIDNIGHT, type.getShiftActivity(2) ? type.workersPerShift : 0);
             }
         }
 

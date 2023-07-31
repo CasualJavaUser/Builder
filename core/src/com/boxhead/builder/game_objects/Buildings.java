@@ -153,7 +153,7 @@ public class Buildings {
         public final Function<Set<Building>, Float> updateEfficiency;
         public transient Job mainJob;
 
-        public boolean[] shifts = new boolean[] {false, true, false};
+        private boolean[] shifts = new boolean[] {false, true, false};
 
         static {
             Arrays.fill(HOSPITAL.shifts, true);
@@ -290,11 +290,17 @@ public class Buildings {
             if (!this.isProduction())
                 throw new IllegalStateException();
 
+            shifts[index] = active;
+
             for (Building building : World.getBuildings()) {
                 if (building.type == this) {
                     ((ProductionBuilding) building).setShiftActivity(index, active);
                 }
             }
+        }
+
+        public boolean getShiftActivity(int index) {
+            return shifts[index];
         }
 
         private String defaultName() {

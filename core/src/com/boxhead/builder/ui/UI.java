@@ -920,7 +920,7 @@ public class UI {
                             this,
                             layer,
                             new Vector2i(x, y - (int)FONT.getLineHeight()),
-                            type.shifts[j]
+                            type.getShiftActivity(j)
                     );
 
                     int shiftIndex = j;
