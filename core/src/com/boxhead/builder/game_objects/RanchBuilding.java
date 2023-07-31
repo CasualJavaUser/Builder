@@ -1,6 +1,7 @@
 package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
 public class RanchBuilding extends FarmBuilding<FarmAnimal> {
@@ -10,6 +11,22 @@ public class RanchBuilding extends FarmBuilding<FarmAnimal> {
 
     public Animals.Type getAnimal() {
         return type.farmAnimal;
+    }
+
+    public int getAnimalCount() {
+        return fieldCollider.getArea() / 9;
+    }
+
+    public void spawnAnimals() {
+        for (int i = 0; i < getAnimalCount(); i++) {
+            FarmAnimal animal = new FarmAnimal(
+                    type.farmAnimal,
+                    getFieldCollider().getGridPosition().clone(),
+                    fieldCollider
+            );
+            World.spawnAnimal(animal);
+            addFieldWork(animal);
+        }
     }
 
     @Override

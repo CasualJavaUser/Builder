@@ -15,25 +15,13 @@ import java.util.function.Predicate;
 public class Tiles {
     private static boolean isInPathMode = false;
     private static boolean isInFieldMode = false;
-    //private static int originX = -1, originY = -1;
     private static Vector2i origin = null;
     private static BoxCollider buildingCollider = null;
     private static boolean isRanch;
     private static int minSize = 0, maxSize = 0;
     private static Tile pathTile = null;
-    //private static TilingMode mode;
 
     private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.DIRT;
-
-    /*public enum TilingMode {
-        SINGLE,
-        PATH,
-        AREA
-    }*/
-
-    /*public static TilingMode getMode() {
-        return mode;
-    }*/
 
     public static BoxCollider getBuildingCollider() {
         return buildingCollider;
@@ -46,12 +34,6 @@ public class Tiles {
     public static boolean isInFieldMode() {
         return isInFieldMode;
     }
-
-    /*public static void toTilingMode(TilingMode mode) {
-        Tiles.mode = mode;
-        isInTilingMode = true;
-        isInFieldMode = false;
-    }*/
 
     public static void toPathMode(Tile pathTile) {
         isInPathMode = true;
@@ -71,8 +53,6 @@ public class Tiles {
         Tiles.isRanch = isRanch;
         Tiles.minSize = minSize;
         Tiles.maxSize = maxSize;
-        //originX = buildingCollider.getGridPosition().x;
-        //originY = buildingCollider.getGridPosition().y;
         origin = new Vector2i(
                 buildingCollider.getGridPosition().x,
                 buildingCollider.getGridPosition().y

@@ -104,7 +104,7 @@ public class Buildings {
                 new Recipe(Pair.of(Resource.WOOD, 10)),
                 Jobs.FARMER,
                 3,
-                Animals.Type.COW
+                Animals.Type.PIG
         ),
         PUB(
                 Textures.Building.FUNGUS,
@@ -391,8 +391,8 @@ public class Buildings {
                                     currentBuilding.relativeCollider.getWidth(),
                                     currentBuilding.relativeCollider.getHeight()),
                             currentBuilding.farmAnimal != null,
-                            3,
-                            12);
+                            FarmBuilding.MIN_FIELD_SIZE,
+                            FarmBuilding.MAX_FIELD_SIZE);
                 }
             }
         } else {

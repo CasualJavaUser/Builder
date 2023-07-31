@@ -54,8 +54,8 @@ public class UI {
 
     @AddToUI private static ResourceList resourceList;
 
-    @AddToUI private static BuildingMenu buildingMenu;
     @AddToUI private static ShiftMenu shiftMenu;
+    @AddToUI private static BuildingMenu buildingMenu;
 
     @AddToUI private static Window pauseWindow;
     @AddToUI private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
@@ -488,8 +488,9 @@ public class UI {
     }
 
     public static void onEscape() {
-        if (buildingMenu.isVisible()) {
+        if (buildingMenu.isVisible() || shiftMenu.isVisible()) {
             buildingMenu.setVisible(false);
+            shiftMenu.setVisible(false);
         } else if (!isPaused) {
             if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
                 Buildings.turnOffBuildingMode();

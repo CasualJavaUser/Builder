@@ -274,16 +274,8 @@ public class World {
             }
         }
 
-        if (type.farmAnimal != null) {
-            for (int i = 0; i < 2; i++) {  //TODO hardcoded
-                FarmAnimal animal = new FarmAnimal(
-                        Animals.Type.COW,
-                        ((FarmBuilding<?>) building).getFieldCollider().getGridPosition().clone(),
-                        fieldCollider
-                );
-                World.spawnAnimal(animal);
-                ((RanchBuilding) building).addFieldWork(animal);
-            }
+        if (building instanceof RanchBuilding ranch) {
+            ranch.spawnAnimals();
         }
     }
 

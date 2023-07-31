@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.Optional;
 
 public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuilding {
+    public static final int MIN_FIELD_SIZE = 3, MAX_FIELD_SIZE = 12;
 
     protected BoxCollider fieldCollider;
     protected transient SortedList<T> ownFieldWorks;
@@ -43,14 +44,6 @@ public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuildi
 
     public BoxCollider getFieldCollider() {
         return fieldCollider;
-    }
-
-    public int getFieldWidth() {
-        return fieldCollider.getWidth();
-    }
-
-    public int getFieldHeight() {
-        return fieldCollider.getHeight();
     }
 
     public Vector2i getFieldGridPosition() {

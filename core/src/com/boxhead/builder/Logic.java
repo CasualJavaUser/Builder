@@ -30,7 +30,9 @@ public class Logic {
             }
             for (Animal animal : World.getAnimals()) {
                 animal.wander();
-                animal.incrementAge();
+                if (animal instanceof FarmAnimal) {
+                    ((FarmAnimal) animal).respawn();
+                }
             }
         }
     };

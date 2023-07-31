@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
@@ -7,10 +8,11 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class FarmAnimal extends Animal implements FieldWork {
     private BoxCollider pen;
-
     private Villager assigned = null;
     private boolean worked = false;
     private long harvestDate;
+    private long respawnDate;
+    private boolean dead = false;
     private final int productionInterval = 50;
     private int productionCounter = 0;
     private int amountLeft;
@@ -30,7 +32,7 @@ public class FarmAnimal extends Animal implements FieldWork {
 
     @Override
     public void wander() {
-        if (assigned == null && (path == null || followPath())) {
+        if (!dead && assigned == null && (path == null || followPath())) {
             if (World.getRandom().nextInt(360) == 0) {
                 navigateTo(pen.toVector2iList().get(World.getRandom().nextInt(pen.getArea())));
             }
@@ -73,10 +75,20 @@ public class FarmAnimal extends Animal implements FieldWork {
                 if (amountLeft <= 0) {
                     harvestDate = World.calculateDate(type.growthTime);
                     amountLeft = type.yield;
+                    if (type.slaughtered) {
+                        respawnDate = World.calculateDate(type.growthTime / 3);
+                        dead = true;
+                        gridPosition.set(pen.getGridPosition());
+                    }
                     exit();
                 }
             } else exit();
         }
+    }
+
+    public void respawn() {
+        if (dead && World.getDate() >= respawnDate)
+            dead = false;
     }
 
     protected boolean productionCycle() {
@@ -93,6 +105,12 @@ public class FarmAnimal extends Animal implements FieldWork {
         assigned.getWorkplace().dissociateFieldWork(assigned);
         worked = false;
         assigned = null;
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        if (!dead)
+            super.draw(batch);
     }
 
     @Override

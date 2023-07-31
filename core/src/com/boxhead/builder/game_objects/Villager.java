@@ -19,6 +19,10 @@ public class Villager extends NPC implements Clickable {
     public static final int INVENTORY_SIZE = 10;
 
     private final String name, surname;
+    /**
+     * age in ticks
+     */
+    protected long age = 0;
     private final float[] stats = new float[Stat.values().length];
     private final int skin;
 
@@ -480,6 +484,14 @@ public class Villager extends NPC implements Clickable {
                 "\ninventory: " + inventory;
 
         return s;
+    }
+
+    public void incrementAge() {
+        age++;
+    }
+
+    public long ageInYears() {
+        return age / (World.FULL_DAY / 8);  //TODO temp value
     }
 
     @Serial
