@@ -66,7 +66,7 @@ public class Buildings {
                 new Recipe(Pair.of(Resource.WOOD, 20)),
                 new BoxCollider(0, 0, 4, 2),
                 Jobs.BUILDER,
-                5
+                3
         ),
         TRANSPORT_OFFICE(
                 Textures.Building.CARRIAGE_HOUSE,

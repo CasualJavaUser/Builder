@@ -12,7 +12,6 @@ import com.boxhead.builder.utils.Range;
 public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected T pinnedObject = null;
     protected boolean pinned;
-    protected static final int verticalPadding = 10, leftPadding = 10, rightPadding = 25;
     protected String stats = "";
 
     public StatWindow(UI.Layer layer) {
@@ -40,12 +39,12 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected abstract void updateStats();
 
     protected void updateWindowSize() {
-        setContentHeight(2*verticalPadding);
+        setContentHeight(2* UI.PADDING);
         for(char c : stats.toCharArray()) {
             if (c == '\n') setContentHeight(getContentHeight() + (int)UI.FONT.getXHeight() + 10);
         }
 
-        setContentWidth((int)(getLongestLineLength(stats) * UI.FONT.getSpaceXadvance() + leftPadding + rightPadding));
+        setContentWidth((int)(getLongestLineLength(stats) * UI.FONT.getSpaceXadvance() + UI.PADDING + UI.PADDING));
     }
 
     protected void updatePosition() {

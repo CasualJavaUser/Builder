@@ -48,14 +48,14 @@ carriage
   index: -1
 check
   rotate: false
-  xy: 1188, 155
+  xy: 1156, 155
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 check_box
   rotate: false
-  xy: 1220, 155
+  xy: 1188, 155
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -69,9 +69,9 @@ clock_face
   index: -1
 close_button
   rotate: false
-  xy: 1060, 155
-  size: 32, 32
-  orig: 32, 32
+  xy: 480, 139
+  size: 32, 16
+  orig: 32, 16
   offset: 0, 0
   index: -1
 construction_office
@@ -139,7 +139,7 @@ house
   index: -1
 housing_tab
   rotate: false
-  xy: 1092, 150
+  xy: 1060, 150
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
@@ -195,7 +195,7 @@ npc
   index: -1
 pause
   rotate: false
-  xy: 510, 139
+  xy: 542, 139
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
@@ -223,14 +223,14 @@ pickaxe_with_stone
   index: -1
 play
   rotate: false
-  xy: 480, 139
+  xy: 512, 139
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 resources_tab
   rotate: false
-  xy: 1156, 150
+  xy: 1124, 150
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
@@ -265,9 +265,16 @@ service
   index: -1
 services_tab
   rotate: false
-  xy: 1124, 150
+  xy: 1092, 150
   size: 32, 37
   orig: 32, 37
+  offset: 0, 0
+  index: -1
+shift_divider
+  rotate: false
+  xy: 912, 150
+  size: 3, 16
+  orig: 3, 16
   offset: 0, 0
   index: -1
 small_button
@@ -328,14 +335,14 @@ work
   index: -1
 x2speed
   rotate: false
-  xy: 1252, 171
+  xy: 1220, 171
   size: 30, 16
   orig: 30, 16
   offset: 0, 0
   index: -1
 x3speed
   rotate: false
-  xy: 1252, 155
+  xy: 1220, 155
   size: 30, 16
   orig: 30, 16
   offset: 0, 0

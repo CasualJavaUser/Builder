@@ -860,7 +860,10 @@ public class UI {
             window = new Window(Textures.get(Textures.Ui.WINDOW), this, layer, Vector2i.zero(), true);
             window.setContentWidth((window.getEdgeWidth() + PADDING) * 2 + NAME_WIDTH + COLUMN_WIDTH * 3);
 
-            types = Arrays.stream(Buildings.Type.values()).filter(Buildings.Type::isProduction).toArray(Buildings.Type[]::new);
+            types = Arrays.stream(Buildings.Type.values())
+                    .filter(Buildings.Type::isProduction)
+                    .sorted(Comparator.comparing(t -> t.name))
+                    .toArray(Buildings.Type[]::new);
 
             textAreas = new TextArea[types.length];
             timeLabels = new TextArea[6];

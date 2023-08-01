@@ -225,10 +225,6 @@ public class ProductionBuilding extends StorageBuilding {
         }
     }
 
-    public boolean isShiftEnabled(int index) {
-        return shifts[index].maxEmployees > 0;
-    }
-
     public static class Shift {
         Job job;
         Job.ShiftTime shiftTime;
@@ -240,6 +236,14 @@ public class ProductionBuilding extends StorageBuilding {
             this.shiftTime = shiftTime;
             this.maxEmployees = maxEmployees;
             employees = new HashSet<>(maxEmployees);
+        }
+
+        public Set<Villager> getEmployees() {
+            return employees;
+        }
+
+        public int getMaxEmployees() {
+            return maxEmployees;
         }
     }
 
@@ -257,6 +261,13 @@ public class ProductionBuilding extends StorageBuilding {
                 return shift;
         }
         return null;
+    }
+
+    public Shift getShift(int index) {
+        if (index >= shifts.length)
+            throw new IllegalStateException();
+
+        return shifts[index];
     }
 
     public float getEfficiency() {

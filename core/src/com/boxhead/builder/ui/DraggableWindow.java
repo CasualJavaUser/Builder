@@ -60,11 +60,35 @@ public class DraggableWindow extends Window implements Clickable {
     }
 
     @Override
-    public void draw(SpriteBatch batch) {
-        int closeButtonX = getWindowWidth() - closeButton.getTexture().getRegionWidth();
-        int closeButtonY = getWindowHeight() - closeButton.getTexture().getRegionHeight();
-        closeButton.setLocalPosition(closeButtonX, closeButtonY);
-        super.draw(batch);
+    public void setWindowWidth(int width) {
+        super.setWindowWidth(width);
+        closeButton.setLocalPosition(
+                getWindowWidth() - 40,
+                closeButton.getLocalPosition().y);
+    }
+
+    @Override
+    public void setWindowHeight(int height) {
+        super.setWindowHeight(height);
+        closeButton.setLocalPosition(
+                closeButton.getLocalPosition().x,
+                getWindowHeight() - 4);
+    }
+
+    @Override
+    public void setContentWidth(int width) {
+        super.setContentWidth(width);
+        closeButton.setLocalPosition(
+                getWindowWidth() - 40,
+                closeButton.getLocalPosition().y);
+    }
+
+    @Override
+    public void setContentHeight(int height) {
+        super.setContentHeight(height);
+        closeButton.setLocalPosition(
+                closeButton.getLocalPosition().x,
+                getWindowHeight() - 4);
     }
 
     @Override

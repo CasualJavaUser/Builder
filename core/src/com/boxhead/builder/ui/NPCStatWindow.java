@@ -6,7 +6,6 @@ import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Villager;
 
 public class NPCStatWindow extends StatWindow<Villager> {
-    private String job = null, name = null;
     private final int IMAGE_SCALE = 4;
 
     public NPCStatWindow(UI.Layer layer) {
@@ -18,12 +17,12 @@ public class NPCStatWindow extends StatWindow<Villager> {
         super.draw(batch);
 
         batch.draw(pinnedObject.getTexture(),
-                getGlobalPosition().x + leftPadding,
+                getGlobalPosition().x + UI.PADDING,
                 getGlobalPosition().y + getContentHeight() - Villager.TEXTURE_SIZE * IMAGE_SCALE,
                 Villager.TEXTURE_SIZE * IMAGE_SCALE,
                 Villager.TEXTURE_SIZE * IMAGE_SCALE);
-        UI.FONT.draw(batch, stats, getGlobalPosition().x + leftPadding,
-                getGlobalPosition().y + getContentHeight() - verticalPadding * 2 - Villager.TEXTURE_SIZE * IMAGE_SCALE);
+        UI.FONT.draw(batch, stats, getGlobalPosition().x + UI.PADDING,
+                getGlobalPosition().y + getContentHeight() - UI.PADDING * 2 - Villager.TEXTURE_SIZE * IMAGE_SCALE);
     }
 
     @Override
@@ -34,8 +33,8 @@ public class NPCStatWindow extends StatWindow<Villager> {
 
     @Override
     protected void updateStats() {
-        name = pinnedObject.getName() + " " + pinnedObject.getSurname();
-        job = pinnedObject.getJob().toString();
+        String name = pinnedObject.getName() + " " + pinnedObject.getSurname();
+        String job = pinnedObject.getJob().toString();
 
         stats = "";
 
@@ -55,6 +54,6 @@ public class NPCStatWindow extends StatWindow<Villager> {
     @Override
     protected void updateWindowSize() {
         super.updateWindowSize();
-        setContentHeight(getContentHeight() + verticalPadding + Villager.TEXTURE_SIZE * IMAGE_SCALE + 20);
+        setContentHeight(getContentHeight() + UI.PADDING + Villager.TEXTURE_SIZE * IMAGE_SCALE + 20);
     }
 }
