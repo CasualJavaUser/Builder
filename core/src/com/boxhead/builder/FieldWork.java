@@ -27,8 +27,7 @@ public interface FieldWork extends WorldObject, Serializable {
         return World.getFieldWorks().stream()
                 .filter(fw -> fw.getCharacteristic().equals(characteristic))
                 .filter(FieldWork::isFree)
-                .min(Comparator.comparingInt(harvestable -> harvestable.getGridPosition().distanceScore(gridPosition)))
-                .map(FieldWork.class::cast);
+                .min(Comparator.comparingInt(fieldWork -> fieldWork.getGridPosition().distanceScore(gridPosition)));
     }
 
     static Optional<FieldWork> findFieldWorkInRange(Object characteristic, Vector2i gridPosition, int range) {

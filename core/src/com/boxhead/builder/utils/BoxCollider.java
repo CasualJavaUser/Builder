@@ -39,6 +39,16 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
                 gridPosition.y >= lowerLeftCorner.y && gridPosition.y < lowerLeftCorner.y + height;
     }
 
+    public boolean overlaps(BoxCollider other) {
+        int thisRight = lowerLeftCorner.x + width;
+        int thisTop = lowerLeftCorner.y + height;
+        int otherRight = other.lowerLeftCorner.x + other.width;
+        int otherTop = other.lowerLeftCorner.y + other.height;
+
+        return lowerLeftCorner.x < otherRight && thisRight > other.lowerLeftCorner.x
+                && thisTop > other.lowerLeftCorner.y && lowerLeftCorner.y < otherTop;
+    }
+
     public double distance(Vector2i gridPosition) {
         if (overlaps(gridPosition)) return 0d;
 

@@ -49,9 +49,15 @@ public class Buildings {
                 new Vector2i(1, -1),
                 new Recipe(Pair.of(Resource.WOOD, 40),
                         Pair.of(Resource.STONE, 20)),
-                300,
+                Jobs.MINER,
                 2,
-                Jobs.MINER
+                300,
+                10,
+                (buildingsInRange) -> {
+                    float efficiency = 1f - buildingsInRange.size() / 3f;
+                    if (efficiency < 0) efficiency = 0;
+                    return efficiency;
+                }
         ),
         STORAGE_BARN(
                 Textures.Building.STORAGE_BARN,
@@ -230,6 +236,10 @@ public class Buildings {
             this(texture, name, entrancePosition, buildCost, jobs, null, 0, null, null, 0, 0, workersPerShift, productionInterval, 0, null);
         }
 
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int workersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
+            this(texture, name, entrancePosition, buildCost, new Job[]{job}, null, 0, null, null, 0, 0, workersPerShift, productionInterval, range, updateEfficiency);
+        }
+
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int workersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
             this(texture, name, entrancePosition, relativeCollider, buildCost, new Job[]{job}, null, 0, null, null, 0, 0, workersPerShift, productionInterval, range, updateEfficiency);
         }
@@ -379,7 +389,11 @@ public class Buildings {
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isBuildable) {
                 if (!currentBuilding.isFarm()) {
                     Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-                    World.placeFieldWork(new ConstructionSite(currentBuilding, buildingPosition, 100));
+                    ConstructionSite constructionSite = new ConstructionSite(currentBuilding, buildingPosition, 100);
+                    World.removeFieldWorks(constructionSite.getCollider());
+                    World.removeFieldWorks(new BoxCollider(constructionSite.getEntrancePosition(), 1, 1));
+                    World.placeFieldWork(constructionSite);
+                    World.makeBuilt(constructionSite.getCollider());
 
                     if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
                         isInBuildingMode = false;
@@ -404,11 +418,17 @@ public class Buildings {
             );
             BoxCollider fieldCollider = Tiles.handleFieldMode(batch);
             if (fieldCollider != null) {
-                World.placeFieldWork(new ConstructionSite(
+                ConstructionSite constructionSite = new ConstructionSite(
                         currentBuilding,
                         Tiles.getBuildingCollider().getGridPosition().clone(),
                         100,
-                        fieldCollider));
+                        fieldCollider);
+                World.removeFieldWorks(constructionSite);
+                World.removeFieldWorks(fieldCollider);
+                World.removeFieldWorks(new BoxCollider(constructionSite.getEntrancePosition(), 1, 1));
+                World.placeFieldWork(constructionSite);
+                World.makeBuilt(constructionSite.getCollider());
+                World.makeBuilt(fieldCollider);
 
                 Tiles.turnOffFieldMode();
                 if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))

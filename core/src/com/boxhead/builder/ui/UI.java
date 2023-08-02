@@ -263,12 +263,10 @@ public class UI {
             });
 
             workButton.setOnUp(() -> {
-                World.setDay(World.getDay()+1);
-                World.setTime(28770);
+                World.advanceTime(28770);
             });
             restButton.setOnUp(() -> {
-                World.setDay(World.getDay()+1);
-                World.setTime(57570);
+                World.advanceTime(57570);
             });
             demolishButton.setOnUp(() -> {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();

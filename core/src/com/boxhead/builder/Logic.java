@@ -4,6 +4,8 @@ import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.utils.Pathfinding;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 
 public class Logic {
@@ -14,11 +16,21 @@ public class Logic {
     private static boolean isPaused = false;
     private static float tickSpeed = NORMAL_SPEED;
 
+    /**
+     * All the ShiftTimes ordered by their start times (which needs not be the case for ShiftTime.values()).
+     */
+    private static final Job.ShiftTime[] orderedShifts = Arrays.stream(Job.ShiftTime.values()).sorted(Comparator.comparingInt(shift -> shift.start)).toArray(Job.ShiftTime[]::new);
+    private static int nextShift = 0;
+
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
-            World.incrementTime();
-            dailyCycle();
+            if (World.getTime() == orderedShifts[nextShift].start) {
+                int wrappingIndex = (nextShift + orderedShifts.length - 2) % orderedShifts.length;
+                startWorkday(orderedShifts[nextShift]);
+                endWorkday(orderedShifts[wrappingIndex]);
+                nextShift = (nextShift + 1) % orderedShifts.length;
+            }
             while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first <= World.getDate()) {
                 Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
@@ -34,6 +46,7 @@ public class Logic {
                     ((FarmAnimal) animal).respawn();
                 }
             }
+            World.incrementTime();
         }
     };
 
@@ -49,34 +62,6 @@ public class Logic {
         }
     };
 
-    private static void dailyCycle() {
-        switch (World.getTime()) {  //todo make it not-hardcoded
-            case 10800:
-                endWorkday(Job.ShiftTime.SEVEN_THREE);
-                startWorkday(Job.ShiftTime.THREE_ELEVEN);
-                break;
-            case 28800:
-                endWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
-                startWorkday(Job.ShiftTime.EIGHT_FOUR);
-                break;
-            case 39600:
-                startWorkday(Job.ShiftTime.ELEVEN_SEVEN);
-                break;
-            case 57600:
-                endWorkday(Job.ShiftTime.EIGHT_FOUR);
-                startWorkday(Job.ShiftTime.FOUR_MIDNIGHT);
-                break;
-            case 68400:
-                endWorkday(Job.ShiftTime.ELEVEN_SEVEN);
-                startWorkday(Job.ShiftTime.SEVEN_THREE);
-                break;
-            case 0:
-                endWorkday(Job.ShiftTime.FOUR_MIDNIGHT);
-                startWorkday(Job.ShiftTime.MIDNIGHT_EIGHT);
-                Pathfinding.removeUnusedPaths();
-        }
-    }
-
     private static void startWorkday(Job.ShiftTime shift) {
         for (Building building : World.getBuildings()) {
             if (building instanceof ProductionBuilding workplace) {
@@ -90,6 +75,16 @@ public class Logic {
             if (building instanceof ProductionBuilding workplace) {
                 workplace.endShift(shift);
             }
+        }
+    }
+
+    public static void alignShifts() {
+        while (!(World.getTime() > orderedShifts[(nextShift + orderedShifts.length - 1) % orderedShifts.length].start
+                && World.getTime() < orderedShifts[nextShift].start)) {
+            int wrappingIndex = (nextShift + orderedShifts.length - 2) % orderedShifts.length;
+            startWorkday(orderedShifts[nextShift]);
+            endWorkday(orderedShifts[wrappingIndex]);
+            nextShift = (nextShift + 1) % orderedShifts.length;
         }
     }
 
