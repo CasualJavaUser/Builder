@@ -387,8 +387,9 @@ public class Buildings {
                 if (!currentBuilding.isFarm()) {
                     Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
                     ConstructionSite constructionSite = new ConstructionSite(currentBuilding, buildingPosition, 100);
+                    Harvestable onEntrance = World.findHarvestables(constructionSite.getEntrancePosition());
+                    if (onEntrance != null) World.removeFieldWorks(onEntrance);
                     World.removeFieldWorks(constructionSite.getCollider());
-                    World.removeFieldWorks(new BoxCollider(constructionSite.getEntrancePosition(), 1, 1));
                     World.placeFieldWork(constructionSite);
                     World.makeBuilt(constructionSite.getCollider());
 

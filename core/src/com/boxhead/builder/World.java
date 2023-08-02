@@ -336,17 +336,9 @@ public class World {
     }
 
     public static void removeFieldWorks(BoxCollider area) {
-        int rightBoundary = area.getGridPosition().x + area.getWidth() - 1;
-        for (int y = area.getGridPosition().y + area.getHeight() - 1; y >= area.getGridPosition().y; y--) {
-            int i = objectsSumUpToLine[y] - 1;
-            Vector2i objectPosition = gameObjects.get(i).getGridPosition();
-            while (objectPosition.y == y && objectPosition.x <= rightBoundary) {
-                if (gameObjects.get(i) instanceof FieldWork fieldWork && area.overlaps(fieldWork.getCollider())) {
-                    removeFieldWorks(fieldWork);
-                }
-                i--;
-                objectPosition = gameObjects.get(i).getGridPosition();
-            }
+        List<Harvestable> list = findHarvestables(area);
+        for (Harvestable harvestable : list) {
+            removeFieldWorks(harvestable);
         }
     }
 
@@ -362,6 +354,40 @@ public class World {
         for (int y = gameObject.getGridPosition().y; y >= 0; y--) {
             objectsSumUpToLine[y]--;
         }
+    }
+
+    public static Harvestable findHarvestables(Vector2i gridPosition) { //todo binary-search-ise
+        int i = objectsSumUpToLine[gridPosition.y] - 1;
+        GameObject gameObject = gameObjects.get(i);
+        Vector2i objectPosition = gameObject.getGridPosition();
+
+        while (objectPosition.y == gridPosition.y && objectPosition.x <= gridPosition.x) {
+            if (gameObject.getGridPosition().x == gridPosition.x && gameObject instanceof Harvestable harvestable) {
+                return harvestable;
+            }
+            i--;
+            gameObject = gameObjects.get(i);
+            objectPosition = gameObject.getGridPosition();
+        }
+        return null;
+    }
+
+    public static List<Harvestable> findHarvestables(BoxCollider area) {
+        List<Harvestable> list = new ArrayList<>();
+        int rightBoundary = area.getGridPosition().x + area.getWidth() - 1;
+
+        for (int y = area.getGridPosition().y + area.getHeight() - 1; y >= area.getGridPosition().y; y--) {
+            int i = objectsSumUpToLine[y] - 1;
+            Vector2i objectPosition = gameObjects.get(i).getGridPosition();
+            while (objectPosition.y == y && objectPosition.x <= rightBoundary) {
+                if (gameObjects.get(i) instanceof Harvestable harvestable && area.overlaps(harvestable.getCollider())) {
+                    list.add(harvestable);
+                }
+                i--;
+                objectPosition = gameObjects.get(i).getGridPosition();
+            }
+        }
+        return list;
     }
 
     public static void spawnVillager(Villager villager) {
