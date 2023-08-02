@@ -39,9 +39,9 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
     protected abstract void updateStats();
 
     protected void updateWindowSize() {
-        setContentHeight(2* UI.PADDING);
+        setContentHeight(2 * UI.PADDING);
         for(char c : stats.toCharArray()) {
-            if (c == '\n') setContentHeight(getContentHeight() + (int)UI.FONT.getXHeight() + 10);
+            if (c == '\n') setContentHeight(getContentHeight() + (int)UI.FONT.getLineHeight());
         }
 
         setContentWidth((int)(getLongestLineLength(stats) * UI.FONT.getSpaceXadvance() + UI.PADDING + UI.PADDING));

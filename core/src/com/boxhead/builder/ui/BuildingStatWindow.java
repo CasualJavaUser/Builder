@@ -5,13 +5,60 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.utils.Vector2i;
 
 public class BuildingStatWindow extends StatWindow<Building> {
     private int counterWidth = 0;
-    String warning = "";
+    private String warning = "";
+    private Button left, right;
+    private TextArea npcCount;
 
     public BuildingStatWindow(UI.Layer layer) {
         super(layer);
+        left = new Button(
+                Textures.get(Textures.Ui.LEFT_ARROW),
+                this,
+                layer,
+                new Vector2i(getEdgeWidth(), Villager.TEXTURE_SIZE + UI.PADDING * 2)
+        );
+        right = new Button(
+                Textures.get(Textures.Ui.RIGHT_ARROW),
+                this,
+                layer,
+                new Vector2i(getEdgeWidth() + 32, Villager.TEXTURE_SIZE + UI.PADDING * 2)
+        );
+        npcCount = new TextArea(
+                "",
+                this,
+                layer,
+                new Vector2i(getEdgeWidth() + 16, Villager.TEXTURE_SIZE + UI.PADDING * 2 + 14),
+                16,
+                TextArea.Align.CENTER
+        );
+
+        left.setOnUp(() -> {
+            if (pinnedObject instanceof ProductionBuilding building) {
+                if (building.getShiftCapacityForJob(0) > 1) {
+                    building.setWorkersPerShift(0, building.getShiftCapacityForJob(0) - 1);
+                    npcCount.setText(building.getShiftCapacityForJob(0) + "");
+                }
+            }
+            else {
+                throw new IllegalStateException();
+            }
+        });
+
+        right.setOnUp(() -> {
+            if (pinnedObject instanceof ProductionBuilding building) {
+                if (building.getShiftCapacityForJob(0) < building.getType().maxWorkersPerShift) {
+                    building.setWorkersPerShift(0, building.getShiftCapacityForJob(0) + 1);
+                    npcCount.setText(building.getShiftCapacityForJob(0) + "");
+                }
+            }
+            else {
+                throw new IllegalStateException();
+            }
+        });
     }
 
     @Override
@@ -33,6 +80,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
     @Override
     protected void updateStats() {
         stats = pinnedObject.getName();
+        left.setVisible(false);
+        right.setVisible(false);
+        npcCount.setVisible(false);
 
         if (Debug.isOpen()) {
             stats += "\nID: " + pinnedObject.getId();
@@ -43,6 +93,10 @@ public class BuildingStatWindow extends StatWindow<Building> {
         }
         else if (pinnedObject instanceof ProductionBuilding building) {
             Job job = building.getJob();
+            left.setVisible(true);
+            right.setVisible(true);
+            npcCount.setVisible(true);
+            npcCount.setText(building.getShiftCapacityForJob(0) + "");
 
             if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
             else if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
@@ -97,6 +151,10 @@ public class BuildingStatWindow extends StatWindow<Building> {
             setContentHeight(getContentHeight() + Villager.TEXTURE_SIZE + UI.PADDING);
             if(getContentWidth() < counterWidth)
                 setContentWidth(counterWidth);
+
+            if (pinnedObject instanceof ProductionBuilding) {
+                setContentHeight(getContentHeight() + UI.PADDING + 16);
+            }
         }
     }
 
@@ -161,5 +219,13 @@ public class BuildingStatWindow extends StatWindow<Building> {
             x += Villager.TEXTURE_SIZE + 5;
         }
         batch.setColor(UI.DEFAULT_COLOR);
+    }
+
+    @Override
+    public void addToUI() {
+        super.addToUI();
+        left.addToUI();
+        right.addToUI();
+        npcCount.addToUI();
     }
 }
