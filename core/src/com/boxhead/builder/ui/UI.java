@@ -33,6 +33,7 @@ public class UI {
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color SEMI_TRANSPARENT_RED = new Color(.86f, .25f, .25f, .4f);
+    public static final Color SEMI_TRANSPARENT_YELLOW = new Color(.86f, .86f, .25f, .4f);
     public static final Color SEMI_TRANSPARENT_GREEN = new Color(.25f, .86f, .25f, .4f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
     public static final Color VERY_TRANSPARENT = new Color(1, 1, 1, .2f);
@@ -54,6 +55,9 @@ public class UI {
 
     @AddToUI private static ResourceList resourceList;
 
+    @AddToUI private static NPCStatWindow npcStatWindow;
+    @AddToUI private static BuildingStatWindow buildingStatWindow;
+
     @AddToUI private static ShiftMenu shiftMenu;
     @AddToUI private static BuildingMenu buildingMenu;
 
@@ -68,9 +72,6 @@ public class UI {
     @AddToUI private static Window settingsWindow;
     @AddToUI private static TextArea settingsText;
     @AddToUI private static Button settingsWindowBackButton;
-
-    @AddToUI private static NPCStatWindow npcStatWindow;
-    @AddToUI private static BuildingStatWindow buildingStatWindow;
 
     public static final int PADDING = 10;
     private static boolean isPaused = false;

@@ -484,12 +484,19 @@ public class Buildings {
         boolean isBuildable = true;
         for (int y = 0; y < currentBuilding.relativeCollider.getHeight(); y++) {
             for (int x = 0; x < currentBuilding.relativeCollider.getWidth(); x++) {
-                if (World.isBuildable(new Vector2i(posX / World.TILE_SIZE + x, posY / World.TILE_SIZE + y)))
+                Vector2i tile = new Vector2i(posX / World.TILE_SIZE + x, posY / World.TILE_SIZE + y);
+
+                if (World.findHarvestables(tile) != null) {
+                    batch.setColor(UI.SEMI_TRANSPARENT_YELLOW);
+                }
+                else if (World.isBuildable(tile)) {
                     batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
+                }
                 else {
                     batch.setColor(UI.SEMI_TRANSPARENT_RED);
                     isBuildable = false;
                 }
+
                 batch.draw(Textures.get(Textures.Tile.DEFAULT), posX + x * World.TILE_SIZE, posY + y * World.TILE_SIZE);
             }
         }

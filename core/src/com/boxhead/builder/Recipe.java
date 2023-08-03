@@ -3,10 +3,11 @@ package com.boxhead.builder;
 import com.boxhead.builder.utils.Pair;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class Recipe {
+public class Recipe implements Iterable<Map.Entry<Resource, Integer>> {
     private final Map<Resource, Integer> changes;
 
     @SafeVarargs
@@ -63,5 +64,10 @@ public class Recipe {
         }
         s = s.substring(0, s.length()-1);
         return s;
+    }
+
+    @Override
+    public Iterator<Map.Entry<Resource, Integer>> iterator() {
+        return changes.entrySet().iterator();
     }
 }

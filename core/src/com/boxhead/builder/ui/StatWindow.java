@@ -44,7 +44,7 @@ public abstract class StatWindow<T extends GameObject> extends DraggableWindow {
             if (c == '\n') setContentHeight(getContentHeight() + (int)UI.FONT.getLineHeight());
         }
 
-        setContentWidth((int)(getLongestLineLength(stats) * UI.FONT.getSpaceXadvance() + UI.PADDING + UI.PADDING));
+        setContentWidth((int)(getLongestLineLength(stats) * 10.5f));
     }
 
     protected void updatePosition() {

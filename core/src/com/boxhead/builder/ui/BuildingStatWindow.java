@@ -7,6 +7,8 @@ import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.*;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.Map;
+
 public class BuildingStatWindow extends StatWindow<Building> {
     private int counterWidth = 0;
     private String warning = "";
@@ -83,14 +85,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
         left.setVisible(false);
         right.setVisible(false);
         npcCount.setVisible(false);
+        warning = "";
 
         if (Debug.isOpen()) {
             stats += "\nID: " + pinnedObject.getId();
         }
 
-        if (pinnedObject instanceof ResidentialBuilding) {
-            warning = "";
-        }
         else if (pinnedObject instanceof ProductionBuilding building) {
             Job job = building.getJob();
             left.setVisible(true);
@@ -100,7 +100,6 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
             if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
             else if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
-            else warning = "";
 
             if (building.getEfficiency() != 1) stats += "\nefficiency: " + String.format("%.2f", building.getEfficiency());
             stats += "\njob quality: " + building.getJobQuality();
@@ -115,8 +114,14 @@ public class BuildingStatWindow extends StatWindow<Building> {
                         building.getInventory().getResourceAmount(resource));
             }
         }
+        else if (pinnedObject instanceof ConstructionSite construction) {
+            stats += "\n" + construction.getInventory().getDisplayedAmount() + " / " + construction.getInventory().getMaxCapacity();
+            for (Map.Entry<Resource, Integer> entry : construction.getType().buildCost) {
+                stats = stats.concat("\n" + entry.getKey().toString().toLowerCase() + ": " +
+                        construction.getInventory().getResourceAmount(entry.getKey()) + " / " + entry.getValue());
+            }
+        }
         else if (pinnedObject instanceof StorageBuilding building) {
-            warning = "";
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : building.getInventory().getStoredResources()) {
                 if (resource != Resource.NOTHING) {
@@ -211,6 +216,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
                     getGlobalPosition().y + UI.PADDING);
             x += Villager.TEXTURE_SIZE + 5;
         }
+
         batch.setColor(Color.BLACK);
         for (int i = 0; i < building.getResidentCapacity() - building.getResidents().size(); i++) {
             batch.draw(Textures.get(Textures.Npc.IDLE0),
@@ -219,6 +225,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
             x += Villager.TEXTURE_SIZE + 5;
         }
         batch.setColor(UI.DEFAULT_COLOR);
+
+        counterWidth = x;
     }
 
     @Override
