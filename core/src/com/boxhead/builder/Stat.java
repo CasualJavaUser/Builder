@@ -15,10 +15,7 @@ public enum Stat {
             villager -> {
                 if (villager.getHome() != null) {
                     if (villager.isClockedIn()) {
-                        if (villager.getWorkplace() != null)
-                            villager.getWorkplace().endShift(villager);
-                        else
-                            villager.getSchool().endStudentShift(villager);
+                        villager.endShift();
                     }
                     villager.giveOrder(GO_TO, villager.getHome());
                 }
@@ -54,7 +51,7 @@ public enum Stat {
         if (serviceBuilding == null) return;
 
         if (villager.isClockedIn()) {
-            villager.getWorkplace().endShift(villager);
+            villager.endShift();
         }
         serviceBuilding.reserve();
         villager.giveOrder(serviceBuilding);

@@ -62,29 +62,6 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
-    public boolean seekJob() {
-        Optional<ProductionBuilding> bestJobOptional = World.getBuildings().stream()
-                .filter(building -> building instanceof ProductionBuilding)
-                .map(building -> (ProductionBuilding) building)
-                .filter(ProductionBuilding::isHiring)
-                .max(Comparator.comparing(ProductionBuilding::getJobQuality));
-
-        if (bestJobOptional.isPresent()) {
-            final ProductionBuilding bestJob = bestJobOptional.get();
-
-            if (workplace == null) {
-                bestJob.addEmployee(this);
-                workplace = bestJob;
-            } else if (bestJob.getJobQuality() > workplace.getJobQuality()) {
-                workplace.removeEmployee(this);
-                bestJob.addEmployee(this);
-                workplace = bestJob;
-            }
-            return true;
-        }
-        return false;
-    }
-
     public void seekHouse() {
         Optional<ResidentialBuilding> bestHouseOptional = World.getBuildings().stream()
                 .filter(building -> building instanceof ResidentialBuilding)
@@ -107,12 +84,41 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
-    public boolean seekSchool() {
+    private boolean seekJob() {
+        Optional<ProductionBuilding> bestJobOptional = World.getBuildings().stream()
+                .filter(building -> building instanceof ProductionBuilding)
+                .map(building -> (ProductionBuilding) building)
+                .filter(ProductionBuilding::isHiring)
+                .max(Comparator.comparing(ProductionBuilding::getJobQuality));
+
+        if (bestJobOptional.isPresent()) {
+            final ProductionBuilding bestJob = bestJobOptional.get();
+
+            if (workplace == null) {
+                bestJob.addEmployee(this);
+                workplace = bestJob;
+            } else if (bestJob.getJobQuality() > workplace.getJobQuality()) {
+                workplace.removeEmployee(this);
+                bestJob.addEmployee(this);
+                workplace = bestJob;
+            }
+
+            if (school != null) {
+                school.endStudentShift(this);
+                school.removeStudent(this);
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    private boolean seekSchool() {
         Optional<SchoolBuilding> bestSchoolOptional = World.getBuildings().stream()
                 .filter(building -> building instanceof SchoolBuilding)
                 .map(building -> (SchoolBuilding) building)
                 .filter(SchoolBuilding::isRecruiting)
-                .max(Comparator.comparing(SchoolBuilding::getEfficiency));
+                .max(Comparator.comparing(school -> school.getEmployees().size()));
 
         if (bestSchoolOptional.isPresent()) {
             final SchoolBuilding bestSchool = bestSchoolOptional.get();
@@ -120,18 +126,34 @@ public class Villager extends NPC implements Clickable {
             if (school == null) {
                 bestSchool.addStudent(this);
                 school = bestSchool;
-            } else if (bestSchool.getEfficiency() > school.getEfficiency()) {
+            } else if (bestSchool.getEmployees().size() > school.getEmployees().size()) {
                 school.removeStudent(this);
                 bestSchool.addStudent(this);
                 school = bestSchool;
             }
+
+            if (workplace != null) {
+                workplace.endShift(this);
+                workplace.removeEmployee(this);
+            }
+
             return true;
         }
         return false;
     }
 
+    public void seekJobOrSchool() {
+        if (isEducationPreferable()) {
+            if (!seekSchool())
+                seekJob();
+        } else {
+            if (!seekJob())
+                seekSchool();
+        }
+    }
+
     public boolean isEducationPreferable() {
-        return education < 1f;  //TODO education preferableness algorithm
+        return education < 1f;  //TODO education preferability algorithm
     }
 
     public ServiceBuilding seekNearestService(Service service) {
@@ -167,6 +189,17 @@ public class Villager extends NPC implements Clickable {
 
     public float getEducation() {
         return education;
+    }
+
+    public void endShift() {
+        if (workplace != null)
+            workplace.endShift(this);
+        else if (school != null)
+            school.endStudentShift(this);
+    }
+
+    public boolean hasJob() {
+        return workplace != null || school != null;
     }
 
     @Override
@@ -450,12 +483,27 @@ public class Villager extends NPC implements Clickable {
         workplace = null;
     }
 
+    public void quitSchool() {
+        if (buildingIsIn == school || destinationBuilding == school) {
+            school.endStudentShift(this);
+        }
+        school = null;
+    }
+
     public ProductionBuilding getWorkplace() {
         return workplace;
     }
 
     public SchoolBuilding getSchool() {
         return school;
+    }
+
+    public boolean hasWorkplace() {
+        return workplace != null;
+    }
+
+    public boolean hasSchool() {
+        return school != null;
     }
 
     public String getName() {
@@ -525,6 +573,7 @@ public class Villager extends NPC implements Clickable {
         s += "\neducation: " + education +
                 "\norder list size: " + orderList.size() +
                 "\nclocked in: " + clockedIn +
+                "\nis education preferable: " + isEducationPreferable() +
                 "\nhome: " + homeType +
                 "\nworkplace: " + workplaceType +
                 "\nis in building: " + isInBuilding() +

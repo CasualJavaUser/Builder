@@ -2,7 +2,6 @@ package com.boxhead.builder;
 
 import com.badlogic.gdx.utils.Timer;
 import com.boxhead.builder.game_objects.*;
-import com.boxhead.builder.utils.Pathfinding;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -21,31 +20,46 @@ public class Logic {
      */
     private static final Job.ShiftTime[] orderedShifts = Arrays.stream(Job.ShiftTime.values()).sorted(Comparator.comparingInt(shift -> shift.start)).toArray(Job.ShiftTime[]::new);
     private static int nextShift = 0;
+    private static int currentShift = 0;
 
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
             if (World.getTime() == orderedShifts[nextShift].start) {
-                int wrappingIndex = (nextShift + orderedShifts.length - 2) % orderedShifts.length;
+                currentShift = (nextShift + orderedShifts.length - 2) % orderedShifts.length;
                 startWorkday(orderedShifts[nextShift]);
-                endWorkday(orderedShifts[wrappingIndex]);
+                endWorkday(orderedShifts[currentShift]);
                 nextShift = (nextShift + 1) % orderedShifts.length;
             }
             while (!Harvestable.timeTriggers.isEmpty() && Harvestable.timeTriggers.get(0).first <= World.getDate()) {
                 Harvestable.timeTriggers.remove(0).second.nextPhase();
             }
+
             produceResources();
+
             for (Villager villager : World.getVillagers()) {
                 villager.executeOrders();
                 villager.incrementAge();
                 villager.progressStats();
+
+                if (!villager.hasJob() && World.getTime() == orderedShifts[currentShift].end) {
+                    villager.seekJobOrSchool();
+                }
+                else if (villager.hasWorkplace() && World.getTime() == villager.getWorkplace().getShift(villager).getShiftTime().end) {
+                    villager.seekJobOrSchool();
+                }
+                else if (villager.hasSchool() && World.getTime() == villager.getSchool().getStudentShift(villager).getShiftTime().end) {
+                    villager.seekJobOrSchool();
+                }
             }
+
             for (Animal animal : World.getAnimals()) {
                 animal.wander();
                 if (animal instanceof FarmAnimal) {
                     ((FarmAnimal) animal).respawn();
                 }
             }
+
             World.incrementTime();
         }
     };
@@ -55,13 +69,6 @@ public class Logic {
         public void run() {
             Logistics.pairRequests();
             for (Villager villager : World.getVillagers()) {
-                if (villager.isEducationPreferable()) {
-                    if (!villager.seekSchool())
-                        villager.seekJob();
-                } else {
-                    if (!villager.seekJob())
-                        villager.seekSchool();
-                }
                 villager.seekHouse();
                 villager.fulfillNeeds();
             }

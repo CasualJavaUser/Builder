@@ -36,6 +36,14 @@ public class SchoolBuilding extends ProductionBuilding {
         return false;
     }
 
+    public Shift getStudentShift(Villager student) {
+        for (Shift shift : studentShifts) {
+            if (shift.employees.contains(student))
+                return shift;
+        }
+        return null;
+    }
+
     public void addStudent(Villager student) {
         Shift bestShift = Arrays.stream(studentShifts)
                 .filter(shift -> shift.employees.size() < shift.maxEmployees)
@@ -49,8 +57,8 @@ public class SchoolBuilding extends ProductionBuilding {
     public void removeStudent(Villager student) {
         for (Shift shift : studentShifts) {
             if (shift.employees.remove(student)) {
-                employees.remove(student);
                 students.remove(student);
+                student.quitSchool();
                 return;
             }
         }
@@ -105,6 +113,10 @@ public class SchoolBuilding extends ProductionBuilding {
             for (Villager student : shift.employees) {
                 if (student.isClockedIn()) {
                     Jobs.STUDENT.continuousTask(student, this);
+                    if (student.getEducation() >= 1f) {
+                        endStudentShift(student);
+                        removeStudent(student);
+                    }
                 }
             }
         }

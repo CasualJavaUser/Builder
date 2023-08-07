@@ -74,6 +74,7 @@ public class ProductionBuilding extends StorageBuilding {
         for (Shift shift : shifts) {
             if (shift.employees.remove(villager)) {
                 employees.remove(villager);
+                villager.looseJob();
                 return;
             }
         }
@@ -204,7 +205,6 @@ public class ProductionBuilding extends StorageBuilding {
         } else {
             shifts[index].maxEmployees = 0;
             for (Villager employee : shifts[index].employees) {
-                if (employee.isInBuilding(this)) employeesInside--;
                 employee.looseJob();
                 employees.remove(employee);
             }
@@ -222,7 +222,6 @@ public class ProductionBuilding extends StorageBuilding {
             int toFire = shifts[i].employees.size() - capacity;
             for (int j = 0; j < toFire; j++) {
                 Villager employee = shifts[i].employees.stream().findFirst().get();
-                if (employee.isInBuilding(this)) employeesInside--;
                 employee.looseJob();
                 employees.remove(employee);
                 shifts[i].employees.remove(employee);
@@ -253,6 +252,10 @@ public class ProductionBuilding extends StorageBuilding {
 
         public int getMaxEmployees() {
             return maxEmployees;
+        }
+
+        public Job.ShiftTime getShiftTime() {
+            return shiftTime;
         }
     }
 

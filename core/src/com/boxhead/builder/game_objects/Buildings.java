@@ -433,7 +433,7 @@ public class Buildings {
                         Tiles.getBuildingCollider().getGridPosition().clone(),
                         100,
                         fieldCollider);
-                World.removeFieldWorks(constructionSite);
+                World.removeFieldWorks(constructionSite.getCollider());
                 World.removeFieldWorks(fieldCollider);
                 World.removeFieldWorks(new BoxCollider(constructionSite.getEntrancePosition(), 1, 1));
                 World.placeFieldWork(constructionSite);
