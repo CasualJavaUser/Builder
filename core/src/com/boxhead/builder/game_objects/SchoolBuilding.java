@@ -25,7 +25,7 @@ public class SchoolBuilding extends ProductionBuilding {
 
         if (SHIFTS_PER_JOB != 3) throw new IllegalStateException();
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-            studentShifts[i] = new Shift(Jobs.STUDENT, DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? type.studentCapacity : 0);
+            studentShifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? type.studentCapacity : 0);
         }
     }
 

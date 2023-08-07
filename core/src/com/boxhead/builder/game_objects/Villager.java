@@ -518,7 +518,7 @@ public class Villager extends NPC implements Clickable {
         if (workplace == null)
             return Jobs.UNEMPLOYED;
         else
-            return workplace.getShift(this).job;
+            return workplace.getType().job;
     }
 
     public boolean isWorkTime() {

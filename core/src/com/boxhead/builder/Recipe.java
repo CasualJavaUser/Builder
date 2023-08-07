@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class Recipe implements Iterable<Map.Entry<Resource, Integer>>, Serializable {
+public class Recipe implements Iterable<Map.Entry<Resource, Integer>> {
     private final Map<Resource, Integer> changes;
 
     @SafeVarargs

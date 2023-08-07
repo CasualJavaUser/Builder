@@ -50,11 +50,11 @@ public class ProductionBuilding extends StorageBuilding {
         if (SHIFTS_PER_JOB != 3) throw new IllegalStateException();
         if (type.isService()) {
             for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-                shifts[i] = new Shift(type.job, SERVICE_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
+                shifts[i] = new Shift(SERVICE_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
             }
         } else {
             for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-                shifts[i] = new Shift(type.job, DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
+                shifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
             }
         }
 
@@ -118,7 +118,7 @@ public class ProductionBuilding extends StorageBuilding {
 
     public void business() {
         for (Shift shift : shifts) {
-            Job job = shift.job;
+            Job job = type.job;
             for (Villager employee : shift.employees) {
                 if (employee.isClockedIn())
                     job.continuousTask(employee, this);
@@ -174,7 +174,7 @@ public class ProductionBuilding extends StorageBuilding {
                 for (Villager employee : shift.employees) {
                     if (employee.isClockedIn()) {
                         employee.clearOrderQueue();
-                        shift.job.onExit(employee, this);
+                        type.job.onExit(employee, this);
                         employee.giveOrder(EXIT, this);
                         employee.giveOrder(CLOCK_OUT);
                         if (employee.getHome() != null) {
@@ -191,7 +191,7 @@ public class ProductionBuilding extends StorageBuilding {
         for (Shift shift : shifts) {
             if (shift.employees.contains(employee)) {
                 employee.clearOrderQueue();
-                shift.job.onExit(employee, this);
+                type.job.onExit(employee, this);
                 employee.giveOrder(EXIT, this);
                 employee.giveOrder(CLOCK_OUT);
                 break;
@@ -234,13 +234,11 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public static class Shift implements Serializable {
-        Job job;
         Job.ShiftTime shiftTime;
         Set<Villager> employees;
         int maxEmployees;
 
-        public Shift(Job job, Job.ShiftTime shiftTime, int maxEmployees) {
-            this.job = job;
+        public Shift(Job.ShiftTime shiftTime, int maxEmployees) {
             this.shiftTime = shiftTime;
             this.maxEmployees = maxEmployees;
             employees = new HashSet<>(maxEmployees);
