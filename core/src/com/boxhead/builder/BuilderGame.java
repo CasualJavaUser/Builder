@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.game_objects.Buildings;
 import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.NPC;
 import com.boxhead.builder.utils.Pair;
@@ -118,6 +119,8 @@ public class BuilderGame extends Game {
                 saveMap(Logistics.orderRequests, out);
                 saveMap(Logistics.deliveriesInProgress, out);
 
+                Buildings.saveShiftActivity(out);
+
                 out.close();
 
                 lastSaveTime = System.currentTimeMillis();
@@ -152,9 +155,14 @@ public class BuilderGame extends Game {
                 loadMap(Logistics.orderRequests, in);
                 loadMap(Logistics.deliveriesInProgress, in);
 
+                Buildings.loadShiftActivity(in);
+
                 lastSaveTime = System.currentTimeMillis();
 
             } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                return e;
+            } catch (Exception e) {
                 e.printStackTrace();
                 return e;
             }

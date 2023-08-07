@@ -57,16 +57,6 @@ public class SchoolBuilding extends ProductionBuilding {
         throw new IllegalArgumentException(notStudent);
     }
 
-    public void studentEnter(Villager villager) {
-        if (!students.contains(villager))
-            throw new IllegalArgumentException(notStudent);
-    }
-
-    public void studentExit(Villager villager) {
-        if (!students.contains(villager))
-            throw new IllegalStateException(notStudent);
-    }
-
     @Override
     public void startShift(Job.ShiftTime shiftTime) {
         super.startShift(shiftTime);

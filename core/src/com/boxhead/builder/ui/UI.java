@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Building;
 import com.boxhead.builder.game_objects.Buildings;
+import com.boxhead.builder.game_objects.ProductionBuilding;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Pair;
@@ -41,6 +42,7 @@ public class UI {
     public static final Color DARK = new Color(.5f, .5f, .5f, 1);
 
     public static BitmapFont FONT;
+    public static final float FONT_WIDTH = 10.5f;
     private static TextField activeTextField = null;
     private static Button activeButton = null;
     private static ScrollPane activeScrollPane = null;
@@ -915,7 +917,7 @@ public class UI {
                         new Vector2i(columnOffset, y - (int)FONT.getLineHeight())
                 );
 
-                for (int j = 0; j < 3; j++) {
+                for (int j = 0; j < ProductionBuilding.SHIFTS_PER_JOB; j++) {
                     int x = columnOffset + COLUMN_WIDTH * j;
                     if (type.isService())
                         x += shiftOffset;
@@ -956,6 +958,14 @@ public class UI {
             }
             for (CheckBox checkBox : checkBoxes) {
                 checkBox.addToUI();
+            }
+        }
+    }
+
+    public static void loadShiftMenuValues() {
+        for (int i = 0; i < shiftMenu.types.length; i++) {
+            for (int j = 0; j < ProductionBuilding.SHIFTS_PER_JOB; j++) {
+                shiftMenu.checkBoxes[j + i * ProductionBuilding.SHIFTS_PER_JOB].setValue(shiftMenu.types[i].getShiftActivity(j));
             }
         }
     }

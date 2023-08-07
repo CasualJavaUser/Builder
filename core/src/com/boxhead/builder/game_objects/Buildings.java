@@ -13,6 +13,9 @@ import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Range;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
@@ -535,5 +538,22 @@ public class Buildings {
                 posY,
                 range * World.TILE_SIZE);
         batch.setColor(UI.DEFAULT_COLOR);
+    }
+
+    public static void saveShiftActivity(ObjectOutputStream oos) throws IOException {
+        for (Type type : Type.values()) {
+            for (boolean shift : type.shifts) {
+                oos.writeBoolean(shift);
+            }
+        }
+    }
+
+    public static void loadShiftActivity(ObjectInputStream ois) throws IOException {
+        for (Type type : Type.values()) {
+            for (int i = 0; i < type.shifts.length; i++) {
+                type.shifts[i] = ois.readBoolean();
+            }
+            UI.loadShiftMenuValues();
+        }
     }
 }

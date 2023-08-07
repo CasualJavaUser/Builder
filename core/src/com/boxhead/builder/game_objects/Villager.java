@@ -247,8 +247,6 @@ public class Villager extends NPC implements Clickable {
                     if (gridPosition.equals(building.getEntrancePosition())) {
                         if (building == workplace) {
                             workplace.employeeEnter(Villager.this);
-                        } else if (building == school) {
-                            school.studentEnter(Villager.this);
                         }
                         enterBuilding(building);
                     }
@@ -260,15 +258,11 @@ public class Villager extends NPC implements Clickable {
                 @Override
                 void execute() {
                     if (gridPosition.equals(building.getGridPosition())) {
-                        if (building == school) {
-                            school.studentExit(Villager.this);
-                        } else {
-                            if (building == workplace) {
-                                workplace.employeeExit(Villager.this);
-                            }
-                            if (building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getGuests().contains(Villager.this)) {
-                                serviceBuilding.guestExit(Villager.this);
-                            }
+                        if (building == workplace) {
+                            workplace.employeeExit(Villager.this);
+                        }
+                        if (building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getGuests().contains(Villager.this)) {
+                            serviceBuilding.guestExit(Villager.this);
                         }
                         gridPosition.set(building.getEntrancePosition());
                         buildingIsIn = null;

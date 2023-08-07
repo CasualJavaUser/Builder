@@ -20,6 +20,13 @@ public class CheckBox extends UIElement implements Clickable {
         this.value = value;
     }
 
+    /**
+     * Only use when loading a save.
+     */
+    public void setValue(boolean value) {
+        this.value = value;
+    }
+
     public void setOnUp(Consumer<Boolean> onUp) {
         this.onUp = onUp;
     }

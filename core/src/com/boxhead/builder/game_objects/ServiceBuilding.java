@@ -1,14 +1,9 @@
 package com.boxhead.builder.game_objects;
 
 import com.boxhead.builder.Jobs;
-import com.boxhead.builder.Service;
 import com.boxhead.builder.Stat;
 import com.boxhead.builder.utils.Vector2i;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,28 +11,26 @@ import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
 public class ServiceBuilding extends ProductionBuilding {
 
-    private transient Service service;
     private final Set<Villager> guests;
     private int reserved = 0;
 
     public ServiceBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        this.service = type.service;
         guests = new HashSet<>(type.guestCapacity);
     }
 
     public void provideServices() {
         for (Villager employee : employees) {
             if (employee.isClockedIn()) {
-                service.applyEffects(employee, 1);
+                type.service.applyEffects(employee, 1);
             }
         }
         for (Villager guest : guests) {
             if (guest != null) {
-                service.applyEffects(guest, super.employeesInside);
+                type.service.applyEffects(guest, super.employeesInside);
 
                 boolean isReadyToLeave = true;
-                for (Stat stat : service.getEffects().keySet()) {
+                for (Stat stat : type.service.getEffects().keySet()) {
                     int acceptableStage;
                     if (guest.isWorkTime()) {
                         acceptableStage = stat.mild;
@@ -91,19 +84,5 @@ public class ServiceBuilding extends ProductionBuilding {
 
     public boolean canProvideService() {
         return employeesInside > 0/* && !inventory.isEmpty()*/;
-    }
-
-    @Serial
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-        oos.writeUTF(type.name());
-    }
-
-    @Serial
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        ois.defaultReadObject();
-        type = Buildings.Type.valueOf(ois.readUTF());
-        textureId = type.texture;
-        service = type.service;
     }
 }
