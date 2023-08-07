@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.List;
 
 public class UI {
-    private static final Matrix4 uiProjection = new Matrix4();
+    public static final Matrix4 UI_PROJECTION = new Matrix4();
 
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
@@ -339,7 +339,7 @@ public class UI {
 
     public static void drawUI(SpriteBatch batch, OrthographicCamera camera) {
         updateProjectionMatrix(camera);
-        batch.setProjectionMatrix(uiProjection);
+        batch.setProjectionMatrix(UI_PROJECTION);
         for (Layer layer : Layer.values()) {
             for (UIElement element : layer.getElements()) {
                 if (element.isVisible()) {
@@ -354,7 +354,7 @@ public class UI {
 
     public static void drawMenu(SpriteBatch batch, OrthographicCamera camera) {
         updateProjectionMatrix(camera);
-        batch.setProjectionMatrix(uiProjection);
+        batch.setProjectionMatrix(UI_PROJECTION);
         for (int i = Layer.PAUSE_MENU.ordinal(); i < Layer.values().length; i++) {
             for (UIElement element : Layer.values()[i].getElements()) {
                 if (element.isVisible()) {
@@ -369,14 +369,14 @@ public class UI {
 
     public static void drawPopups(SpriteBatch batch, OrthographicCamera camera) {
         updateProjectionMatrix(camera);
-        batch.setProjectionMatrix(uiProjection);
+        batch.setProjectionMatrix(UI_PROJECTION);
         if (Popups.getActivePopup() != null) Popups.getActivePopup().draw(batch);
         batch.setProjectionMatrix(camera.combined);
     }
 
     private static void updateProjectionMatrix(OrthographicCamera camera) {
-        uiProjection.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
-        uiProjection.setTranslation(-1, -1, 0);
+        UI_PROJECTION.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
+        UI_PROJECTION.setTranslation(-1, -1, 0);
     }
 
     public static boolean handleUiInteraction() {

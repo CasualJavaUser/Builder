@@ -155,7 +155,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         super.updateWindowSize();
         if(!warning.equals("")) {
             setContentHeight(getContentHeight() + 20);
-            setContentWidth(warning.length() * 7 + UI.PADDING + UI.PADDING);
+            setContentWidth(warning.length() * 10);
         }
         if(pinnedObject instanceof ProductionBuilding || pinnedObject instanceof ResidentialBuilding) {
             setContentHeight(getContentHeight() + Villager.TEXTURE_SIZE + UI.PADDING);

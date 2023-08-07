@@ -3,7 +3,9 @@ package com.boxhead.builder;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.game_objects.ProductionBuilding;
 
-public class Job {
+import java.io.Serializable;
+
+public class Job implements Serializable {
     protected Recipe recipe = new Recipe();
 
     public void assign(Villager assignee, ProductionBuilding workplace) {}

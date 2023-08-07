@@ -1,17 +1,13 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
 import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
-import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +39,6 @@ public class ProductionBuilding extends StorageBuilding {
     protected final Set<Building> buildingsInRange;
     protected float productionCounter = 0;
     protected boolean showRange = false;
-    protected transient UIElement indicator;
 
     public ProductionBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
@@ -73,8 +68,6 @@ public class ProductionBuilding extends StorageBuilding {
                     .collect(Collectors.toSet());
         } else buildingsInRange = emptySet;
         updateEfficiency();
-
-        instantiateIndicator();
     }
 
     public void removeEmployee(Villager villager) {
@@ -241,7 +234,7 @@ public class ProductionBuilding extends StorageBuilding {
         return employeeCapacity;
     }
 
-    public static class Shift {
+    public static class Shift implements Serializable {
         Job job;
         Job.ShiftTime shiftTime;
         Set<Villager> employees;
@@ -340,39 +333,33 @@ public class ProductionBuilding extends StorageBuilding {
             batch.setColor(UI.DEFAULT_COLOR);
         }
 
-        updateIndicator();
-
         super.draw(batch);
+
+        drawIndicator(batch);
     }
 
-    protected void instantiateIndicator() {
-        indicator = new UIElement(
-                Textures.get(Textures.Ui.FULL_OUTPUT),
-                UI.Layer.WORLD,
-                new Vector2i(),
-                false);
-        indicator.addToUI();
-    }
-
-    private void updateIndicator() {
+    protected void drawIndicator(SpriteBatch batch) {
+        TextureRegion texture;
         switch (inventory.checkStorageAvailability(type.job.getRecipe(this))) {
-            case AVAILABLE:
-                indicator.setVisible(false);
-                break;
             case LACKS_INPUT:
-                indicator.setTexture(Textures.get(Textures.Ui.NO_INPUT));
+                texture = Textures.get(Textures.Ui.NO_INPUT); break;
             case OUTPUT_FULL:
-                indicator.setTexture(Textures.get(Textures.Ui.FULL_OUTPUT));
+                texture = Textures.get(Textures.Ui.FULL_OUTPUT); break;
             default:
-                indicator.setVisible(true);
+                return;
         }
-
-        if (indicator.isVisible()) {
-            Vector2 screenPos = GameScreen.worldToScreenPosition(
-                    gridPosition.x * World.TILE_SIZE + getTexture().getRegionWidth() / 2f - indicator.getWidth() / 2f * GameScreen.camera.zoom,
-                    gridPosition.y * World.TILE_SIZE + getTexture().getRegionHeight() + 5);
-            indicator.setGlobalPosition((int) screenPos.x, (int) screenPos.y);
-        }
+        batch.draw(
+                texture,
+                ((float)gridPosition.x + (float)collider.getWidth() / 2f) * World.TILE_SIZE - 32 * GameScreen.camera.zoom,
+                (gridPosition.y + collider.getHeight()) * World.TILE_SIZE,
+                0,
+                0,
+                64,
+                64,
+                GameScreen.camera.zoom,
+                GameScreen.camera.zoom,
+                0
+        );
     }
 
     @Override
@@ -402,6 +389,5 @@ public class ProductionBuilding extends StorageBuilding {
         ois.defaultReadObject();
         type = Buildings.Type.valueOf(ois.readUTF());
         textureId = type.texture;
-        instantiateIndicator();
     }
 }

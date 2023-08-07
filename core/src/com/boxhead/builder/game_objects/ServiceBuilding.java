@@ -105,6 +105,5 @@ public class ServiceBuilding extends ProductionBuilding {
         type = Buildings.Type.valueOf(ois.readUTF());
         textureId = type.texture;
         service = type.service;
-        instantiateIndicator();
     }
 }

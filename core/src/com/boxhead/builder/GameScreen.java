@@ -6,7 +6,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -21,15 +20,13 @@ public class GameScreen implements Screen {
     public static final OrthographicCamera camera = new OrthographicCamera();
     public static final Viewport viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
     private final SpriteBatch batch;
-    private final Matrix4 uiProjection;
-    private static Vector2 mouseWorldPos = new Vector2(0, 0);
+    private static final Vector2 mouseWorldPos = new Vector2(0, 0);
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
     private static final float NORMAL_SPEED = 350, FAST_SPEED = 650, SCROLL_SPEED = 30;
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
-        this.uiProjection = new Matrix4();
 
         Textures.init();
         Tile.init();
@@ -157,14 +154,6 @@ public class GameScreen implements Screen {
         camera.position.y = getCameraYRange().fit(camera.position.y);
 
         camera.update();
-        batch.setProjectionMatrix(camera.combined);
-    }
-
-    private void drawUI() {
-        uiProjection.setToScaling(camera.combined.getScaleX() * camera.zoom, camera.combined.getScaleY() * camera.zoom, 0);
-        uiProjection.setTranslation(-1, -1, 0);
-        batch.setProjectionMatrix(uiProjection);
-        UI.drawUI(batch, camera);
         batch.setProjectionMatrix(camera.combined);
     }
 
