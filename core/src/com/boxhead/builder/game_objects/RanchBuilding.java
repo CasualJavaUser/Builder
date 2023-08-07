@@ -5,6 +5,8 @@ import com.boxhead.builder.World;
 import com.boxhead.builder.utils.Vector2i;
 
 public class RanchBuilding extends FarmBuilding<FarmAnimal> {
+    private static final int TILES_PER_ANIMAL = 9;
+
     public RanchBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
     }
@@ -14,7 +16,7 @@ public class RanchBuilding extends FarmBuilding<FarmAnimal> {
     }
 
     public int getAnimalCount() {
-        return fieldCollider.getArea() / 9;
+        return fieldCollider.getArea() / TILES_PER_ANIMAL;
     }
 
     public void spawnAnimals() {

@@ -743,7 +743,8 @@ public class UI {
 
             tabs[3] = new Tab(this, false,
                     Pair.of(Buildings.Type.HOSPITAL, Textures.Ui.SERVICE),
-                    Pair.of(Buildings.Type.PUB, Textures.Ui.SERVICE)
+                    Pair.of(Buildings.Type.PUB, Textures.Ui.SERVICE),
+                    Pair.of(Buildings.Type.SCHOOL, Textures.Ui.SERVICE)
             );
 
             int x = PADDING;

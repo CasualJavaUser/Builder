@@ -23,6 +23,10 @@ public class ProductionBuilding extends StorageBuilding {
      */
     private static final int STOCK_CYCLES = 3;
     public static final int SHIFTS_PER_JOB = 3;
+    protected static final Job.ShiftTime[] DEFAULT_SHIFT_TIMES =
+            new Job.ShiftTime[] {Job.ShiftTime.MIDNIGHT_EIGHT, Job.ShiftTime.EIGHT_FOUR, Job.ShiftTime.FOUR_MIDNIGHT};
+    protected static final Job.ShiftTime[] SERVICE_SHIFT_TIMES =
+            new Job.ShiftTime[] {Job.ShiftTime.THREE_ELEVEN, Job.ShiftTime.ELEVEN_SEVEN, Job.ShiftTime.SEVEN_THREE};
 
     private static final Map<Villager, FieldWork> emptyMap = new HashMap<>(0);  //do not modify
     private static final Set<Building> emptySet = new HashSet<>(0);
@@ -32,8 +36,8 @@ public class ProductionBuilding extends StorageBuilding {
     protected float efficiency = 1f;
     protected int jobQuality = 0;
     protected int employeesInside = 0;
-    protected Set<Villager> employees;
-    protected int[] shiftCapacities;
+    protected final Set<Villager> employees;
+    protected int employeeCapacity;
     protected final Shift[] shifts;
     protected final Map<Villager, FieldWork> assignedFieldWork;
     protected final Set<Building> buildingsInRange;
@@ -44,34 +48,23 @@ public class ProductionBuilding extends StorageBuilding {
     public ProductionBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         this.type = type;
-        shifts = new Shift[type.jobs.length * SHIFTS_PER_JOB];
-        employees = new HashSet<>(type.maxWorkersPerShift * SHIFTS_PER_JOB);
-        shiftCapacities = new int[type.jobs.length];
-        Arrays.fill(shiftCapacities, type.maxWorkersPerShift);
+        shifts = new Shift[SHIFTS_PER_JOB];
+        employees = new HashSet<>(type.maxEmployeeCapacity * SHIFTS_PER_JOB);
+        employeeCapacity = type.maxEmployeeCapacity;
 
         if (SHIFTS_PER_JOB != 3) throw new IllegalStateException();
         if (type.isService()) {
-            for (int i = 0; i < type.jobs.length; i++) {
-                shifts[i * SHIFTS_PER_JOB]     = new Shift(type.jobs[i], Job.ShiftTime.THREE_ELEVEN, type.getShiftActivity(0) ? shiftCapacities[i] : 0);
-                shifts[i * SHIFTS_PER_JOB + 1] = new Shift(type.jobs[i], Job.ShiftTime.ELEVEN_SEVEN, type.getShiftActivity(1) ? shiftCapacities[i] : 0);
-                shifts[i * SHIFTS_PER_JOB + 2] = new Shift(type.jobs[i], Job.ShiftTime.SEVEN_THREE,  type.getShiftActivity(2) ? shiftCapacities[i] : 0);
+            for (int i = 0; i < SHIFTS_PER_JOB; i++) {
+                shifts[i] = new Shift(type.job, SERVICE_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
             }
         } else {
-            for (int i = 0; i < type.jobs.length; i++) {
-                shifts[i * SHIFTS_PER_JOB]     = new Shift(type.jobs[i], Job.ShiftTime.MIDNIGHT_EIGHT,type.getShiftActivity(0) ? shiftCapacities[i] : 0);
-                shifts[i * SHIFTS_PER_JOB + 1] = new Shift(type.jobs[i], Job.ShiftTime.EIGHT_FOUR,    type.getShiftActivity(1) ? shiftCapacities[i] : 0);
-                shifts[i * SHIFTS_PER_JOB + 2] = new Shift(type.jobs[i], Job.ShiftTime.FOUR_MIDNIGHT, type.getShiftActivity(2) ? shiftCapacities[i] : 0);
+            for (int i = 0; i < SHIFTS_PER_JOB; i++) {
+                shifts[i] = new Shift(type.job, DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
             }
         }
 
-        int fieldShifts = 0;
-        for (Job job : type.jobs) {
-            if (job.getPoI() != null)
-                fieldShifts += SHIFTS_PER_JOB;
-        }
-
-        if (fieldShifts > 0) {
-            assignedFieldWork = new HashMap<>(fieldShifts * type.maxWorkersPerShift);
+        if (type.job.getPoI() != null) {
+            assignedFieldWork = new HashMap<>(SHIFTS_PER_JOB * type.maxEmployeeCapacity);
         } else assignedFieldWork = emptyMap;
 
         if (type.range > 0f) {
@@ -95,7 +88,6 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public void addEmployee(Villager villager) {
-
         Shift bestShift = Arrays.stream(shifts)
                 .filter(shift -> shift.employees.size() < shift.maxEmployees)
                 .min(Comparator.comparingDouble(shift -> (double) shift.employees.size() / (double) shift.maxEmployees))
@@ -127,7 +119,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public boolean canProduce() {
-        return hasEmployeesInside() && inventory.checkStorageAvailability(type.mainJob.getRecipe(this)) == Inventory.Availability.AVAILABLE;
+        return hasEmployeesInside() && inventory.checkStorageAvailability(type.job.getRecipe(this)) == Inventory.Availability.AVAILABLE;
     }
 
     public void business() {
@@ -171,32 +163,32 @@ public class ProductionBuilding extends StorageBuilding {
 
     public void startShift(Job.ShiftTime shiftTime) {
         for (Shift shift : shifts) {
-            if (shift.shiftTime != shiftTime)
-                continue;
-
-            for (Villager villager : shift.employees) {
-                villager.giveOrder(EXIT);
-                villager.giveOrder(GO_TO, this);
-                villager.giveOrder(CLOCK_IN);
+            if (shift.shiftTime == shiftTime) {
+                for (Villager villager : shift.employees) {
+                    villager.giveOrder(EXIT);
+                    villager.giveOrder(GO_TO, this);
+                    villager.giveOrder(CLOCK_IN);
+                }
+                break;
             }
         }
     }
 
     public void endShift(Job.ShiftTime shiftTime) {
         for (Shift shift : shifts) {
-            if (shift.shiftTime != shiftTime)
-                continue;
-
-            for (Villager employee : shift.employees) {
-                if (employee.isClockedIn()) {
-                    employee.clearOrderQueue();
-                    shift.job.onExit(employee, this);
-                    employee.giveOrder(EXIT, this);
-                    employee.giveOrder(CLOCK_OUT);
-                    if (employee.getHome() != null) {
-                        employee.giveOrder(GO_TO, employee.getHome());
+            if (shift.shiftTime == shiftTime) {
+                for (Villager employee : shift.employees) {
+                    if (employee.isClockedIn()) {
+                        employee.clearOrderQueue();
+                        shift.job.onExit(employee, this);
+                        employee.giveOrder(EXIT, this);
+                        employee.giveOrder(CLOCK_OUT);
+                        if (employee.getHome() != null) {
+                            employee.giveOrder(GO_TO, employee.getHome());
+                        }
                     }
                 }
+                break;
             }
         }
     }
@@ -208,46 +200,45 @@ public class ProductionBuilding extends StorageBuilding {
                 shift.job.onExit(employee, this);
                 employee.giveOrder(EXIT, this);
                 employee.giveOrder(CLOCK_OUT);
+                break;
             }
         }
     }
 
     public void setShiftActivity(int index, boolean active) {
-        for (int i = index; i < shifts.length; i += SHIFTS_PER_JOB) {
-            if (active) {
-                shifts[i].maxEmployees = shiftCapacities[i / SHIFTS_PER_JOB];
-            } else {
-                shifts[i].maxEmployees = 0;
-                for (Villager employee : shifts[i].employees) {
-                    if (employee.isInBuilding(this)) employeesInside--;
-                    employee.looseJob();
-                    employees.remove(employee);
-                }
-                shifts[i].employees.clear();
+        if (active) {
+            shifts[index].maxEmployees = employeeCapacity;
+        } else {
+            shifts[index].maxEmployees = 0;
+            for (Villager employee : shifts[index].employees) {
+                if (employee.isInBuilding(this)) employeesInside--;
+                employee.looseJob();
+                employees.remove(employee);
             }
+            shifts[index].employees.clear();
         }
     }
 
-    public void setWorkersPerShift(int jobIndex, int capacity) {
-        shiftCapacities[jobIndex] = capacity;
+    public void setEmployeeCapacity(int capacity) {
+        employeeCapacity = capacity;
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
             if (!type.getShiftActivity(i))
                 continue;
 
-            shifts[i + jobIndex].maxEmployees = capacity;
-            int toFire = shifts[i + jobIndex].employees.size() - capacity;
+            shifts[i].maxEmployees = capacity;
+            int toFire = shifts[i].employees.size() - capacity;
             for (int j = 0; j < toFire; j++) {
-                Villager employee = shifts[i + jobIndex].employees.stream().findFirst().get();
+                Villager employee = shifts[i].employees.stream().findFirst().get();
                 if (employee.isInBuilding(this)) employeesInside--;
                 employee.looseJob();
                 employees.remove(employee);
-                shifts[i + jobIndex].employees.remove(employee);
+                shifts[i].employees.remove(employee);
             }
         }
     }
 
-    public int getShiftCapacityForJob(int jobIndex) {
-        return shiftCapacities[jobIndex];
+    public int getEmployeeCapacity() {
+        return employeeCapacity;
     }
 
     public static class Shift {
@@ -277,7 +268,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public Job getJob() {
-        return type.mainJob;
+        return type.job;
     }
 
     public Shift getShift(Villager employee) {
@@ -309,6 +300,10 @@ public class ProductionBuilding extends StorageBuilding {
 
     public boolean hasEmployeesInside() {
         return employeesInside != 0;
+    }
+
+    public int getEmployeesInside() {
+        return employeesInside;
     }
 
     public Map<Villager, FieldWork> getAssignedFieldWork() {
@@ -360,7 +355,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     private void updateIndicator() {
-        switch (inventory.checkStorageAvailability(type.mainJob.getRecipe(this))) {
+        switch (inventory.checkStorageAvailability(type.job.getRecipe(this))) {
             case AVAILABLE:
                 indicator.setVisible(false);
                 break;
@@ -383,11 +378,12 @@ public class ProductionBuilding extends StorageBuilding {
     @Override
     public String toString() {
         return type.name +
-                "\njob: " + type.mainJob +
+                "\njob: " + type.job +
                 "\nefficiency: " + efficiency +
                 "\njobQuality: " + jobQuality +
                 "\nshifts: " + type.getShiftActivity(0) + ", " + type.getShiftActivity(1) + ", " + type.getShiftActivity(2) +
-                "\nemployees: " + employees.size() + " / " + (type.maxWorkersPerShift * SHIFTS_PER_JOB) +
+                "\nemployees: " + employees.size() + " / " + (employeeCapacity * SHIFTS_PER_JOB) +
+                "\nemployees per shift: " + employeeCapacity + " / " + type.maxEmployeeCapacity +
                 "\nemployeesInside: " + employeesInside +
                 "\nassignedFieldWork: " + assignedFieldWork +
                 "\nbuildingsInRange: " + buildingsInRange.size() +

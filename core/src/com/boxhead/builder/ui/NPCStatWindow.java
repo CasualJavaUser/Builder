@@ -49,6 +49,8 @@ public class NPCStatWindow extends StatWindow<Villager> {
             stat = Stat.values()[i].toString().toLowerCase() + ": " + (int)pinnedObject.getStats()[i];
             stats += "\n" + stat;
         }
+
+        stats += "\neducation: " + (int)(pinnedObject.getEducation() * 100f) + "%";
     }
 
     @Override

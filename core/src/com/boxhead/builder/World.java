@@ -601,7 +601,9 @@ public class World {
 
     private static void initVillagers(int num) {
         for (int i = 0; i < num; i++) {
-            spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2)));
+            Villager villager = new Villager((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2));
+            villager.educate(1f);
+            spawnVillager(villager);
         }
     }
 

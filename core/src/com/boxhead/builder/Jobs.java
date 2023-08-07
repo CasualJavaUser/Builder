@@ -245,6 +245,27 @@ public class Jobs {
         }
     };
 
+    public static final Job TEACHER = new Job() {
+        @Override
+        public String toString() {
+            return "teacher";
+        }
+    };
+
+    public static final Job STUDENT = new Job() {
+        private static final float LEARNING_RATE = .005f;
+
+        @Override
+        public void continuousTask(Villager assignee, ProductionBuilding workplace) {
+            assignee.educate(LEARNING_RATE / 60 * workplace.getEmployeesInside());
+        }
+
+        @Override
+        public String toString() {
+            return "student";
+        }
+    };
+
     private static void harvesterAssign(Villager assignee, ProductionBuilding workplace, Harvestable harvestable) {
         if (harvestable == null) return;
 

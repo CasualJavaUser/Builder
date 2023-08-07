@@ -135,6 +135,16 @@ public class Buildings {
                 10,
                 3,
                 Jobs.DOCTOR
+        ),
+        SCHOOL(
+               Textures.Building.SERVICE_FUNGUS,
+               "school",
+                new Vector2i(0, -1),
+                new Recipe(Pair.of(Resource.WOOD, 50)),
+                new BoxCollider(0, 0, 2, 2),
+                Jobs.TEACHER,
+                10,
+                3
         );
 
 
@@ -147,16 +157,15 @@ public class Buildings {
         public final BoxCollider relativeCollider;
         public final Recipe buildCost;
 
-        public final Job[] jobs;
+        public final Job job;
         public final Service service;
 
         public final Harvestables.Type crop;
         public final Animals.Type farmAnimal;
 
-        public final int residentCapacity, guestCapacity, maxWorkersPerShift;
+        public final int residentCapacity, guestCapacity, studentCapacity, maxEmployeeCapacity;
         public final int serviceInterval, productionInterval, range;
         public final Function<Set<Building>, Float> updateEfficiency;
-        public transient Job mainJob;
 
         private final boolean[] shifts = new boolean[] {false, true, false};
 
@@ -164,9 +173,9 @@ public class Buildings {
             Arrays.fill(HOSPITAL.shifts, true);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost, Job[] jobs,
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost, Job job,
              Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int residentCapacity, int guestCapacity,
-             int maxWorkersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
+             int studentCapacity, int maxEmployeeCapacity, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
 
             if ((crop != null && farmAnimal != null) ||
                     (guestCapacity > 0 && service == null))
@@ -177,14 +186,15 @@ public class Buildings {
             this.entrancePosition = entrancePosition;
             this.relativeCollider = relativeCollider;
             this.buildCost = buildCost;
-            this.jobs = jobs;
+            this.job = job;
             this.service = service;
             this.serviceInterval = serviceInterval;
             this.crop = crop;
             this.farmAnimal = farmAnimal;
             this.residentCapacity = residentCapacity;
             this.guestCapacity = guestCapacity;
-            this.maxWorkersPerShift = maxWorkersPerShift;
+            this.studentCapacity = studentCapacity;
+            this.maxEmployeeCapacity = maxEmployeeCapacity;
             this.productionInterval = productionInterval;
             this.range = range;
 
@@ -192,61 +202,55 @@ public class Buildings {
                 this.updateEfficiency = (b -> 1f);
             else
                 this.updateEfficiency = updateEfficiency;
-
-            if (jobs != null) {
-                mainJob = jobs[0];
-
-                int producingJobs = 0;
-                for (Job job : jobs) {
-                    if (!job.getRecipe(null).isEmpty()) //job is a producing one
-                        producingJobs++;
-                }
-
-                if (producingJobs > 1)
-                    throw new IllegalArgumentException("More than one producing job in one building");
-            }
         }
 
         //default collider
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job[] jobs,
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job,
              Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int residentCapacity, int guestCapacity,
-             int maxWorkersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
+             int studentCapacity, int maxEmployeeCapacity, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
             this(texture, name, entrancePosition, new BoxCollider(
                             Vector2i.zero(),
                             Textures.get(texture).getRegionWidth() / World.TILE_SIZE,
                             Textures.get(texture).getRegionHeight() / World.TILE_SIZE),
-                    buildCost, jobs, service, serviceInterval, crop, farmAnimal, residentCapacity, guestCapacity,
-                    maxWorkersPerShift, productionInterval, range, updateEfficiency);
+                    buildCost, job, service, serviceInterval, crop, farmAnimal, residentCapacity, guestCapacity,
+                    studentCapacity, maxEmployeeCapacity, productionInterval, range, updateEfficiency);
         }
 
         //residential
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, int residentCapacity) {
-            this(texture, name, entrancePosition, relativeCollider, buildCost, null, null, 0, null, null, residentCapacity, 0, 0, 0, 0, null);
+            this(texture, name, entrancePosition, relativeCollider, buildCost, null, null, 0, null, null, residentCapacity, 0, 0, 0, 0, 0, null);
         }
 
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, int residentCapacity) {
-            this(texture, name, entrancePosition, buildCost, null, null, 0, null, null, residentCapacity, 0, 0, 0, 0, null);
+            this(texture, name, entrancePosition, buildCost, null, null, 0, null, null, residentCapacity, 0, 0, 0, 0, 0, null);
         }
 
         //production
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, int productionInterval, int maxWorkersPerShift, Job... jobs) {
-            this(texture, name, entrancePosition, buildCost, jobs, null, 0, null, null, 0, 0, maxWorkersPerShift, productionInterval, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, int productionInterval, int maxEmployeeCapacity, Job job) {
+            this(texture, name, entrancePosition, buildCost, job, null, 0, null, null, 0, 0, 0, maxEmployeeCapacity, productionInterval, 0, null);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int workersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
-            this(texture, name, entrancePosition, buildCost, new Job[]{job}, null, 0, null, null, 0, 0, workersPerShift, productionInterval, range, updateEfficiency);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxEmployeeCapacity, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
+            this(texture, name, entrancePosition, buildCost, job, null, 0, null, null, 0, 0, 0, maxEmployeeCapacity, productionInterval, range, updateEfficiency);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int maxWorkersPerShift, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
-            this(texture, name, entrancePosition, relativeCollider, buildCost, new Job[]{job}, null, 0, null, null, 0, 0, maxWorkersPerShift, productionInterval, range, updateEfficiency);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int maxEmployeeCapacity, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
+            this(texture, name, entrancePosition, relativeCollider, buildCost, job, null, 0, null, null, 0, 0, 0, maxEmployeeCapacity, productionInterval, range, updateEfficiency);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int maxWorkersPerShift, int productionInterval, int range) {
-            this(texture, name, entrancePosition, buildCost, relativeCollider, job, maxWorkersPerShift, productionInterval, range, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int maxEmployeeCapacity, int productionInterval, int range) {
+            this(texture, name, entrancePosition, buildCost, relativeCollider, job, maxEmployeeCapacity, productionInterval, range, null);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int maxWorkersPerShift) {
-            this(texture, name, entrancePosition, buildCost, relativeCollider, job, maxWorkersPerShift, 0, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int maxEmployeeCapacity) {
+            this(texture, name, entrancePosition, buildCost, relativeCollider, job, maxEmployeeCapacity, 0, 0, null);
+        }
+
+        //school
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int studentCapacity, int maxEmployeeCapacity) {
+            this(texture, name, entrancePosition, relativeCollider, buildCost, job,
+                    null, 0, null, null, 0, 0,
+            studentCapacity, maxEmployeeCapacity, 0, 0, null);
         }
 
         //storage
@@ -255,30 +259,30 @@ public class Buildings {
         }
 
         //farm
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxWorkersPerShift, Harvestables.Type crop, Animals.Type farmAnimal) {
-            this(texture, name, entrancePosition, buildCost, new Job[]{job}, null, 0, crop, farmAnimal, 0, 0, maxWorkersPerShift, 0, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxEmployeeCapacity, Harvestables.Type crop, Animals.Type farmAnimal) {
+            this(texture, name, entrancePosition, buildCost, job, null, 0, crop, farmAnimal, 0, 0, 0, maxEmployeeCapacity, 0, 0, null);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxWorkersPerShift, Animals.Type farmAnimal) {
-            this(texture, name, entrancePosition, buildCost, job, maxWorkersPerShift, null, farmAnimal);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxEmployeeCapacity, Animals.Type farmAnimal) {
+            this(texture, name, entrancePosition, buildCost, job, maxEmployeeCapacity, null, farmAnimal);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxWorkersPerShift, Harvestables.Type crop) {
-            this(texture, name, entrancePosition, buildCost, job, maxWorkersPerShift, crop, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxEmployeeCapacity, Harvestables.Type crop) {
+            this(texture, name, entrancePosition, buildCost, job, maxEmployeeCapacity, crop, null);
         }
 
         //service
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Service service, int serviceInterval, int guestCapacity, int maxWorkersPerShift, Job... jobs) {
-            this(texture, name, entrancePosition, buildCost, jobs, service, serviceInterval, null, null, 0, guestCapacity, maxWorkersPerShift, 0, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Service service, int serviceInterval, int guestCapacity, int maxEmployeeCapacity, Job job) {
+            this(texture, name, entrancePosition, buildCost, job, service, serviceInterval, null, null, 0, guestCapacity, 0, maxEmployeeCapacity, 0, 0, null);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxWorkersPerShift, Service service, int serviceInterval, int guestCapacity) {
-            this(texture, name, entrancePosition, buildCost, new Job[]{job}, service, serviceInterval, null, null, 0, guestCapacity, maxWorkersPerShift, 0, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxEmployeeCapacity, Service service, int serviceInterval, int guestCapacity) {
+            this(texture, name, entrancePosition, buildCost, job, service, serviceInterval, null, null, 0, guestCapacity, 0, maxEmployeeCapacity, 0, 0, null);
         }
 
         //service that is also producing
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxWorkersPerShift, Service service, int serviceInterval, int guestCapacity, int productionInterval) {
-            this(texture, name, entrancePosition, buildCost, new Job[]{job}, service, serviceInterval, null, null, 0, guestCapacity, maxWorkersPerShift, productionInterval, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job, int maxEmployeeCapacity, Service service, int serviceInterval, int guestCapacity, int productionInterval) {
+            this(texture, name, entrancePosition, buildCost, job, service, serviceInterval, null, null, 0, guestCapacity, 0, maxEmployeeCapacity, productionInterval, 0, null);
         }
 
         public TextureRegion getTexture() {
@@ -314,6 +318,10 @@ public class Buildings {
             return name().toLowerCase().replace('_', ' ');
         }
 
+        public boolean isSchool() {
+            return studentCapacity > 0;
+        }
+
         public boolean isFarm() {
             return crop != null || farmAnimal != null;
         }
@@ -331,7 +339,7 @@ public class Buildings {
         }
 
         public boolean isProduction() {
-            return jobs != null;
+            return job != null;
         }
 
         public boolean isResidential() {
@@ -344,6 +352,7 @@ public class Buildings {
     }
 
     public static Building create(Type type, Vector2i gridPosition) {
+        if (type.isSchool()) return new SchoolBuilding(type, gridPosition);
         if (type.isPlantation()) return new PlantationBuilding(type, gridPosition);
         if (type.isRanch()) return new RanchBuilding(type, gridPosition);
         if (type.isService()) return new ServiceBuilding(type, gridPosition);

@@ -40,9 +40,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         left.setOnUp(() -> {
             if (pinnedObject instanceof ProductionBuilding building) {
-                if (building.getShiftCapacityForJob(0) > 1) {
-                    building.setWorkersPerShift(0, building.getShiftCapacityForJob(0) - 1);
-                    npcCount.setText(building.getShiftCapacityForJob(0) + "");
+                if (building.getEmployeeCapacity() > 1) {
+                    building.setEmployeeCapacity(building.getEmployeeCapacity() - 1);
+                    npcCount.setText(building.getEmployeeCapacity() + "");
                 }
             }
             else {
@@ -52,9 +52,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         right.setOnUp(() -> {
             if (pinnedObject instanceof ProductionBuilding building) {
-                if (building.getShiftCapacityForJob(0) < building.getType().maxWorkersPerShift) {
-                    building.setWorkersPerShift(0, building.getShiftCapacityForJob(0) + 1);
-                    npcCount.setText(building.getShiftCapacityForJob(0) + "");
+                if (building.getEmployeeCapacity() < building.getType().maxEmployeeCapacity) {
+                    building.setEmployeeCapacity(building.getEmployeeCapacity() + 1);
+                    npcCount.setText(building.getEmployeeCapacity() + "");
                 }
             }
             else {
@@ -91,12 +91,12 @@ public class BuildingStatWindow extends StatWindow<Building> {
             stats += "\nID: " + pinnedObject.getId();
         }
 
-        else if (pinnedObject instanceof ProductionBuilding building) {
+        if (pinnedObject instanceof ProductionBuilding building) {
             Job job = building.getJob();
             left.setVisible(true);
             right.setVisible(true);
             npcCount.setVisible(true);
-            npcCount.setText(building.getShiftCapacityForJob(0) + "");
+            npcCount.setText(building.getEmployeeCapacity() + "");
 
             if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
             else if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
@@ -107,11 +107,16 @@ public class BuildingStatWindow extends StatWindow<Building> {
             if (pinnedObject instanceof ServiceBuilding serviceBuilding) {
                 stats += "\nguests: " + serviceBuilding.getGuests().size() + " / " + serviceBuilding.getType().guestCapacity;
             }
+            else if (pinnedObject instanceof SchoolBuilding school) {
+                stats += "\nstudents: " + school.getNumberOfStudents() + " / " + school.getOverallStudentCapacity();
+            }
 
-            stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
-            for (Resource resource : job.getRecipe(building).changedResources()) {
-                stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
-                        building.getInventory().getResourceAmount(resource));
+            if (!(pinnedObject instanceof SchoolBuilding)) {
+                stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
+                for (Resource resource : job.getRecipe(building).changedResources()) {
+                    stats = stats.concat("\n" + resource.toString().toLowerCase() + ": " +
+                            building.getInventory().getResourceAmount(resource));
+                }
             }
         }
         else if (pinnedObject instanceof ConstructionSite construction) {

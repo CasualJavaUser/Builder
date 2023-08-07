@@ -22,14 +22,19 @@ public class Villager extends NPC implements Clickable {
     /**
      * age in ticks
      */
-    protected long age = 0;
+    private long age = 0;
+    private float education = 0f;
     private final float[] stats = new float[Stat.values().length];
     private final int skin;
 
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
+    private SchoolBuilding school = null;
     private StorageBuilding buildingIsIn = null;
     private StorageBuilding destinationBuilding = null;
+    /**
+     * is at work or school
+     */
     private boolean clockedIn = false;
 
     private final LinkedList<Order> orderList = new LinkedList<>();
@@ -57,7 +62,7 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
-    public void seekJob() {
+    public boolean seekJob() {
         Optional<ProductionBuilding> bestJobOptional = World.getBuildings().stream()
                 .filter(building -> building instanceof ProductionBuilding)
                 .map(building -> (ProductionBuilding) building)
@@ -75,7 +80,9 @@ public class Villager extends NPC implements Clickable {
                 bestJob.addEmployee(this);
                 workplace = bestJob;
             }
+            return true;
         }
+        return false;
     }
 
     public void seekHouse() {
@@ -98,6 +105,33 @@ public class Villager extends NPC implements Clickable {
                 home = bestHouse;
             }
         }
+    }
+
+    public boolean seekSchool() {
+        Optional<SchoolBuilding> bestSchoolOptional = World.getBuildings().stream()
+                .filter(building -> building instanceof SchoolBuilding)
+                .map(building -> (SchoolBuilding) building)
+                .filter(SchoolBuilding::isRecruiting)
+                .max(Comparator.comparing(SchoolBuilding::getEfficiency));
+
+        if (bestSchoolOptional.isPresent()) {
+            final SchoolBuilding bestSchool = bestSchoolOptional.get();
+
+            if (school == null) {
+                bestSchool.addStudent(this);
+                school = bestSchool;
+            } else if (bestSchool.getEfficiency() > school.getEfficiency()) {
+                school.removeStudent(this);
+                bestSchool.addStudent(this);
+                school = bestSchool;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEducationPreferable() {
+        return education < 1f;  //TODO education preferableness algorithm
     }
 
     public ServiceBuilding seekNearestService(Service service) {
@@ -124,6 +158,15 @@ public class Villager extends NPC implements Clickable {
             gridPosition.set(building.getEntrancePosition());
         }
         buildingIsIn = null;
+    }
+
+    public void educate(float rate) {
+        education += rate;
+        if (education > 1f) education = 1f;
+    }
+
+    public float getEducation() {
+        return education;
     }
 
     @Override
@@ -204,6 +247,8 @@ public class Villager extends NPC implements Clickable {
                     if (gridPosition.equals(building.getEntrancePosition())) {
                         if (building == workplace) {
                             workplace.employeeEnter(Villager.this);
+                        } else if (building == school) {
+                            school.studentEnter(Villager.this);
                         }
                         enterBuilding(building);
                     }
@@ -215,11 +260,15 @@ public class Villager extends NPC implements Clickable {
                 @Override
                 void execute() {
                     if (gridPosition.equals(building.getGridPosition())) {
-                        if (building == workplace) {
-                            workplace.employeeExit(Villager.this);
-                        }
-                        if (building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getGuests().contains(Villager.this)) {
-                            serviceBuilding.guestExit(Villager.this);
+                        if (building == school) {
+                            school.studentExit(Villager.this);
+                        } else {
+                            if (building == workplace) {
+                                workplace.employeeExit(Villager.this);
+                            }
+                            if (building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getGuests().contains(Villager.this)) {
+                                serviceBuilding.guestExit(Villager.this);
+                            }
                         }
                         gridPosition.set(building.getEntrancePosition());
                         buildingIsIn = null;
@@ -411,6 +460,10 @@ public class Villager extends NPC implements Clickable {
         return workplace;
     }
 
+    public SchoolBuilding getSchool() {
+        return school;
+    }
+
     public String getName() {
         return name;
     }
@@ -475,7 +528,8 @@ public class Villager extends NPC implements Clickable {
             s = s.concat("\n" + stat);
         }
 
-        s += "\norder list size: " + orderList.size() +
+        s += "\neducation: " + education +
+                "\norder list size: " + orderList.size() +
                 "\nclocked in: " + clockedIn +
                 "\nhome: " + homeType +
                 "\nworkplace: " + workplaceType +

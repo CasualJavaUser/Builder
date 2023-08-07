@@ -55,7 +55,13 @@ public class Logic {
         public void run() {
             Logistics.pairRequests();
             for (Villager villager : World.getVillagers()) {
-                villager.seekJob();
+                if (villager.isEducationPreferable()) {
+                    if (!villager.seekSchool())
+                        villager.seekJob();
+                } else {
+                    if (!villager.seekJob())
+                        villager.seekSchool();
+                }
                 villager.seekHouse();
                 villager.fulfillNeeds();
             }
@@ -106,14 +112,17 @@ public class Logic {
         for (int i = 0; i < World.getBuildings().size(); i++) {
             Building building = World.getBuildings().get(i);
 
-            if (building instanceof ServiceBuilding) {
-                ((ServiceBuilding) building).provideServices();
+            if (building instanceof ServiceBuilding service) {
+                service.provideServices();
             }
             if (building instanceof ProductionBuilding workplace) {
                 workplace.business();
                 for (Object fieldWork : workplace.getAssignedFieldWork().values().toArray()) {
                     ((FieldWork) fieldWork).work();
                 }
+            }
+            if (building instanceof SchoolBuilding school) {
+                school.teach();
             }
         }
 
