@@ -102,7 +102,7 @@ public abstract class NPC extends GameObject{
                 alignSprite();
                 return true;
             }
-            if (!World.getNavigableTiles().contains(path[pathStep + 1])) {
+            if (!World.isNavigable(path[pathStep + 1])) {
                 navigateTo(path[path.length - 1]);
                 return false;
             }

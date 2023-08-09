@@ -433,9 +433,10 @@ public class Buildings {
                         Tiles.getBuildingCollider().getGridPosition().clone(),
                         100,
                         fieldCollider);
+                Harvestable onEntrance = World.findHarvestables(constructionSite.getEntrancePosition());
+                if (onEntrance != null) World.removeFieldWorks(onEntrance);
                 World.removeFieldWorks(constructionSite.getCollider());
                 World.removeFieldWorks(fieldCollider);
-                World.removeFieldWorks(new BoxCollider(constructionSite.getEntrancePosition(), 1, 1));
                 World.placeFieldWork(constructionSite);
                 World.makeBuilt(constructionSite.getCollider());
                 World.makeBuilt(fieldCollider);

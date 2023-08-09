@@ -470,7 +470,7 @@ public class World {
             for (int x = 0; x < worldSize.x; x++) {
                 pos.set(x, y);
                 batch.setColor(UI.SEMI_TRANSPARENT_RED);
-                if (!navigableTiles.contains(pos))
+                if (!isNavigable(pos))
                     batch.draw(Textures.get(Textures.Tile.DEFAULT), x * TILE_SIZE, y * TILE_SIZE);
                 batch.setColor(UI.DEFAULT_COLOR);
             }
@@ -479,7 +479,7 @@ public class World {
 
     public static void pathfindingTest(SpriteBatch batch) {
         Vector2i mousePos = new Vector2i(GameScreen.getMouseWorldPosition()).divide(TILE_SIZE);
-        if (World.getNavigableTiles().contains(mousePos)) {
+        if (isNavigable(mousePos)) {
             Vector2i[] path = Pathfinding.findPathNoCache(Vector2i.zero(), mousePos);
 
             for (Vector2i vector2i : path) {
@@ -496,6 +496,10 @@ public class World {
 
     public static boolean isBuildable(int x, int y) {
         return isBuildable(new Vector2i(x, y));
+    }
+
+    public static boolean isNavigable(Vector2i gridPosition) {
+        return navigableTiles.contains(gridPosition);
     }
 
     public static int getStored(Resource resource) {

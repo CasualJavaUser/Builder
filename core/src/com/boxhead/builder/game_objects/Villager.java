@@ -206,7 +206,7 @@ public class Villager extends NPC implements Clickable {
     public void wander() {
         if (World.getRandom().nextInt(360) == 0) {
             Vector2i randomPos = randomPosInRange(5);
-            if (World.getNavigableTiles().contains(randomPos))
+            if (World.isNavigable(randomPos))
                 giveOrder(randomPos);
         }
     }

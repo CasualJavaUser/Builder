@@ -32,7 +32,7 @@ public class PlantationBuilding extends FarmBuilding<Harvestable> {
      * Returns true if a new FieldHarvestable can be created on the given tile.
      */
     public boolean isArable(Vector2i gridPosition) {
-        if (!fieldCollider.overlaps(gridPosition) || !World.isBuildable(gridPosition))
+        if (!fieldCollider.overlaps(gridPosition) || !World.isNavigable(gridPosition))
             return false;
 
         for (Harvestable harvestable : ownFieldWorks) {
