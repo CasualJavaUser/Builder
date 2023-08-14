@@ -2,7 +2,6 @@ package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Vector2i;
@@ -35,7 +34,7 @@ public class DraggableWindow extends Window implements Clickable {
     @Override
     public void onHold() {
         isDragged = true;
-        Move(Gdx.input.getX() - prevMousePos.x, -(Gdx.input.getY() - prevMousePos.y));
+        move(Gdx.input.getX() - prevMousePos.x, -(Gdx.input.getY() - prevMousePos.y));
 
         Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - getWindowWidth());
         Range<Integer> rangeY = Range.between(0, Gdx.graphics.getHeight() - getWindowHeight());

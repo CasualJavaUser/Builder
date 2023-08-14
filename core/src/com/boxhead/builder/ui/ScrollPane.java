@@ -18,7 +18,7 @@ public class ScrollPane extends UIElement {
         super(parent, layer, position, true);
         this.width = width;
         this.height = height;
-        nextPos = new Vector2i(width/2, height);
+        nextPos = new Vector2i(width / 2, height);
         setScissors(
                 getGlobalPosition().x,
                 getGlobalPosition().y,
@@ -28,11 +28,11 @@ public class ScrollPane extends UIElement {
     }
 
     public ScrollPane(UIElement parent, UI.Layer layer, int x1, int y1, int x2, int y2) {
-        this(parent, layer, new Vector2i(x1, y1), x2-x1, y2-y1);
+        this(parent, layer, new Vector2i(x1, y1), x2 - x1, y2 - y1);
     }
 
     public void addElement(UIElement element) {
-        if(elements.isEmpty()) firstElement = element;
+        if (elements.isEmpty()) firstElement = element;
         lastElement = element;
 
         elements.add(element);
@@ -43,20 +43,19 @@ public class ScrollPane extends UIElement {
         nextPos.set(nextPos.x, nextPos.y - element.getHeight() - UI.PADDING);
         element.setScissors(getScissors());
 
-        if(firstElement.getGlobalPosition().y + firstElement.getHeight() - lastElement.getGlobalPosition().y > height)
+        if (firstElement.getGlobalPosition().y + firstElement.getHeight() - lastElement.getGlobalPosition().y > height)
             scrollable = true;
     }
 
     public void updateScissors() {
-        getScissors().x = getGlobalPosition().x;
-        getScissors().y = getGlobalPosition().y;
+        getScissors().getGridPosition().set(getGlobalPosition());
     }
 
     public void clear() {
         for (UIElement element : elements) {
             element.removeScissors();
         }
-        nextPos.set(width/2, height);
+        nextPos.set(width / 2, height);
         elements.clear();
         firstElement = null;
         lastElement = null;
@@ -72,18 +71,18 @@ public class ScrollPane extends UIElement {
     }
 
     public void scroll() {
-        if(!elements.isEmpty() && scrollable) {
+        if (!InputManager.isScrolled()) return;
+
+        if (!elements.isEmpty() && scrollable) {
             int scroll = (int) (InputManager.getScroll() * 10);
-            if (scroll != 0) {
-                int delta1 = (getGlobalPosition().y + height - firstElement.getHeight()) - firstElement.getGlobalPosition().y;
-                int delta2 = getGlobalPosition().y - lastElement.getGlobalPosition().y;
-                Range<Integer> range = Range.between(delta2, delta1);
-                scroll = range.fit(scroll);
-                for (UIElement element : elements) {
-                    element.setGlobalPosition(
-                            element.getGlobalPosition().x,
-                            element.getGlobalPosition().y + scroll);
-                }
+            int delta1 = (getGlobalPosition().y + height - firstElement.getHeight()) - firstElement.getGlobalPosition().y;
+            int delta2 = getGlobalPosition().y - lastElement.getGlobalPosition().y;
+            Range<Integer> range = Range.between(delta2, delta1);
+            scroll = range.fit(scroll);
+            for (UIElement element : elements) {
+                element.setGlobalPosition(
+                        element.getGlobalPosition().x,
+                        element.getGlobalPosition().y + scroll);
             }
         }
     }

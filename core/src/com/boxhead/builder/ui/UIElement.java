@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.utils.Rectangle;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 public class UIElement {
@@ -18,7 +18,7 @@ public class UIElement {
     protected boolean isVisible;
     protected Color tint;
     protected UI.Layer layer;
-    private Rectangle scissors = null;
+    private BoxCollider scissors = null;
 
     public UIElement() {
         this(null, null, null, new Vector2i(), 0, true);
@@ -100,7 +100,7 @@ public class UIElement {
             position.set(x, y);
     }
 
-    public void Move(int x, int y) {
+    public void move(int x, int y) {
         position.set(position.x + x, position.y + y);
     }
 
@@ -159,10 +159,10 @@ public class UIElement {
     }
 
     public void setScissors(int x, int y, int width, int height) {
-        scissors = new Rectangle(x, y, width, height);
+        scissors = new BoxCollider(x, y, width, height);
     }
 
-    public void setScissors(Rectangle rectangle) {
+    public void setScissors(BoxCollider rectangle) {
         scissors = rectangle;
     }
 
@@ -175,10 +175,10 @@ public class UIElement {
             batch.flush();
             Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
             Gdx.gl.glScissor(
-                    scissors.x,
-                    scissors.y,
-                    scissors.width,
-                    scissors.height
+                    scissors.getGridPosition().x,
+                    scissors.getGridPosition().y,
+                    scissors.getWidth(),
+                    scissors.getHeight()
             );
         }
     }
@@ -190,7 +190,7 @@ public class UIElement {
         }
     }
 
-    public Rectangle getScissors() {
+    public BoxCollider getScissors() {
         return scissors;
     }
 

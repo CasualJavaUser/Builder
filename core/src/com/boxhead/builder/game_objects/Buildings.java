@@ -1,23 +1,17 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.boxhead.builder.*;
-import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
-import com.boxhead.builder.utils.BoxCollider;
-import com.boxhead.builder.utils.Pair;
-import com.boxhead.builder.utils.Vector2i;
-import com.boxhead.builder.utils.Range;
+import com.boxhead.builder.utils.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class Buildings {
@@ -140,8 +134,8 @@ public class Buildings {
                 Jobs.DOCTOR
         ),
         SCHOOL(
-               Textures.Building.SERVICE_FUNGUS,
-               "school",
+                Textures.Building.SERVICE_FUNGUS,
+                "school",
                 new Vector2i(0, -1),
                 new Recipe(Pair.of(Resource.WOOD, 50)),
                 new BoxCollider(0, 0, 2, 2),
@@ -170,7 +164,7 @@ public class Buildings {
         public final int serviceInterval, productionInterval, range;
         public final Function<Set<Building>, Float> updateEfficiency;
 
-        private final boolean[] shifts = new boolean[] {false, true, false};
+        private final boolean[] shifts = new boolean[]{false, true, false};
 
         static {
             Arrays.fill(HOSPITAL.shifts, true);
@@ -253,7 +247,7 @@ public class Buildings {
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, Job job, int studentCapacity, int maxEmployeeCapacity) {
             this(texture, name, entrancePosition, relativeCollider, buildCost, job,
                     null, 0, null, null, 0, 0,
-            studentCapacity, maxEmployeeCapacity, 0, 0, null);
+                    studentCapacity, maxEmployeeCapacity, 0, 0, null);
         }
 
         //storage
@@ -369,83 +363,84 @@ public class Buildings {
         if (!isInBuildingMode || isInDemolishingMode)
             throw new IllegalStateException("Not in building mode");
 
+        if (Tiles.isInFieldMode()) {
+            handleFieldMode(batch);
+            return;
+        }
+
         TextureRegion texture = currentBuilding.getTexture();
+        Vector2 mousePos = GameScreen.getMouseWorldPosition();
 
-        if (!Tiles.isInFieldMode()) {
-            Vector2 mousePos = GameScreen.getMouseWorldPosition();
+        //center texture around mouse
+        int screenX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
+        int screenY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
 
-            int mouseX = (int) mousePos.x - (texture.getRegionWidth() - World.TILE_SIZE) / 2;
-            int mouseY = (int) mousePos.y - (texture.getRegionHeight() - World.TILE_SIZE) / 2;
+        //snap texture to grid within map boundaries
+        screenX = rangeX.fit(screenX - (screenX % World.TILE_SIZE));
+        screenY = rangeY.fit(screenY - (screenY % World.TILE_SIZE));
 
-            int posX = mouseX - (mouseX % World.TILE_SIZE);
-            int posY = mouseY - (mouseY % World.TILE_SIZE);
+        Vector2i gridPosition = new Vector2i(screenX, screenY).divide(World.TILE_SIZE);
 
-            posX = rangeX.fit(posX);
-            posY = rangeY.fit(posY);
+        if (currentBuilding.range > 0) {
+            showBuildingRange(batch,
+                    gridPosition.add(currentBuilding.entrancePosition),
+                    currentBuilding.range);
+        }
+        boolean isBuildable = checkAndShowTileAvailability(batch, gridPosition);
 
-            if (currentBuilding.range > 0) {
-                showBuildingRange(batch,
-                        posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
-                        posY + currentBuilding.entrancePosition.y * World.TILE_SIZE,
-                        currentBuilding.range);
-            }
-            boolean isBuildable = checkAndShowTileAvailability(batch, posX, posY);
+        batch.setColor(UI.SEMI_TRANSPARENT);
+        batch.draw(texture, screenX, screenY);
+        batch.setColor(UI.DEFAULT_COLOR);
 
-            batch.setColor(UI.SEMI_TRANSPARENT);
-            batch.draw(texture, posX, posY);
-            batch.setColor(UI.DEFAULT_COLOR);
-
-            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && isBuildable) {
-                if (!currentBuilding.isFarm()) {
-                    Vector2i buildingPosition = new Vector2i(posX / World.TILE_SIZE, posY / World.TILE_SIZE);
-                    ConstructionSite constructionSite = new ConstructionSite(currentBuilding, buildingPosition, 100);
-                    Harvestable onEntrance = World.findHarvestables(constructionSite.getEntrancePosition());
-                    if (onEntrance != null) World.removeFieldWorks(onEntrance);
-                    World.removeFieldWorks(constructionSite.getCollider());
-                    World.placeFieldWork(constructionSite);
-                    World.makeBuilt(constructionSite.getCollider());
-
-                    if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                        isInBuildingMode = false;
-                } else {
-                    Tiles.toFieldMode(
-                            new BoxCollider(
-                                    posX / World.TILE_SIZE,
-                                    posY / World.TILE_SIZE,
-                                    currentBuilding.relativeCollider.getWidth(),
-                                    currentBuilding.relativeCollider.getHeight()),
-                            currentBuilding.farmAnimal != null,
-                            FarmBuilding.MIN_FIELD_SIZE,
-                            FarmBuilding.MAX_FIELD_SIZE);
-                }
-            }
-        } else {
-            batch.setColor(UI.SEMI_TRANSPARENT);
-            batch.draw(
-                    texture,
-                    Tiles.getBuildingCollider().getGridPosition().x * World.TILE_SIZE,
-                    Tiles.getBuildingCollider().getGridPosition().y * World.TILE_SIZE
-            );
-            BoxCollider fieldCollider = Tiles.handleFieldMode(batch);
-            if (fieldCollider != null) {
-                ConstructionSite constructionSite = new ConstructionSite(
-                        currentBuilding,
-                        Tiles.getBuildingCollider().getGridPosition().clone(),
-                        100,
-                        fieldCollider);
+        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && isBuildable) {
+            if (!currentBuilding.isFarm()) {
+                ConstructionSite constructionSite = new ConstructionSite(currentBuilding, gridPosition, 100);
                 Harvestable onEntrance = World.findHarvestables(constructionSite.getEntrancePosition());
                 if (onEntrance != null) World.removeFieldWorks(onEntrance);
                 World.removeFieldWorks(constructionSite.getCollider());
-                World.removeFieldWorks(fieldCollider);
                 World.placeFieldWork(constructionSite);
                 World.makeBuilt(constructionSite.getCollider());
-                World.makeBuilt(fieldCollider);
 
-                Tiles.turnOffFieldMode();
-                if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                if (!InputManager.isKeyDown(InputManager.CONTROL))
                     isInBuildingMode = false;
+            } else {
+                Tiles.toFieldMode(
+                        currentBuilding.relativeCollider.cloneAndTranslate(gridPosition),
+                        currentBuilding.farmAnimal != null,
+                        FarmBuilding.MIN_FIELD_SIZE,
+                        FarmBuilding.MAX_FIELD_SIZE);
             }
         }
+    }
+
+    private static void handleFieldMode(SpriteBatch batch) {
+        TextureRegion texture = currentBuilding.getTexture();
+
+        batch.setColor(UI.SEMI_TRANSPARENT);
+        batch.draw(
+                texture,
+                Tiles.getBuildingCollider().getGridPosition().x * World.TILE_SIZE,
+                Tiles.getBuildingCollider().getGridPosition().y * World.TILE_SIZE
+        );
+        BoxCollider fieldCollider = Tiles.handleFieldMode(batch);
+        if (fieldCollider == null) return;  //field hasn't been placed yet
+
+        ConstructionSite constructionSite = new ConstructionSite(
+                currentBuilding,
+                Tiles.getBuildingCollider().getGridPosition().clone(),
+                100,
+                fieldCollider);
+        Harvestable onEntrance = World.findHarvestables(constructionSite.getEntrancePosition());
+        if (onEntrance != null) World.removeFieldWorks(onEntrance);
+        World.removeFieldWorks(constructionSite.getCollider());
+        World.removeFieldWorks(fieldCollider);
+        World.placeFieldWork(constructionSite);
+        World.makeBuilt(constructionSite.getCollider());
+        World.makeBuilt(fieldCollider);
+
+        Tiles.turnOffFieldMode();
+        if (!InputManager.isKeyDown(InputManager.CONTROL))
+            isInBuildingMode = false;
     }
 
     public static void handleDemolishingMode() {
@@ -493,30 +488,30 @@ public class Buildings {
         return isInDemolishingMode;
     }
 
-    private static boolean checkAndShowTileAvailability(SpriteBatch batch, int posX, int posY) {
+    private static boolean checkAndShowTileAvailability(SpriteBatch batch, Vector2i gridPosition) {
         boolean isBuildable = true;
-        for (int y = 0; y < currentBuilding.relativeCollider.getHeight(); y++) {
-            for (int x = 0; x < currentBuilding.relativeCollider.getWidth(); x++) {
-                Vector2i tile = new Vector2i(posX / World.TILE_SIZE + x, posY / World.TILE_SIZE + y);
+        BoxCollider area = currentBuilding.relativeCollider.cloneAndTranslate(gridPosition);
+        List<Harvestable> harvestables = World.findHarvestables(area);
+        List<Vector2i> harvestablePositions = new ArrayList<>(harvestables.size());
+        for (Harvestable harvestable : harvestables) {
+            harvestablePositions.add(harvestable.getCollider().getGridPosition());
+        }
 
-                if (World.findHarvestables(tile) != null) {
-                    batch.setColor(UI.SEMI_TRANSPARENT_YELLOW);
-                }
-                else if (World.isBuildable(tile)) {
-                    batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
-                }
-                else {
-                    batch.setColor(UI.SEMI_TRANSPARENT_RED);
-                    isBuildable = false;
-                }
-
-                batch.draw(Textures.get(Textures.Tile.DEFAULT), posX + x * World.TILE_SIZE, posY + y * World.TILE_SIZE);
+        for (Vector2i tile : area) {
+            if (harvestablePositions.contains(tile)) {
+                batch.setColor(UI.SEMI_TRANSPARENT_YELLOW);
+            } else if (World.isBuildable(tile)) {
+                batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
+            } else {
+                batch.setColor(UI.SEMI_TRANSPARENT_RED);
+                isBuildable = false;
             }
+
+            batch.draw(Textures.get(Textures.Tile.DEFAULT), tile.x * World.TILE_SIZE, tile.y * World.TILE_SIZE);
         }
         if (currentBuilding.entrancePosition != null) {
-            Vector2i entrancePos = new Vector2i(posX / World.TILE_SIZE + currentBuilding.entrancePosition.x,
-                    posY / World.TILE_SIZE + currentBuilding.entrancePosition.y);
-            if (rangeX.contains(entrancePos.x * World.TILE_SIZE) && rangeY.contains(entrancePos.y * World.TILE_SIZE) && World.isBuildable(entrancePos))
+            Vector2i entrancePos = currentBuilding.entrancePosition.add(gridPosition);
+            if (rangeX.contains(entrancePos.x) && rangeY.contains(entrancePos.y) && World.isBuildable(entrancePos))
                 batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
             else {
                 batch.setColor(UI.SEMI_TRANSPARENT_RED);
@@ -524,20 +519,19 @@ public class Buildings {
             }
 
             batch.draw(Textures.get(Textures.Tile.DEFAULT),
-                    posX + currentBuilding.entrancePosition.x * World.TILE_SIZE,
-                    posY + currentBuilding.entrancePosition.y * World.TILE_SIZE);
+                    entrancePos.x * World.TILE_SIZE,
+                    entrancePos.y * World.TILE_SIZE);
         }
         return isBuildable;
     }
 
-    private static void showBuildingRange(SpriteBatch batch, int posX, int posY, int range) {
+    private static void showBuildingRange(SpriteBatch batch, Vector2i gridPosition, int range) {
         batch.setColor(UI.VERY_TRANSPARENT);
-        TileCircle.draw(
+        Circle.draw(
                 batch,
                 Textures.get(Textures.Tile.DEFAULT),
-                posX,
-                posY,
-                range * World.TILE_SIZE);
+                gridPosition,
+                range);
         batch.setColor(UI.DEFAULT_COLOR);
     }
 

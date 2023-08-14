@@ -3,8 +3,8 @@ package com.boxhead.builder.game_objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
-import com.boxhead.builder.ui.TileCircle;
 import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.utils.Circle;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
@@ -326,11 +326,11 @@ public class ProductionBuilding extends StorageBuilding {
     public void draw(SpriteBatch batch) {
         if (showRange) {
             batch.setColor(UI.VERY_TRANSPARENT);
-            TileCircle.draw(
+            Circle.draw(
                     batch,
                     Textures.get(Textures.Tile.DEFAULT),
-                    entrancePosition.multiply(World.TILE_SIZE),
-                    type.range * World.TILE_SIZE);
+                    entrancePosition,
+                    type.range);
             batch.setColor(UI.DEFAULT_COLOR);
         }
 
