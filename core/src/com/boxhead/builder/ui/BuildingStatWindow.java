@@ -126,7 +126,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
                         construction.getInventory().getResourceAmount(entry.getKey()) + " / " + entry.getValue());
             }
         }
-        else if (pinnedObject instanceof StorageBuilding building) {
+        else if (pinnedObject.getClass() == StorageBuilding.class) {
+            StorageBuilding building = ((StorageBuilding) pinnedObject);
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : building.getInventory().getStoredResources()) {
                 if (resource != Resource.NOTHING) {
@@ -221,16 +222,6 @@ public class BuildingStatWindow extends StatWindow<Building> {
                     getGlobalPosition().y + UI.PADDING);
             x += Villager.TEXTURE_SIZE + 5;
         }
-
-        batch.setColor(Color.BLACK);
-        for (int i = 0; i < building.getResidentCapacity() - building.getResidents().size(); i++) {
-            batch.draw(Textures.get(Textures.Npc.IDLE0),
-                    getGlobalPosition().x + UI.PADDING + x,
-                    getGlobalPosition().y + UI.PADDING);
-            x += Villager.TEXTURE_SIZE + 5;
-        }
-        batch.setColor(UI.DEFAULT_COLOR);
-
         counterWidth = x;
     }
 

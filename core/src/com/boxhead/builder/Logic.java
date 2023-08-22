@@ -37,19 +37,32 @@ public class Logic {
 
             produceResources();
 
-            for (Villager villager : World.getVillagers()) {
+            if (World.getTime() == 0) {
+                reproduceVillagers();
+            }
+
+            for (int i = 0; i < World.getVillagers().size(); i++) {
+                Villager villager = World.getVillagers().get(i);
                 villager.executeOrders();
                 villager.incrementAge();
                 villager.progressStats();
 
-                if (!villager.hasJob() && World.getTime() == orderedShifts[currentShift].end) {
-                    villager.seekJobOrSchool();
+                if (villager.ageInTicks() == Villager.RETIREMENT_AGE * World.YEAR) {
+                    villager.retire();
                 }
-                else if (villager.hasWorkplace() && World.getTime() == villager.getWorkplace().getShift(villager).getShiftTime().end) {
-                    villager.seekJobOrSchool();
+                else if (villager.ageInYears() >= Villager.RETIREMENT_AGE) {
+                    if (World.getDate() > villager.getDayOfDecease()) {
+                        villager.die();
+                    }
                 }
-                else if (villager.hasSchool() && World.getTime() == villager.getSchool().getStudentShift(villager).getShiftTime().end) {
-                    villager.seekJobOrSchool();
+                else if (villager.ageInYears() > Villager.WORKING_AGE) {
+                    if (!villager.hasJob() && World.getTime() == orderedShifts[currentShift].end) {
+                        villager.seekJobOrSchool();
+                    } else if (villager.hasWorkplace() && World.getTime() == villager.getWorkplace().getShift(villager).getShiftTime().end) {
+                        villager.seekJobOrSchool();
+                    } else if (villager.hasSchool() && World.getTime() == villager.getSchool().getStudentShift(villager).getShiftTime().end) {
+                        villager.seekJobOrSchool();
+                    }
                 }
             }
 
@@ -69,6 +82,10 @@ public class Logic {
         public void run() {
             Logistics.pairRequests();
             for (Villager villager : World.getVillagers()) {
+                if (villager.getPartner() == null && villager.ageInYears() >= Villager.AGE_OF_CONSENT && villager.ageInYears() < Villager.INFERTILITY_AGE) {
+                    villager.findPartner();
+                }
+
                 villager.seekHouse();
                 villager.fulfillNeeds();
             }
@@ -136,6 +153,24 @@ public class Logic {
         World.removeFieldWorks();
         Logistics.clearFieldWorkRequests();
         Logistics.clearOrderRequests();
+    }
+
+    private static void reproduceVillagers() {
+        for (Villager villager : World.getVillagers()) {
+            if (villager.getPartner() != null &&
+                    villager.getGender() &&
+                    villager.getHome() != null &&
+                    !villager.isLivingWithParents() &&
+                    villager.getHome().equals(villager.getPartner().getHome()) &&
+                    villager.getHappiness() > 80
+            ) {
+                double lifespan = Villager.INFERTILITY_AGE - Villager.AGE_OF_CONSENT;
+                double daysPerYear = (double)World.YEAR / (double)World.FULL_DAY;
+                double probability = Villager.AVERAGE_NUM_OF_CHILDREN / (lifespan * daysPerYear);
+                if(World.getRandom().nextDouble() < probability)
+                    villager.reproduce();
+            }
+        }
     }
 
     public static void init() {

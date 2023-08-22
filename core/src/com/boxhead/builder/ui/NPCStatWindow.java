@@ -42,7 +42,7 @@ public class NPCStatWindow extends StatWindow<Villager> {
             stats += "ID: " + pinnedObject.getId() + "\n";
         }
 
-        stats += name + "\n" + job;
+        stats += name + "\n" + (pinnedObject.getGender() ? "female" : "male") + "\n" + job;
         stats += "\nage: " + pinnedObject.ageInYears();
         String stat;
         for (int i = 0; i < Stat.values().length; i++) {
@@ -50,7 +50,15 @@ public class NPCStatWindow extends StatWindow<Villager> {
             stats += "\n" + stat;
         }
 
-        stats += "\neducation: " + (int)(pinnedObject.getEducation() * 100f) + "%";
+        stats += "\neducation: " + (int)(pinnedObject.getEducation() * 100f) + "%" +
+            "\nhappiness: " + Math.round(pinnedObject.getHappiness());
+
+        if (pinnedObject.getPartner() != null && pinnedObject.isLivingWithParents()) {
+            stats += "\n- living with parents";
+        }
+        else if (pinnedObject.getHome() == null) {
+            stats += "\n- homeless";
+        }
     }
 
     @Override

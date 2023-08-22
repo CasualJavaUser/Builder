@@ -6,31 +6,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ResidentialBuilding extends StorageBuilding {
-
     private final Set<Villager> residents;
 
     public ResidentialBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        residents = new HashSet<>(type.residentCapacity);
+        residents = new HashSet<>(type.familyCapacity);
     }
 
     public boolean addResident(Villager villager) {
-        if (residents.size() < type.residentCapacity) {
-            return residents.add(villager);
-        }
-        return false;
+        return residents.add(villager);
     }
 
     public boolean removeResident(Villager villager) {
         return residents.remove(villager);
     }
 
-    public boolean hasFreePlaces() {
-        return residents.size() < type.residentCapacity;
-    }
-
-    public int getResidentCapacity() {
-        return type.residentCapacity;
+    public boolean isEmpty() {
+        return residents.isEmpty();
     }
 
     public Set<Villager> getResidents() {

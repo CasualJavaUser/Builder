@@ -160,7 +160,7 @@ public class Buildings {
         public final Harvestables.Type crop;
         public final Animals.Type farmAnimal;
 
-        public final int residentCapacity, guestCapacity, studentCapacity, maxEmployeeCapacity;
+        public final int familyCapacity, guestCapacity, studentCapacity, maxEmployeeCapacity;
         public final int serviceInterval, productionInterval, range;
         public final Function<Set<Building>, Float> updateEfficiency;
 
@@ -171,7 +171,7 @@ public class Buildings {
         }
 
         Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost, Job job,
-             Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int residentCapacity, int guestCapacity,
+             Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int familyCapacity, int guestCapacity,
              int studentCapacity, int maxEmployeeCapacity, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
 
             if ((crop != null && farmAnimal != null) ||
@@ -188,7 +188,7 @@ public class Buildings {
             this.serviceInterval = serviceInterval;
             this.crop = crop;
             this.farmAnimal = farmAnimal;
-            this.residentCapacity = residentCapacity;
+            this.familyCapacity = familyCapacity;
             this.guestCapacity = guestCapacity;
             this.studentCapacity = studentCapacity;
             this.maxEmployeeCapacity = maxEmployeeCapacity;
@@ -203,23 +203,23 @@ public class Buildings {
 
         //default collider
         Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, Job job,
-             Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int residentCapacity, int guestCapacity,
+             Service service, int serviceInterval, Harvestables.Type crop, Animals.Type farmAnimal, int familyCapacity, int guestCapacity,
              int studentCapacity, int maxEmployeeCapacity, int productionInterval, int range, Function<Set<Building>, Float> updateEfficiency) {
             this(texture, name, entrancePosition, new BoxCollider(
                             Vector2i.zero(),
                             Textures.get(texture).getRegionWidth() / World.TILE_SIZE,
                             Textures.get(texture).getRegionHeight() / World.TILE_SIZE),
-                    buildCost, job, service, serviceInterval, crop, farmAnimal, residentCapacity, guestCapacity,
+                    buildCost, job, service, serviceInterval, crop, farmAnimal, familyCapacity, guestCapacity,
                     studentCapacity, maxEmployeeCapacity, productionInterval, range, updateEfficiency);
         }
 
         //residential
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, int residentCapacity) {
-            this(texture, name, entrancePosition, relativeCollider, buildCost, null, null, 0, null, null, residentCapacity, 0, 0, 0, 0, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, BoxCollider relativeCollider, int familyCapacity) {
+            this(texture, name, entrancePosition, relativeCollider, buildCost, null, null, 0, null, null, familyCapacity, 0, 0, 0, 0, 0, null);
         }
 
-        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, int residentCapacity) {
-            this(texture, name, entrancePosition, buildCost, null, null, 0, null, null, residentCapacity, 0, 0, 0, 0, 0, null);
+        Type(Textures.Building texture, String name, Vector2i entrancePosition, Recipe buildCost, int familyCapacity) {
+            this(texture, name, entrancePosition, buildCost, null, null, 0, null, null, familyCapacity, 0, 0, 0, 0, 0, null);
         }
 
         //production
@@ -340,7 +340,7 @@ public class Buildings {
         }
 
         public boolean isResidential() {
-            return residentCapacity > 0;
+            return familyCapacity > 0;
         }
 
         public boolean isStorage() {
@@ -464,6 +464,7 @@ public class Buildings {
         rangeY = Range.between(0, World.getHeight() - currentBuilding.getTexture().getRegionHeight());
         isInDemolishingMode = false;
         isInBuildingMode = true;
+        UI.setTip("Press CTRL to place multiple");
     }
 
     public static void toDemolishingMode() {
@@ -474,6 +475,7 @@ public class Buildings {
     public static void turnOffBuildingMode() {
         isInBuildingMode = false;
         Tiles.turnOffFieldMode();
+        UI.setTip("");
     }
 
     public static void turnOffDemolishingMode() {

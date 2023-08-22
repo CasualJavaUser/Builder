@@ -49,6 +49,7 @@ public class UI {
     private static Clickable clickedElement = null;
     private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
+    @AddToUI private static TextArea tipArea;
     @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, pauseGameButton;
 
     @AddToUI private static UIElement timeElementGroup;
@@ -62,9 +63,7 @@ public class UI {
 
     @AddToUI private static ShiftMenu shiftMenu;
     @AddToUI private static BuildingMenu buildingMenu;
-
-    @AddToUI private static Window pauseWindow;
-    @AddToUI private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
+    @AddToUI private static PauseMenu pauseMenu;
 
     @AddToUI private static Window saveWindow;
     @AddToUI private static TextArea saveText;
@@ -83,7 +82,8 @@ public class UI {
         BOTTOM_LEFT,
         BOTTOM_RIGHT,
         TOP_LEFT,
-        TOP_RIGHT;
+        TOP_RIGHT,
+        BOTTOM_CENTER;
 
         private final UIElement element;
 
@@ -142,42 +142,6 @@ public class UI {
         parameter.spaceY = -6;
         FONT = generator.generateFont(parameter);
         generator.dispose();
-
-        //region pauseMenu
-        {
-            int menuWidth = 200, menuHeight = 380;
-            pauseWindow = new Window(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i());
-            pauseWindow.setContentWidth(menuWidth);
-            pauseWindow.setContentHeight(menuHeight);
-            pauseWindow.setLocalPosition(-pauseWindow.getWindowWidth() / 2, -pauseWindow.getWindowHeight() / 2);
-            pauseWindow.setTint(WHITE);
-
-            int x = -Textures.get(Textures.Ui.BIG_BUTTON).getRegionWidth() / 2;
-            newGameButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "New game");
-            resumeButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "Resume");
-            loadButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 42), "Load");
-            saveButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -32), "Save");
-            settingsButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -106), "Settings");
-            quitToMenuButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit to menu");
-            quitButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit");
-
-            newGameButton.setOnUp(BuilderGame::generateNewWorld);
-            resumeButton.setOnUp(() -> showPauseMenu(false));
-            loadButton.setOnUp(UI::showLoadMenu);
-            saveButton.setOnUp(UI::showSaveMenu);
-            settingsButton.setOnUp(() -> Layer.SETTINGS_MENU.setVisible(true));
-            quitToMenuButton.setOnUp(() -> BuilderGame.getInstance().setScreen(BuilderGame.getMenuScreen()));
-            quitButton.setOnUp(() -> Gdx.app.exit());
-
-            newGameButton.setTint(WHITE);
-            resumeButton.setTint(WHITE);
-            loadButton.setTint(WHITE);
-            saveButton.setTint(WHITE);
-            settingsButton.setTint(WHITE);
-            quitToMenuButton.setTint(WHITE);
-            quitButton.setTint(WHITE);
-        }
-        //endregion
 
         //region saveWindow
         saveWindow = new Window(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.SAVE_MENU, new Vector2i());
@@ -262,7 +226,7 @@ public class UI {
 
             npcButton.setOnUp(() -> {
                 Vector2i position = new Vector2i(World.getGridWidth() / 2, World.getGridHeight() / 2);
-                World.spawnVillager(new Villager((int)(Math.random()*2), position));
+                World.spawnVillager(new Villager(position));
             });
 
             workButton.setOnUp(() -> {
@@ -314,14 +278,20 @@ public class UI {
 
         buildingMenu = new BuildingMenu();
         shiftMenu = new ShiftMenu();
-
-        buildingMenu.setVisible(false);
-        //shiftMenu.setVisible(false);
+        pauseMenu = new PauseMenu();
+        resourceList = new ResourceList();
 
         npcStatWindow = new NPCStatWindow(Layer.IN_GAME);
         buildingStatWindow = new BuildingStatWindow(Layer.IN_GAME);
 
-        resourceList = new ResourceList(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, new Vector2i(20, -20));
+        tipArea = new TextArea(
+                "",
+                Anchor.BOTTOM_CENTER.getElement(),
+                Layer.IN_GAME,
+                new Vector2i(0, (int)(FONT.getCapHeight() + PADDING)),
+                0,
+                TextArea.Align.CENTER
+        );
 
         addUIElements();
     }
@@ -475,6 +445,7 @@ public class UI {
         Anchor.TOP_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Anchor.BOTTOM_LEFT.getElement().setGlobalPosition(0, 0);
         Anchor.BOTTOM_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), 0);
+        Anchor.BOTTOM_CENTER.getElement().setGlobalPosition(Gdx.graphics.getWidth()/2, 0);
         scrollPane.updateScissors();
     }
 
@@ -596,6 +567,10 @@ public class UI {
         UI.activeScrollPane = activeScrollPane;
     }
 
+    public static void setTip(String tip) {
+        tipArea.setText(tip);
+    }
+
     private static void createSaveField(File saveFile, boolean isSaving) {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
 
@@ -669,22 +644,75 @@ public class UI {
         return resourceList;
     }
 
-    /**
-     * @param b if true then adjust the pause menu to in-game use. Otherwise, adjusts to main menu.
-     */
-    public static void adjustMenuForInGameUse(boolean b) {
-        resumeButton.setVisible(b);
-        newGameButton.setVisible(!b);
-        quitToMenuButton.setVisible(b);
-        quitButton.setVisible(!b);
-    }
-
     public static NPCStatWindow getNpcStatWindow() {
         return npcStatWindow;
     }
 
     public static BuildingStatWindow getBuildingStatWindow() {
         return buildingStatWindow;
+    }
+
+    /**
+     * Changes pause menu buttons for in-game.
+     */
+    public static void setInGame(boolean inGame) {
+        pauseMenu.setInGame(inGame);
+    }
+
+    private static class PauseMenu extends Window {
+        private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
+
+        public PauseMenu() {
+            super(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i());
+            setContentWidth(200);
+            setContentHeight(380);
+            setLocalPosition(-getWindowWidth() / 2, -getWindowHeight() / 2);
+            setTint(WHITE);
+
+            int x = -Textures.get(Textures.Ui.BIG_BUTTON).getRegionWidth() / 2;
+            newGameButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "New game");
+            resumeButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 116), "Resume");
+            loadButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, 42), "Load");
+            saveButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -32), "Save");
+            settingsButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -106), "Settings");
+            quitToMenuButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit to menu");
+            quitButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit");
+
+            newGameButton.setOnUp(BuilderGame::generateNewWorld);
+            resumeButton.setOnUp(() -> showPauseMenu(false));
+            loadButton.setOnUp(UI::showLoadMenu);
+            saveButton.setOnUp(UI::showSaveMenu);
+            settingsButton.setOnUp(() -> Layer.SETTINGS_MENU.setVisible(true));
+            quitToMenuButton.setOnUp(() -> BuilderGame.getInstance().setScreen(BuilderGame.getMenuScreen()));
+            quitButton.setOnUp(() -> Gdx.app.exit());
+
+            newGameButton.setTint(WHITE);
+            resumeButton.setTint(WHITE);
+            loadButton.setTint(WHITE);
+            saveButton.setTint(WHITE);
+            settingsButton.setTint(WHITE);
+            quitToMenuButton.setTint(WHITE);
+            quitButton.setTint(WHITE);
+        }
+
+        public void setInGame(boolean inGame) {
+            resumeButton.setVisible(inGame);
+            newGameButton.setVisible(!inGame);
+            quitToMenuButton.setVisible(inGame);
+            quitButton.setVisible(!inGame);
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            newGameButton.addToUI();
+            resumeButton.addToUI();
+            loadButton.addToUI();
+            saveButton.addToUI();
+            settingsButton.addToUI();
+            quitToMenuButton.addToUI();
+            quitButton.addToUI();
+        }
     }
 
     private static class BuildingMenu extends Window {
@@ -701,7 +729,7 @@ public class UI {
         private final Tab[] tabs;
 
         BuildingMenu() {
-            super(Textures.get(Textures.Ui.WINDOW), Anchor.CENTER.getElement(), Layer.IN_GAME, new Vector2i());
+            super(Textures.get(Textures.Ui.WINDOW), Anchor.CENTER.getElement(), Layer.IN_GAME, new Vector2i(), false);
             setContentWidth(454);
             setContentHeight(400);
             setLocalPosition(-getWindowWidth() / 2, -getWindowHeight() / 2);
@@ -962,6 +990,90 @@ public class UI {
         }
     }
 
+    public static class ResourceList extends UIElement {
+        Label[] labels = new Label[Resource.values().length];
+
+        public ResourceList() {
+            super(null, Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, new Vector2i(20, -20), true);
+            for (int i = 0; i < labels.length; i++) {
+                TextureRegion texture = getResourcesTexture(Resource.values()[i]);
+                labels[i] = new Label(texture, this, layer, Vector2i.zero());
+                labels[i].setVisible(false);
+                labels[i].setText("0");
+                labels[i].setTexture(getResourcesTexture(Resource.values()[i]));
+            }
+        }
+
+        public void initData() {
+            int y = 0;
+            for (Resource resource : Resource.values()) {
+                if (resource == Resource.NOTHING) continue;
+                if (World.getStored(resource) > 0) {
+                    labels[y+1].setVisible(true);
+                    labels[y+1].setText(World.getStored(resource) + "");
+                    labels[y+1].setLocalPosition(0, -25 * y);
+                    y++;
+                }
+
+            }
+        }
+
+        public void updateData(Resource resource, int amount) {
+            Label label = labels[resource.ordinal()];
+            if (label.getText().equals("0")) {
+                label.setVisible(true);
+                organiseLabels();
+            }
+
+            label.setText(World.getStored(resource) + "");
+
+            if (label.getText().equals("0")) {
+                label.setVisible(false);
+                organiseLabels();
+            }
+        }
+
+        public void updateData(Recipe recipe) {
+            for (Resource resource : recipe.changedResources()) {
+                Label label = labels[resource.ordinal()];
+                if (label.getText().equals("0")) {
+                    label.setVisible(true);
+                    organiseLabels();
+                }
+
+                label.setText(World.getStored(resource) + "");
+
+                if (label.getText().equals("0")) {
+                    label.setVisible(false);
+                    organiseLabels();
+                }
+            }
+        }
+
+        private void organiseLabels() {
+            int y = 0;
+            for (Label label : labels) {
+                if (label.isVisible()) {
+                    label.setLocalPosition(0, -25 * y);
+                    y++;
+                }
+            }
+        }
+
+        private TextureRegion getResourcesTexture(Resource resource) {
+            String resourceName = resource.toString().toUpperCase();
+            return Textures.get(Textures.Resource.valueOf(resourceName));
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            for (Label label : labels) {
+                label.addToUI();
+            }
+        }
+    }
+
     public static void loadShiftMenuValues() {
         for (int i = 0; i < shiftMenu.types.length; i++) {
             for (int j = 0; j < ProductionBuilding.SHIFTS_PER_JOB; j++) {
@@ -972,6 +1084,5 @@ public class UI {
 
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
-    private @interface AddToUI {
-    }
+    private @interface AddToUI {}
 }

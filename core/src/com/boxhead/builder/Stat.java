@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
 public enum Stat {
-    HUNGER(50, 80, 60, 0.001f,
+    HUNGER(50, 80, 0, 0.001f,
             villager -> standardSeekService(villager, Service.BARTENDING)),
 
     TIREDNESS(70, 90, 0, 0.001f,

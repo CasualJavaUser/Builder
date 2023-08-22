@@ -133,6 +133,24 @@ public class Debug {
         }
     }
 
+    @Exclude
+    public static Villager getVillagerById(int id) throws IllegalStateException {
+        for (Villager villager : World.getVillagers()) {
+            if (villager.getId() == id)
+                return villager;
+        }
+        throw new IllegalStateException("Villager with id " + id + " not found");
+    }
+
+    @Exclude
+    public static Building getBuildingById(int id) throws IllegalStateException {
+        for (Building building : World.getBuildings()) {
+            if (building.getId() == id)
+                return building;
+        }
+        throw new IllegalStateException("Building with id " + id + " not found");
+    }
+
     public static void quit() {
         UI.Layer.CONSOLE.setVisible(false);
     }
@@ -155,14 +173,8 @@ public class Debug {
 
     public static void selectNPC(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
-        for (Villager villager : World.getVillagers()) {
-            if (villager.getId() == i) {
-                villager.onClick();
-                log("Villager selected");
-                return;
-            }
-        }
-        log("NPC with id " + id + " not found");
+        getVillagerById(i).onClick();
+        log("Villager selected");
     }
 
     public static void getSelectedNPC() {
@@ -175,31 +187,13 @@ public class Debug {
 
     public static void getNPC(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
-        for (Villager villager : World.getVillagers()) {
-            if (villager.getId() == i) {
-                log(villager.toString());
-                return;
-            }
-        }
-        for (Animal animal : World.getAnimals()) {
-            if (animal.getId() == i) {
-                log(animal.toString());
-                return;
-            }
-        }
-        log("Villager with id " + id + " not found");
+        log(getVillagerById(i).toString());
     }
 
     public static void selectBuilding(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
-        for (Building building : World.getBuildings()) {
-            if (building.getId() == i) {
-                building.onClick();
-                log("Building selected");
-                return;
-            }
-        }
-        log("Building with id " + id + " not found");
+        getBuildingById(i).onClick();
+        log("Building selected");
     }
 
     public static void getSelectedBuilding() {
@@ -212,17 +206,11 @@ public class Debug {
 
     public static void getBuilding(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
-        for (Building building : World.getBuildings()) {
-            if (building.getId() == i) {
-                log(building.toString());
-                return;
-            }
-        }
-        log("Building with id " + id + " not found");
+        log(getBuildingById(i).toString());
     }
 
     public static void setTickSpeed(String speed) throws NumberFormatException {
-        int s = Integer.parseInt(speed);
+        float s = Float.parseFloat(speed);
         Logic.setTickSpeed(Logic.NORMAL_SPEED / s);
         log("Tick speed set to " + (Logic.NORMAL_SPEED / s));
     }
@@ -291,11 +279,29 @@ public class Debug {
         int bi = Integer.parseInt(buildingId);
         int si = Integer.parseInt(shiftIndex);
 
-        for (Building building : World.getBuildings()) {
-            if (building.getId() == bi) {
-                ((ProductionBuilding) building).setShiftActivity(si, false);
-            }
+        ((ProductionBuilding) getBuildingById(bi)).setShiftActivity(si, false);
+    }
+
+    public static void reproduce(String id) throws NumberFormatException {
+        int i = Integer.parseInt(id);
+        Villager villager = getVillagerById(i);
+        if (villager.getPartner() != null &&
+                villager.getHome() != null &&
+                !villager.isLivingWithParents() &&
+                villager.getHome().equals(villager.getPartner().getHome())
+        ) {
+            villager.reproduce();
+            log("successful");
         }
+        else {
+            log("not possible at this moment");
+        }
+    }
+
+    public static void kill(String id) throws NumberFormatException {
+        int i = Integer.parseInt(id);
+        getVillagerById(i).die();
+        log("target eliminated");
     }
 
     /**

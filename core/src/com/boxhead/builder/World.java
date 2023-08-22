@@ -16,8 +16,9 @@ import java.util.*;
 public class World {
 
     public static final int TILE_SIZE = 16;
-    public static final int FULL_DAY = 86400;
     public static final int HOUR = 3600;
+    public static final int FULL_DAY = 86400;
+    public static final int YEAR = 1000;
 
     /**
      * The size (in tiles) of the biggest GameObject texture.
@@ -87,8 +88,7 @@ public class World {
 
     public static void temp() {
         initVillagers(10);
-        spawnVillager(new Villager((int) (Math.random() + 1d), new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
-        //spawnAnimal(new Animal(Animals.Type.COW, new Vector2i(10, 10)));
+        spawnVillager(new Villager(new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
@@ -621,8 +621,9 @@ public class World {
 
     private static void initVillagers(int num) {
         for (int i = 0; i < num; i++) {
-            Villager villager = new Villager((int) (Math.random() + 1d), new Vector2i(worldSize.x / 2, worldSize.y / 2));
+            Villager villager = new Villager(new Vector2i(worldSize.x / 2, worldSize.y / 2));
             villager.educate(1f);
+            villager.setAge(Villager.WORKING_AGE * YEAR);
             spawnVillager(villager);
         }
     }

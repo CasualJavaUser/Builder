@@ -17,15 +17,25 @@ public class Villager extends NPC implements Clickable {
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
     public static final int INVENTORY_SIZE = 10;
+    public static final int WORKING_AGE = 16;
+    public static final int AGE_OF_CONSENT = 18;
+    public static final int INFERTILITY_AGE = 45;
+    public static final int RETIREMENT_AGE = 65;
+    public static final float AVERAGE_NUM_OF_CHILDREN = 2;
 
     private final String name, surname;
+    private final boolean gender;
     /**
      * age in ticks
      */
     private long age = 0;
+    private final long dayOfDecease;
     private float education = 0f;
     private final float[] stats = new float[Stat.values().length];
     private final int skin;
+
+    private final Villager[] parents = new Villager[2];
+    private Villager partner = null;
 
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
@@ -41,11 +51,17 @@ public class Villager extends NPC implements Clickable {
 
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
 
-    public Villager(int skin, Vector2i gridPosition) {
+    public Villager(Vector2i gridPosition) {
+        this(World.getRandom().nextInt(Textures.Npc.values().length), World.getRandom().nextBoolean(), gridPosition);
+    }
+
+    private Villager(int skin, boolean gender, Vector2i gridPosition) {
         super(Textures.Npc.valueOf("IDLE" + skin), gridPosition);
         this.skin = skin;
         name = NAMES[(int) (Math.random() * NAMES.length)];
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
+        this.gender = gender;
+        dayOfDecease = World.calculateDate(World.getRandom().nextInt(10 * World.YEAR) + (RETIREMENT_AGE + 5) * World.YEAR);
 
         for (int i = 0; i < stats.length; i++) {
             stats[i] = Stat.values()[i].initVal;
@@ -63,25 +79,59 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void seekHouse() {
-        Optional<ResidentialBuilding> bestHouseOptional = World.getBuildings().stream()
-                .filter(building -> building instanceof ResidentialBuilding)
-                .map(building -> (ResidentialBuilding) building)
-                .filter(ResidentialBuilding::hasFreePlaces)
-                .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
+        if (partner != null) {
+            if (partner.home != null && !partner.isLivingWithParents())
+                switchHouses(partner.home);
+            else if (home == null || isLivingWithParents()) {
+                Optional<ResidentialBuilding> bestHouseOptional = World.getBuildings().stream()
+                        .filter(building -> building instanceof ResidentialBuilding)
+                        .map(building -> (ResidentialBuilding) building)
+                        .filter(ResidentialBuilding::isEmpty)
+                        .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
 
-        if (bestHouseOptional.isPresent()) {
-            ResidentialBuilding bestHouse = bestHouseOptional.get();
-
-            if (home == null) {
-                bestHouse.addResident(this);
-                home = bestHouse;
-            } else if (workplace != null &&
-                    home.getGridPosition().distanceScore(workplace.getGridPosition()) < bestHouse.getGridPosition().distanceScore(workplace.getGridPosition())) {
-                home.removeResident(this);
-                bestHouse.addResident(this);
-                home = bestHouse;
+                bestHouseOptional.ifPresent(this::switchHouses);
             }
+        } else if (!isLivingWithParents()) {
+            for (Villager parent : parents) {
+                if (parent != null && parent.home != null) {
+                    switchHouses(parent.home);
+                    return;
+                }
+            }
+
+            Optional<ResidentialBuilding> bestHouseOptional = World.getBuildings().stream()
+                    .filter(building -> building instanceof ResidentialBuilding)
+                    .map(building -> (ResidentialBuilding) building)
+                    .filter(ResidentialBuilding::isEmpty)
+                    .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
+
+            bestHouseOptional.ifPresent(this::switchHouses);
         }
+    }
+
+    private void switchHouses(ResidentialBuilding newHome) {
+        if (home == null) {
+            newHome.addResident(this);
+            home = newHome;
+        } else {
+            home.removeResident(this);
+            home = newHome;
+            home.addResident(this);
+        }
+    }
+
+    public boolean isLivingWithParents() {
+        if (home == null)
+            return false;
+
+        for (Villager parent : parents) {
+            if (parent == null || parent.home == null)
+                continue;
+
+            if (parent.home.equals(home))
+                return true;
+        }
+        return false;
     }
 
     private boolean seekJob() {
@@ -156,6 +206,25 @@ public class Villager extends NPC implements Clickable {
         return education < 1f;  //TODO education preferability algorithm
     }
 
+    public float getHappiness() {
+        float happiness = 0;
+        for (Stat stat : values()) {
+            if (stat.isIncreasing)
+                happiness += 100 - stats[stat.ordinal()];
+            else
+                happiness += stats[stat.ordinal()];
+        }
+        happiness = happiness / stats.length;
+
+        if (partner != null && isLivingWithParents())
+            happiness -= 20;
+        else if (home == null) {
+            happiness -= 30;
+        }
+
+        return happiness;
+    }
+
     public ServiceBuilding seekNearestService(Service service) {
         Optional<ServiceBuilding> bestServiceOptional = World.getBuildings().stream()
                 .filter(building -> building instanceof ServiceBuilding && building.type.service == service)
@@ -165,6 +234,40 @@ public class Villager extends NPC implements Clickable {
                 .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
 
         return bestServiceOptional.orElse(null);
+    }
+
+    public Villager getPartner() {
+        return partner;
+    }
+
+    public boolean getGender() {
+        return gender;
+    }
+
+    public void findPartner() {
+        Optional<Villager> partnerOptional = World.getVillagers().stream()
+                .filter(villager -> villager.partner == null)
+                .filter(villager -> villager.gender == !gender)
+                .filter(villager -> villager.ageInYears() >= AGE_OF_CONSENT && villager.ageInYears() < INFERTILITY_AGE)
+                .min(Comparator.comparingLong(villager -> Math.abs(villager.age - age)));
+
+        partnerOptional.ifPresent(villager -> {
+            partner = villager;
+            villager.partner = this;
+        });
+    }
+
+    public void reproduce() {
+        if (home == null || partner == null || buildingIsIn != home)
+            throw new IllegalStateException();
+
+        Villager child = new Villager(this.gridPosition.clone());
+        child.home = this.home;
+        child.parents[0] = this;
+        child.parents[1] = partner;
+        home.addResident(child);
+        child.buildingIsIn = home;
+        Debug.log(child.name + " " + child.surname + " (" + child.getId() + ") was born.");
     }
 
     public void enterBuilding(StorageBuilding building) {
@@ -442,16 +545,15 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void progressStats() {
-        stats[HUNGER.ordinal()] += HUNGER.rate;
+        for (Stat stat : values()) {
+            stats[stat.ordinal()] += stat.rate;
+        }
 
-        if (clockedIn)
-            stats[TIREDNESS.ordinal()] += TIREDNESS.rate * 2;
-        else if (home != null && home.equals(buildingIsIn))
-            stats[TIREDNESS.ordinal()] -= TIREDNESS.rate * 2;
-        else
+        if (clockedIn) {
             stats[TIREDNESS.ordinal()] += TIREDNESS.rate;
-
-        stats[HEALTH.ordinal()] += HEALTH.rate;
+        } else if (home != null && home.equals(buildingIsIn)) {
+            stats[TIREDNESS.ordinal()] -= TIREDNESS.rate * 2;
+        }
     }
 
     public void fulfillNeeds() {
@@ -476,7 +578,7 @@ public class Villager extends NPC implements Clickable {
         }
     }
 
-    public void looseJob() {
+    public void quitJob() {
         if (buildingIsIn == workplace || destinationBuilding == workplace) {
             workplace.endShift(this);
         }
@@ -562,7 +664,11 @@ public class Villager extends NPC implements Clickable {
         if (home != null) homeType = home.getType().toString();
         if (workplace != null) workplaceType = workplace.getType().toString();
 
-        String s = name + " " + surname + "\nage: " + ageInYears();
+        String s = name + " " + surname +
+                "\ngender: " + (gender ? "female" : "male") +
+                "\nage: " + ageInYears() +
+                "\npartner: " + (partner != null ? partner.name + " " + partner.surname : null) +
+                "\nhappiness: " + getHappiness();
 
         String stat;
         for (int i = 0; i < Stat.values().length; i++) {
@@ -587,8 +693,44 @@ public class Villager extends NPC implements Clickable {
         age++;
     }
 
+    /**
+     * Only for testing purposes!!!
+     */
+    public void setAge(long age) {
+        this.age = age;
+    }
+
     public long ageInYears() {
-        return age / (World.FULL_DAY / 8);  //TODO temp value
+        return age / World.YEAR;
+    }
+
+    public long ageInTicks() {
+        return age;
+    }
+
+    public long getDayOfDecease() {
+        return dayOfDecease;
+    }
+
+    public void retire() {
+        if (workplace != null)
+            quitJob();
+        if (school != null)
+            quitSchool();
+    }
+
+    public void die() {
+        if (home != null)
+            home.removeResident(this);
+
+        if (partner != null) {
+            partner.partner = null;
+            partner = null;
+        }
+
+        retire();
+        World.getVillagers().remove(this);
+        Debug.log(name + " " + surname + " (" + getId() + ") died at the age of " + ageInYears() + ".");
     }
 
     @Serial

@@ -131,7 +131,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        UI.adjustMenuForInGameUse(true);
+        UI.setInGame(true);
     }
 
     @Override
