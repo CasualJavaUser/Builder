@@ -1,9 +1,12 @@
 package com.boxhead.builder;
 
 import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Circle;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
@@ -33,7 +36,19 @@ public class Jobs {
 
         @Override
         public void continuousTask(Villager assignee, ProductionBuilding workplace) {
-            harvesterContinuous(assignee, workplace, Resource.WOOD);
+            boolean cutDown = harvesterContinuous(assignee, workplace, Resource.WOOD);
+
+            if (cutDown) {
+                Vector2i suitablePlace = findTileToPlant(workplace);
+
+                if (suitablePlace != null) {
+                    Harvestable newTree = Harvestables.create(Harvestables.Type.BIG_TREE, suitablePlace);
+                    assignee.giveOrder(EXIT, workplace);
+                    assignee.giveOrder(GO_TO, newTree);
+                    assignee.giveOrder(newTree);
+                    assignee.giveOrder(GO_TO, workplace);
+                }
+            }
         }
 
         @Override
@@ -54,6 +69,18 @@ public class Jobs {
         @Override
         public String toString() {
             return "lumberjack";
+        }
+
+        private Vector2i findTileToPlant(ProductionBuilding workplace) {
+            Circle range = new Circle(workplace.getEntrancePosition(), workplace.getType().range);
+            BoxCollider vicinity = new BoxCollider(0, 0, 3, 3);
+            for (Iterator<Vector2i> it = range.orderedIterator(); it.hasNext(); ) {
+                Vector2i tile = it.next();
+                vicinity.setGridPosition(tile.add(-1, -1));
+                if (World.isBuildable(vicinity) && World.isNavigable(vicinity))
+                    return tile;
+            }
+            return null;
         }
     };
 
@@ -253,7 +280,7 @@ public class Jobs {
     };
 
     public static final Job STUDENT = new Job() {
-        private static final float LEARNING_RATE = .005f;
+        private static final float LEARNING_RATE = 0.005f;
 
         @Override
         public void continuousTask(Villager assignee, ProductionBuilding workplace) {
@@ -280,7 +307,7 @@ public class Jobs {
         assignee.giveOrder(GO_TO, harvestable);
     }
 
-    private static void harvesterContinuous(Villager assignee, ProductionBuilding workplace, Resource resource) {
+    private static boolean harvesterContinuous(Villager assignee, ProductionBuilding workplace, Resource resource) {
         boolean readyToReturn = !assignee.isInBuilding(workplace) && !workplace.getAssignedFieldWork().containsKey(assignee);
 
         if (!assignee.hasOrders() && (assignee.getInventory().isFull() || readyToReturn)) {
@@ -288,7 +315,9 @@ public class Jobs {
             assignee.giveOrder(GO_TO, workplace);
             assignee.giveOrder(PUT_RESERVED_RESOURCES, resource, resourceAmount);
             assignee.giveOrder(REQUEST_TRANSPORT, resource, resourceAmount);
+            return true;
         }
+        return false;
     }
 
     private static void harvesterOnExit(Villager assignee, ProductionBuilding workplace, Resource resource) {

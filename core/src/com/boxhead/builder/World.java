@@ -166,6 +166,8 @@ public class World {
         if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
             makeUnnavigable(tree.getCollider());
             tree.nextPhase();
+            tree.nextPhase();
+            Harvestable.timeTriggers.clear();
             fieldWorks.add(tree);
             addGameObject(tree);
         }
@@ -498,8 +500,22 @@ public class World {
         return isBuildable(new Vector2i(x, y));
     }
 
+    public static boolean isBuildable(BoxCollider area) {
+        for (Vector2i tile : area) {
+            if (!isBuildable(tile)) return false;
+        }
+        return true;
+    }
+
     public static boolean isNavigable(Vector2i gridPosition) {
         return navigableTiles.contains(gridPosition);
+    }
+
+    public static boolean isNavigable(BoxCollider area) {
+        for (Vector2i tile : area) {
+            if (!isNavigable(tile)) return false;
+        }
+        return true;
     }
 
     public static int getStored(Resource resource) {

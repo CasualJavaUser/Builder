@@ -55,6 +55,7 @@ public class GameScreen implements Screen {
         World.drawMap(batch);
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
+        //World.showNavigableTiles(batch);
         //World.pathfindingTest(batch);
 
         if (!UI.handleUiInteraction() && !UI.isPaused()) {
@@ -88,6 +89,12 @@ public class GameScreen implements Screen {
 
     public static Vector2 getMouseWorldPosition() {
         return new Vector2(mouseWorldPos);
+    }
+
+    public static Vector2i getMouseGridPosition() {
+        int gridX = ((int) mouseWorldPos.x) / World.TILE_SIZE;  //explicit cast and division instead of Vector2i functions
+        int gridY = ((int) mouseWorldPos.y) / World.TILE_SIZE;  //to make sure JVM performs a shift-right division
+        return new Vector2i(gridX, gridY);
     }
 
     private static void updateMouseWorldPosition() {

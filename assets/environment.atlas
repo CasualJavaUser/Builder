@@ -62,6 +62,13 @@ fence_tr
   index: -1
 pine_tree
   rotate: false
+  xy: 80, 32
+  size: 16, 32
+  orig: 16, 32
+  offset: 0, 0
+  index: -1
+pine_tree
+  rotate: false
   xy: 0, 0
   size: 48, 64
   orig: 48, 64
