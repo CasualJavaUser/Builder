@@ -130,7 +130,7 @@ public abstract class NPC extends GameObject{
 
     protected Vector2i randomPosInRange(int range) {
         double angle = World.getRandom().nextDouble() * 2 * Math.PI;
-        return gridPosition.add((int)(Math.cos(angle) * range), (int)(Math.sin(angle) * range));
+        return gridPosition.plus((int)(Math.cos(angle) * range), (int)(Math.sin(angle) * range));
     }
 
     public int getId() {

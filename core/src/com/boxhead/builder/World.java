@@ -96,7 +96,7 @@ public class World {
         makeBuilt(collider);
 
         collider = Buildings.Type.STORAGE_BARN.relativeCollider;
-        buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
+        buildingPosition = buildingPosition.plus(-collider.getWidth() * 2, 0);
         collider = collider.cloneAndTranslate(buildingPosition);
         placeBuilding(Buildings.Type.STORAGE_BARN, buildingPosition);
         makeUnnavigable(collider);
@@ -107,7 +107,7 @@ public class World {
         storedResources[Resource.GRAIN.ordinal()] = 100;
 
         collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
-        buildingPosition = buildingPosition.add(-collider.getWidth() * 2, 0);
+        buildingPosition = buildingPosition.plus(-collider.getWidth() * 2, 0);
         placeBuilding(Buildings.Type.TRANSPORT_OFFICE, buildingPosition);
         collider = collider.cloneAndTranslate(buildingPosition);
         makeUnnavigable(collider);
@@ -480,12 +480,12 @@ public class World {
     }
 
     public static void pathfindingTest(SpriteBatch batch) {
-        Vector2i mousePos = new Vector2i(GameScreen.getMouseWorldPosition()).divide(TILE_SIZE);
+        Vector2i mousePos = GameScreen.getMouseGridPosition();
         if (isNavigable(mousePos)) {
             Vector2i[] path = Pathfinding.findPathNoCache(Vector2i.zero(), mousePos);
 
-            for (Vector2i vector2i : path) {
-                batch.draw(Textures.get(Textures.Tile.DEFAULT), vector2i.x * TILE_SIZE, vector2i.y * TILE_SIZE);
+            for (Vector2i tile : path) {
+                Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
             }
         }
     }
@@ -613,10 +613,12 @@ public class World {
         changedTiles.put(new Vector2i(x, y), tile);
     }
 
-    public static void setTile(int x, int y, Tile tile, Textures.Tile texture) {
+    public static void setTile(Vector2i gridPosition, Tile tile, Textures.Tile texture) {
+        int x = gridPosition.x;
+        int y = gridPosition.y;
         tiles[worldSize.x * y + x] = tile;
         tileTextures[worldSize.x * y + x] = texture;
-        changedTiles.put(new Vector2i(x, y), tile);
+        changedTiles.put(gridPosition, tile);
     }
 
     private static void initVillagers(int num) {
@@ -702,7 +704,7 @@ public class World {
         BuilderGame.loadMap(changedFieldWorks, in);
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            changedTiles.put((Vector2i)in.readObject(), Tile.valueOf(in.readUTF()));
+            changedTiles.put((Vector2i) in.readObject(), Tile.valueOf(in.readUTF()));
         }
 
         villagers.forEach(World::addGameObject);
@@ -726,8 +728,7 @@ public class World {
                 fieldWorks.add(fieldWork);
                 addGameObject((GameObject) fieldWork);
                 makeUnnavigable(fieldWork.getCollider());
-            }
-            else {
+            } else {
                 fieldWorks.remove(fieldWork);
                 removeGameObject((GameObject) fieldWork);
                 makeNavigable(fieldWork.getCollider());

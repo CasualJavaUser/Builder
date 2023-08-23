@@ -2,7 +2,8 @@ package com.boxhead.builder.utils;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.World;
+import com.boxhead.builder.Textures;
+import com.boxhead.builder.Tiles;
 
 import java.util.Iterator;
 
@@ -15,12 +16,13 @@ public class Circle implements Iterable<Vector2i> {
         this.radius = radius;
     }
 
-    public static void draw(SpriteBatch batch, TextureRegion texture, Vector2i centre, int radius) {
+    public static void draw(SpriteBatch batch, Textures.Tile tileTexture, Vector2i centre, int radius) {
         if (radius <= 0) return;
+        TextureRegion texture = Textures.get(tileTexture);
 
         Circle circle = new Circle(centre, radius);
         for (Vector2i tile : circle) {
-            batch.draw(texture, tile.x * World.TILE_SIZE, tile.y * World.TILE_SIZE);
+            Tiles.drawTile(batch, texture, tile);
         }
     }
 

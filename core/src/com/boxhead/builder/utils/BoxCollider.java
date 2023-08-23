@@ -1,10 +1,16 @@
 package com.boxhead.builder.utils;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.Textures;
+import com.boxhead.builder.Tiles;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class BoxCollider implements Iterable<Vector2i>, Serializable {
     @Serial
@@ -57,7 +63,7 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
             if (gridPosition.y <= lowerLeftCorner.y)
                 closestTile = lowerLeftCorner;
             else if (gridPosition.y > lowerLeftCorner.y + height - 1)
-                closestTile = lowerLeftCorner.add(0, height - 1);
+                closestTile = lowerLeftCorner.plus(0, height - 1);
             else
                 closestTile = new Vector2i(lowerLeftCorner.x, gridPosition.y);
         } else if (gridPosition.x < lowerLeftCorner.x + width - 1) {
@@ -97,11 +103,11 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
     }
 
     public BoxCollider cloneAndTranslate(Vector2i gridPosition) {
-        return new BoxCollider(lowerLeftCorner.add(gridPosition), width, height);
+        return new BoxCollider(lowerLeftCorner.plus(gridPosition), width, height);
     }
 
     public BoxCollider extended() {
-        return new BoxCollider(lowerLeftCorner.add(-1, -1), width + 2, height + 2);
+        return new BoxCollider(lowerLeftCorner.plus(-1, -1), width + 2, height + 2);
     }
 
     public List<Vector2i> toVector2iList() {
@@ -111,6 +117,14 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
             list.add(new Vector2i(lowerLeftCorner.x + i % width, lowerLeftCorner.y + i / width));
         }
         return list;
+    }
+
+    public void draw(SpriteBatch batch, Textures.Tile tileTexture, Predicate<Vector2i> predicate) {
+        TextureRegion texture = Textures.get(tileTexture);
+
+        for (Vector2i tile : this) {
+            if (predicate.test(tile)) Tiles.drawTile(batch, texture, tile);
+        }
     }
 
     @Override
@@ -129,7 +143,7 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
                 int lastY = y;
                 y += ++x / width;
                 x = x % width;
-                return lowerLeftCorner.add(lastX, lastY);
+                return lowerLeftCorner.plus(lastX, lastY);
             }
         };
     }

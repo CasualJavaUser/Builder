@@ -37,20 +37,60 @@ public class Vector2i implements Cloneable, Serializable {
         y = v.y;
     }
 
-    public Vector2i add(Vector2i vector) {
+    //immutable variants
+    public Vector2i plus(Vector2i vector) {
         return new Vector2i(x + vector.x, y + vector.y);
     }
 
-    public Vector2i add(int x, int y) {
+    public Vector2i plus(int x, int y) {
         return new Vector2i(this.x + x, this.y + y);
     }
 
-    public Vector2i multiply(int factor) {
+    public Vector2i minus(Vector2i vector) {
+        return new Vector2i(x - vector.x, y - vector.y);
+    }
+
+    public Vector2i times(int factor) {
         return new Vector2i(x * factor, y * factor);
     }
 
-    public Vector2i divide(int divisor) {
+    public Vector2i dividedBy(int divisor) {
         return new Vector2i(x / divisor, y / divisor);
+    }
+
+    public Vector2i absolute() {
+        return new Vector2i(Math.abs(x), Math.abs(y));
+    }
+
+    //mutable variants
+    public Vector2i add(Vector2i vector) {
+        x += vector.x;
+        y += vector.y;
+        return this;
+    }
+
+    public Vector2i add(int x, int y) {
+        this.x += x;
+        this.y += y;
+        return this;
+    }
+
+    public Vector2i multiply(int factor) {
+        x *= factor;
+        y *= factor;
+        return this;
+    }
+
+    public Vector2i divide(int divisor) {
+        x /= divisor;
+        y /= divisor;
+        return this;
+    }
+
+    public Vector2i absolutise() {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        return this;
     }
 
     public double distance(Vector2i vector) {

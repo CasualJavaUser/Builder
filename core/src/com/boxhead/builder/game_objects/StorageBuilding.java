@@ -21,13 +21,13 @@ public class StorageBuilding extends Building {
 
     public StorageBuilding(Buildings.Type type, Vector2i gridPosition) {
         super(type, gridPosition);
-        entrancePosition = gridPosition.add(type.entrancePosition);
+        entrancePosition = gridPosition.plus(type.entrancePosition);
         inventory = new Inventory(200);
     }
 
     public StorageBuilding(Buildings.Type type, Textures.TextureId texture, Vector2i gridPosition, int storageCapacity) {
         super(type, texture, gridPosition);
-        entrancePosition = gridPosition.add(type.entrancePosition);
+        entrancePosition = gridPosition.plus(type.entrancePosition);
         inventory = new Inventory(storageCapacity);
     }
 

@@ -383,7 +383,7 @@ public class Buildings {
 
         if (currentBuilding.range > 0) {
             showBuildingRange(batch,
-                    gridPosition.add(currentBuilding.entrancePosition),
+                    gridPosition.plus(currentBuilding.entrancePosition),
                     currentBuilding.range);
         }
         boolean isBuildable = checkAndShowTileAvailability(batch, gridPosition);
@@ -407,8 +407,8 @@ public class Buildings {
                 Tiles.toFieldMode(
                         currentBuilding.relativeCollider.cloneAndTranslate(gridPosition),
                         currentBuilding.farmAnimal != null,
-                        FarmBuilding.MIN_FIELD_SIZE,
-                        FarmBuilding.MAX_FIELD_SIZE);
+                        Range.between(FarmBuilding.MIN_FIELD_SIZE, FarmBuilding.MAX_FIELD_SIZE)
+                );
             }
         }
     }
@@ -512,7 +512,7 @@ public class Buildings {
             batch.draw(Textures.get(Textures.Tile.DEFAULT), tile.x * World.TILE_SIZE, tile.y * World.TILE_SIZE);
         }
         if (currentBuilding.entrancePosition != null) {
-            Vector2i entrancePos = currentBuilding.entrancePosition.add(gridPosition);
+            Vector2i entrancePos = currentBuilding.entrancePosition.plus(gridPosition);
             if (rangeX.contains(entrancePos.x) && rangeY.contains(entrancePos.y) && World.isBuildable(entrancePos))
                 batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
             else {
@@ -531,7 +531,7 @@ public class Buildings {
         batch.setColor(UI.VERY_TRANSPARENT);
         Circle.draw(
                 batch,
-                Textures.get(Textures.Tile.DEFAULT),
+                Textures.Tile.DEFAULT,
                 gridPosition,
                 range);
         batch.setColor(UI.DEFAULT_COLOR);

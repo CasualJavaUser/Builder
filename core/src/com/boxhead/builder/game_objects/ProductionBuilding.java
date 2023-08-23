@@ -328,7 +328,7 @@ public class ProductionBuilding extends StorageBuilding {
             batch.setColor(UI.VERY_TRANSPARENT);
             Circle.draw(
                     batch,
-                    Textures.get(Textures.Tile.DEFAULT),
+                    Textures.Tile.DEFAULT,
                     entrancePosition,
                     type.range);
             batch.setColor(UI.DEFAULT_COLOR);
