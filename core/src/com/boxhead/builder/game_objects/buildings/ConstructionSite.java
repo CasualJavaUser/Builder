@@ -1,30 +1,30 @@
-package com.boxhead.builder.game_objects;
+package com.boxhead.builder.game_objects.buildings;
 
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Logistics;
 import com.boxhead.builder.World;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConstructionSite extends StorageBuilding implements FieldWork {
+public class ConstructionSite extends Building implements FieldWork {
     private int progress = 0;
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
     private BoxCollider fieldCollider;
     private final Map<Villager, Boolean> assigned = new HashMap<>(capacity, 1f);
 
-    public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour) {
+    public ConstructionSite(Building.Type type, Vector2i gridPosition, int totalLabour) {
         this(type, gridPosition, totalLabour, new BoxCollider());
     }
 
-    public ConstructionSite(Buildings.Type type, Vector2i gridPosition, int totalLabour, BoxCollider fieldCollider) {
+    public ConstructionSite(Building.Type type, Vector2i gridPosition, int totalLabour, BoxCollider fieldCollider) {
         super(type, type.getConstructionSite(), gridPosition, type.buildCost.sum());
         this.totalLabour = totalLabour;
         this.fieldCollider = fieldCollider;
@@ -69,8 +69,10 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
 
         if (progress >= totalLabour) {
             World.removeFieldWorks(this);
-            if (!type.isFarm()) World.placeBuilding(type, gridPosition);
-            else World.placeFarm(type, gridPosition, fieldCollider);
+            if (type instanceof FarmBuilding.Type farmType)
+                World.placeFarm(farmType, gridPosition, fieldCollider);
+            else
+                World.placeBuilding(type, gridPosition);
 
             for (Villager villager : assigned.keySet()) {
                 villager.getWorkplace().dissociateFieldWork(villager);
@@ -101,15 +103,8 @@ public class ConstructionSite extends StorageBuilding implements FieldWork {
     }
 
     @Serial
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-        oos.writeUTF(type.name());
-    }
-
-    @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        Buildings.Type type = Buildings.Type.valueOf(ois.readUTF());
         textureId = type.getConstructionSite();
     }
 }

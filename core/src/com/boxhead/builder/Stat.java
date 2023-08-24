@@ -1,11 +1,11 @@
 package com.boxhead.builder;
 
-import com.boxhead.builder.game_objects.ServiceBuilding;
 import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.ServiceBuilding;
 
 import java.util.function.Consumer;
 
-import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
+import static com.boxhead.builder.game_objects.Villager.Order.Type.GO_TO;
 
 public enum Stat {
     HUNGER(50, 80, 0, 0.001f,

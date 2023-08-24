@@ -1,7 +1,9 @@
-package com.boxhead.builder.game_objects;
+package com.boxhead.builder.game_objects.buildings;
 
-import com.boxhead.builder.Job;
-import com.boxhead.builder.Jobs;
+import com.boxhead.builder.*;
+import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.Arrays;
@@ -12,13 +14,51 @@ import java.util.Set;
 import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
 public class SchoolBuilding extends ProductionBuilding {
+    public static class Type extends ProductionBuilding.Type {
+        public final int studentCapacity;
+
+        protected static Type[] values;
+
+        public static final Type SCHOOL = new Type(
+                Textures.Building.SERVICE_FUNGUS,
+                "school",
+                new Vector2i(0, -1),
+                new BoxCollider(0, 0, 2, 2),
+                new Recipe(Pair.of(Resource.WOOD, 50)),
+                Jobs.TEACHER,
+                3,
+                10
+        );
+
+        static {
+            values = initValues(Type.class).toArray(Type[]::new);
+        }
+
+        public Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost, Job job, int maxEmployeeCapacity, int studentCapacity) {
+            super(texture, name, entrancePosition, relativeCollider, buildCost, job, maxEmployeeCapacity, 0, 0);
+            this.studentCapacity = studentCapacity;
+        }
+
+        public static Type[] values() {
+            return values;
+        }
+
+        protected static Type getByName(String name) {
+            for (Type value : values) {
+                if (value.name.equals(name))
+                    return value;
+            }
+            throw new IllegalStateException();
+        }
+    }
+
     private static final String notStudent = "Villager does not study here";
 
     private final Shift[] studentShifts;
 
     private final Set<Villager> students;
 
-    public SchoolBuilding(Buildings.Type type, Vector2i gridPosition) {
+    public SchoolBuilding(Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         studentShifts = new Shift[SHIFTS_PER_JOB];
         students = new HashSet<>(type.studentCapacity * SHIFTS_PER_JOB);
@@ -27,6 +67,11 @@ public class SchoolBuilding extends ProductionBuilding {
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
             studentShifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? type.studentCapacity : 0);
         }
+    }
+
+    @Override
+    public Type getType() {
+        return ((Type) type);
     }
 
     public boolean isRecruiting() {
@@ -129,8 +174,8 @@ public class SchoolBuilding extends ProductionBuilding {
     public int getOverallStudentCapacity() {
         int capacity = 0;
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-            if (type.getShiftActivity(i))
-                capacity += type.studentCapacity;
+            if (getType().getShiftActivity(i))
+                capacity += getType().studentCapacity;
         }
         return capacity;
     }

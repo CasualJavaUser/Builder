@@ -1,7 +1,14 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.utils.Timer;
-import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.game_objects.Animal;
+import com.boxhead.builder.game_objects.FarmAnimal;
+import com.boxhead.builder.game_objects.Harvestable;
+import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.Building;
+import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
+import com.boxhead.builder.game_objects.buildings.SchoolBuilding;
+import com.boxhead.builder.game_objects.buildings.ServiceBuilding;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -50,12 +57,10 @@ public class Logic {
                 if (villager.ageInTicks() == Villager.RETIREMENT_AGE * World.YEAR) {
                     villager.retire();
                 }
-                else if (villager.ageInYears() >= Villager.RETIREMENT_AGE) {
-                    if (World.getDate() > villager.getDayOfDecease()) {
-                        villager.die();
-                    }
+                else if (World.getDate() > villager.getDayOfDecease()) {
+                    villager.die();
                 }
-                else if (villager.ageInYears() > Villager.WORKING_AGE) {
+                else if (villager.ageInYears() >= Villager.WORKING_AGE) {
                     if (!villager.hasJob() && World.getTime() == orderedShifts[currentShift].end) {
                         villager.seekJobOrSchool();
                     } else if (villager.hasWorkplace() && World.getTime() == villager.getWorkplace().getShift(villager).getShiftTime().end) {
@@ -122,7 +127,7 @@ public class Logic {
         for (Building building : World.getBuildings()) {
             if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null &&
                     ((ProductionBuilding) building).canProduce()) {
-                Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), ((StorageBuilding) building).getEntrancePosition());
+                Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), building.getEntrancePosition());
                 fieldWork.ifPresent(work -> Logistics.requestFieldWork((ProductionBuilding) building, work));
             }
         }

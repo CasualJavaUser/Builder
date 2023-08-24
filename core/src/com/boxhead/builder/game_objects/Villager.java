@@ -3,14 +3,18 @@ package com.boxhead.builder.game_objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.boxhead.builder.*;
+import com.boxhead.builder.game_objects.buildings.*;
 import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Optional;
 
-import static com.boxhead.builder.Stat.*;
+import static com.boxhead.builder.Stat.TIREDNESS;
+import static com.boxhead.builder.Stat.values;
 
 public class Villager extends NPC implements Clickable {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
@@ -40,8 +44,8 @@ public class Villager extends NPC implements Clickable {
     private ProductionBuilding workplace = null;
     private ResidentialBuilding home = null;
     private SchoolBuilding school = null;
-    private StorageBuilding buildingIsIn = null;
-    private StorageBuilding destinationBuilding = null;
+    private Building buildingIsIn = null;
+    private Building destinationBuilding = null;
     /**
      * is at work or school
      */
@@ -227,7 +231,7 @@ public class Villager extends NPC implements Clickable {
 
     public ServiceBuilding seekNearestService(Service service) {
         Optional<ServiceBuilding> bestServiceOptional = World.getBuildings().stream()
-                .filter(building -> building instanceof ServiceBuilding && building.type.service == service)
+                .filter(building -> building instanceof ServiceBuilding serviceBuilding && serviceBuilding.getType().service == service)
                 .map(building -> (ServiceBuilding) building)
                 .filter(ServiceBuilding::canProvideService)
                 .filter(ServiceBuilding::hasFreeSpaces)
@@ -270,7 +274,7 @@ public class Villager extends NPC implements Clickable {
         Debug.log(child.name + " " + child.surname + " (" + child.getId() + ") was born.");
     }
 
-    public void enterBuilding(StorageBuilding building) {
+    public void enterBuilding(Building building) {
         if (gridPosition.equals(building.getEntrancePosition())) {
             gridPosition.set(building.getGridPosition());
             buildingIsIn = building;
@@ -278,7 +282,7 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void exitBuilding() {
-        StorageBuilding building = StorageBuilding.getByCoordinates(gridPosition);
+        Building building = Building.getByCoordinates(gridPosition);
         if (building != null) {
             gridPosition.set(building.getEntrancePosition());
         }
@@ -370,7 +374,7 @@ public class Villager extends NPC implements Clickable {
         });
     }
 
-    public void giveOrder(Order.Type type, StorageBuilding building) {
+    public void giveOrder(Order.Type type, Building building) {
         switch (type) {
             case GO_TO -> {
                 destinationBuilding = building;
@@ -568,8 +572,8 @@ public class Villager extends NPC implements Clickable {
                 condition = stats[i] <= threshold;  //for stats that decrease over time (e.g. health)
             }
 
-            boolean alreadyFulfilling = (buildingIsIn != null && buildingIsIn.type.service != null && buildingIsIn.type.service.getEffects().containsKey(stat))
-                    || (destinationBuilding != null && destinationBuilding.type.service != null && destinationBuilding.type.service.getEffects().containsKey(stat));
+            boolean alreadyFulfilling = (buildingIsIn != null && buildingIsIn instanceof ServiceBuilding serviceIsIn && serviceIsIn.getType().service.getEffects().containsKey(stat))
+                    || (destinationBuilding != null && destinationBuilding instanceof ServiceBuilding destService && destService.getType().service.getEffects().containsKey(stat));
 
             if (condition && !alreadyFulfilling) {
                 stat.fulfillNeed(this);
@@ -620,13 +624,13 @@ public class Villager extends NPC implements Clickable {
         if (workplace == null)
             return Jobs.UNEMPLOYED;
         else
-            return workplace.getType().job;
+            return ((ProductionBuilding.Type) workplace.getType()).job;
     }
 
     public boolean isWorkTime() {
         if (workplace == null) return false;
 
-        return workplace.getShift(this).shiftTime.overlaps(World.getTime());
+        return workplace.getShift(this).getShiftTime().overlaps(World.getTime());
     }
 
     public ResidentialBuilding getHome() {
@@ -641,7 +645,7 @@ public class Villager extends NPC implements Clickable {
         return buildingIsIn != null;
     }
 
-    public boolean isInBuilding(StorageBuilding building) {
+    public boolean isInBuilding(Building building) {
         return buildingIsIn == building;
     }
 
@@ -649,7 +653,7 @@ public class Villager extends NPC implements Clickable {
         return clockedIn;
     }
 
-    public StorageBuilding getCurrentBuilding() {
+    public Building getCurrentBuilding() {
         return buildingIsIn;
     }
 
@@ -714,9 +718,9 @@ public class Villager extends NPC implements Clickable {
 
     public void retire() {
         if (workplace != null)
-            quitJob();
+            workplace.removeEmployee(this);
         if (school != null)
-            quitSchool();
+            school.removeStudent(this);
     }
 
     public void die() {

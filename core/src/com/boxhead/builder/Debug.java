@@ -1,10 +1,9 @@
 package com.boxhead.builder;
 
 import com.badlogic.gdx.Input;
-import com.boxhead.builder.game_objects.Animal;
-import com.boxhead.builder.game_objects.Building;
-import com.boxhead.builder.game_objects.ProductionBuilding;
 import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.Building;
+import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
 import com.boxhead.builder.ui.*;
 import com.boxhead.builder.utils.Action;
 import com.boxhead.builder.utils.Vector2i;
@@ -268,11 +267,7 @@ public class Debug {
         int bi = Integer.parseInt(buildingId);
         int si = Integer.parseInt(shiftIndex);
 
-        for (Building building : World.getBuildings()) {
-            if (building.getId() == bi) {
-                ((ProductionBuilding) building).setShiftActivity(si, true);
-            }
-        }
+        ((ProductionBuilding) getBuildingById(bi)).setShiftActivity(si, true);
     }
 
     public static void disableShift(String buildingId, String shiftIndex) {

@@ -10,10 +10,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Matrix4;
 import com.boxhead.builder.*;
-import com.boxhead.builder.game_objects.Building;
-import com.boxhead.builder.game_objects.Buildings;
-import com.boxhead.builder.game_objects.ProductionBuilding;
 import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.*;
 import com.boxhead.builder.ui.popup.Popups;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
@@ -26,7 +24,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class UI {
     public static final Matrix4 UI_PROJECTION = new Matrix4();
@@ -754,27 +752,27 @@ public class UI {
             tabs = new Tab[4];
 
             tabs[0] = new Tab(this, true,
-                    Pair.of(Buildings.Type.STORAGE_BARN, Textures.Ui.BARN),
-                    Pair.of(Buildings.Type.BUILDERS_HUT, Textures.Ui.BIG_HAMMER),
-                    Pair.of(Buildings.Type.TRANSPORT_OFFICE, Textures.Ui.CARRIAGE)
+                    Pair.of(Building.Type.STORAGE_BARN, Textures.Ui.BARN),
+                    Pair.of(ProductionBuilding.Type.BUILDERS_HUT, Textures.Ui.BIG_HAMMER),
+                    Pair.of(ProductionBuilding.Type.TRANSPORT_OFFICE, Textures.Ui.CARRIAGE)
             );
 
             tabs[1] = new Tab(this, false,
-                    Pair.of(Buildings.Type.LOG_CABIN, Textures.Ui.HOUSE)
+                    Pair.of(ResidentialBuilding.Type.LOG_CABIN, Textures.Ui.HOUSE)
             );
 
             tabs[2] = new Tab(this, false,
-                    Pair.of(Buildings.Type.LUMBERJACKS_HUT, Textures.Ui.AXE),
-                    Pair.of(Buildings.Type.MINE, Textures.Ui.PICKAXE),
-                    Pair.of(Buildings.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
-                    Pair.of(Buildings.Type.PLANTATION, Textures.Ui.FUNGUS),
-                    Pair.of(Buildings.Type.RANCH, Textures.Ui.FUNGUS)
+                    Pair.of(ProductionBuilding.Type.LUMBERJACKS_HUT, Textures.Ui.AXE),
+                    Pair.of(ProductionBuilding.Type.MINE, Textures.Ui.PICKAXE),
+                    Pair.of(ProductionBuilding.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
+                    Pair.of(PlantationBuilding.Type.PLANTATION, Textures.Ui.FUNGUS),
+                    Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.FUNGUS)
             );
 
             tabs[3] = new Tab(this, false,
-                    Pair.of(Buildings.Type.HOSPITAL, Textures.Ui.SERVICE),
-                    Pair.of(Buildings.Type.PUB, Textures.Ui.SERVICE),
-                    Pair.of(Buildings.Type.SCHOOL, Textures.Ui.SERVICE)
+                    Pair.of(ServiceBuilding.Type.HOSPITAL, Textures.Ui.SERVICE),
+                    Pair.of(ServiceBuilding.Type.PUB, Textures.Ui.SERVICE),
+                    Pair.of(SchoolBuilding.Type.SCHOOL, Textures.Ui.SERVICE)
             );
 
             int x = PADDING;
@@ -795,16 +793,17 @@ public class UI {
             }
         }
 
-        private void showBuildingStats(Buildings.Type building) {
-            float scale = 128f / building.getTexture().getRegionHeight();
-            if (building.getTexture().getRegionWidth() * scale > 192) scale = 192f / building.getTexture().getRegionWidth();
+        private void showBuildingStats(Building.Type type) {
+            float scale = 128f / type.getTexture().getRegionHeight();
+            if (type.getTexture().getRegionWidth() * scale > 192) scale = 192f / type.getTexture().getRegionWidth();
             buildingImage.setScale(scale);
-            buildingImage.setTexture(building.getTexture());
-            divider.setText(building.name);
+            buildingImage.setTexture(type.getTexture());
+            divider.setText(type.name);
 
             String description = "";
-            description += "build cost:\n" + building.buildCost;
-            if (building.isProduction() && building.range != 0) description += "\n\nrange: " + building.range;
+            description += "build cost:\n" + type.buildCost;
+            if (type instanceof ProductionBuilding.Type productionType && productionType.range != 0)
+                description += "\n\nrange: " + productionType.range;
 
             descriptionArea.setText(description);
             descriptionArea.setLocalPosition(
@@ -813,7 +812,7 @@ public class UI {
             );
 
             buildButton.setOnUp(() -> {
-                Buildings.toBuildingMode(building);
+                Buildings.toBuildingMode(type);
                 buildingMenu.setVisible(false);
             });
 
@@ -842,7 +841,7 @@ public class UI {
             private final Button[] buttons;
 
             @SafeVarargs
-            public Tab(Window parent, boolean visible, Pair<Buildings.Type, Textures.Ui>... buttons) {
+            public Tab(Window parent, boolean visible, Pair<Building.Type, Textures.Ui>... buttons) {
                 super(
                         parent,
                         Layer.IN_GAME,
@@ -854,7 +853,7 @@ public class UI {
 
                 int x = 0, y = -64;
                 for (int i = 0; i < buttons.length; i++) {
-                    Pair<Buildings.Type, Textures.Ui> pair = buttons[i];
+                    Pair<Building.Type, Textures.Ui> pair = buttons[i];
                     if (i%ROW_LENGTH == 0) x = 0;
                     Button button = new Button(Textures.get(pair.second), this, Layer.IN_GAME, new Vector2i(x, y));
                     button.setOnUp(() -> showBuildingStats(pair.first));
@@ -883,17 +882,17 @@ public class UI {
         final CheckBox[] checkBoxes;
         final UIElement timelineTop;
         final UIElement[] timelineSegments;
-        final Buildings.Type[] types;
+        final ProductionBuilding.Type[] types;
 
         ShiftMenu() {
             super(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, Vector2i.zero(), false);
             window = new Window(Textures.get(Textures.Ui.WINDOW), this, layer, Vector2i.zero(), true);
             window.setContentWidth((window.getEdgeWidth() + PADDING) * 2 + NAME_WIDTH + COLUMN_WIDTH * 3);
 
-            types = Arrays.stream(Buildings.Type.values())
-                    .filter(Buildings.Type::isProduction)
-                    .sorted(Comparator.comparing(t -> t.name))
-                    .toArray(Buildings.Type[]::new);
+            types = Stream.of(ProductionBuilding.Type.values(), ServiceBuilding.Type.values(), PlantationBuilding.Type.values(), RanchBuilding.Type.values(), SchoolBuilding.Type.values())
+                    .flatMap(Arrays::stream)
+                    .sorted(Comparator.comparing(type -> type.name))
+                    .toArray(ProductionBuilding.Type[]::new);
 
             textAreas = new TextArea[types.length];
             timeLabels = new TextArea[6];
@@ -927,7 +926,7 @@ public class UI {
             );
 
             for (int i = 0; i < types.length; i++) {
-                Buildings.Type type = types[i];
+                ProductionBuilding.Type type = types[i];
 
                 textAreas[i] = new TextArea(
                         type.name,
@@ -947,7 +946,7 @@ public class UI {
 
                 for (int j = 0; j < ProductionBuilding.SHIFTS_PER_JOB; j++) {
                     int x = columnOffset + COLUMN_WIDTH * j;
-                    if (type.isService())
+                    if (type instanceof ServiceBuilding.Type)
                         x += shiftOffset;
 
                     checkBoxes[i * 3 + j] = new CheckBox(

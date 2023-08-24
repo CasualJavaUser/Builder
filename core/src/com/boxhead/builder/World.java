@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.game_objects.buildings.*;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.*;
-import com.boxhead.builder.utils.Range;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -18,7 +18,7 @@ public class World {
     public static final int TILE_SIZE = 16;
     public static final int HOUR = 3600;
     public static final int FULL_DAY = 86400;
-    public static final int YEAR = 1000;
+    public static final int YEAR = FULL_DAY * 10;
 
     /**
      * The size (in tiles) of the biggest GameObject texture.
@@ -90,25 +90,25 @@ public class World {
         initVillagers(10);
         spawnVillager(new Villager(new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
-        BoxCollider collider = Buildings.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
-        placeBuilding(Buildings.Type.BUILDERS_HUT, buildingPosition);
+        BoxCollider collider = ProductionBuilding.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
+        placeBuilding(ProductionBuilding.Type.BUILDERS_HUT, buildingPosition);
         makeUnnavigable(collider);
         makeBuilt(collider);
 
-        collider = Buildings.Type.STORAGE_BARN.relativeCollider;
+        collider = Building.Type.STORAGE_BARN.relativeCollider;
         buildingPosition = buildingPosition.plus(-collider.getWidth() * 2, 0);
         collider = collider.cloneAndTranslate(buildingPosition);
-        placeBuilding(Buildings.Type.STORAGE_BARN, buildingPosition);
+        placeBuilding(Building.Type.STORAGE_BARN, buildingPosition);
         makeUnnavigable(collider);
         makeBuilt(collider);
-        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
-        StorageBuilding.getByCoordinates(buildingPosition).getInventory().put(Resource.GRAIN, 100);
+        Building.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
+        Building.getByCoordinates(buildingPosition).getInventory().put(Resource.GRAIN, 100);
         storedResources[Resource.WOOD.ordinal()] = 100;
         storedResources[Resource.GRAIN.ordinal()] = 100;
 
-        collider = Buildings.Type.TRANSPORT_OFFICE.relativeCollider;
+        collider = ProductionBuilding.Type.TRANSPORT_OFFICE.relativeCollider;
         buildingPosition = buildingPosition.plus(-collider.getWidth() * 2, 0);
-        placeBuilding(Buildings.Type.TRANSPORT_OFFICE, buildingPosition);
+        placeBuilding(ProductionBuilding.Type.TRANSPORT_OFFICE, buildingPosition);
         collider = collider.cloneAndTranslate(buildingPosition);
         makeUnnavigable(collider);
         makeBuilt(collider);
@@ -254,16 +254,16 @@ public class World {
         }
     }
 
-    public static Building placeBuilding(Buildings.Type type, Vector2i gridPosition) {
+    public static Building placeBuilding(Building.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
         buildings.add(building);
         addGameObject(building);
         makeUnnavigable(building.getCollider());
 
-        if (type == Buildings.Type.TRANSPORT_OFFICE) {
+        if (type == ProductionBuilding.Type.TRANSPORT_OFFICE) {
             Logistics.getTransportOffices().add((ProductionBuilding) building);
-        } else if (type == Buildings.Type.STORAGE_BARN) {
-            Logistics.getStorages().add((StorageBuilding) building);
+        } else if (type == Building.Type.STORAGE_BARN) {
+            Logistics.getStorages().add(building);
         }
         for (Building b : buildings) {
             if (b instanceof ProductionBuilding pb && pb.isBuildingInRange(building)) {
@@ -274,9 +274,7 @@ public class World {
         return building;
     }
 
-    public static void placeFarm(Buildings.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
-        if (!type.isFarm()) throw new IllegalArgumentException("Wrong building type");
-
+    public static void placeFarm(FarmBuilding.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
         FarmBuilding<?> building = (FarmBuilding<?>) placeBuilding(type, gridPosition);
         building.setFieldCollider(fieldCollider);
         makeBuilt(fieldCollider);
@@ -712,12 +710,12 @@ public class World {
         for (Building building : buildings) {
             addGameObject(building);
             makeUnnavigable(building.getCollider());
-            if (building.getType() == Buildings.Type.TRANSPORT_OFFICE) {
+            if (building.getType() == ProductionBuilding.Type.TRANSPORT_OFFICE) {
                 Logistics.getTransportOffices().add((ProductionBuilding) building);
-            } else if (building.getType() == Buildings.Type.STORAGE_BARN) {
-                Logistics.getStorages().add((StorageBuilding) building);
+            } else if (building.getType() == Building.Type.STORAGE_BARN) {
+                Logistics.getStorages().add(building);
             }
-            if (building.getType().farmAnimal != null) {
+            if (building.getType() instanceof RanchBuilding.Type) {
                 Tiles.createFence(((FarmBuilding<?>) building).getFieldCollider());
             }
         }

@@ -1,19 +1,149 @@
-package com.boxhead.builder.game_objects;
+package com.boxhead.builder.game_objects.buildings;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Circle;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Vector2i;
 
-import java.io.*;
+import java.io.Serializable;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.boxhead.builder.game_objects.Villager.Order.Type.*;
 
-public class ProductionBuilding extends StorageBuilding {
+public class ProductionBuilding extends Building {
+    public static class Type extends Building.Type {
+        public final Job job;
+        public final int maxEmployeeCapacity, productionInterval, range;
+        public final Function<Set<Building>, Float> updateEfficiency;
+        protected final boolean[] shifts = new boolean[]{false, true, false};
+
+        protected static Type[] values;
+
+        public static final Type LUMBERJACKS_HUT = new Type(
+                Textures.Building.LUMBERJACKS_HUT,
+                "lumberjack's hut",
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 3),
+                new Recipe(Pair.of(Resource.WOOD, 20)),
+                Jobs.LUMBERJACK,
+                1,
+                0,
+                15
+        );
+        public static final Type MINE = new Type(
+                Textures.Building.MINE,
+                "mine",
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 3, 2),
+                new Recipe(Pair.of(Resource.WOOD, 40),
+                        Pair.of(Resource.STONE, 20)),
+                Jobs.MINER,
+                2,
+                300,
+                10,
+                (buildingsInRange) -> {
+                    float efficiency = 1f - buildingsInRange.size() / 3f;
+                    if (efficiency < 0) efficiency = 0;
+                    return efficiency;
+                }
+        );
+        public static final Type BUILDERS_HUT = new Type(
+                Textures.Building.BUILDERS_HUT,
+                "builder's hut",
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 2),
+                new Recipe(Pair.of(Resource.WOOD, 20)),
+                Jobs.BUILDER,
+                3
+        );
+        public static final Type TRANSPORT_OFFICE = new Type(
+                Textures.Building.CARRIAGE_HOUSE,
+                "carriage house",
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 5, 2),
+                new Recipe(Pair.of(Resource.WOOD, 20)),
+                Jobs.CARRIER,
+                5
+        );
+        public static final Type STONE_GATHERERS = new Type(
+                Textures.Building.STONE_GATHERERS_SHACK,
+                "stone gatherer's shack",
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 4, 2),
+                new Recipe(Pair.of(Resource.WOOD, 30)),
+                Jobs.STONEMASON,
+                2,
+                0,
+                15
+        );
+
+        static {
+            values = initValues(Type.class).toArray(Type[]::new);
+        }
+
+        protected Type(
+                Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider,
+                Recipe buildCost, Job job, int maxEmployeeCapacity, int productionInterval, int range,
+                Function<Set<Building>, Float> updateEfficiency
+        ) {
+            super(texture, name, entrancePosition, relativeCollider, buildCost);
+            this.job = job;
+            this.maxEmployeeCapacity = maxEmployeeCapacity;
+            this.productionInterval = productionInterval;
+            this.range = range;
+            this.updateEfficiency = updateEfficiency;
+        }
+
+        protected Type (
+                Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider,
+                Recipe buildCost, Job job, int maxEmployeeCapacity, int productionInterval, int range
+        ) {
+            this(texture, name, entrancePosition, relativeCollider, buildCost, job, maxEmployeeCapacity, productionInterval, range, (b) -> 1f);
+        }
+
+        protected Type (
+                Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider,
+                Recipe buildCost, Job job, int maxEmployeeCapacity
+        ) {
+            this(texture, name, entrancePosition, relativeCollider, buildCost, job, maxEmployeeCapacity, 0, 0, (b) -> 1f);
+        }
+
+        public static Type[] values() {
+            return values;
+        }
+
+        public void setShiftActivity(int index, boolean active) {
+            shifts[index] = active;
+
+            for (Building building : World.getBuildings()) {
+                if (building.type == this) {
+                    if (building instanceof ConstructionSite)
+                        continue;
+                    ((ProductionBuilding) building).setShiftActivity(index, active);
+                }
+            }
+        }
+
+        public boolean getShiftActivity(int index) {
+            return shifts[index];
+        }
+
+        protected static Type getByName(String name) {
+            for (Type value : values) {
+                if (value.name.equals(name))
+                    return value;
+            }
+            throw new IllegalStateException();
+        }
+    }
+
     /**
      * How many production cycles worth of input resources to keep.
      */
@@ -40,7 +170,7 @@ public class ProductionBuilding extends StorageBuilding {
     protected float productionCounter = 0;
     protected boolean showRange = false;
 
-    public ProductionBuilding(Buildings.Type type, Vector2i gridPosition) {
+    public ProductionBuilding(Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         this.type = type;
         shifts = new Shift[SHIFTS_PER_JOB];
@@ -48,7 +178,7 @@ public class ProductionBuilding extends StorageBuilding {
         employeeCapacity = type.maxEmployeeCapacity;
 
         if (SHIFTS_PER_JOB != 3) throw new IllegalStateException();
-        if (type.isService()) {
+        if (type instanceof ServiceBuilding.Type) {
             for (int i = 0; i < SHIFTS_PER_JOB; i++) {
                 shifts[i] = new Shift(SERVICE_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
             }
@@ -68,6 +198,11 @@ public class ProductionBuilding extends StorageBuilding {
                     .collect(Collectors.toSet());
         } else buildingsInRange = emptySet;
         updateEfficiency();
+    }
+
+    @Override
+    public Type getType() {
+        return ((Type) type);
     }
 
     public void removeEmployee(Villager villager) {
@@ -113,12 +248,13 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public boolean canProduce() {
-        return hasEmployeesInside() && inventory.checkStorageAvailability(type.job.getRecipe(this)) == Inventory.Availability.AVAILABLE;
+        return hasEmployeesInside() &&
+                inventory.checkStorageAvailability(getType().job.getRecipe(this)) == Inventory.Availability.AVAILABLE;
     }
 
     public void business() {
         for (Shift shift : shifts) {
-            Job job = type.job;
+            Job job = getType().job;
             for (Villager employee : shift.employees) {
                 if (employee.isClockedIn())
                     job.continuousTask(employee, this);
@@ -127,10 +263,10 @@ public class ProductionBuilding extends StorageBuilding {
                 }
             }
 
-            if (type.productionInterval > 0) {
+            if (getType().productionInterval > 0) {
                 productionCounter += employeesInside * efficiency;
 
-                if (productionCounter >= type.productionInterval) {
+                if (productionCounter >= getType().productionInterval) {
                     Recipe recipe = job.getRecipe(this);
                     Inventory.Availability availability = inventory.checkStorageAvailability(recipe);
 
@@ -174,7 +310,7 @@ public class ProductionBuilding extends StorageBuilding {
                 for (Villager employee : shift.employees) {
                     if (employee.isClockedIn()) {
                         employee.clearOrderQueue();
-                        type.job.onExit(employee, this);
+                        getType().job.onExit(employee, this);
                         employee.giveOrder(EXIT, this);
                         employee.giveOrder(CLOCK_OUT);
                         if (employee.getHome() != null) {
@@ -191,7 +327,7 @@ public class ProductionBuilding extends StorageBuilding {
         for (Shift shift : shifts) {
             if (shift.employees.contains(employee)) {
                 employee.clearOrderQueue();
-                type.job.onExit(employee, this);
+                getType().job.onExit(employee, this);
                 employee.giveOrder(EXIT, this);
                 employee.giveOrder(CLOCK_OUT);
                 break;
@@ -215,7 +351,7 @@ public class ProductionBuilding extends StorageBuilding {
     public void setEmployeeCapacity(int capacity) {
         employeeCapacity = capacity;
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-            if (!type.getShiftActivity(i))
+            if (!getType().getShiftActivity(i))
                 continue;
 
             shifts[i].maxEmployees = capacity;
@@ -258,11 +394,11 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public void updateEfficiency() {
-        efficiency = type.updateEfficiency.apply(buildingsInRange);
+        efficiency = getType().updateEfficiency.apply(buildingsInRange);
     }
 
     public Job getJob() {
-        return type.job;
+        return getType().job;
     }
 
     public Shift getShift(Villager employee) {
@@ -313,7 +449,7 @@ public class ProductionBuilding extends StorageBuilding {
     }
 
     public boolean isBuildingInRange(Building building) {
-        return type.range > 0 && building.getCollider().distance(entrancePosition) < type.range && !building.equals(this);
+        return getType().range > 0 && building.getCollider().distance(entrancePosition) < getType().range && !building.equals(this);
     }
 
     @Override
@@ -330,7 +466,7 @@ public class ProductionBuilding extends StorageBuilding {
                     batch,
                     Textures.Tile.DEFAULT,
                     entrancePosition,
-                    type.range);
+                    getType().range);
             batch.setColor(UI.DEFAULT_COLOR);
         }
 
@@ -341,7 +477,7 @@ public class ProductionBuilding extends StorageBuilding {
 
     protected void drawIndicator(SpriteBatch batch) {
         TextureRegion texture;
-        switch (inventory.checkStorageAvailability(type.job.getRecipe(this))) {
+        switch (inventory.checkStorageAvailability(getType().job.getRecipe(this))) {
             case LACKS_INPUT:
                 texture = Textures.get(Textures.Ui.NO_INPUT); break;
             case OUTPUT_FULL:
@@ -366,29 +502,16 @@ public class ProductionBuilding extends StorageBuilding {
     @Override
     public String toString() {
         return type.name +
-                "\njob: " + type.job +
+                "\njob: " + getType().job +
                 "\nefficiency: " + efficiency +
                 "\njobQuality: " + jobQuality +
-                "\nshifts: " + type.getShiftActivity(0) + ", " + type.getShiftActivity(1) + ", " + type.getShiftActivity(2) +
+                "\nshifts: " + getType().getShiftActivity(0) + ", " + getType().getShiftActivity(1) + ", " + getType().getShiftActivity(2) +
                 "\nemployees: " + employees.size() + " / " + (employeeCapacity * SHIFTS_PER_JOB) +
-                "\nemployees per shift: " + employeeCapacity + " / " + type.maxEmployeeCapacity +
+                "\nemployees per shift: " + employeeCapacity + " / " + getType().maxEmployeeCapacity +
                 "\nemployeesInside: " + employeesInside +
                 "\nassignedFieldWork: " + assignedFieldWork +
                 "\nbuildingsInRange: " + buildingsInRange.size() +
                 "\nproductionCounter: " + productionCounter +
                 "\nshowRange: " + showRange;
-    }
-
-    @Serial
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-        oos.writeUTF(type.name());
-    }
-
-    @Serial
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        ois.defaultReadObject();
-        type = Buildings.Type.valueOf(ois.readUTF());
-        textureId = type.texture;
     }
 }

@@ -4,7 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.boxhead.builder.*;
-import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.*;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.Map;
@@ -52,7 +53,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         right.setOnUp(() -> {
             if (pinnedObject instanceof ProductionBuilding building) {
-                if (building.getEmployeeCapacity() < building.getType().maxEmployeeCapacity) {
+                ProductionBuilding.Type type = ((ProductionBuilding.Type) building.getType());
+                if (building.getEmployeeCapacity() < type.maxEmployeeCapacity) {
                     building.setEmployeeCapacity(building.getEmployeeCapacity() + 1);
                     npcCount.setText(building.getEmployeeCapacity() + "");
                 }
@@ -105,7 +107,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
             stats += "\njob quality: " + building.getJobQuality();
 
             if (pinnedObject instanceof ServiceBuilding serviceBuilding) {
-                stats += "\nguests: " + serviceBuilding.getGuests().size() + " / " + serviceBuilding.getType().guestCapacity;
+                stats += "\nguests: " + serviceBuilding.getGuests().size() + " / " + ((ServiceBuilding.Type) serviceBuilding.getType()).guestCapacity;
             }
             else if (pinnedObject instanceof SchoolBuilding school) {
                 stats += "\nstudents: " + school.getNumberOfStudents() + " / " + school.getOverallStudentCapacity();
@@ -126,8 +128,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
                         construction.getInventory().getResourceAmount(entry.getKey()) + " / " + entry.getValue());
             }
         }
-        else if (pinnedObject.getClass() == StorageBuilding.class) {
-            StorageBuilding building = ((StorageBuilding) pinnedObject);
+        else if (pinnedObject.getClass() == Building.class) {
+            Building building = pinnedObject;
             stats += "\n" + building.getInventory().getDisplayedAmount() + " / " + building.getInventory().getMaxCapacity();
             for (Resource resource : building.getInventory().getStoredResources()) {
                 if (resource != Resource.NOTHING) {
@@ -185,7 +187,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         int x = 0;
         for (int i = 0; i < 3; i++) {
             for (Villager employee : building.getShift(i).getEmployees()) {
-                if (!building.getType().getShiftActivity(i))
+                if (!((ProductionBuilding.Type) building.getType()).getShiftActivity(i))
                     continue;
 
                 batch.draw(employee.getTexture(),

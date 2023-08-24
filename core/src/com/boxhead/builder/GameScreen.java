@@ -10,10 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.boxhead.builder.game_objects.Buildings;
+import com.boxhead.builder.game_objects.buildings.Buildings;
 import com.boxhead.builder.ui.UI;
-import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Range;
+import com.boxhead.builder.utils.Vector2i;
 
 public class GameScreen implements Screen {
 

@@ -1,6 +1,12 @@
 package com.boxhead.builder;
 
-import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.game_objects.Harvestable;
+import com.boxhead.builder.game_objects.Harvestables;
+import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.ConstructionSite;
+import com.boxhead.builder.game_objects.buildings.FarmBuilding;
+import com.boxhead.builder.game_objects.buildings.PlantationBuilding;
+import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Circle;
 import com.boxhead.builder.utils.Pair;
@@ -72,7 +78,7 @@ public class Jobs {
         }
 
         private Vector2i findTileToPlant(ProductionBuilding workplace) {
-            Circle range = new Circle(workplace.getEntrancePosition(), workplace.getType().range);
+            Circle range = new Circle(workplace.getEntrancePosition(), ((ProductionBuilding.Type) workplace.getType()).range);
             BoxCollider vicinity = new BoxCollider(0, 0, 3, 3);
             for (Iterator<Vector2i> it = range.orderedIterator(); it.hasNext(); ) {
                 Vector2i tile = it.next();
@@ -233,7 +239,7 @@ public class Jobs {
 
         @Override
         public void onExit(Villager assignee, ProductionBuilding workplace) {
-            harvesterOnExit(assignee, workplace, ((PlantationBuilding) workplace).getCrop().characteristic.resource);
+            harvesterOnExit(assignee, workplace, ((FarmBuilding<?>) workplace).getResource());
         }
 
         @Override

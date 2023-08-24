@@ -1,6 +1,8 @@
 package com.boxhead.builder;
 
-import com.boxhead.builder.game_objects.*;
+import com.boxhead.builder.game_objects.Villager;
+import com.boxhead.builder.game_objects.buildings.Building;
+import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
 import com.boxhead.builder.utils.BidirectionalMap;
 import com.boxhead.builder.utils.SortedList;
 import com.boxhead.builder.utils.Vector2i;
@@ -22,7 +24,7 @@ public class Logistics {
     public static final SortedList<Request> outputRequests;
     public static final SortedList<Order> readyOrders;
 
-    public static final Set<StorageBuilding> storages = new HashSet<>();
+    public static final Set<Building> storages = new HashSet<>();
     public static final Set<ProductionBuilding> transportOffices = new HashSet<>();
 
     private static final BidirectionalMap<FieldWork, ProductionBuilding> fieldWorkRequests = new BidirectionalMap<>();
@@ -106,13 +108,13 @@ public class Logistics {
      * Creates a new transport request and overrides its priority. Note that this override is not persistent - invoking a
      * non-overriding <code>requestTransport()</code> will reset priority.
      */
-    public static void requestTransport(StorageBuilding building, Recipe recipe, int overridePriority) {
+    public static void requestTransport(Building building, Recipe recipe, int overridePriority) {
         for (Resource resource : recipe.changedResources()) {
             Request request = returningRequestTransport(building, resource, recipe.getChange(resource));
             overrideRequestPriority(request, overridePriority);
         }
     }
-    public static void requestTransport(StorageBuilding building, Recipe recipe) {
+    public static void requestTransport(Building building, Recipe recipe) {
         for (Resource resource : recipe.changedResources()) {
             requestTransport(building, resource, recipe.getChange(resource));
         }
@@ -121,11 +123,11 @@ public class Logistics {
     /**
      * @param units The sign of this argument determines whether this request is considered an input or an output. Should be kept the same as in Recipes - positive for output and negative for input, zero has no effect.
      */
-    public static void requestTransport(StorageBuilding building, Resource resource, int units) {
+    public static void requestTransport(Building building, Resource resource, int units) {
         returningRequestTransport(building, resource, units);
     }
 
-    private static Request returningRequestTransport(StorageBuilding building, Resource resource, int units) {
+    private static Request returningRequestTransport(Building building, Resource resource, int units) {
         SortedList<Request> list;
 
         if (units > 0)
@@ -235,7 +237,7 @@ public class Logistics {
         return transportOffices;
     }
 
-    public static Set<StorageBuilding> getStorages() {
+    public static Set<Building> getStorages() {
         return storages;
     }
 
@@ -245,9 +247,9 @@ public class Logistics {
         while (it < supplyRequests.size() && supplyRequests.get(it).priority >= USE_STORAGE) {
             Request supplyRequest = supplyRequests.get(it);
             Resource resource = supplyRequest.resource;
-            StorageBuilding storage;
+            Building storage;
 
-            Optional<StorageBuilding> optional = findStoredResources(supplyRequest);
+            Optional<Building> optional = findStoredResources(supplyRequest);
             if (optional.isPresent()) {
                 storage = optional.get();
 
@@ -262,9 +264,9 @@ public class Logistics {
         while (it < outputRequests.size() && outputRequests.get(it).priority >= USE_STORAGE) {
             Request outputRequest = outputRequests.get(it);
             Resource resource = outputRequest.resource;
-            StorageBuilding storage;
+            Building storage;
 
-            Optional<StorageBuilding> optional = findStorageSpace(outputRequest);
+            Optional<Building> optional = findStorageSpace(outputRequest);
             if (optional.isPresent()) {
                 storage = optional.get();
 
@@ -354,13 +356,13 @@ public class Logistics {
                 .max(Comparator.comparingInt(r -> r.priority));
     }
 
-    private static Optional<StorageBuilding> findStoredResources(Request request) {
+    private static Optional<Building> findStoredResources(Request request) {
         return storages.stream()
                 .filter(storage -> storage.getFreeResources(request.resource) >= THE_UNIT)
                 .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
     }
 
-    private static Optional<StorageBuilding> findStorageSpace(Request request) {
+    private static Optional<Building> findStorageSpace(Request request) {
         return storages.stream()
                 .filter(storage -> storage.getFreeSpace() >= THE_UNIT)
                 .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
@@ -385,7 +387,7 @@ public class Logistics {
 
     private static class Request implements Serializable {
         Resource resource;
-        StorageBuilding building;
+        Building building;
         int amount;
         int priority;
         Priority priorityEnum;
@@ -393,7 +395,7 @@ public class Logistics {
         private Request() {
         }
 
-        private Request(Resource resource, StorageBuilding building, int amount) {
+        private Request(Resource resource, Building building, int amount) {
             this.resource = resource;
             this.building = building;
             this.amount = amount;
@@ -421,8 +423,8 @@ public class Logistics {
     }
 
     public static class Order extends Request{
-        StorageBuilding sender;
-        StorageBuilding recipient;
+        Building sender;
+        Building recipient;
 
         private Order(Request sender, Request recipient) {
             if (sender.resource != recipient.resource)

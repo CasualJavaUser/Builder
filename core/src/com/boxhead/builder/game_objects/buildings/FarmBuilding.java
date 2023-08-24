@@ -1,9 +1,7 @@
-package com.boxhead.builder.game_objects;
+package com.boxhead.builder.game_objects.buildings;
 
-import com.boxhead.builder.FieldWork;
-import com.boxhead.builder.Recipe;
-import com.boxhead.builder.Resource;
-import com.boxhead.builder.WorldObject;
+import com.boxhead.builder.*;
+import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.SortedList;
@@ -17,17 +15,46 @@ import java.util.Comparator;
 import java.util.Optional;
 
 public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuilding {
+    public static class Type extends ProductionBuilding.Type {
+        protected static Type[] values;
+
+        static {
+            values = initValues(Type.class).toArray(Type[]::new);
+        }
+
+        protected Type(Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider, Recipe buildCost, Job job, int maxEmployeeCapacity) {
+            super(texture, name, entrancePosition, relativeCollider, buildCost, job, maxEmployeeCapacity);
+        }
+
+        public static Type[] values() {
+            return values;
+        }
+
+        protected static Type getByName(String name) {
+            for (Type value : values) {
+                if (value.name.equals(name))
+                    return value;
+            }
+            throw new IllegalStateException();
+        }
+    }
+
     public static final int MIN_FIELD_SIZE = 3, MAX_FIELD_SIZE = 12;
 
     protected BoxCollider fieldCollider;
     protected transient SortedList<T> ownFieldWorks;
     protected transient Recipe recipe;
 
-    public FarmBuilding(Buildings.Type type, Vector2i gridPosition) {
+    public FarmBuilding(Type type, Vector2i gridPosition) {
         super(type, gridPosition);
         fieldCollider = new BoxCollider();
         ownFieldWorks = new SortedList<>(Comparator.comparingLong(h -> h.getGridPosition().gridHash()));
-        recipe = new Recipe(Pair.of(getResource(), Villager.INVENTORY_SIZE));
+        recipe = new Recipe(Pair.of(getDefaultResource(), Villager.INVENTORY_SIZE));
+    }
+
+    @Override
+    public Type getType() {
+        return ((Type) type);
     }
 
     public void setFieldCollider(BoxCollider collider) {
@@ -35,6 +62,8 @@ public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuildi
     }
 
     public abstract Resource getResource();
+
+    public abstract Resource getDefaultResource();
 
     public abstract int getYield();
 

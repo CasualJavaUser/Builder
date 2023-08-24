@@ -1,9 +1,7 @@
 package com.boxhead.builder;
 
 import com.boxhead.builder.game_objects.Villager;
-import com.boxhead.builder.game_objects.ProductionBuilding;
-
-import java.io.Serializable;
+import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
 
 public class Job {
     protected Recipe recipe = new Recipe();
