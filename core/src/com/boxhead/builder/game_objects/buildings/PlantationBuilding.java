@@ -15,7 +15,7 @@ public class PlantationBuilding extends FarmBuilding<Harvestable> {
         protected static Type[] values;
 
         public static final Type PLANTATION = new Type(
-                Textures.Building.TOOL_SHACK,
+                Textures.Building.PLANTATION,
                 "plantation",
                 new Vector2i(1, -1),
                 new BoxCollider(0, 0, 4, 2),

@@ -1,138 +1,159 @@
 
 tiles.png
-size: 64, 128
+size: 512, 32
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 default
   rotate: false
-  xy: 19, 109
+  xy: 73, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-dirt
+dirt1
   rotate: false
-  xy: 37, 91
+  xy: 289, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-grass1
+dirt2
   rotate: false
-  xy: 37, 109
+  xy: 145, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-grass2
+dirt3
   rotate: false
-  xy: 19, 19
+  xy: 37, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-grass3
-  rotate: false
-  xy: 19, 73
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-left_river_bank
-  rotate: false
-  xy: 37, 37
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_bl
-  rotate: false
-  xy: 19, 91
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_br
-  rotate: false
-  xy: 1, 109
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_cross
-  rotate: false
-  xy: 37, 55
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_lr
-  rotate: false
-  xy: 1, 55
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_t_b
-  rotate: false
-  xy: 19, 55
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_t_l
-  rotate: false
-  xy: 1, 1
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_t_r
-  rotate: false
-  xy: 1, 37
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_t_t
-  rotate: false
-  xy: 1, 19
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-path_tb
+farmland
   rotate: false
   xy: 19, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+grass1
+  rotate: false
+  xy: 127, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+grass2
+  rotate: false
+  xy: 343, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+grass3
+  rotate: false
+  xy: 181, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+left_river_bank
+  rotate: false
+  xy: 361, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_bl
+  rotate: false
+  xy: 109, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_br
+  rotate: false
+  xy: 1, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_cross
+  rotate: false
+  xy: 307, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_lr
+  rotate: false
+  xy: 163, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_b
+  rotate: false
+  xy: 217, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_l
+  rotate: false
+  xy: 325, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_r
+  rotate: false
+  xy: 199, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_t_t
+  rotate: false
+  xy: 253, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+path_tb
+  rotate: false
+  xy: 379, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 path_tl
   rotate: false
-  xy: 1, 91
+  xy: 55, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_tr
   rotate: false
-  xy: 37, 73
+  xy: 235, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 water1
   rotate: false
-  xy: 1, 73
+  xy: 91, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 water2
   rotate: false
-  xy: 19, 37
+  xy: 271, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

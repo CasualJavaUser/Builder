@@ -7,7 +7,8 @@ import com.boxhead.builder.utils.Vector2i;
 public class Harvestables {
 
     public enum Type {
-        BIG_TREE(Textures.Harvestables.PINE_TREE, Harvestable.Characteristic.TREE, 10, World.FULL_DAY),
+        PINE_TREE(Textures.Harvestables.PINE_TREE, Harvestable.Characteristic.TREE, 10, World.FULL_DAY/3),
+        OAK_TREE(Textures.Harvestables.OAK_TREE, Harvestable.Characteristic.TREE, 10, World.FULL_DAY/3),
         ROCK1(Textures.Harvestables.ROCK1, Harvestable.Characteristic.ROCK, 5, 0),
         ROCK2(Textures.Harvestables.ROCK2, Harvestable.Characteristic.ROCK, 5, 0),
         ROCK3(Textures.Harvestables.ROCK3, Harvestable.Characteristic.ROCK, 5, 0),

@@ -1,138 +1,152 @@
 
 environment.png
-size: 256, 64
+size: 512, 64
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 fence_b
   rotate: false
-  xy: 96, 16
+  xy: 240, 16
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_bl
   rotate: false
-  xy: 112, 0
+  xy: 256, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_br
   rotate: false
-  xy: 112, 48
+  xy: 256, 48
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_l
   rotate: false
-  xy: 112, 16
+  xy: 256, 16
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_r
   rotate: false
-  xy: 96, 32
+  xy: 240, 32
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_t
   rotate: false
-  xy: 128, 48
+  xy: 272, 48
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_tl
   rotate: false
-  xy: 112, 32
+  xy: 256, 32
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 fence_tr
   rotate: false
-  xy: 96, 48
+  xy: 240, 48
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-pine_tree
-  rotate: false
-  xy: 80, 32
-  size: 16, 32
-  orig: 16, 32
-  offset: 0, 0
-  index: -1
-pine_tree
+oak_tree
   rotate: false
   xy: 0, 0
   size: 48, 64
   orig: 48, 64
   offset: 0, 0
-  index: -1
+  index: 1
+oak_tree
+  rotate: false
+  xy: 96, 0
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 0
+pine_tree
+  rotate: false
+  xy: 48, 0
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+pine_tree
+  rotate: false
+  xy: 144, 0
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 0
 rock1
   rotate: false
-  xy: 128, 32
+  xy: 272, 32
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 rock2
   rotate: false
-  xy: 96, 0
+  xy: 240, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 rock3
   rotate: false
-  xy: 144, 48
+  xy: 288, 48
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 wheat
   rotate: false
-  xy: 48, 32
+  xy: 192, 32
   size: 16, 32
   orig: 16, 32
   offset: 0, 0
   index: 5
 wheat
   rotate: false
-  xy: 48, 0
+  xy: 192, 0
   size: 16, 32
   orig: 16, 32
   offset: 0, 0
   index: 2
 wheat
   rotate: false
-  xy: 64, 32
+  xy: 208, 32
   size: 16, 32
   orig: 16, 32
   offset: 0, 0
   index: 4
 wheat
   rotate: false
-  xy: 64, 0
+  xy: 208, 0
   size: 16, 32
   orig: 16, 32
   offset: 0, 0
   index: 1
 wheat
   rotate: false
-  xy: 80, 32
+  xy: 224, 32
   size: 16, 32
   orig: 16, 32
   offset: 0, 0
   index: 3
 wheat
   rotate: false
-  xy: 80, 0
+  xy: 224, 0
   size: 16, 32
   orig: 16, 32
   offset: 0, 0

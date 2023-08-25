@@ -87,7 +87,7 @@ public class World {
     }
 
     public static void temp() {
-        initVillagers(10);
+        initVillagers(15);
         spawnVillager(new Villager(new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
         Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
         BoxCollider collider = ProductionBuilding.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
@@ -160,7 +160,8 @@ public class World {
         double smallNoise = PerlinNoise.noise3D(dx * smallFreq, dy * smallFreq, seed);
         double bigNoise = PerlinNoise.noise3D(dx * bigFreq, dy * bigFreq, seed);
 
-        Harvestable tree = Harvestables.create(Harvestables.Type.BIG_TREE, pos);  //TODO randomise tree types
+        Harvestables.Type treeType = random.nextBoolean() ? Harvestables.Type.PINE_TREE : Harvestables.Type.OAK_TREE;
+        Harvestable tree = Harvestables.create(treeType, pos);
         int width = tree.getTexture().getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
         if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {

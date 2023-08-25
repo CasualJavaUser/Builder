@@ -9,7 +9,7 @@ import com.boxhead.builder.utils.Vector2i;
 
 import java.util.function.Predicate;
 
-import static com.boxhead.builder.Textures.Tile.*;
+import static com.boxhead.builder.Textures.Tile.DEFAULT;
 import static com.boxhead.builder.ui.UI.*;
 
 public class Tiles {
@@ -21,7 +21,7 @@ public class Tiles {
     private static Range<Integer> fieldSizeRange;
     private static Tile pathTile = null;
 
-    private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.DIRT;
+    private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.FARMLAND;
 
     public static BoxCollider getBuildingCollider() {
         return buildingCollider;
@@ -80,7 +80,7 @@ public class Tiles {
                     Vector2i tile = line[i];
 
                     if (World.isBuildable(tile)) {
-                        boolean[] neighbours = new boolean[4];
+                        boolean[] neighbours = new boolean[4]; //top right bottom left
                         if (tile.plus(0, 1).equals(line[i + 1]) || World.getTile(tile.plus(0, 1)) == pathTile)
                             neighbours[0] = true;
                         if (tile.plus(1, 0).equals(line[i + 1]) || World.getTile(tile.plus(1, 0)) == pathTile)
@@ -92,7 +92,7 @@ public class Tiles {
                         World.setTile(tile, pathTile, getTextureForTile(neighbours, pathTile));
                     }
                 }
-                turnOffPathMode();
+                origin = null;
             } else {
                 for (int i = 0; i < line.length - 1; i++) {
                     setBatchColorForTile(batch, line[i]);
@@ -216,11 +216,12 @@ public class Tiles {
             //if plantation then change tiles
             if (!isRanch) {
                 for (Vector2i tile : field) {
-                    if (isFarmable.test(tile)) World.setTile(tile, Tile.DIRT);
+                    if (isFarmable.test(tile)) World.setTile(tile, Tile.FARMLAND);
                 }
             } else {
                 createFence(field);
             }
+            origin = null;
             return field;
         }
         return null;

@@ -765,13 +765,13 @@ public class UI {
                     Pair.of(ProductionBuilding.Type.LUMBERJACKS_HUT, Textures.Ui.AXE),
                     Pair.of(ProductionBuilding.Type.MINE, Textures.Ui.PICKAXE),
                     Pair.of(ProductionBuilding.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
-                    Pair.of(PlantationBuilding.Type.PLANTATION, Textures.Ui.FUNGUS),
+                    Pair.of(PlantationBuilding.Type.PLANTATION, Textures.Ui.HOE),
                     Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.FUNGUS)
             );
 
             tabs[3] = new Tab(this, false,
                     Pair.of(ServiceBuilding.Type.HOSPITAL, Textures.Ui.SERVICE),
-                    Pair.of(ServiceBuilding.Type.PUB, Textures.Ui.SERVICE),
+                    Pair.of(ServiceBuilding.Type.PUB, Textures.Ui.MUG),
                     Pair.of(SchoolBuilding.Type.SCHOOL, Textures.Ui.SERVICE)
             );
 

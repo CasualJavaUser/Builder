@@ -4,9 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Textures {
     private static TextureAtlas buildingAtlas;
@@ -108,13 +106,16 @@ public class Textures {
         CARRIAGE_HOUSE, CARRIAGE_HOUSE_CS,
         STONE_GATHERERS_SHACK, STONE_GATHERERS_SHACK_CS,
         TOOL_SHACK, TOOL_SHACK_CS,
+        PLANTATION, PLANTATION_CS,
+        PUB, PUB_CS,
 
         FUNGUS, SERVICE_FUNGUS, SERVICE_FUNGUS_CS
     }
 
     public enum Tile implements TextureId {
         DEFAULT,
-        DIRT,
+        FARMLAND,
+        DIRT1, DIRT2, DIRT3,
         GRASS1, GRASS2, GRASS3,
         WATER1, WATER2,
         PATH_CROSS, PATH_LR, PATH_TB, PATH_TL, PATH_TR, PATH_BR, PATH_BL, PATH_T_L, PATH_T_T, PATH_T_R, PATH_T_B
@@ -138,7 +139,8 @@ public class Textures {
         CLOCK_FACE, HOUR_HAND, MINUTE_HAND, PAUSE, PLAY, X2SPEED, X3SPEED,
 
         INFRASTRUCTURE_TAB, HOUSING_TAB, RESOURCES_TAB, SERVICES_TAB, DIVIDER,
-        HOUSE, AXE, PICKAXE, PICKAXE_WITH_STONE, BIG_HAMMER, BARN, CARRIAGE, SERVICE, CONSTRUCTION_OFFICE, BUILD,
+        HOUSE, AXE, PICKAXE, PICKAXE_WITH_STONE, BIG_HAMMER, BARN, CARRIAGE, SERVICE, CONSTRUCTION_OFFICE, BUILD, HOE,
+        MUG,
 
         SAVE, LOAD, DELETE,
 
@@ -150,11 +152,11 @@ public class Textures {
     }
 
     public enum Environment implements TextureId {
-        //PINE_TREE, ROCK1, ROCK2, ROCK3,
         FENCE_T, FENCE_TL, FENCE_L, FENCE_BL, FENCE_B, FENCE_BR, FENCE_R, FENCE_TR
     }
 
     public enum Harvestables implements TextureId {
-        PINE_TREE, ROCK1, ROCK2, ROCK3, WHEAT
+        PINE_TREE, OAK_TREE,
+        ROCK1, ROCK2, ROCK3, WHEAT
     }
 }

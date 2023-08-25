@@ -48,7 +48,7 @@ public class Jobs {
                 Vector2i suitablePlace = findTileToPlant(workplace);
 
                 if (suitablePlace != null) {
-                    Harvestable newTree = Harvestables.create(Harvestables.Type.BIG_TREE, suitablePlace);
+                    Harvestable newTree = Harvestables.create(Harvestables.Type.PINE_TREE, suitablePlace);
                     assignee.giveOrder(EXIT, workplace);
                     assignee.giveOrder(GO_TO, newTree);
                     assignee.giveOrder(newTree);

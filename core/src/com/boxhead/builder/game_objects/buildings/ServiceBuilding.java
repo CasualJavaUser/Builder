@@ -21,10 +21,10 @@ public class ServiceBuilding extends ProductionBuilding {
         protected static Type[] values;
 
         public static final Type PUB = new Type(
-                Textures.Building.FUNGUS,
+                Textures.Building.PUB,
                 "pub",
-                new Vector2i(0, -1),
-                new BoxCollider(0, 0, 2, 2),
+                new Vector2i(3, -1),
+                new BoxCollider(0, 0, 5, 3),
                 new Recipe(Pair.of(Resource.WOOD, 10)),
                 Jobs.BARTENDER,
                 2,
