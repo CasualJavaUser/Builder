@@ -52,7 +52,7 @@ public class UIElement {
         this.scale = scale;
         this.rotation = rotation;
         isVisible = visible;
-        tint = UI.DEFAULT_COLOR;
+        tint = UI.DEFAULT_UI_COLOR;
     }
 
     public TextureRegion getTexture() {

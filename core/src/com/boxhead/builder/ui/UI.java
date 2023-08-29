@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Villager;
@@ -30,6 +31,7 @@ public class UI {
     public static final Matrix4 UI_PROJECTION = new Matrix4();
 
     public static final Color DEFAULT_COLOR = new Color(1, 1, 1, 1);
+    public static final Color DEFAULT_UI_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color SEMI_TRANSPARENT_RED = new Color(.86f, .25f, .25f, .4f);
     public static final Color SEMI_TRANSPARENT_YELLOW = new Color(.86f, .86f, .25f, .4f);
@@ -48,7 +50,7 @@ public class UI {
     private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
     @AddToUI private static TextArea tipArea;
-    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, pauseGameButton;
+    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, statisticsMenuButton, pauseGameButton;
 
     @AddToUI private static UIElement timeElementGroup;
     @AddToUI private static Clock clock;
@@ -60,6 +62,7 @@ public class UI {
     @AddToUI private static BuildingStatWindow buildingStatWindow;
 
     @AddToUI private static ShiftMenu shiftMenu;
+    @AddToUI private static StatisticsMenu statisticsMenu;
     @AddToUI private static BuildingMenu buildingMenu;
     @AddToUI private static PauseMenu pauseMenu;
 
@@ -210,13 +213,14 @@ public class UI {
         //region mainButtonGroup
         {
             int x = PADDING;
-            buildMenuButton =   new Button(Textures.get(Textures.Ui.HAMMER), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x, PADDING));
-            npcButton =         new Button(Textures.get(Textures.Ui.NPC), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            workButton =        new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            restButton =        new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            demolishButton =    new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            tilingButton =      new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            shiftMenuButton =   new Button(Textures.get(Textures.Ui.SHIFTS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            buildMenuButton =      new Button(Textures.get(Textures.Ui.HAMMER), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x, PADDING));
+            npcButton =            new Button(Textures.get(Textures.Ui.NPC), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            workButton =           new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            restButton =           new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            demolishButton =       new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            tilingButton =         new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            shiftMenuButton =      new Button(Textures.get(Textures.Ui.SHIFTS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            statisticsMenuButton = new Button(Textures.get(Textures.Ui.GRAPH_BUTTON), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
 
             pauseGameButton = new Button(Textures.get(Textures.Ui.PAUSE_GAME), Anchor.BOTTOM_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(-48 - PADDING, PADDING));
 
@@ -237,8 +241,14 @@ public class UI {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
                 else Buildings.toDemolishingMode();
             });
-            tilingButton.setOnUp(() -> Tiles.toPathMode(Tile.PATH));
+            tilingButton.setOnUp(() -> {
+                if (!Tiles.isInPathMode())
+                    Tiles.toPathMode(Tile.PATH);
+                else
+                    Tiles.turnOffPathMode();
+            });
             shiftMenuButton.setOnUp(() -> shiftMenu.setVisible(!shiftMenu.isVisible()));
+            statisticsMenuButton.setOnUp(() -> statisticsMenu.setVisible(!statisticsMenu.isVisible()));
             pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
@@ -276,6 +286,7 @@ public class UI {
 
         buildingMenu = new BuildingMenu();
         shiftMenu = new ShiftMenu();
+        statisticsMenu = new StatisticsMenu();
         pauseMenu = new PauseMenu();
         resourceList = new ResourceList();
 
@@ -458,9 +469,8 @@ public class UI {
     }
 
     public static void onEscape() {
-        if (buildingMenu.isVisible() || shiftMenu.isVisible()) {
-            buildingMenu.setVisible(false);
-            shiftMenu.setVisible(false);
+        if (buildingMenu.isVisible() || shiftMenu.isVisible() || statisticsMenu.isVisible()) {
+            closeInGameMenus();
         } else if (!isPaused) {
             if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
                 Buildings.turnOffBuildingMode();
@@ -489,6 +499,7 @@ public class UI {
         Logic.pause(open);
         isPaused = open;
         DEFAULT_COLOR.set(open ? DARK : WHITE);
+        DEFAULT_UI_COLOR.set(open ? DARK : WHITE);
         Layer.PAUSE_MENU.setVisible(open);
     }
 
@@ -657,6 +668,18 @@ public class UI {
         pauseMenu.setInGame(inGame);
     }
 
+    public static  void closeInGameMenus() {
+        buildingMenu.setVisible(false);
+        shiftMenu.setVisible(false);
+        statisticsMenu.setVisible(false);
+    }
+
+    public static void drawGraph(ShapeRenderer renderer) {
+        if (statisticsMenu.isVisible()) {
+            statisticsMenu.drawGraph(renderer);
+        }
+    }
+
     private static class PauseMenu extends Window {
         private static Button newGameButton, resumeButton, loadButton, saveButton, settingsButton, quitToMenuButton, quitButton;
 
@@ -820,6 +843,13 @@ public class UI {
         }
 
         @Override
+        public void setVisible(boolean visible) {
+            if (visible)
+                closeInGameMenus();
+            super.setVisible(visible);
+        }
+
+        @Override
         public void addToUI() {
             super.addToUI();
             divider.addToUI();
@@ -970,6 +1000,13 @@ public class UI {
         }
 
         @Override
+        public void setVisible(boolean visible) {
+            if (visible)
+                closeInGameMenus();
+            super.setVisible(visible);
+        }
+
+        @Override
         public void addToUI() {
             super.addToUI();
             window.addToUI();
@@ -985,6 +1022,101 @@ public class UI {
             }
             for (CheckBox checkBox : checkBoxes) {
                 checkBox.addToUI();
+            }
+        }
+    }
+
+    private static class StatisticsMenu extends UIElement {
+        final int COLUMN_WIDTH = 256;
+        final int GRAPH_SIZE = 307;
+
+        final Window window;
+        final Button[] buttons;
+        final UIElement graph;
+        final Color graphColor;
+
+        private Statistics.Type currentStat;
+        private float maxValue = 100;
+
+        public StatisticsMenu() {
+            super(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, Vector2i.zero(), false);
+            window = new Window(Textures.get(Textures.Ui.WINDOW), this, layer, Vector2i.zero(), true);
+            window.setContentWidth((window.getEdgeWidth() + PADDING) * 2 + COLUMN_WIDTH + PADDING + GRAPH_SIZE);
+            graph = new UIElement(
+                    Textures.get(Textures.Ui.GRAPH),
+                    this,
+                    layer,
+                    new Vector2i(window.getEdgeWidth() + PADDING * 2 + COLUMN_WIDTH, -window.getEdgeWidth() - PADDING - GRAPH_SIZE),
+                    true
+            );
+            graphColor = new Color(0.098f, 0.082f, 0.063f, 1f);
+
+            buttons = new Button[Statistics.Type.values().length];
+            int y = -window.getEdgeWidth();
+            for (int i = 0; i < buttons.length; i++) {
+                y -= 32 + PADDING;
+                buttons[i] = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), this, layer, new Vector2i(window.getEdgeWidth() + PADDING, y), "", TextArea.Align.RIGHT);
+                int statIndex = i;
+                buttons[i].setOnUp(() -> currentStat = Statistics.Type.values()[statIndex]);
+            }
+
+            window.setWindowHeight(Math.max(-y, GRAPH_SIZE + PADDING + window.getEdgeWidth()) + PADDING + window.getEdgeWidth());
+            window.setLocalPosition(0, -window.getWindowHeight());
+
+            currentStat = Statistics.Type.values()[0];
+        }
+
+        private void updateValues() {
+            for (int i = 0; i < buttons.length; i++) {
+                Statistics.Type statistic = Statistics.Type.values()[i];
+                String spacing = "      ";
+                spacing = spacing.substring(String.valueOf(statistic.getValue()).length());
+                buttons[i].setText(statistic.name().toLowerCase() + spacing + statistic.getValue());
+            }
+
+            maxValue = 10;
+            float temp = getMaxValue();
+            while (maxValue < temp)
+                maxValue *= 10;
+        }
+
+        protected void drawGraph(ShapeRenderer renderer) {
+            Vector2i origin = graph.getGlobalPosition().plus(11, 7);
+            float[] values = Statistics.getValues().get(currentStat);
+            Vector2i prevPoint = new Vector2i(290, (int)(values[0] / (maxValue/300)));
+            Vector2i point = new Vector2i();
+
+            for (int i = 1; i < Statistics.VALUES_PER_STAT; i++) {
+                point.set(10 * (Statistics.VALUES_PER_STAT - 1 - i), (int)(values[i] / (maxValue/300)));
+                renderer.rectLine(prevPoint.x + origin.x, prevPoint.y + origin.y, point.x + origin.x, point.y + origin.y, 5, graphColor, graphColor);
+                prevPoint.set(point);
+            }
+        }
+
+        private float getMaxValue() {
+            float max = 0;
+            for (float value : Statistics.getValues().get(currentStat)) {
+                if (value > max) max = value;
+            }
+            return max;
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            if (visible) {
+                updateValues();
+                closeInGameMenus();
+            }
+            super.setVisible(visible);
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            window.addToUI();
+            graph.addToUI();
+            for (Button button : buttons) {
+                button.addToUI();
             }
         }
     }

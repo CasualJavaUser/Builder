@@ -7,7 +7,7 @@ import com.boxhead.builder.World;
 public class Animals {
     public enum Type {
         COW(Textures.Npc.COW, Resource.MILK, 5, World.FULL_DAY / 20, false),
-        PIG(Textures.Npc.IDLE0, Resource.MEAT, 5, World.FULL_DAY / 20, true),
+        PIG(Textures.Npc.PIG, Resource.MEAT, 5, World.FULL_DAY / 20, true),
         DEER(Textures.Npc.IDLE0, Resource.MEAT, 10, 0);
 
         public final Textures.TextureId textureId;

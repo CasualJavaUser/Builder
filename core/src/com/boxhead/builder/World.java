@@ -673,6 +673,22 @@ public class World {
         return navigableTiles;
     }
 
+    public static float getAverageHappiness() {
+        float sum = 0;
+        for (Villager villager : villagers) {
+            sum += villager.getHappiness();
+        }
+        return sum / (float)villagers.size();
+    }
+
+    public static float getAverage(Stat stat) {
+        float sum = 0;
+        for (Villager villager : villagers) {
+            sum += villager.getStats()[stat.ordinal()];
+        }
+        return sum / villagers.size();
+    }
+
     public static void saveWorld(ObjectOutputStream out) throws IOException {
         out.writeInt(World.getSeed());
         out.writeInt(World.getGridWidth());

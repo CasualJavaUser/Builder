@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Action;
+import com.boxhead.builder.utils.Vector2i;
 
 public class Button extends UIElement implements Clickable {
 
@@ -13,11 +13,17 @@ public class Button extends UIElement implements Clickable {
     private Action onUp = () -> {};
     private String text;
     private Color defaultTint;
+    private final TextArea.Align hAlign;
 
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text) {
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text, TextArea.Align align) {
         super(texture, parent, layer, position);
         this.text = text;
         defaultTint = tint;
+        hAlign = align;
+    }
+
+    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text) {
+        this(texture, parent, layer, position, text, TextArea.Align.CENTER);
     }
 
     public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
@@ -34,6 +40,10 @@ public class Button extends UIElement implements Clickable {
 
     public void setOnUp(Action onUp) {
         this.onUp = onUp;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
@@ -77,10 +87,10 @@ public class Button extends UIElement implements Clickable {
             UI.FONT.draw(
                     batch,
                     text,
-                    getGlobalPosition().x,
+                    getGlobalPosition().x + UI.PADDING,
                     getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT.getCapHeight()/2),
-                    texture.getRegionWidth(),
-                    1,
+                    texture.getRegionWidth() - 2 * UI.PADDING,
+                    hAlign.getNum(),
                     false);
             UI.FONT.setColor(UI.DEFAULT_COLOR);
         }

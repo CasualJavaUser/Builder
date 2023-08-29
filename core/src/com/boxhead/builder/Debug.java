@@ -217,11 +217,7 @@ public class Debug {
     public static void average(String stat) {
         try {
             Stat s = Stat.valueOf(stat.toUpperCase());
-            float sum = 0;
-            for (Villager villager : World.getVillagers()) {
-                sum += villager.getStats()[s.ordinal()];
-            }
-            log(sum / World.getVillagers().size() + "");
+            log(World.getAverage(s) + "");
         } catch (IllegalArgumentException e) {
             log("Stat \"" + stat.toUpperCase() + "\" not found");
         }

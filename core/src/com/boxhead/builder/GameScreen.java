@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -20,6 +21,7 @@ public class GameScreen implements Screen {
     public static final OrthographicCamera camera = new OrthographicCamera();
     public static final Viewport viewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
     private final SpriteBatch batch;
+    private final ShapeRenderer renderer;
     private static final Vector2 mouseWorldPos = new Vector2(0, 0);
 
     private final Range<Float> ZOOM_RANGE = Range.between(0.1f, 1f);
@@ -27,6 +29,8 @@ public class GameScreen implements Screen {
 
     GameScreen(SpriteBatch batch) {
         this.batch = batch;
+        renderer = new ShapeRenderer();
+        renderer.setAutoShapeType(true);
 
         Textures.init();
         Tile.init();
@@ -36,6 +40,7 @@ public class GameScreen implements Screen {
         UI.getResourceList().initData();
         Logic.init();
         Debug.init();
+        Statistics.init();
 
         camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
         camera.update();
@@ -73,6 +78,11 @@ public class GameScreen implements Screen {
         UI.drawUI(batch, camera);
 
         batch.end();
+
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        renderer.setProjectionMatrix(UI.UI_PROJECTION);
+        UI.drawGraph(renderer);
+        renderer.end();
 
         if (InputManager.isKeyPressed(Input.Keys.GRAVE)) {
             if (!Debug.isOpen())

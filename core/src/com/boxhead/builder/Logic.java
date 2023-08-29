@@ -46,6 +46,7 @@ public class Logic {
 
             if (World.getTime() == 0) {
                 reproduceVillagers();
+                Statistics.updateStatistics();
             }
 
             for (int i = 0; i < World.getVillagers().size(); i++) {

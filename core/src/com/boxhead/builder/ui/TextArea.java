@@ -6,10 +6,23 @@ import com.boxhead.builder.utils.Vector2i;
 
 public class TextArea extends UIElement {
     private String text;
-    private int targetWidth, halign;
+    private int targetWidth;
+    private Align hAlign;
 
     public enum Align {
-        LEFT, CENTER, RIGHT
+        LEFT(-1),
+        CENTER(1),
+        RIGHT(0);
+
+        private int num;
+
+        Align(int num) {
+            this.num = num;
+        }
+
+        public int getNum() {
+            return num;
+        }
     }
 
     public TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, Align align) {
@@ -24,11 +37,7 @@ public class TextArea extends UIElement {
         super(texture, parent, layer, position);
         this.text = text;
         this.targetWidth = targetWidth;
-        halign = switch (align) {
-            case LEFT -> -1;
-            case CENTER -> 1;
-            case RIGHT -> 0;
-        };
+        hAlign = align;
     }
 
     public void setText(String text) {
@@ -42,6 +51,6 @@ public class TextArea extends UIElement {
         int y = getGlobalPosition().y;
         if (texture != null) y = (int)(getGlobalPosition().y + texture.getRegionHeight()/2 + UI.FONT.getXHeight());
         UI.FONT.setColor(tint);
-        UI.FONT.draw(batch, text, getGlobalPosition().x, y, targetWidth, halign, false);
+        UI.FONT.draw(batch, text, getGlobalPosition().x, y, targetWidth, hAlign.getNum(), false);
     }
 }
