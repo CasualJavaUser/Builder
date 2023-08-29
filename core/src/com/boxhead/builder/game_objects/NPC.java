@@ -1,6 +1,5 @@
 package com.boxhead.builder.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -23,8 +22,8 @@ public abstract class NPC extends GameObject{
     private final int id;
 
     protected transient TextureRegion currentTexture;
-    protected transient Animation<TextureRegion> walkLeft;
-    protected transient Animation<TextureRegion> walkRight;
+    protected transient Textures.NpcAnimation currentAnimation;
+    protected boolean flipped = false;
 
     protected Vector2i prevPosition;
     protected final Vector2 spritePosition;
@@ -56,14 +55,22 @@ public abstract class NPC extends GameObject{
         } else if (!Logic.isPaused()) {
             stateTime += 0.01f / (Logic.getTickSpeed() * 200);
 
-            if (prevPosition.x > gridPosition.x) {
-                currentTexture = walkLeft.getKeyFrame(stateTime, true);
-            } else {
-                currentTexture = walkRight.getKeyFrame(stateTime, true);
-            }
+            currentTexture = Textures.getAnimation(currentAnimation).getKeyFrame(stateTime, true);
+            flipped = prevPosition.x > gridPosition.x;
         }
 
-        batch.draw(currentTexture, spritePosition.x * World.TILE_SIZE, spritePosition.y * World.TILE_SIZE);
+        batch.draw(
+                currentTexture,
+                spritePosition.x * World.TILE_SIZE,
+                spritePosition.y * World.TILE_SIZE,
+                (int) (currentTexture.getRegionWidth() / 2f),
+                (int) (currentTexture.getRegionHeight() / 2f),
+                currentTexture.getRegionWidth(),
+                currentTexture.getRegionHeight(),
+                flipped ? -1 : 1,
+                1,
+                0
+        );
     }
 
     protected void navigateTo(Vector2i tile) {

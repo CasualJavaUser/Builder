@@ -75,7 +75,7 @@ public class Buildings {
                         Range.between(FarmBuilding.MIN_FIELD_SIZE, FarmBuilding.MAX_FIELD_SIZE)
                 );
             } else {
-                ConstructionSite constructionSite = new ConstructionSite(currentBuilding, gridPosition, 100);
+                ConstructionSite constructionSite = new ConstructionSite(currentBuilding, gridPosition, 1000);
                 Harvestable onEntrance = World.findHarvestables(constructionSite.getEntrancePosition());
                 if (onEntrance != null) World.removeFieldWorks(onEntrance);
                 World.removeFieldWorks(constructionSite.getCollider());

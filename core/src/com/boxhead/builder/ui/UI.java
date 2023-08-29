@@ -215,8 +215,8 @@ public class UI {
             workButton =        new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             restButton =        new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             demolishButton =    new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            tilingButton =      new Button(Textures.get(Textures.Ui.FUNGUS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            shiftMenuButton =   new Button(Textures.get(Textures.Ui.FUNGUS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            tilingButton =      new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            shiftMenuButton =   new Button(Textures.get(Textures.Ui.SHIFTS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
 
             pauseGameButton = new Button(Textures.get(Textures.Ui.PAUSE_GAME), Anchor.BOTTOM_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(-48 - PADDING, PADDING));
 
@@ -766,13 +766,13 @@ public class UI {
                     Pair.of(ProductionBuilding.Type.MINE, Textures.Ui.PICKAXE),
                     Pair.of(ProductionBuilding.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
                     Pair.of(PlantationBuilding.Type.PLANTATION, Textures.Ui.HOE),
-                    Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.FUNGUS)
+                    Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.COW)
             );
 
             tabs[3] = new Tab(this, false,
-                    Pair.of(ServiceBuilding.Type.HOSPITAL, Textures.Ui.SERVICE),
+                    Pair.of(ServiceBuilding.Type.HOSPITAL, Textures.Ui.CROSS),
                     Pair.of(ServiceBuilding.Type.PUB, Textures.Ui.MUG),
-                    Pair.of(SchoolBuilding.Type.SCHOOL, Textures.Ui.SERVICE)
+                    Pair.of(SchoolBuilding.Type.SCHOOL, Textures.Ui.BOOK)
             );
 
             int x = PADDING;

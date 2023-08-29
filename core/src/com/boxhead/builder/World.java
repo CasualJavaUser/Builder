@@ -23,7 +23,7 @@ public class World {
     /**
      * The size (in tiles) of the biggest GameObject texture.
      */
-    private static final int RENDER_BUFFER = 4;
+    private static final int RENDER_BUFFER = 9;
 
     private static int day;
     private static int time;
@@ -164,7 +164,7 @@ public class World {
         Harvestable tree = Harvestables.create(treeType, pos);
         int width = tree.getTexture().getRegionWidth() / TILE_SIZE;
         Vector2i trunk = new Vector2i(pos.x + width / 2, pos.y);
-        if (smallNoise > 0.1f && bigNoise > 0.21f && isBuildable(trunk)) {
+        if (smallNoise > 0.1f && bigNoise > 0.21f && isNavigable(trunk) && isBuildable(trunk)) {
             makeUnnavigable(tree.getCollider());
             tree.nextPhase();
             tree.nextPhase();
@@ -182,7 +182,7 @@ public class World {
 
         int typeId = random.nextInt(3) + 1;
         Harvestable rock = Harvestables.create(Harvestables.Type.valueOf("ROCK" + typeId), pos);
-        if (smallNoise > -0.05f && bigNoise > 0.35f && isBuildable(pos)) {
+        if (smallNoise > -0.05f && bigNoise > 0.35f && isNavigable(pos) && isBuildable(pos)) {
             makeUnnavigable(rock.getCollider());
             rock.nextPhase();
             fieldWorks.add(rock);

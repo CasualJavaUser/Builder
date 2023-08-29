@@ -1,167 +1,195 @@
 
 buildings.png
-size: 1024, 128
+size: 2048, 128
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 builders_hut
   rotate: false
-  xy: 656, 64
+  xy: 1376, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 builders_hut_cs
   rotate: false
-  xy: 720, 64
+  xy: 1440, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 carriage_house
   rotate: false
-  xy: 160, 48
+  xy: 640, 48
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 carriage_house_cs
   rotate: false
-  xy: 240, 48
+  xy: 720, 48
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 fungus
   rotate: false
-  xy: 784, 96
+  xy: 32, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
+hospital
+  rotate: false
+  xy: 144, 32
+  size: 144, 96
+  orig: 144, 96
+  offset: 0, 0
+  index: -1
+hospital_cs
+  rotate: false
+  xy: 0, 32
+  size: 144, 96
+  orig: 144, 96
+  offset: 0, 0
+  index: -1
 log_cabin
   rotate: false
-  xy: 592, 0
+  xy: 1312, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 log_cabin_cs
   rotate: false
-  xy: 528, 64
+  xy: 1248, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 lumberjacks_hut
   rotate: false
-  xy: 400, 48
+  xy: 1120, 48
   size: 64, 80
   orig: 64, 80
   offset: 0, 0
   index: -1
 lumberjacks_hut_cs
   rotate: false
-  xy: 464, 48
+  xy: 1184, 48
   size: 64, 80
   orig: 64, 80
   offset: 0, 0
   index: -1
 mine
   rotate: false
-  xy: 160, 0
+  xy: 640, 0
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 mine_cs
   rotate: false
-  xy: 208, 0
+  xy: 688, 0
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 plantation
   rotate: false
-  xy: 720, 0
+  xy: 1440, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 plantation_cs
   rotate: false
-  xy: 656, 0
+  xy: 1376, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pub
   rotate: false
-  xy: 320, 48
+  xy: 880, 48
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 pub_cs
   rotate: false
-  xy: 320, 48
+  xy: 960, 48
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
+ranch
+  rotate: false
+  xy: 1040, 48
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+ranch_cs
+  rotate: false
+  xy: 800, 48
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+school
+  rotate: false
+  xy: 384, 16
+  size: 96, 112
+  orig: 96, 112
+  offset: 0, 0
+  index: -1
+school_cs
+  rotate: false
+  xy: 288, 16
+  size: 96, 112
+  orig: 96, 112
+  offset: 0, 0
+  index: -1
 service_fungus
   rotate: false
-  xy: 256, 16
+  xy: 64, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 service_fungus_cs
   rotate: false
-  xy: 128, 0
+  xy: 0, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 stone_gatherers_shack
   rotate: false
-  xy: 528, 0
+  xy: 1248, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 stone_gatherers_shack_cs
   rotate: false
-  xy: 592, 64
+  xy: 1312, 64
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 storage_barn
   rotate: false
-  xy: 80, 32
+  xy: 560, 32
   size: 80, 96
   orig: 80, 96
   offset: 0, 0
   index: -1
 storage_barn_cs
   rotate: false
-  xy: 0, 32
+  xy: 480, 32
   size: 80, 96
   orig: 80, 96
-  offset: 0, 0
-  index: -1
-tool_shack
-  rotate: false
-  xy: 64, 0
-  size: 64, 32
-  orig: 64, 32
-  offset: 0, 0
-  index: -1
-tool_shack_cs
-  rotate: false
-  xy: 0, 0
-  size: 64, 32
-  orig: 64, 32
   offset: 0, 0
   index: -1

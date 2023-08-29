@@ -101,6 +101,7 @@ public class Harvestable extends GameObject implements FieldWork {
         if (assigned == villager) {
             assigned = null;
             worked = false;
+            villager.setAnimation(Villager.Animation.WALK);
         }
     }
 
@@ -128,8 +129,19 @@ public class Harvestable extends GameObject implements FieldWork {
     }
 
     @Override
-    public void setWork(Villager villager, boolean b) {
-        if (villager == assigned) worked = b;
+    public void setWork(Villager villager) {
+        if (villager == assigned) {
+            worked = true;
+            Villager.Animation anim = switch ((Characteristic) getCharacteristic()) {
+                case TREE:
+                    yield Villager.Animation.CHOPPING;
+                case ROCK:
+                    yield Villager.Animation.MINING;
+                case FIELD_CROP:
+                    yield Villager.Animation.SOWING;
+            };
+            villager.setAnimation(anim, gridPosition.x < villager.gridPosition.x);
+        }
     }
 
     @Override

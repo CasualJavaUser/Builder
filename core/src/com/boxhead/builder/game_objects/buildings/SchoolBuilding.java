@@ -20,10 +20,10 @@ public class SchoolBuilding extends ProductionBuilding {
         protected static Type[] values;
 
         public static final Type SCHOOL = new Type(
-                Textures.Building.SERVICE_FUNGUS,
+                Textures.Building.SCHOOL,
                 "school",
-                new Vector2i(0, -1),
-                new BoxCollider(0, 0, 2, 2),
+                new Vector2i(1, -1),
+                new BoxCollider(0, 0, 6, 5),
                 new Recipe(Pair.of(Resource.WOOD, 50)),
                 Jobs.TEACHER,
                 3,

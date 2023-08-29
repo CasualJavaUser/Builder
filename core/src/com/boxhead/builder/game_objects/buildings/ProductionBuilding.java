@@ -289,6 +289,7 @@ public class ProductionBuilding extends Building {
 
     public void dissociateFieldWork(Villager employee) {
         assignedFieldWork.remove(employee);
+        employee.setAnimation(Villager.Animation.WALK);
     }
 
     public void startShift(Job.ShiftTime shiftTime) {

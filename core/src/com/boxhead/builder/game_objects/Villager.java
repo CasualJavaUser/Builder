@@ -37,6 +37,7 @@ public class Villager extends NPC implements Clickable {
     private float education = 0f;
     private final float[] stats = new float[Stat.values().length];
     private final int skin;
+    protected transient Textures.NpcAnimation[] animations = new Textures.NpcAnimation[Animation.values().length];
 
     private final Villager[] parents = new Villager[2];
     private Villager partner = null;
@@ -55,8 +56,17 @@ public class Villager extends NPC implements Clickable {
 
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
 
+    public enum Animation {
+        WALK,
+        CHOPPING,
+        HAMMERING,
+        HARVESTING,
+        MINING,
+        SOWING
+    }
+
     public Villager(Vector2i gridPosition) {
-        this(World.getRandom().nextInt(Textures.Npc.values().length), World.getRandom().nextBoolean(), gridPosition);
+        this(World.getRandom().nextInt(2), World.getRandom().nextBoolean(), gridPosition);
     }
 
     private Villager(int skin, boolean gender, Vector2i gridPosition) {
@@ -71,8 +81,14 @@ public class Villager extends NPC implements Clickable {
             stats[i] = Stat.values()[i].initVal;
         }
 
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
+        initAnimations();
+    }
+
+    private void initAnimations() {
+        for (int i = 0; i < animations.length; i++) {
+            animations[i] = Enum.valueOf(Textures.NpcAnimation.class, Animation.values()[i].name() + skin);
+        }
+        currentAnimation = animations[0];
     }
 
     @Override
@@ -443,7 +459,7 @@ public class Villager extends NPC implements Clickable {
                 @Override
                 void execute() {
                     if (fieldWork.getCollider().distance(gridPosition) <= Math.sqrt(2d)) {
-                        fieldWork.setWork(Villager.this, true);
+                        fieldWork.setWork(Villager.this);
                     }
                     orderList.removeFirst();
                 }
@@ -624,7 +640,7 @@ public class Villager extends NPC implements Clickable {
         if (workplace == null)
             return Jobs.UNEMPLOYED;
         else
-            return ((ProductionBuilding.Type) workplace.getType()).job;
+            return workplace.getType().job;
     }
 
     public boolean isWorkTime() {
@@ -693,6 +709,15 @@ public class Villager extends NPC implements Clickable {
         return s;
     }
 
+    public void setAnimation(Animation animation, boolean flipped) {
+        setAnimation(animation);
+        prevPosition.add(flipped ? 1 : -1, 0);
+    }
+
+    public void setAnimation(Animation animation) {
+        currentAnimation = animations[animation.ordinal()];
+    }
+
     public void incrementAge() {
         age++;
     }
@@ -746,8 +771,7 @@ public class Villager extends NPC implements Clickable {
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         textureId = Textures.Npc.valueOf("IDLE" + skin);
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT" + skin));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT" + skin));
+        initAnimations();
         currentTexture = getTexture();
     }
 }

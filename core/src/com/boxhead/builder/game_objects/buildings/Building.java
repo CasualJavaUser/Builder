@@ -34,7 +34,7 @@ public class Building extends GameObject implements Clickable {
                 Textures.Building.STORAGE_BARN,
                 "storage barn",
                 new Vector2i(2, -1),
-                new BoxCollider(0, 0, 5, 5),
+                new BoxCollider(0, 0, 5, 4),
                 new Recipe(Pair.of(Resource.WOOD, 50))
         );
 

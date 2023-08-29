@@ -19,7 +19,7 @@ public interface FieldWork extends WorldObject, Serializable {
 
     void work();
 
-    void setWork(Villager villager, boolean b);
+    void setWork(Villager villager);
 
     BoxCollider getCollider();
 

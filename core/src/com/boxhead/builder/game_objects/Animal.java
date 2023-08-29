@@ -16,8 +16,7 @@ public class Animal extends NPC {
         super(type.textureId, gridPosition);
         this.type = type;
 
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT0"));  //TODO temp textures
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT0"));
+        currentAnimation = Enum.valueOf(Textures.NpcAnimation.class, type.name());
     }
 
     @Override
@@ -37,9 +36,8 @@ public class Animal extends NPC {
     @Serial
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
-        textureId = Textures.Npc.valueOf("IDLE0");
-        walkLeft = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_LEFT0"));
-        walkRight = Textures.getAnimation(Enum.valueOf(Textures.NpcAnimation.class, "WALK_RIGHT0"));
+        currentAnimation = Enum.valueOf(Textures.NpcAnimation.class, type.name());
+        textureId = type.textureId;
         currentTexture = getTexture();
         path = null;
     }

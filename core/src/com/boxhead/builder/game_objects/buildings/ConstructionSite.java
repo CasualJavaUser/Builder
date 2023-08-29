@@ -55,6 +55,7 @@ public class ConstructionSite extends Building implements FieldWork {
     public void dissociateWorker(Villager villager) {
         assigned.remove(villager);
         updateCurrentlyWorking();
+        villager.setAnimation(Villager.Animation.WALK);
     }
 
     @Override
@@ -83,10 +84,11 @@ public class ConstructionSite extends Building implements FieldWork {
     }
 
     @Override
-    public void setWork(Villager villager, boolean b) {
+    public void setWork(Villager villager) {
         if (assigned.containsKey(villager)) {
-            assigned.replace(villager, b);
+            assigned.replace(villager, true);
             updateCurrentlyWorking();
+            villager.setAnimation(Villager.Animation.HAMMERING, gridPosition.x < villager.getGridPosition().x);
         }
     }
 

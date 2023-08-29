@@ -12,10 +12,10 @@ public class RanchBuilding extends FarmBuilding<FarmAnimal> {
         protected static Type[] values;
 
         public static final Type RANCH = new Type(
-                Textures.Building.TOOL_SHACK,
+                Textures.Building.RANCH,
                 "ranch",
-                new Vector2i(1, -1),
-                new BoxCollider(0, 0, 4, 2),
+                new Vector2i(2, -1),
+                new BoxCollider(0, 0, 5, 2),
                 new Recipe(Pair.of(Resource.WOOD, 10)),
                 Jobs.FARMER,
                 3

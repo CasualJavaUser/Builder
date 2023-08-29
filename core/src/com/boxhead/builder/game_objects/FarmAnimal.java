@@ -48,6 +48,7 @@ public class FarmAnimal extends Animal implements FieldWork {
     public void assignWorker(Villager villager) {
         if (isFree()) {
             assigned = villager;
+            prevPosition.set(gridPosition);
         } else throw new IllegalArgumentException();
     }
 
@@ -56,6 +57,7 @@ public class FarmAnimal extends Animal implements FieldWork {
         if (assigned == villager) {
             assigned = null;
             worked = false;
+            villager.setAnimation(Villager.Animation.WALK);
         }
     }
 
@@ -115,8 +117,9 @@ public class FarmAnimal extends Animal implements FieldWork {
     }
 
     @Override
-    public void setWork(Villager villager, boolean b) {
-        if (villager == assigned) worked = b;
+    public void setWork(Villager villager) {
+        if (villager == assigned) worked = true;
+        villager.setAnimation(Villager.Animation.HARVESTING, gridPosition.x < villager.getGridPosition().x);
     }
 
     @Override

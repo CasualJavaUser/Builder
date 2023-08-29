@@ -1,362 +1,397 @@
 
 ui.png
-size: 2048, 256
+size: 1024, 512
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 axe
   rotate: false
-  xy: 448, 76
+  xy: 784, 384
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 barn
   rotate: false
-  xy: 1892, 192
+  xy: 656, 400
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 big_button
   rotate: false
-  xy: 480, 160
+  xy: 256, 311
   size: 160, 64
   orig: 160, 64
   offset: 0, 0
   index: -1
 big_hammer
   rotate: false
-  xy: 1956, 192
+  xy: 720, 384
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+book
+  rotate: false
+  xy: 938, 448
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 build
   rotate: false
-  xy: 1060, 192
+  xy: 192, 183
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 carriage
   rotate: false
-  xy: 1444, 192
+  xy: 874, 448
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 check
   rotate: false
-  xy: 832, 155
+  xy: 192, 23
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 check_box
   rotate: false
-  xy: 512, 16
+  xy: 544, 326
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 clock_face
   rotate: false
-  xy: 0, 12
+  xy: 0, 247
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 close_button
   rotate: false
-  xy: 512, 0
+  xy: 256, 55
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 construction_office
   rotate: false
-  xy: 1252, 192
+  xy: 320, 199
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+cow
+  rotate: false
+  xy: 320, 135
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+cross
+  rotate: false
+  xy: 402, 247
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 delete
   rotate: false
-  xy: 384, 76
+  xy: 128, 183
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 demolish
   rotate: false
-  xy: 1572, 192
+  xy: 128, 23
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 divider
   rotate: false
-  xy: 600, 235
+  xy: 0, 375
   size: 434, 21
   orig: 434, 21
   offset: 0, 0
   index: -1
 full_output
   rotate: false
-  xy: 1700, 192
+  xy: 256, 71
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 fungus
   rotate: false
-  xy: 932, 171
+  xy: 0, 23
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 hammer
   rotate: false
-  xy: 384, 12
+  xy: 480, 416
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 hoe
   rotate: false
-  xy: 512, 96
+  xy: 912, 384
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 hour_hand
   rotate: false
-  xy: 256, 12
+  xy: 128, 247
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 house
   rotate: false
-  xy: 1124, 192
+  xy: 256, 199
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 housing_tab
   rotate: false
-  xy: 560, 59
+  xy: 480, 315
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 infrastructure_tab
   rotate: false
-  xy: 640, 118
+  xy: 544, 395
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 left_arrow
   rotate: false
-  xy: 2020, 240
+  xy: 720, 448
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 load
   rotate: false
-  xy: 1380, 192
+  xy: 810, 448
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 menu_window
   rotate: false
-  xy: 1034, 239
+  xy: 1002, 495
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
   index: -1
 minute_hand
   rotate: false
-  xy: 128, 12
+  xy: 0, 119
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 mug
   rotate: false
-  xy: 1764, 192
+  xy: 320, 71
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 no_input
   rotate: false
-  xy: 1636, 192
+  xy: 192, 55
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 npc
   rotate: false
-  xy: 1316, 192
+  xy: 746, 448
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+path
+  rotate: false
+  xy: 192, 119
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pause
   rotate: false
-  xy: 1060, 176
+  xy: 434, 380
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 pause_game
   rotate: false
-  xy: 512, 48
+  xy: 544, 432
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 pickaxe
   rotate: false
-  xy: 1828, 192
+  xy: 592, 400
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pickaxe_with_stone
   rotate: false
-  xy: 1508, 192
+  xy: 64, 23
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 play
   rotate: false
-  xy: 704, 139
+  xy: 32, 7
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 resources_tab
   rotate: false
-  xy: 592, 59
+  xy: 512, 315
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 rest
   rotate: false
-  xy: 576, 96
+  xy: 480, 352
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 right_arrow
   rotate: false
-  xy: 624, 80
+  xy: 576, 416
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 save
   rotate: false
-  xy: 1188, 192
+  xy: 256, 135
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 service
   rotate: false
-  xy: 996, 171
+  xy: 128, 119
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 services_tab
   rotate: false
-  xy: 672, 118
+  xy: 544, 358
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 shift_divider
   rotate: false
-  xy: 864, 171
+  xy: 592, 464
   size: 3, 16
   orig: 3, 16
   offset: 0, 0
   index: -1
+shifts
+  rotate: false
+  xy: 416, 311
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 small_button
   rotate: false
-  xy: 752, 155
+  xy: 112, 87
   size: 80, 32
   orig: 80, 32
   offset: 0, 0
   index: -1
 text_field
   rotate: false
-  xy: 640, 155
+  xy: 0, 87
   size: 112, 32
   orig: 112, 32
   offset: 0, 0
   index: -1
 timeline_segment
   rotate: false
-  xy: 640, 187
+  xy: 256, 263
   size: 146, 48
   orig: 146, 48
   offset: 0, 0
   index: -1
 timeline_top
   rotate: false
-  xy: 786, 187
+  xy: 600, 464
   size: 146, 48
   orig: 146, 48
   offset: 0, 0
   index: -1
 wide_area
   rotate: false
-  xy: 0, 140
+  xy: 0, 396
   size: 480, 84
   orig: 480, 84
   offset: 0, 0
   index: -1
 wide_text_field
   rotate: false
-  xy: 0, 224
+  xy: 0, 480
   size: 600, 32
   orig: 600, 32
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 600, 228
+  xy: 0, 0
   size: 7, 7
   orig: 7, 7
   offset: 0, 0
   index: -1
 work
   rotate: false
-  xy: 448, 12
+  xy: 848, 384
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 x2speed
   rotate: false
-  xy: 480, 144
+  xy: 0, 7
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 x3speed
   rotate: false
-  xy: 640, 102
+  xy: 224, 39
   size: 32, 16
   orig: 32, 16
   offset: 0, 0

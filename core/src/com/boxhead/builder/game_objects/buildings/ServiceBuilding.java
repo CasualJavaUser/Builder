@@ -34,12 +34,11 @@ public class ServiceBuilding extends ProductionBuilding {
                 5
         );
         public static final Type HOSPITAL = new Type(
-                Textures.Building.SERVICE_FUNGUS,
+                Textures.Building.HOSPITAL,
                 "hospital",
-                new Vector2i(0, -1),
-                new BoxCollider(0, 0, 2, 2),
-                new Recipe(Pair.of(Resource.WOOD, 30),
-                        Pair.of(Resource.STONE, 30)),
+                new Vector2i(4, -1),
+                new BoxCollider(0, 0, 9, 4),
+                new Recipe(Pair.of(Resource.WOOD, 30)),
                 Jobs.DOCTOR,
                 3,
                 Service.HEALTHCARE,
