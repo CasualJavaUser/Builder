@@ -71,8 +71,8 @@ public class Logistics {
         if (!orderRequests.containsKey(order)) {
             orderRequests.put(order, building);
         } else {
-            double newDistance = order.distance(building.getEntrancePosition());
-            double currentDistance = order.distance(orderRequests.get(order).getEntrancePosition());
+            int newDistance = order.distanceScore(building.getEntrancePosition());
+            int currentDistance = order.distanceScore(orderRequests.get(order).getEntrancePosition());
 
             if (newDistance < currentDistance) {
                 orderRequests.replace(order, building);
@@ -114,6 +114,7 @@ public class Logistics {
             overrideRequestPriority(request, overridePriority);
         }
     }
+
     public static void requestTransport(Building building, Recipe recipe) {
         for (Resource resource : recipe.changedResources()) {
             requestTransport(building, resource, recipe.getChange(resource));
@@ -230,7 +231,7 @@ public class Logistics {
 
         return readyOrders.stream()
                 .filter(order -> order.priority == readyOrders.get(0).priority)
-                .min(Comparator.comparingDouble(order -> order.distance(gridPosition)));
+                .min(Comparator.comparingInt(order -> order.distanceScore(gridPosition)));
     }
 
     public static Set<ProductionBuilding> getTransportOffices() {
@@ -422,7 +423,7 @@ public class Logistics {
         }
     }
 
-    public static class Order extends Request{
+    public static class Order extends Request {
         Building sender;
         Building recipient;
 
@@ -450,9 +451,9 @@ public class Logistics {
             priorityEnum = Priority.values()[priority];
         }
 
-        private double distance(Vector2i gridPosition) {
-            return sender.getEntrancePosition().distance(gridPosition) +
-                    recipient.getEntrancePosition().distance(gridPosition);
+        private int distanceScore(Vector2i gridPosition) {
+            return sender.getEntrancePosition().distanceScore(gridPosition) +
+                    recipient.getEntrancePosition().distanceScore(gridPosition);
         }
 
         @Override

@@ -34,8 +34,6 @@ public class World {
     private static Random random;
     private static final int noiseSize = 100;
 
-    private static final int[] storedResources = new int[Resource.values().length];
-
     private static Tile[] tiles;
     private static Textures.Tile[] tileTextures;
     private static List<Building> buildings;
@@ -102,9 +100,11 @@ public class World {
         makeUnnavigable(collider);
         makeBuilt(collider);
         Building.getByCoordinates(buildingPosition).getInventory().put(Resource.WOOD, 100);
-        Building.getByCoordinates(buildingPosition).getInventory().put(Resource.GRAIN, 100);
-        storedResources[Resource.WOOD.ordinal()] = 100;
-        storedResources[Resource.GRAIN.ordinal()] = 100;
+        Building.getByCoordinates(buildingPosition).getInventory().put(Resource.GRAIN, 50);
+        Building.getByCoordinates(buildingPosition).getInventory().put(Resource.STONE, 50);
+        Resource.storedResources[Resource.WOOD.ordinal()] = 100;
+        Resource.storedResources[Resource.GRAIN.ordinal()] = 50;
+        Resource.storedResources[Resource.STONE.ordinal()] = 50;
 
         collider = ProductionBuilding.Type.TRANSPORT_OFFICE.relativeCollider;
         buildingPosition = buildingPosition.plus(-collider.getWidth() * 2, 0);
@@ -517,22 +517,6 @@ public class World {
         return true;
     }
 
-    public static int getStored(Resource resource) {
-        return storedResources[resource.ordinal()];
-    }
-
-    public static void updateStoredResources(Recipe recipe) {
-        for (Resource resource : recipe.changedResources()) {
-            storedResources[resource.ordinal()] += recipe.getChange(resource);
-        }
-        UI.getResourceList().updateData(recipe);
-    }
-
-    public static void updateStoredResources(Resource resource, int amount) {
-        storedResources[resource.ordinal()] += amount;
-        UI.getResourceList().updateData(resource, amount);
-    }
-
     public static void setSeed(int seed) {
         World.seed = seed;
         random = new Random(seed);
@@ -540,10 +524,6 @@ public class World {
 
     public static int getSeed() {
         return seed;
-    }
-
-    public static void setWorldSize(int width, int height) {
-        worldSize.set(width, height);
     }
 
     public static void setTime(int time) {

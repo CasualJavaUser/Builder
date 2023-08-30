@@ -117,7 +117,7 @@ public class Harvestable extends GameObject implements FieldWork {
             if (!assigned.getInventory().isFull()) {
                 if (productionCycle()) {
                     assigned.getInventory().put(resource, 1);
-                    World.updateStoredResources(resource, 1);
+                    Resource.updateStoredResources(resource, 1);
                 }
                 if (amountLeft <= 0) {
                     World.removeFieldWorks(this);

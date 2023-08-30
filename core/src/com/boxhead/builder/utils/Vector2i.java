@@ -9,6 +9,11 @@ import java.util.Comparator;
 public class Vector2i implements Cloneable, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    public static final Vector2i UP = new Vector2i(0, 1);
+    public static final Vector2i RIGHT = new Vector2i(1, 0);
+    public static final Vector2i DOWN = new Vector2i(0, -1);
+    public static final Vector2i LEFT = new Vector2i(-1, 0);
+
     public int x;
     public int y;
 

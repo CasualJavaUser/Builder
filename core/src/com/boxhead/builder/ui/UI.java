@@ -1139,9 +1139,9 @@ public class UI {
             int y = 0;
             for (Resource resource : Resource.values()) {
                 if (resource == Resource.NOTHING) continue;
-                if (World.getStored(resource) > 0) {
+                if (Resource.getStored(resource) > 0) {
                     labels[y+1].setVisible(true);
-                    labels[y+1].setText(World.getStored(resource) + "");
+                    labels[y+1].setText(Resource.getStored(resource) + "");
                     labels[y+1].setLocalPosition(0, -25 * y);
                     y++;
                 }
@@ -1149,14 +1149,14 @@ public class UI {
             }
         }
 
-        public void updateData(Resource resource, int amount) {
+        public void updateData(Resource resource) {
             Label label = labels[resource.ordinal()];
             if (label.getText().equals("0")) {
                 label.setVisible(true);
                 organiseLabels();
             }
 
-            label.setText(World.getStored(resource) + "");
+            label.setText(Resource.getStored(resource) + "");
 
             if (label.getText().equals("0")) {
                 label.setVisible(false);
@@ -1164,29 +1164,10 @@ public class UI {
             }
         }
 
-        public void updateData(Recipe recipe) {
-            for (Resource resource : recipe.changedResources()) {
-                Label label = labels[resource.ordinal()];
-                if (label.getText().equals("0")) {
-                    label.setVisible(true);
-                    organiseLabels();
-                }
-
-                label.setText(World.getStored(resource) + "");
-
-                if (label.getText().equals("0")) {
-                    label.setVisible(false);
-                    organiseLabels();
-                }
-            }
-        }
-
         private void organiseLabels() {
-            int y = 0;
-            for (Label label : labels) {
-                if (label.isVisible()) {
-                    label.setLocalPosition(0, -25 * y);
-                    y++;
+            for (int i = 0, y = 0; i < labels.length; i++, y -= 25) {
+                if (labels[i].isVisible()) {
+                    labels[i].setLocalPosition(0, y);
                 }
             }
         }

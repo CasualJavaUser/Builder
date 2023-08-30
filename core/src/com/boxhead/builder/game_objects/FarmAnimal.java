@@ -2,6 +2,7 @@ package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.FieldWork;
+import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
@@ -68,25 +69,25 @@ public class FarmAnimal extends Animal implements FieldWork {
 
     @Override
     public void work() {
-        if (worked) {
-            if (!assigned.getInventory().isFull()) {
-                if (productionCycle()) {
-                    assigned.getInventory().put(type.resource, 1);
-                    World.updateStoredResources(type.resource, 1);
+        if (!worked) return;
+
+        if (!assigned.getInventory().isFull()) {
+            if (productionCycle()) {
+                assigned.getInventory().put(type.resource, 1);
+                Resource.updateStoredResources(type.resource, 1);
+            }
+            if (amountLeft <= 0) {
+                harvestDate = World.calculateDate(type.growthTime);
+                amountLeft = type.yield;
+                if (type.slaughtered) {
+                    respawnDate = World.calculateDate(type.growthTime / 3);
+                    dead = true;
+                    gridPosition.set(pen.getGridPosition());
+                    spritePosition.set(pen.getGridPosition().x, pen.getGridPosition().y);
                 }
-                if (amountLeft <= 0) {
-                    harvestDate = World.calculateDate(type.growthTime);
-                    amountLeft = type.yield;
-                    if (type.slaughtered) {
-                        respawnDate = World.calculateDate(type.growthTime / 3);
-                        dead = true;
-                        gridPosition.set(pen.getGridPosition());
-                        spritePosition.set(pen.getGridPosition().x, pen.getGridPosition().y);
-                    }
-                    exit();
-                }
-            } else exit();
-        }
+                exit();
+            }
+        } else exit();
     }
 
     public void respawn() {

@@ -2,6 +2,7 @@ package com.boxhead.builder.game_objects.buildings;
 
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Logistics;
+import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
@@ -18,7 +19,7 @@ public class ConstructionSite extends Building implements FieldWork {
     private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
     private int currentlyWorking = 0;
     private BoxCollider fieldCollider;
-    private final Map<Villager, Boolean> assigned = new HashMap<>(capacity, 1f);
+    private final Map<Villager, Boolean> assigned = new HashMap<>(capacity);
 
     public ConstructionSite(Building.Type type, Vector2i gridPosition, int totalLabour) {
         this(type, gridPosition, totalLabour, new BoxCollider());
@@ -29,6 +30,7 @@ public class ConstructionSite extends Building implements FieldWork {
         this.totalLabour = totalLabour;
         this.fieldCollider = fieldCollider;
 
+        Resource.updateStoredResources(type.buildCost.negate());
         Logistics.requestTransport(this, type.buildCost.negate(), Logistics.USE_STORAGE);
         reserveSpace(type.buildCost.sum());
     }
@@ -79,7 +81,6 @@ public class ConstructionSite extends Building implements FieldWork {
                 villager.getWorkplace().dissociateFieldWork(villager);
                 villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
             }
-            World.updateStoredResources(type.buildCost.negate());
         }
     }
 

@@ -2,13 +2,12 @@ package com.boxhead.builder;
 
 import com.boxhead.builder.utils.Pair;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class Recipe implements Iterable<Map.Entry<Resource, Integer>> {
+public class Recipe implements Iterable<Map.Entry<Resource, Integer>>, Cloneable {
     private final Map<Resource, Integer> changes;
 
     @SafeVarargs
@@ -47,6 +46,18 @@ public class Recipe implements Iterable<Map.Entry<Resource, Integer>> {
         return sum;
     }
 
+    public void add(Recipe otherRecipe) {
+        for (Map.Entry<Resource, Integer> pair : otherRecipe) {
+            Resource resource = pair.getKey();
+            changes.put(resource, changes.getOrDefault(resource, 0) + pair.getValue());
+            if (changes.get(resource) == 0) changes.remove(resource);
+        }
+    }
+
+    public Map<Resource, Integer> getChanges() {
+        return changes;
+    }
+
     public Set<Resource> changedResources() {
         return changes.keySet();
     }
@@ -63,12 +74,19 @@ public class Recipe implements Iterable<Map.Entry<Resource, Integer>> {
                 s = s.concat("- " + resource.name().toLowerCase() + ": " + changes.get(resource)) + "\n";
             }
         }
-        s = s.substring(0, s.length()-1);
+        s = s.substring(0, s.length() - 1);
         return s;
     }
 
     @Override
     public Iterator<Map.Entry<Resource, Integer>> iterator() {
         return changes.entrySet().iterator();
+    }
+
+    @Override
+    public Recipe clone() {
+        Recipe clone = new Recipe();
+        clone.changes.putAll(changes);
+        return clone;
     }
 }

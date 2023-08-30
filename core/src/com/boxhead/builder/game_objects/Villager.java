@@ -476,7 +476,7 @@ public class Villager extends NPC implements Clickable {
 
     public void giveOrder(Order.Type type) {
         switch (type) {
-            case EXIT ->  //if building is known, giveOrder(Order.Type, StorageBuilding) should be used instead
+            case EXIT ->  //if building is known, giveOrder(Order.Type, Building) should be used instead
                     orderList.addLast(new Order() {
                         @Override
                         void execute() {

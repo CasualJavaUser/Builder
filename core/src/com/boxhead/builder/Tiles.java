@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.game_objects.GameObject;
 import com.boxhead.builder.utils.BoxCollider;
+import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Range;
 import com.boxhead.builder.utils.Vector2i;
 
@@ -11,6 +12,7 @@ import java.util.function.Predicate;
 
 import static com.boxhead.builder.Textures.Tile.DEFAULT;
 import static com.boxhead.builder.ui.UI.*;
+import static com.boxhead.builder.utils.Vector2i.*;
 
 public class Tiles {
     private static boolean isInPathMode = false;
@@ -22,6 +24,9 @@ public class Tiles {
     private static Tile pathTile = null;
 
     private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.FARMLAND;
+
+    private static final Recipe pathCost = new Recipe(Pair.of(Resource.STONE, 1));
+    private static final Recipe bridgeCost = new Recipe(Pair.of(Resource.STONE, 2));
 
     public static BoxCollider getBuildingCollider() {
         return buildingCollider;
@@ -74,28 +79,58 @@ public class Tiles {
         } else {
             Vector2i[] line = straightLine(origin, mouseGrid);
             boolean buildPath = InputManager.isButtonPressed(InputManager.LEFT_MOUSE);
+            Recipe totalCost = new Recipe();
 
-            if (buildPath) {
-                for (int i = 0; i < line.length - 1; i++) {
-                    Vector2i tile = line[i];
+            for (int i = 0; i < line.length - 1; i++) {
+                Tile tile = World.getTile(line[i]);
 
-                    if (World.isBuildable(tile)) {
+                if (World.isBuildable(line[i]) && tile != Tile.PATH) {
+                    totalCost.add(pathCost);
+                } else if (tile == Tile.WATER) {
+                    totalCost.add(bridgeCost);
+                }
+            }
+
+            if (Resource.canAfford(totalCost)) {
+                if (buildPath) {
+                    for (int i = 0; i < line.length - 1; i++) {
+                        Vector2i tile = line[i];
+
                         boolean[] neighbours = new boolean[4]; //top right bottom left
-                        if (tile.plus(0, 1).equals(line[i + 1]) || World.getTile(tile.plus(0, 1)) == pathTile)
+                        if (tile.plus(UP).equals(line[i + 1]) || World.getTile(tile.plus(UP)) == pathTile || World.getTile(tile.plus(UP)) == Tile.BRIDGE_PATH)
                             neighbours[0] = true;
-                        if (tile.plus(1, 0).equals(line[i + 1]) || World.getTile(tile.plus(1, 0)) == pathTile)
+                        if (tile.plus(RIGHT).equals(line[i + 1]) || World.getTile(tile.plus(RIGHT)) == pathTile || World.getTile(tile.plus(RIGHT)) == Tile.BRIDGE_PATH)
                             neighbours[1] = true;
-                        if (tile.plus(0, -1).equals(line[i + 1]) || World.getTile(tile.plus(0, -1)) == pathTile)
+                        if (tile.plus(DOWN).equals(line[i + 1]) || World.getTile(tile.plus(DOWN)) == pathTile || World.getTile(tile.plus(DOWN)) == Tile.BRIDGE_PATH)
                             neighbours[2] = true;
-                        if (tile.plus(-1, 0).equals(line[i + 1]) || World.getTile(tile.plus(-1, 0)) == pathTile)
+                        if (tile.plus(LEFT).equals(line[i + 1]) || World.getTile(tile.plus(LEFT)) == pathTile || World.getTile(tile.plus(LEFT)) == Tile.BRIDGE_PATH)
                             neighbours[3] = true;
-                        World.setTile(tile, pathTile, getTextureForTile(neighbours, pathTile));
+
+                        if (World.isBuildable(tile)) {
+                            World.setTile(tile, pathTile, getTextureForTile(neighbours, pathTile));
+                        } else if (World.getTile(tile) == Tile.WATER) { //bridge
+                            World.setTile(tile, Tile.BRIDGE_PATH, getTextureForTile(neighbours, Tile.BRIDGE_PATH));
+                        }
+                    }
+                    origin = null;
+                    Resource.takeFromStorage(totalCost);
+
+                    BoxCollider lineArea;
+                    if (line[0].x == line[line.length - 2].x) {
+                        lineArea = new BoxCollider(line[0], 1, line.length - 1);
+                    } else {
+                        lineArea = new BoxCollider(line[0], line.length - 1, 1);
+                    }
+                    World.removeFieldWorks(lineArea);
+                } else {
+                    for (int i = 0; i < line.length - 1; i++) {
+                        setBatchColorForTile(batch, line[i]);
+                        drawTile(batch, DEFAULT, line[i]);
                     }
                 }
-                origin = null;
             } else {
+                batch.setColor(SEMI_TRANSPARENT_RED);
                 for (int i = 0; i < line.length - 1; i++) {
-                    setBatchColorForTile(batch, line[i]);
                     drawTile(batch, DEFAULT, line[i]);
                 }
             }
@@ -115,10 +150,10 @@ public class Tiles {
 
         Vector2i unitVector; //direction from origin to target
         if (absoluteOffset.x == length) {   //horizontal
-            unitVector = new Vector2i(1, 0);
+            unitVector = RIGHT.clone();
             if (offset.x < 0) unitVector.x = -1;
         } else {                            //vertical
-            unitVector = new Vector2i(0, 1);
+            unitVector = UP.clone();
             if (offset.y < 0) unitVector.y = -1;
         }
 

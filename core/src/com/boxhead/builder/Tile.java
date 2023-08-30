@@ -9,7 +9,8 @@ public enum Tile {
     DEFAULT(1f, Textures.Tile.DEFAULT),
     WATER(0.3f, WATER1, WATER2),
     FARMLAND(0.8f, Textures.Tile.FARMLAND),
-    PATH(1.3f, PATH_CROSS, PATH_T_T, PATH_T_R, PATH_T_B, PATH_T_L, PATH_TR, PATH_BR, PATH_BL, PATH_TL, PATH_LR, PATH_TB);
+    PATH(1.3f, PATH_CROSS, PATH_T_T, PATH_T_R, PATH_T_B, PATH_T_L, PATH_TR, PATH_BR, PATH_BL, PATH_TL, PATH_LR, PATH_TB),
+    BRIDGE_PATH(1.3f, PATH_CROSS, PATH_T_T, PATH_T_R, PATH_T_B, PATH_T_L, PATH_TR, PATH_BR, PATH_BL, PATH_TL, PATH_LR, PATH_TB);
 
     public static float minDistanceModifier;
     public final float speed;

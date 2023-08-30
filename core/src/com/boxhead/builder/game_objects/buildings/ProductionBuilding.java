@@ -272,7 +272,7 @@ public class ProductionBuilding extends Building {
 
                     if (availability == Inventory.Availability.AVAILABLE) {
                         inventory.put(recipe);
-                        World.updateStoredResources(recipe);
+                        Resource.updateStoredResources(recipe);
                         productionCounter = 0;
                         Logistics.requestTransport(this, recipe);
                     } else if (availability == Inventory.Availability.LACKS_INPUT) {
