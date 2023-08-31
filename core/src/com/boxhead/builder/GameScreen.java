@@ -37,8 +37,8 @@ public class GameScreen implements Screen {
         World.generate(60, new Vector2i(101, 101));
         World.temp();
         UI.init();
-        UI.getResourceList().initData();
         Logic.init();
+        UI.getResourceList().initData();
         Debug.init();
         Statistics.init();
 

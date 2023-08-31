@@ -1,45 +1,66 @@
 
 resources.png
-size: 64, 16
+size: 256, 16
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-nothing
-  rotate: false
-  xy: 16, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-stone
-  rotate: false
-  xy: 0, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-wood
+alcohol
   rotate: false
   xy: 32, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-iron
+coal
   rotate: false
-  xy: 16, 0
+  xy: 80, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-coal
+grain
   rotate: false
-  xy: 16, 0
+  xy: 128, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+iron
+  rotate: false
+  xy: 0, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+meat
+  rotate: false
+  xy: 144, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+milk
+  rotate: false
+  xy: 112, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+nothing
+  rotate: false
+  xy: 48, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 steel
+  rotate: false
+  xy: 96, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+stone
   rotate: false
   xy: 16, 0
   size: 16, 16
@@ -48,35 +69,14 @@ steel
   index: -1
 tools
   rotate: false
-  xy: 16, 0
+  xy: 64, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-grain
+wood
   rotate: false
-  xy: 16, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-alcohol
-  rotate: false
-  xy: 16, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-milk
-  rotate: false
-  xy: 16, 0
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-meat
-  rotate: false
-  xy: 16, 0
+  xy: 160, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

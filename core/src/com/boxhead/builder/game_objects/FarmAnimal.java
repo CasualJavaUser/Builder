@@ -83,6 +83,7 @@ public class FarmAnimal extends Animal implements FieldWork {
                     respawnDate = World.calculateDate(type.growthTime / 3);
                     dead = true;
                     gridPosition.set(pen.getGridPosition());
+                    prevPosition.set(pen.getGridPosition());
                     spritePosition.set(pen.getGridPosition().x, pen.getGridPosition().y);
                 }
                 exit();

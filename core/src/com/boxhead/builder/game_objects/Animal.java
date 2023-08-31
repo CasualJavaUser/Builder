@@ -15,6 +15,7 @@ public class Animal extends NPC {
     public Animal(Animals.Type type, Vector2i gridPosition) {
         super(type.textureId, gridPosition);
         this.type = type;
+        walkingSpeed = 0.4f;
 
         currentAnimation = Enum.valueOf(Textures.NpcAnimation.class, type.name());
     }

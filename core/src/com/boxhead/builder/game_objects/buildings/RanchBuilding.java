@@ -75,6 +75,17 @@ public class RanchBuilding extends FarmBuilding<FarmAnimal> {
         }
     }
 
+    public void setAnimal(Animals.Type farmAnimal) {
+        if (!this.farmAnimal.equals(farmAnimal)) {
+            this.farmAnimal = farmAnimal;
+            for (FarmAnimal animal : ownFieldWorks) {
+                World.removeFieldWorks(animal);
+            }
+            ownFieldWorks.clear();
+            spawnAnimals();
+        }
+    }
+
     @Override
     public Resource getResource() {
         return farmAnimal.resource;

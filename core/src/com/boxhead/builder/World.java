@@ -320,6 +320,9 @@ public class World {
 
             if (fieldWork instanceof ConstructionSite)
                 buildings.remove(fieldWork);
+            else if (fieldWork instanceof FarmAnimal)
+                animals.remove(fieldWork);
+
         }
         removedFieldWorks.clear();
     }

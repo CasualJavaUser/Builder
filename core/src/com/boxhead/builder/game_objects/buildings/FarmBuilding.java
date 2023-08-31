@@ -83,7 +83,7 @@ public abstract class FarmBuilding<T extends FieldWork> extends ProductionBuildi
         ownFieldWorks.add(t);
     }
 
-    public void removeHarvestable(T t) {
+    public void removeFieldWork(T t) {
         ownFieldWorks.remove(t);
     }
 

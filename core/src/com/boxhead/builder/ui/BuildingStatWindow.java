@@ -15,6 +15,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
     private String warning = "";
     private Button left, right;
     private TextArea npcCount;
+    private Button changeResourceButton;
 
     public BuildingStatWindow(UI.Layer layer) {
         super(layer);
@@ -53,7 +54,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
         right.setOnUp(() -> {
             if (pinnedObject instanceof ProductionBuilding building) {
-                ProductionBuilding.Type type = ((ProductionBuilding.Type) building.getType());
+                ProductionBuilding.Type type = building.getType();
                 if (building.getEmployeeCapacity() < type.maxEmployeeCapacity) {
                     building.setEmployeeCapacity(building.getEmployeeCapacity() + 1);
                     npcCount.setText(building.getEmployeeCapacity() + "");
@@ -63,6 +64,10 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 throw new IllegalStateException();
             }
         });
+
+        changeResourceButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, layer, new Vector2i(getEdgeWidth(), left.getLocalPosition().y + 16 + UI.PADDING));
+        changeResourceButton.setVisible(false);
+        changeResourceButton.setOnUp(() -> UI.showFarmResourceMenu(((FarmBuilding<?>) pinnedObject)));
     }
 
     @Override
@@ -87,6 +92,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         left.setVisible(false);
         right.setVisible(false);
         npcCount.setVisible(false);
+        changeResourceButton.setVisible(false);
         warning = "";
 
         if (Debug.isOpen()) {
@@ -107,10 +113,17 @@ public class BuildingStatWindow extends StatWindow<Building> {
             stats += "\njob quality: " + building.getJobQuality();
 
             if (pinnedObject instanceof ServiceBuilding serviceBuilding) {
-                stats += "\nguests: " + serviceBuilding.getGuests().size() + " / " + ((ServiceBuilding.Type) serviceBuilding.getType()).guestCapacity;
+                stats += "\nguests: " + serviceBuilding.getGuests().size() + " / " + serviceBuilding.getType().guestCapacity;
             }
             else if (pinnedObject instanceof SchoolBuilding school) {
                 stats += "\nstudents: " + school.getNumberOfStudents() + " / " + school.getOverallStudentCapacity();
+            }
+            else if (pinnedObject instanceof FarmBuilding) {
+                changeResourceButton.setVisible(true);
+                if (pinnedObject instanceof RanchBuilding)
+                    changeResourceButton.setText("animal");
+                else
+                    changeResourceButton.setText("crop");
             }
 
             if (!(pinnedObject instanceof SchoolBuilding)) {
@@ -167,6 +180,9 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
             if (pinnedObject instanceof ProductionBuilding) {
                 setContentHeight(getContentHeight() + UI.PADDING + 16);
+                if (pinnedObject instanceof FarmBuilding) {
+                    setContentHeight(getContentHeight() + UI.PADDING + 32);
+                }
             }
         }
     }
@@ -187,7 +203,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         int x = 0;
         for (int i = 0; i < 3; i++) {
             for (Villager employee : building.getShift(i).getEmployees()) {
-                if (!((ProductionBuilding.Type) building.getType()).getShiftActivity(i))
+                if (!building.getType().getShiftActivity(i))
                     continue;
 
                 batch.draw(employee.getTexture(),
@@ -233,5 +249,6 @@ public class BuildingStatWindow extends StatWindow<Building> {
         left.addToUI();
         right.addToUI();
         npcCount.addToUI();
+        changeResourceButton.addToUI();
     }
 }

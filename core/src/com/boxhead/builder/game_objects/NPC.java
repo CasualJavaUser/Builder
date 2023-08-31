@@ -28,6 +28,7 @@ public abstract class NPC extends GameObject{
     protected Vector2i prevPosition;
     protected final Vector2 spritePosition;
     protected int nextStep;
+    protected float walkingSpeed = 1;
 
     protected Vector2i[] path = null;
     protected int pathStep;
@@ -103,7 +104,7 @@ public abstract class NPC extends GameObject{
             return false;
         }
 
-        float speedModifier = World.getTile(gridPosition).speed;
+        float speedModifier = World.getTile(gridPosition).speed * walkingSpeed;
         if (nextStep >= STEP_INTERVAL / speedModifier) {
             if (pathStep == path.length - 1) {
                 alignSprite();

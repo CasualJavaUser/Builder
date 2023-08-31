@@ -51,6 +51,16 @@ public class PlantationBuilding extends FarmBuilding<Harvestable> {
         super(type, gridPosition);
     }
 
+    public void setCrop(Harvestables.Type crop) {
+        if (!this.crop.equals(crop)) {
+            this.crop = crop;
+            for (Harvestable fieldWork : ownFieldWorks) {
+                World.removeFieldWorks(fieldWork);
+            }
+            ownFieldWorks.clear();
+        }
+    }
+
     @Override
     public Type getType() {
         return ((Type) type);
