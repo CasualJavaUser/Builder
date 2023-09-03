@@ -101,14 +101,14 @@ public class ProductionBuilding extends Building {
             this.updateEfficiency = updateEfficiency;
         }
 
-        protected Type (
+        protected Type(
                 Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider,
                 Recipe buildCost, Job job, int maxEmployeeCapacity, int productionInterval, int range
         ) {
             this(texture, name, entrancePosition, relativeCollider, buildCost, job, maxEmployeeCapacity, productionInterval, range, (b) -> 1f);
         }
 
-        protected Type (
+        protected Type(
                 Textures.Building texture, String name, Vector2i entrancePosition, BoxCollider relativeCollider,
                 Recipe buildCost, Job job, int maxEmployeeCapacity
         ) {
@@ -163,6 +163,9 @@ public class ProductionBuilding extends Building {
     protected int jobQuality = 0;
     protected int employeesInside = 0;
     protected final Set<Villager> employees;
+    /**
+     * Number of employees in each active shift
+     */
     protected int employeeCapacity;
     protected final Shift[] shifts;
     protected final Map<Villager, FieldWork> assignedFieldWork;
@@ -180,11 +183,11 @@ public class ProductionBuilding extends Building {
         if (SHIFTS_PER_JOB != 3) throw new IllegalStateException();
         if (type instanceof ServiceBuilding.Type) {
             for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-                shifts[i] = new Shift(SERVICE_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
+                shifts[i] = new Shift(SERVICE_SHIFT_TIMES[i], employeeCapacity, type.getShiftActivity(i));
             }
         } else {
             for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-                shifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? employeeCapacity : 0);
+                shifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], employeeCapacity, type.getShiftActivity(i));
             }
         }
 
@@ -218,8 +221,8 @@ public class ProductionBuilding extends Building {
 
     public void addEmployee(Villager villager) {
         Shift bestShift = Arrays.stream(shifts)
-                .filter(shift -> shift.employees.size() < shift.maxEmployees)
-                .min(Comparator.comparingDouble(shift -> (double) shift.employees.size() / (double) shift.maxEmployees))
+                .filter(shift -> shift.active && shift.employees.size() < employeeCapacity)
+                .min(Comparator.comparingDouble(shift -> (double) shift.employees.size() / (double) employeeCapacity))
                 .orElseThrow();
 
         bestShift.employees.add(villager);
@@ -242,7 +245,7 @@ public class ProductionBuilding extends Building {
 
     public boolean isHiring() {
         for (Shift shift : shifts) {
-            if (shift.employees.size() < shift.maxEmployees) return true;
+            if (shift.active && shift.employees.size() < employeeCapacity) return true;
         }
         return false;
     }
@@ -254,6 +257,8 @@ public class ProductionBuilding extends Building {
 
     public void business() {
         for (Shift shift : shifts) {
+            if (!shift.active) continue;
+
             Job job = getType().job;
             for (Villager employee : shift.employees) {
                 if (employee.isClockedIn())
@@ -337,15 +342,15 @@ public class ProductionBuilding extends Building {
     }
 
     public void setShiftActivity(int index, boolean active) {
-        if (active) {
-            shifts[index].maxEmployees = employeeCapacity;
-        } else {
-            shifts[index].maxEmployees = 0;
-            for (Villager employee : shifts[index].employees) {
+        Shift shift = shifts[index];
+        shift.active = active;
+
+        if (!active) {
+            for (Villager employee : shift.employees) {
                 employee.quitJob();
-                employees.remove(employee);
             }
-            shifts[index].employees.clear();
+            employees.removeAll(shift.employees);
+            shift.employees.clear();
         }
     }
 
@@ -355,13 +360,24 @@ public class ProductionBuilding extends Building {
             if (!getType().getShiftActivity(i))
                 continue;
 
-            shifts[i].maxEmployees = capacity;
             int toFire = shifts[i].employees.size() - capacity;
             for (int j = 0; j < toFire; j++) {
                 Villager employee = shifts[i].employees.stream().findFirst().get();
                 employee.quitJob();
                 employees.remove(employee);
                 shifts[i].employees.remove(employee);
+            }
+        }
+    }
+
+    public void setBuildingActivity(boolean active) {
+        if (active) {
+            for (int i = 0; i < SHIFTS_PER_JOB; i++) {
+                setShiftActivity(i, getType().getShiftActivity(i));
+            }
+        } else {
+            for (int i = 0; i < SHIFTS_PER_JOB; i++) {
+                setShiftActivity(i, false);
             }
         }
     }
@@ -373,20 +389,16 @@ public class ProductionBuilding extends Building {
     public static class Shift implements Serializable {
         Job.ShiftTime shiftTime;
         Set<Villager> employees;
-        int maxEmployees;
+        boolean active;
 
-        public Shift(Job.ShiftTime shiftTime, int maxEmployees) {
+        public Shift(Job.ShiftTime shiftTime, int maxEmployees, boolean startActive) {
             this.shiftTime = shiftTime;
-            this.maxEmployees = maxEmployees;
+            this.active = startActive;
             employees = new HashSet<>(maxEmployees);
         }
 
         public Set<Villager> getEmployees() {
             return employees;
-        }
-
-        public int getMaxEmployees() {
-            return maxEmployees;
         }
 
         public Job.ShiftTime getShiftTime() {
@@ -412,7 +424,7 @@ public class ProductionBuilding extends Building {
 
     public Shift getShift(int index) {
         if (index >= shifts.length)
-            throw new IllegalStateException();
+            throw new ArrayIndexOutOfBoundsException();
 
         return shifts[index];
     }
@@ -488,7 +500,7 @@ public class ProductionBuilding extends Building {
         }
         batch.draw(
                 texture,
-                ((float)gridPosition.x + (float)collider.getWidth() / 2f) * World.TILE_SIZE - 32 * GameScreen.camera.zoom,
+                ((float) gridPosition.x + (float) collider.getWidth() / 2f) * World.TILE_SIZE - 32 * GameScreen.camera.zoom,
                 (gridPosition.y + collider.getHeight()) * World.TILE_SIZE,
                 0,
                 0,

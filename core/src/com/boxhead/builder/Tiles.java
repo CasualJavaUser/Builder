@@ -211,7 +211,7 @@ public class Tiles {
     }
 
     private static void setBatchColorForTile(SpriteBatch batch, Vector2i gridPosition) {
-        if (World.isBuildable(gridPosition))
+        if (World.isBuildable(gridPosition) || World.getTile(gridPosition) == Tile.WATER)
             batch.setColor(SEMI_TRANSPARENT_GREEN);
         else
             batch.setColor(SEMI_TRANSPARENT_RED);

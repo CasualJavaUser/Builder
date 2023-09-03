@@ -214,7 +214,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
             }
 
             batch.setColor(Color.BLACK);
-            for (int j = 0; j < building.getShift(i).getMaxEmployees() - building.getShift(i).getEmployees().size(); j++) {
+            for (int j = 0; j < building.getEmployeeCapacity() - building.getShift(i).getEmployees().size(); j++) {
                 batch.draw(Textures.get(Textures.Npc.IDLE0),
                         getGlobalPosition().x + UI.PADDING + x,
                         getGlobalPosition().y + UI.PADDING);

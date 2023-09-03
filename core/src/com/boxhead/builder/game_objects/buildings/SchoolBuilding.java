@@ -65,7 +65,7 @@ public class SchoolBuilding extends ProductionBuilding {
 
         if (SHIFTS_PER_JOB != 3) throw new IllegalStateException();
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
-            studentShifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], type.getShiftActivity(i) ? type.studentCapacity : 0);
+            studentShifts[i] = new Shift(DEFAULT_SHIFT_TIMES[i], type.studentCapacity, type.getShiftActivity(i));
         }
     }
 
@@ -76,7 +76,7 @@ public class SchoolBuilding extends ProductionBuilding {
 
     public boolean isRecruiting() {
         for (Shift shift : studentShifts) {
-            if (shift.employees.size() < shift.maxEmployees) return true;
+            if (shift.employees.size() < getType().studentCapacity) return true;
         }
         return false;
     }
@@ -91,8 +91,8 @@ public class SchoolBuilding extends ProductionBuilding {
 
     public void addStudent(Villager student) {
         Shift bestShift = Arrays.stream(studentShifts)
-                .filter(shift -> shift.employees.size() < shift.maxEmployees)
-                .min(Comparator.comparingDouble(shift -> (double) shift.employees.size() / (double) shift.maxEmployees))
+                .filter(shift -> shift.employees.size() < getType().studentCapacity)
+                .min(Comparator.comparingDouble(shift -> (double) shift.employees.size() / (double) getType().studentCapacity))
                 .orElseThrow();
 
         bestShift.employees.add(student);
