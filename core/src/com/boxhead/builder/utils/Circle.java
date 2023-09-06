@@ -64,7 +64,7 @@ public class Circle implements Iterable<Vector2i> {
                 Vector2i temp = new Vector2i();
                 for (int y = centre.y + 1, i = 0; y < centre.y + radius; y++, i++) {
                     temp.set(centre.x + distanceFromSymmetry[i], y);
-                    int currentDistance = centre.distanceScore(temp);
+                    int currentDistance = centre.distanceSquared(temp);
                     if (currentDistance >= minDistance)
                         continue;
 
@@ -117,7 +117,7 @@ public class Circle implements Iterable<Vector2i> {
                     }
                     y = centre.y + previousHeight;
                     Vector2i temp = new Vector2i(x, y);
-                    while (centre.distanceScore(temp) > radiusSquared) {
+                    while (centre.distanceSquared(temp) > radiusSquared) {
                         y--;
                         temp.set(x, y);
                     }

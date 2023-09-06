@@ -107,7 +107,7 @@ public class Villager extends NPC implements Clickable {
                         .filter(building -> building instanceof ResidentialBuilding)
                         .map(building -> (ResidentialBuilding) building)
                         .filter(ResidentialBuilding::isEmpty)
-                        .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
+                        .min(Comparator.comparingInt(building -> building.getGridPosition().distanceSquared(gridPosition)));
 
                 bestHouseOptional.ifPresent(this::switchHouses);
             }
@@ -123,7 +123,7 @@ public class Villager extends NPC implements Clickable {
                     .filter(building -> building instanceof ResidentialBuilding)
                     .map(building -> (ResidentialBuilding) building)
                     .filter(ResidentialBuilding::isEmpty)
-                    .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
+                    .min(Comparator.comparingInt(building -> building.getGridPosition().distanceSquared(gridPosition)));
 
             bestHouseOptional.ifPresent(this::switchHouses);
         }
@@ -251,7 +251,7 @@ public class Villager extends NPC implements Clickable {
                 .map(building -> (ServiceBuilding) building)
                 .filter(ServiceBuilding::canProvideService)
                 .filter(ServiceBuilding::hasFreeSpaces)
-                .min(Comparator.comparingInt(building -> building.getGridPosition().distanceScore(gridPosition)));
+                .min(Comparator.comparingInt(building -> building.getGridPosition().distanceSquared(gridPosition)));
 
         return bestServiceOptional.orElse(null);
     }
@@ -446,7 +446,7 @@ public class Villager extends NPC implements Clickable {
                 orderList.addLast(new Order() {
                     @Override
                     void execute() {
-                        if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distance(path[path.length - 1]) > Math.sqrt(2d))) {
+                        if (pathfinding == null || pathfinding.isDone() && (path == null || fieldWork.getCollider().distanceSquared(path[path.length - 1]) > 2)) {
                             navigateTo(fieldWork.getCollider());
                         } else if (followPath()) {
                             orderList.removeFirst();
@@ -458,7 +458,7 @@ public class Villager extends NPC implements Clickable {
             case ENTER -> orderList.addLast(new Order() {
                 @Override
                 void execute() {
-                    if (fieldWork.getCollider().distance(gridPosition) <= Math.sqrt(2d)) {
+                    if (fieldWork.getCollider().distanceSquared(gridPosition) <= 2) {
                         fieldWork.setWork(Villager.this);
                     }
                     orderList.removeFirst();

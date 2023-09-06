@@ -8,81 +8,23 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
 public class Pathfinding {
-    private static final Map<Pair<Vector2i, Vector2i>, Pair<Vector2i[], Integer>> cache = new HashMap<>();
     public static final float SQRT_2 = 1.41421353816986083984375f;
 
     public static Vector2i[] findPath(Vector2i start, Vector2i destination) {
-        Pair<Vector2i, Vector2i> pair = Pair.of(start, destination);
-
-        if (cache.containsKey(pair)) {
-            cache.get(pair).second++;
-            return cache.get(pair).first;
-        }
-
-        Vector2i[] path = A_star(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination::distance);
-        cache.put(pair, Pair.of(path, 1));
-        return path;
-    }
-
-    public static Vector2i[] findPathNoCache(Vector2i start, Vector2i destination) {
-        return A_star(start, Predicate.isEqual(destination), new HashSet<>(World.getNavigableTiles()), destination::distance);
+        return A_star(start, Predicate.isEqual(destination), World.getNavigableTiles().clone(), destination::distanceApprox);
     }
 
     public static Vector2i[] findPath(Vector2i start, BoxCollider area) {
-        return A_star(start, area.extended()::overlaps, new HashSet<>(World.getNavigableTiles()), area::distance);
+        return A_star(start, area.extended()::overlaps, World.getNavigableTiles().clone(), area::distance);
     }
 
-    public static void removeUnusedPaths() {
-        for (Object pair : cache.keySet().toArray()) {
-            if (cache.get(pair).second.equals(0))
-                cache.remove(pair);
-        }
-        for (Pair<Vector2i, Vector2i> pair : cache.keySet()) {
-            cache.get(pair).second--;
-        }
-    }
+    private static Vector2i[] A_star(Vector2i start, Predicate<Vector2i> destination, boolean[] navigableTiles, ToDoubleFunction<Vector2i> distance) {
+        float[] distanceToTile = new float[navigableTiles.length];
+        Vector2i[] parentTree = new Vector2i[navigableTiles.length];
+        SortedSet<Vector2i> semiVisited = new TreeSet<>(Comparator.comparingDouble(vector -> (distance.applyAsDouble(vector) * Tile.minDistanceModifier) + ((double) dereferenceArray(distanceToTile, vector)))); //tiles to which distances are known
 
-    /**
-     * Removes all paths containing the given tile from the cache
-     */
-    public static void updateCache(Vector2i gridPosition) {
-        for (Object pair : cache.values().toArray()) {
-            Vector2i[] array = ((Pair<Vector2i[], Integer>) pair).first;
-
-            for (Vector2i tile : array) {
-                if (tile.equals(gridPosition)) {
-                    cache.remove(Pair.of(array[0], array[array.length - 1]));
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * Removes all paths crossing the given area from the cache
-     */
-    public static void updateCache(BoxCollider collider) {
-        for (Object pair : cache.values().toArray()) {
-            Vector2i[] array = ((Pair<Vector2i[], Integer>) pair).first;
-
-            for (Vector2i tile : array) {
-                if (collider.overlaps(tile)) {
-                    cache.remove(Pair.of(array[0], array[array.length - 1]));
-                    break;
-                }
-            }
-        }
-    }
-
-    private static Vector2i[] A_star(Vector2i start, Predicate<Vector2i> destination, Set<Vector2i> navigableTiles, ToDoubleFunction<Vector2i> distance) {
-        Map<Vector2i, Double> distanceToTile = new HashMap<>(navigableTiles.size());
-        Map<Vector2i, Vector2i> parentTree = new HashMap<>((int) distance.applyAsDouble(start) * 3);
-        SortedSet<Vector2i> semiVisited = new TreeSet<>(Comparator.comparingDouble(vector -> (distance.applyAsDouble(vector) * Tile.minDistanceModifier) + distanceToTile.get(vector))); //tiles to which distances are known
-
-        for (Vector2i tile : navigableTiles) {
-            distanceToTile.put(tile, Double.MAX_VALUE);
-        }
-        distanceToTile.put(start, 0d);
+        Arrays.fill(distanceToTile, Float.MAX_VALUE);
+        writeArray(distanceToTile, start, 0f);
         semiVisited.add(start);
 
         int x = start.x, y = start.y;
@@ -110,7 +52,7 @@ public class Pathfinding {
             tempTile = new Vector2i(x - 1, y - 1);
             calcDistance(navigableTiles, distanceToTile, parentTree, semiVisited, currentTile, tempTile, diagonalDistanceModifier);
 
-            navigableTiles.remove(currentTile);
+            World.writeArray(navigableTiles, currentTile, false);
             semiVisited.remove(currentTile);
 
             if (semiVisited.isEmpty()) return new Vector2i[]{start};
@@ -123,7 +65,7 @@ public class Pathfinding {
         Vector2i lastTile = currentTile;
         int totalDistance = 1;
         while (!currentTile.equals(start)) {
-            currentTile = parentTree.get(currentTile);
+            currentTile = dereferenceArray(parentTree, currentTile);
             totalDistance++;
         }
 
@@ -131,31 +73,51 @@ public class Pathfinding {
         Vector2i[] finalPath = new Vector2i[totalDistance];
         for (int i = totalDistance - 1; i >= 0; i--) {
             finalPath[i] = currentTile;
-            currentTile = parentTree.get(currentTile);
+            currentTile = dereferenceArray(parentTree, currentTile);
         }
         return finalPath;
     }
 
-    private static void calcDistance(Set<Vector2i> navigableTiles,
-                                     Map<Vector2i, Double> distanceToTile,
-                                     Map<Vector2i, Vector2i> parentTree,
+    private static void calcDistance(boolean[] navigableTiles,
+                                     float[] distanceToTile,
+                                     Vector2i[] parentTree,
                                      Set<Vector2i> semiVisited,
                                      Vector2i currentTile,
                                      Vector2i tempTile,
-                                     double distance) {
-        if (navigableTiles.contains(tempTile)) {
-            double currentDistance = distanceToTile.get(currentTile) + distance;
-            if (distanceToTile.get(tempTile) > currentDistance) {
+                                     float distance) {
+        if (World.dereferenceArray(navigableTiles, tempTile)) {
+            float currentDistance = dereferenceArray(distanceToTile, currentTile) + distance;
+            if (dereferenceArray(distanceToTile, tempTile) > currentDistance) {
                 semiVisited.remove(tempTile);
-                distanceToTile.put(tempTile, currentDistance);
+                writeArray(distanceToTile, tempTile, currentDistance);
                 while (semiVisited.contains(tempTile)) {    //finding the next closest float
-                    long cast = Double.doubleToRawLongBits(currentDistance);
-                    currentDistance = Double.longBitsToDouble(++cast);
-                    distanceToTile.put(tempTile, currentDistance);
+                    int cast = Float.floatToRawIntBits(currentDistance);
+                    currentDistance = Float.intBitsToFloat(++cast);
+                    writeArray(distanceToTile, tempTile, currentDistance);
                 }
                 semiVisited.add(tempTile);
-                parentTree.put(tempTile, currentTile);
+                writeArray(parentTree, tempTile, currentTile);
             }
         }
+    }
+
+    private static float dereferenceArray(float[] array, Vector2i position) {
+        int index = position.y * World.getGridWidth() + position.x;
+        return array[index];
+    }
+
+    private static void writeArray(float[] array, Vector2i position, float value) {
+        int index = position.y * World.getGridWidth() + position.x;
+        array[index] = value;
+    }
+
+    private static Vector2i dereferenceArray(Vector2i[] array, Vector2i position) {
+        int index = position.y * World.getGridWidth() + position.x;
+        return array[index];
+    }
+
+    private static void writeArray(Vector2i[] array, Vector2i position, Vector2i value) {
+        int index = position.y * World.getGridWidth() + position.x;
+        array[index] = value;
     }
 }

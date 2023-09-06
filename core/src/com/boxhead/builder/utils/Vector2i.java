@@ -106,17 +106,32 @@ public class Vector2i implements Cloneable, Serializable {
         return Math.sqrt(Math.pow(this.x - x, 2d) + Math.pow(this.y - y, 2d));
     }
 
+    public double distanceApprox(Vector2i vector) {
+        double xDiff = Math.abs(x - vector.x);
+        double yDiff = Math.abs(y - vector.y);
+        double a;
+        double b;
+        if (xDiff <= yDiff) {
+            a = xDiff;
+            b = yDiff;
+        } else {
+            a = yDiff;
+            b = xDiff;
+        }
+        return b + 0.337 * a;
+    }
+
     /**
-     * Doesn't actually compute the distance, it is however, consistent with <code>.distance()</code> in comparisons.
+     * Consistent with <code>.distance()</code> in comparisons.
      */
-    public int distanceScore(Vector2i vector) {
+    public int distanceSquared(Vector2i vector) {
         int xDiff = x - vector.x;
         int yDiff = y - vector.y;
         return (xDiff * xDiff) + (yDiff * yDiff);
     }
 
     public Comparator<Vector2i> distanceComparator() {
-        return Comparator.comparingInt(vector -> vector.distanceScore(this));
+        return Comparator.comparingInt(vector -> vector.distanceSquared(this));
     }
 
     public long gridHash() {
@@ -139,7 +154,23 @@ public class Vector2i implements Cloneable, Serializable {
 
     @Override
     public int hashCode() {
-        return x << 16 | y;
+        int result = 0;
+        int bitMaskX = 1;
+        int bitMaskY = 1;
+        int bitMaskRes = 1;
+        for (int i = 0; i < 16; i++)
+        {
+            if ((x & bitMaskX) != 0)
+                result |= bitMaskRes;
+            bitMaskRes <<= 1;
+            bitMaskX <<= 1;
+
+            if ((y & bitMaskY) != 0)
+                result |= bitMaskRes;
+            bitMaskRes <<= 1;
+            bitMaskY <<= 1;
+        }
+        return result;
     }
 
     @Override

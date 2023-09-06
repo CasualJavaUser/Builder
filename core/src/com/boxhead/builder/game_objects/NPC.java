@@ -78,7 +78,7 @@ public abstract class NPC extends GameObject{
         alignSprite();
         path = null;
         pathfinding = executor.submit(() -> {
-            path = Pathfinding.findPathNoCache(gridPosition.clone(), tile);
+            path = Pathfinding.findPath(gridPosition.clone(), tile);
             pathStep = 0;
             nextStep = STEP_INTERVAL;
         });

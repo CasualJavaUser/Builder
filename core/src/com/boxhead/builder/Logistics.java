@@ -44,8 +44,8 @@ public class Logistics {
             fieldWorkRequests.put(fieldWork, building);
         } else {
             Vector2i fieldWorkPos = fieldWork.getGridPosition();
-            int newDistance = building.getEntrancePosition().distanceScore(fieldWorkPos);
-            int currentDistance = fieldWorkRequests.get(fieldWork).getEntrancePosition().distanceScore(fieldWorkPos);
+            int newDistance = building.getEntrancePosition().distanceSquared(fieldWorkPos);
+            int currentDistance = fieldWorkRequests.get(fieldWork).getEntrancePosition().distanceSquared(fieldWorkPos);
 
             if (newDistance < currentDistance) {
                 fieldWorkRequests.replace(fieldWork, building);
@@ -360,13 +360,13 @@ public class Logistics {
     private static Optional<Building> findStoredResources(Request request) {
         return storages.stream()
                 .filter(storage -> storage.getFreeResources(request.resource) >= THE_UNIT)
-                .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
+                .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceSquared(request.building.getEntrancePosition())));
     }
 
     private static Optional<Building> findStorageSpace(Request request) {
         return storages.stream()
                 .filter(storage -> storage.getFreeSpace() >= THE_UNIT)
-                .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceScore(request.building.getEntrancePosition())));
+                .min(Comparator.comparingInt(storage -> storage.getEntrancePosition().distanceSquared(request.building.getEntrancePosition())));
     }
 
     public enum Priority {
@@ -452,8 +452,8 @@ public class Logistics {
         }
 
         private int distanceScore(Vector2i gridPosition) {
-            return sender.getEntrancePosition().distanceScore(gridPosition) +
-                    recipient.getEntrancePosition().distanceScore(gridPosition);
+            return sender.getEntrancePosition().distanceSquared(gridPosition) +
+                    recipient.getEntrancePosition().distanceSquared(gridPosition);
         }
 
         @Override

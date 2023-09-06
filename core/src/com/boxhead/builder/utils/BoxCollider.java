@@ -56,7 +56,11 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
     }
 
     public double distance(Vector2i gridPosition) {
-        if (overlaps(gridPosition)) return 0d;
+        return Math.sqrt(distanceSquared(gridPosition));
+    }
+
+    public int distanceSquared(Vector2i gridPosition) {
+        if (overlaps(gridPosition)) return 0;
 
         Vector2i closestTile;
         if (gridPosition.x < lowerLeftCorner.x) {
@@ -79,7 +83,7 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
             else
                 closestTile = new Vector2i(lowerLeftCorner.x + width - 1, gridPosition.y);
         }
-        return gridPosition.distance(closestTile);
+        return gridPosition.distanceSquared(closestTile);
     }
 
     public Vector2i getGridPosition() {

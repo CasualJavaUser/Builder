@@ -46,8 +46,7 @@ public class World {
      * Sum of GameObjects in all preceding horizontal lines.
      */
     private static int[] objectsSumUpToLine;
-
-    private static final Set<Vector2i> navigableTiles = new HashSet<>();
+    private static boolean[] navigableTiles;
 
     /**
      * Tiles on which buildings have been built.
@@ -64,6 +63,7 @@ public class World {
     public static void generate(int seed, Vector2i worldSize) {
         World.seed = seed;
         World.worldSize = worldSize;
+        navigableTiles = new boolean[worldSize.x * worldSize.y];
         tiles = new Tile[worldSize.x * worldSize.y];
         tileTextures = new Textures.Tile[tiles.length];
         buildings = new ArrayList<>();
@@ -76,7 +76,7 @@ public class World {
 
         random = new Random(World.seed);
 
-        resetNavigability(worldSize);
+        resetNavigability();
 
         LoadingScreen.setMessage("Generating Tiles...");
         generateTiles();
@@ -208,38 +208,33 @@ public class World {
         for (int y = 0; y < worldSize.y; y++) {
             for (int x = 0; x < worldSize.x; x++) {
                 if (x >= steps[y] - width && x <= steps[y] + width) {
-                    tiles[y * worldSize.y + x] = Tile.WATER;
+                    tiles[y * worldSize.x + x] = Tile.WATER;
                 }
             }
         }
     }
 
-    public static void resetNavigability(Vector2i gridDimensions) {
-        navigableTiles.clear();
-        for (int i = 0; i < gridDimensions.x; i++) {
-            for (int j = 0; j < gridDimensions.y; j++) {
-                navigableTiles.add(new Vector2i(i, j));
-            }
-        }
+    public static void resetNavigability() {
+        Arrays.fill(navigableTiles, true);
     }
 
     public static void makeUnnavigable(Vector2i gridPosition) {
-        navigableTiles.remove(gridPosition);
+        writeArray(navigableTiles, gridPosition, false);
     }
 
     public static void makeUnnavigable(BoxCollider area) {
         for (Vector2i tile : area) {
-            navigableTiles.remove(tile);
+            makeUnnavigable(tile);
         }
     }
 
     public static void makeNavigable(Vector2i gridPosition) {
-        navigableTiles.add(gridPosition.clone());
+        writeArray(navigableTiles, gridPosition, true);
     }
 
     public static void makeNavigable(BoxCollider area) {
         for (Vector2i tile : area) {
-            navigableTiles.add(tile);
+            makeNavigable(tile);
         }
     }
 
@@ -484,7 +479,7 @@ public class World {
     public static void pathfindingTest(SpriteBatch batch) {
         Vector2i mousePos = GameScreen.getMouseGridPosition();
         if (isNavigable(mousePos)) {
-            Vector2i[] path = Pathfinding.findPathNoCache(Vector2i.zero(), mousePos);
+            Vector2i[] path = Pathfinding.findPath(Vector2i.zero(), mousePos);
 
             for (Vector2i tile : path) {
                 Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
@@ -510,7 +505,7 @@ public class World {
     }
 
     public static boolean isNavigable(Vector2i gridPosition) {
-        return navigableTiles.contains(gridPosition);
+        return dereferenceArray(navigableTiles, gridPosition);
     }
 
     public static boolean isNavigable(BoxCollider area) {
@@ -518,6 +513,24 @@ public class World {
             if (!isNavigable(tile)) return false;
         }
         return true;
+    }
+
+    public static boolean isOutOfBounds(Vector2i gridPosition) {
+        return gridPosition.x < 0 || gridPosition.x >= worldSize.x || gridPosition.y < 0 || gridPosition.y >= worldSize.y;
+    }
+
+    public static boolean dereferenceArray(boolean[] array, Vector2i gridPosition) {
+        if (isOutOfBounds(gridPosition)) return false;
+
+        int index = (gridPosition.y * World.worldSize.x) + gridPosition.x;
+        return array[index];
+    }
+
+    public static void writeArray(boolean[] array, Vector2i gridPosition, boolean value) {
+        if (isOutOfBounds(gridPosition)) return;
+
+        int index = gridPosition.y * World.worldSize.x + gridPosition.x;
+        array[index] = value;
     }
 
     public static void setSeed(int seed) {
@@ -652,7 +665,7 @@ public class World {
         return worldSize.y;
     }
 
-    public static Set<Vector2i> getNavigableTiles() {
+    public static boolean[] getNavigableTiles() {
         return navigableTiles;
     }
 
@@ -661,7 +674,7 @@ public class World {
         for (Villager villager : villagers) {
             sum += villager.getHappiness();
         }
-        return sum / (float)villagers.size();
+        return sum / (float) villagers.size();
     }
 
     public static float getAverage(Stat stat) {
