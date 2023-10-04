@@ -137,48 +137,52 @@ public class World {
 
         for (int i = 0; i < tiles.length; i++) {
             if (tiles[i].equals(Tile.WATER)) {
-                Textures.Tile texture = Tile.WATER.textures[random.nextInt(tiles[i].textures.length)];
-                boolean[] neighbours = new boolean[8];  //clockwise
-                neighbours[0] = i < (worldSize.y-1) * worldSize.x && tiles[i+worldSize.x].equals(Tile.GRASS);
-                neighbours[1] = i < (worldSize.y-1) * worldSize.x && tiles[i+1+worldSize.x].equals(Tile.GRASS);
-                neighbours[2] = i < tiles.length - 1 && tiles[i+1].equals(Tile.GRASS);
-                neighbours[3] = i < tiles.length - 1 && i > worldSize.x && tiles[i+1-worldSize.x].equals(Tile.GRASS);
-                neighbours[4] = i > worldSize.x && tiles[i-worldSize.x].equals(Tile.GRASS);
-                neighbours[5] = i > worldSize.x && tiles[i-1-worldSize.x].equals(Tile.GRASS);
-                neighbours[6] = i > 0 && tiles[i-1].equals(Tile.GRASS);
-                neighbours[7] = i > 0 && i < (worldSize.y-1) * worldSize.x && tiles[i-1+worldSize.x].equals(Tile.GRASS);
+                /*
+                0 1 2
+                3   4
+                5 6 7
+                 */
+                boolean[] neighbours = new boolean[8];
+                int ni = 0;
+                for (int y = 1; y >= -1; y--) {
+                    for (int x = -1; x <= 1; x++) {
+                        if (y == 0 && x == 0) continue;
+                        int ti = i + y * worldSize.x + x;
+                        if (ti >= 0 && ti < tiles.length)
+                            neighbours[ni] = tiles[ti].equals(Tile.GRASS);
+                        else
+                            neighbours[ni] = false;
+                        ni++;
+                    }
+                }
 
-                if (neighbours[0]) {
-                    if (neighbours[2])
-                        texture = Textures.Tile.BANK_TR;
-                    else if (neighbours[6])
-                        texture = Textures.Tile.BANK_TL;
-                    else
-                        texture = Textures.Tile.BANK_T;
+                StringBuilder textureName = new StringBuilder();
+
+                if (neighbours[1] && neighbours[6]) {
+                    tiles[i] = Tile.GRASS;
+                    tileTextures[i] = Tile.GRASS.textures[random.nextInt(tiles[i].textures.length)];
+                    continue;
                 }
-                else if (neighbours[4]) {
+
+                if (neighbours[1]) textureName.append("T");
+                else if (neighbours[6]) textureName.append("B");
+
+                if (neighbours[4] || (neighbours[2] && neighbours[7])) textureName.append("R");
+                else if (neighbours[3] || (neighbours[5] && neighbours[0])) textureName.append("L");
+
+                if (textureName.isEmpty()) {
                     if (neighbours[2])
-                        texture = Textures.Tile.BANK_BR;
-                    else if (neighbours[6])
-                        texture = Textures.Tile.BANK_BL;
-                    else
-                        texture = Textures.Tile.BANK_B;
-                }
-                else {
-                    if (neighbours[2])
-                        texture = Textures.Tile.BANK_R;
-                    else if (neighbours[6])
-                        texture = Textures.Tile.BANK_L;
-                    else if (neighbours[1])
-                        texture = Textures.Tile.BANK_TRO;
-                    else if (neighbours[3])
-                        texture = Textures.Tile.BANK_BRO;
-                    else if (neighbours[5])
-                        texture = Textures.Tile.BANK_BLO;
+                        textureName.append("TRO");
                     else if (neighbours[7])
-                        texture = Textures.Tile.BANK_TLO;
+                        textureName.append("BRO");
+                    else if (neighbours[5])
+                        textureName.append("BLO");
+                    else if (neighbours[0])
+                        textureName.append("TLO");
                 }
-                tileTextures[i] = texture;
+
+                if (!textureName.isEmpty()) tileTextures[i] = Textures.Tile.valueOf(textureName.insert(0, "BANK_").toString());
+                else tileTextures[i] = Tile.WATER.textures[random.nextInt(tiles[i].textures.length)];
             }
             else
                 tileTextures[i] = tiles[i].textures[random.nextInt(tiles[i].textures.length)];
