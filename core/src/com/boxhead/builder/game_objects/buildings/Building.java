@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects.buildings;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.GameObject;
@@ -263,6 +264,21 @@ public class Building extends GameObject implements Clickable {
             reservedTotals.remove(resource);
         else
             reservedTotals.put(resource, reserved);
+    }
+
+    protected void drawIndicator(TextureRegion texture, SpriteBatch batch) {
+        batch.draw(
+                texture,
+                ((float) gridPosition.x + (float) collider.getWidth() / 2f) * World.TILE_SIZE - 32 * GameScreen.camera.zoom,
+                (gridPosition.y + collider.getHeight()) * World.TILE_SIZE,
+                0,
+                0,
+                64,
+                64,
+                GameScreen.camera.zoom,
+                GameScreen.camera.zoom,
+                0
+        );
     }
 
     @Serial

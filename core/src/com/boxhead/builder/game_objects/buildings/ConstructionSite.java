@@ -1,9 +1,7 @@
 package com.boxhead.builder.game_objects.buildings;
 
-import com.boxhead.builder.FieldWork;
-import com.boxhead.builder.Logistics;
-import com.boxhead.builder.Resource;
-import com.boxhead.builder.World;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
@@ -33,6 +31,12 @@ public class ConstructionSite extends Building implements FieldWork {
         Resource.updateStoredResources(type.buildCost.negate());
         Logistics.requestTransport(this, type.buildCost.negate(), Logistics.USE_STORAGE);
         reserveSpace(type.buildCost.sum());
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+        drawIndicator(batch);
     }
 
     @Override
@@ -99,6 +103,11 @@ public class ConstructionSite extends Building implements FieldWork {
             if (working)
                 currentlyWorking++;
         }
+    }
+
+    protected void drawIndicator(SpriteBatch batch) {
+        if (false)  //TODO check if demolishing
+            drawIndicator(Textures.get(Textures.Ui.DEMOLISHING), batch);
     }
 
     public void setFieldCollider(BoxCollider fieldCollider) {

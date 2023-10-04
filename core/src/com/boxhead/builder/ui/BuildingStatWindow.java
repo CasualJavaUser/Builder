@@ -13,31 +13,45 @@ import java.util.Map;
 public class BuildingStatWindow extends StatWindow<Building> {
     private int counterWidth = 0;
     private String warning = "";
+    private Button onOffButton;
     private Button left, right;
     private TextArea npcCount;
     private Button changeResourceButton;
 
     public BuildingStatWindow(UI.Layer layer) {
         super(layer);
+        int y = Villager.TEXTURE_SIZE + UI.PADDING * 2;
         left = new Button(
                 Textures.get(Textures.Ui.LEFT_ARROW),
                 this,
                 layer,
-                new Vector2i(getEdgeWidth(), Villager.TEXTURE_SIZE + UI.PADDING * 2)
+                new Vector2i(getEdgeWidth(), y)
         );
         right = new Button(
                 Textures.get(Textures.Ui.RIGHT_ARROW),
                 this,
                 layer,
-                new Vector2i(getEdgeWidth() + 32, Villager.TEXTURE_SIZE + UI.PADDING * 2)
+                new Vector2i(getEdgeWidth() + 32, y)
         );
         npcCount = new TextArea(
                 "",
                 this,
                 layer,
-                new Vector2i(getEdgeWidth() + 16, Villager.TEXTURE_SIZE + UI.PADDING * 2 + 14),
+                new Vector2i(getEdgeWidth() + 16, y + 14),
                 16,
                 TextArea.Align.CENTER
+        );
+        onOffButton = new Button(
+                Textures.get(Textures.Ui.POWER_BUTTON),
+                this,
+                layer,
+                new Vector2i(getEdgeWidth(), y += (16 + UI.PADDING))
+        );
+        changeResourceButton = new Button(
+                Textures.get(Textures.Ui.SMALL_BUTTON),
+                this,
+                layer,
+                new Vector2i(getEdgeWidth(), y + 32 + UI.PADDING)
         );
 
         left.setOnUp(() -> {
@@ -51,7 +65,6 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 throw new IllegalStateException();
             }
         });
-
         right.setOnUp(() -> {
             if (pinnedObject instanceof ProductionBuilding building) {
                 ProductionBuilding.Type type = building.getType();
@@ -64,10 +77,8 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 throw new IllegalStateException();
             }
         });
-
-        changeResourceButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, layer, new Vector2i(getEdgeWidth(), left.getLocalPosition().y + 16 + UI.PADDING));
-        changeResourceButton.setVisible(false);
         changeResourceButton.setOnUp(() -> UI.showFarmResourceMenu(((FarmBuilding<?>) pinnedObject)));
+        onOffButton.setOnUp(() -> ((ProductionBuilding) pinnedObject).switchBuildingActivity());
     }
 
     @Override
@@ -93,6 +104,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
         right.setVisible(false);
         npcCount.setVisible(false);
         changeResourceButton.setVisible(false);
+        onOffButton.setVisible(false);
         warning = "";
 
         if (Debug.isOpen()) {
@@ -105,8 +117,10 @@ public class BuildingStatWindow extends StatWindow<Building> {
             right.setVisible(true);
             npcCount.setVisible(true);
             npcCount.setText(building.getEmployeeCapacity() + "");
+            onOffButton.setVisible(true);
 
-            if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
+            if (!building.isActive()) warning = "building not active";
+            else if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.OUTPUT_FULL) warning = "inventory full\n";
             else if (building.getInventory().checkStorageAvailability(job.getRecipe(building)) == Inventory.Availability.LACKS_INPUT) warning = "not enough resources\n";
 
             if (building.getEfficiency() != 1) stats += "\nefficiency: " + String.format("%.2f", building.getEfficiency());
@@ -179,7 +193,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 setContentWidth(counterWidth);
 
             if (pinnedObject instanceof ProductionBuilding) {
-                setContentHeight(getContentHeight() + UI.PADDING + 16);
+                setContentHeight(getContentHeight() + UI.PADDING * 2 + 16 + 32);
                 if (pinnedObject instanceof FarmBuilding) {
                     setContentHeight(getContentHeight() + UI.PADDING + 32);
                 }
@@ -250,5 +264,6 @@ public class BuildingStatWindow extends StatWindow<Building> {
         right.addToUI();
         npcCount.addToUI();
         changeResourceButton.addToUI();
+        onOffButton.addToUI();
     }
 }

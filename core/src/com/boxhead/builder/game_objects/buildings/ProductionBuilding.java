@@ -159,6 +159,7 @@ public class ProductionBuilding extends Building {
 
     private static final String notEmployee = "Villager does not work here";
 
+    protected boolean active = true;
     protected float efficiency = 1f;
     protected int jobQuality = 0;
     protected int employeesInside = 0;
@@ -370,8 +371,8 @@ public class ProductionBuilding extends Building {
         }
     }
 
-    public void setBuildingActivity(boolean active) {
-        if (active) {
+    public void switchBuildingActivity() {
+        if (!active) {
             for (int i = 0; i < SHIFTS_PER_JOB; i++) {
                 setShiftActivity(i, getType().getShiftActivity(i));
             }
@@ -380,6 +381,11 @@ public class ProductionBuilding extends Building {
                 setShiftActivity(i, false);
             }
         }
+        active = !active;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     public int getEmployeeCapacity() {
@@ -496,20 +502,10 @@ public class ProductionBuilding extends Building {
             case OUTPUT_FULL:
                 texture = Textures.get(Textures.Ui.FULL_OUTPUT); break;
             default:
-                return;
+                if (!active) texture = Textures.get(Textures.Ui.NOT_ACTIVE);
+                else return;
         }
-        batch.draw(
-                texture,
-                ((float) gridPosition.x + (float) collider.getWidth() / 2f) * World.TILE_SIZE - 32 * GameScreen.camera.zoom,
-                (gridPosition.y + collider.getHeight()) * World.TILE_SIZE,
-                0,
-                0,
-                64,
-                64,
-                GameScreen.camera.zoom,
-                GameScreen.camera.zoom,
-                0
-        );
+        drawIndicator(texture, batch);
     }
 
     @Override

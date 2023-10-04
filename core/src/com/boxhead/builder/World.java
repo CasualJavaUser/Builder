@@ -136,7 +136,52 @@ public class World {
         generateRiver();
 
         for (int i = 0; i < tiles.length; i++) {
-            tileTextures[i] = tiles[i].textures[random.nextInt(tiles[i].textures.length)];
+            if (tiles[i].equals(Tile.WATER)) {
+                Textures.Tile texture = Tile.WATER.textures[random.nextInt(tiles[i].textures.length)];
+                boolean[] neighbours = new boolean[8];  //clockwise
+                neighbours[0] = i < (worldSize.y-1) * worldSize.x && tiles[i+worldSize.x].equals(Tile.GRASS);
+                neighbours[1] = i < (worldSize.y-1) * worldSize.x && tiles[i+1+worldSize.x].equals(Tile.GRASS);
+                neighbours[2] = i < tiles.length - 1 && tiles[i+1].equals(Tile.GRASS);
+                neighbours[3] = i < tiles.length - 1 && i > worldSize.x && tiles[i+1-worldSize.x].equals(Tile.GRASS);
+                neighbours[4] = i > worldSize.x && tiles[i-worldSize.x].equals(Tile.GRASS);
+                neighbours[5] = i > worldSize.x && tiles[i-1-worldSize.x].equals(Tile.GRASS);
+                neighbours[6] = i > 0 && tiles[i-1].equals(Tile.GRASS);
+                neighbours[7] = i > 0 && i < (worldSize.y-1) * worldSize.x && tiles[i-1+worldSize.x].equals(Tile.GRASS);
+
+                if (neighbours[0]) {
+                    if (neighbours[2])
+                        texture = Textures.Tile.BANK_TR;
+                    else if (neighbours[6])
+                        texture = Textures.Tile.BANK_TL;
+                    else
+                        texture = Textures.Tile.BANK_T;
+                }
+                else if (neighbours[4]) {
+                    if (neighbours[2])
+                        texture = Textures.Tile.BANK_BR;
+                    else if (neighbours[6])
+                        texture = Textures.Tile.BANK_BL;
+                    else
+                        texture = Textures.Tile.BANK_B;
+                }
+                else {
+                    if (neighbours[2])
+                        texture = Textures.Tile.BANK_R;
+                    else if (neighbours[6])
+                        texture = Textures.Tile.BANK_L;
+                    else if (neighbours[1])
+                        texture = Textures.Tile.BANK_TRO;
+                    else if (neighbours[3])
+                        texture = Textures.Tile.BANK_BRO;
+                    else if (neighbours[5])
+                        texture = Textures.Tile.BANK_BLO;
+                    else if (neighbours[7])
+                        texture = Textures.Tile.BANK_TLO;
+                }
+                tileTextures[i] = texture;
+            }
+            else
+                tileTextures[i] = tiles[i].textures[random.nextInt(tiles[i].textures.length)];
         }
     }
 

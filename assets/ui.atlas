@@ -6,14 +6,14 @@ filter: Nearest, Nearest
 repeat: none
 axe
   rotate: false
-  xy: 883, 348
+  xy: 691, 220
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 barn
   rotate: false
-  xy: 819, 348
+  xy: 883, 348
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -27,14 +27,14 @@ big_button
   index: -1
 big_hammer
   rotate: false
-  xy: 819, 284
+  xy: 883, 284
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 book
   rotate: false
-  xy: 901, 412
+  xy: 370, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -48,21 +48,21 @@ build
   index: -1
 carriage
   rotate: false
-  xy: 837, 412
+  xy: 306, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 check
   rotate: false
-  xy: 483, 188
+  xy: 968, 476
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 check_box
   rotate: false
-  xy: 515, 188
+  xy: 965, 444
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -83,21 +83,21 @@ close_button
   index: -1
 construction_office
   rotate: false
-  xy: 627, 300
+  xy: 627, 236
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 cow
   rotate: false
-  xy: 627, 236
+  xy: 709, 412
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 cross
   rotate: false
-  xy: 883, 220
+  xy: 947, 284
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -111,7 +111,14 @@ delete
   index: -1
 demolish
   rotate: false
-  xy: 434, 21
+  xy: 691, 284
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+demolishing
+  rotate: false
+  xy: 773, 412
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -125,7 +132,7 @@ divider
   index: -1
 full_output
   rotate: false
-  xy: 691, 284
+  xy: 755, 284
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -146,7 +153,7 @@ graph
   index: -1
 graph_button
   rotate: false
-  xy: 370, 0
+  xy: 691, 348
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -160,7 +167,7 @@ hammer
   index: -1
 hoe
   rotate: false
-  xy: 691, 220
+  xy: 819, 220
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -181,14 +188,14 @@ house
   index: -1
 housing_tab
   rotate: false
-  xy: 387, 183
+  xy: 419, 183
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 infrastructure_tab
   rotate: false
-  xy: 965, 423
+  xy: 387, 183
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
@@ -202,14 +209,14 @@ left_arrow
   index: -1
 load
   rotate: false
-  xy: 773, 412
+  xy: 901, 412
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 menu_window
   rotate: false
-  xy: 947, 395
+  xy: 515, 203
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -223,21 +230,28 @@ minute_hand
   index: -1
 mug
   rotate: false
-  xy: 755, 348
+  xy: 819, 348
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 no_input
   rotate: false
-  xy: 691, 348
+  xy: 755, 348
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+not_active
+  rotate: false
+  xy: 627, 300
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 npc
   rotate: false
-  xy: 709, 412
+  xy: 837, 412
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -258,49 +272,56 @@ pause
   index: -1
 pause_game
   rotate: false
-  xy: 968, 460
+  xy: 947, 236
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 pickaxe
   rotate: false
-  xy: 755, 284
+  xy: 819, 284
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 pickaxe_with_stone
   rotate: false
-  xy: 306, 0
+  xy: 434, 21
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 play
   rotate: false
-  xy: 547, 204
+  xy: 307, 172
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
+power_button
+  rotate: false
+  xy: 965, 412
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 resources_tab
   rotate: false
-  xy: 451, 183
+  xy: 483, 183
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 rest
   rotate: false
-  xy: 755, 220
+  xy: 883, 220
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 right_arrow
   rotate: false
-  xy: 997, 444
+  xy: 995, 268
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -321,21 +342,21 @@ service
   index: -1
 services_tab
   rotate: false
-  xy: 419, 183
+  xy: 451, 183
   size: 32, 37
   orig: 32, 37
   offset: 0, 0
   index: -1
 shift_divider
   rotate: false
-  xy: 965, 460
+  xy: 1000, 492
   size: 3, 16
   orig: 3, 16
   offset: 0, 0
   index: -1
 shifts
   rotate: false
-  xy: 819, 220
+  xy: 947, 348
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -391,14 +412,14 @@ wide_text_field
   index: -1
 window
   rotate: false
-  xy: 1016, 501
+  xy: 192, 9
   size: 7, 7
   orig: 7, 7
   offset: 0, 0
   index: -1
 work
   rotate: false
-  xy: 883, 284
+  xy: 755, 220
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
@@ -412,7 +433,7 @@ x2speed
   index: -1
 x3speed
   rotate: false
-  xy: 307, 172
+  xy: 947, 220
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
