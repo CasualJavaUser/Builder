@@ -6,19 +6,40 @@ filter: Nearest, Nearest
 repeat: none
 bank_b
   rotate: false
-  xy: 91, 91
+  xy: 55, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_b_bridge
+  rotate: false
+  xy: 19, 37
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 bank_bl
   rotate: false
-  xy: 37, 109
+  xy: 37, 91
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_bl_bridge
+  rotate: false
+  xy: 109, 91
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 bank_blo
+  rotate: false
+  xy: 73, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_blo_bridge
   rotate: false
   xy: 73, 91
   size: 16, 16
@@ -27,26 +48,54 @@ bank_blo
   index: -1
 bank_br
   rotate: false
-  xy: 19, 19
+  xy: 55, 19
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_br_bridge
+  rotate: false
+  xy: 109, 109
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 bank_bro
   rotate: false
-  xy: 37, 55
+  xy: 37, 19
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-bank_l
+bank_bro_bridge
   rotate: false
   xy: 1, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+bank_l
+  rotate: false
+  xy: 19, 91
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_l_bridge
+  rotate: false
+  xy: 37, 109
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 bank_r
+  rotate: false
+  xy: 37, 1
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_r_bridge
   rotate: false
   xy: 1, 1
   size: 16, 16
@@ -60,58 +109,100 @@ bank_t
   orig: 16, 16
   offset: 0, 0
   index: -1
-bank_tl
-  rotate: false
-  xy: 91, 73
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-bank_tlo
-  rotate: false
-  xy: 37, 73
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-bank_tr
-  rotate: false
-  xy: 55, 73
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-bank_tro
-  rotate: false
-  xy: 19, 55
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: -1
-default
+bank_t_bridge
   rotate: false
   xy: 19, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-dirt1
+bank_tl
+  rotate: false
+  xy: 109, 37
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_tl_bridge
+  rotate: false
+  xy: 1, 37
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_tlo
+  rotate: false
+  xy: 91, 109
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_tlo_bridge
+  rotate: false
+  xy: 37, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_tr
+  rotate: false
+  xy: 55, 37
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_tr_bridge
   rotate: false
   xy: 55, 55
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+bank_tro
+  rotate: false
+  xy: 55, 73
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bank_tro_bridge
+  rotate: false
+  xy: 73, 109
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bridge
+  rotate: false
+  xy: 37, 37
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+default
+  rotate: false
+  xy: 19, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+dirt1
+  rotate: false
+  xy: 91, 55
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 dirt2
   rotate: false
-  xy: 55, 91
+  xy: 19, 19
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 dirt3
   rotate: false
-  xy: 19, 91
+  xy: 1, 55
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -125,77 +216,77 @@ farmland
   index: -1
 grass1
   rotate: false
-  xy: 1, 37
+  xy: 1, 19
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grass2
   rotate: false
-  xy: 55, 37
+  xy: 73, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grass3
   rotate: false
-  xy: 1, 19
+  xy: 91, 91
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_bl
   rotate: false
-  xy: 55, 109
+  xy: 55, 91
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_br
   rotate: false
-  xy: 73, 55
+  xy: 91, 19
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_cross
   rotate: false
-  xy: 19, 1
+  xy: 91, 37
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_lr
   rotate: false
-  xy: 73, 109
+  xy: 73, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_t_b
   rotate: false
-  xy: 91, 109
+  xy: 91, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_t_l
   rotate: false
-  xy: 37, 19
+  xy: 109, 55
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_t_r
   rotate: false
-  xy: 19, 37
+  xy: 19, 1
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_t_t
   rotate: false
-  xy: 109, 109
+  xy: 73, 19
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -209,28 +300,28 @@ path_tb
   index: -1
 path_tl
   rotate: false
-  xy: 1, 55
+  xy: 55, 109
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 path_tr
   rotate: false
-  xy: 37, 37
+  xy: 73, 37
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 water1
   rotate: false
-  xy: 37, 91
+  xy: 37, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 water2
   rotate: false
-  xy: 73, 73
+  xy: 109, 73
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

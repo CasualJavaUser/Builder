@@ -55,7 +55,7 @@ public class UI {
     private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
     @AddToUI private static TextArea tipArea;
-    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, statisticsMenuButton, pauseGameButton;
+    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, statisticsMenuButton, pauseGameButton, bridgeButton;
 
     @AddToUI private static UIElement timeElementGroup;
     @AddToUI private static Clock clock;
@@ -227,6 +227,7 @@ public class UI {
             tilingButton =         new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             shiftMenuButton =      new Button(Textures.get(Textures.Ui.SHIFTS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             statisticsMenuButton = new Button(Textures.get(Textures.Ui.GRAPH_BUTTON), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            bridgeButton =         new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
 
             pauseGameButton = new Button(Textures.get(Textures.Ui.PAUSE_GAME), Anchor.BOTTOM_RIGHT.getElement(), Layer.IN_GAME, new Vector2i(-48 - PADDING, PADDING));
 
@@ -252,6 +253,12 @@ public class UI {
                     Tiles.toPathMode(Tile.PATH);
                 else
                     Tiles.turnOffPathMode();
+            });
+            bridgeButton.setOnUp(() -> {
+                if (!Tiles.isInPathMode())
+                    Tiles.toBridgeMode();
+                else
+                    Tiles.turnOffBridgeMode();
             });
             shiftMenuButton.setOnUp(() -> shiftMenu.setVisible(!shiftMenu.isVisible()));
             statisticsMenuButton.setOnUp(() -> statisticsMenu.setVisible(!statisticsMenu.isVisible()));
@@ -479,10 +486,11 @@ public class UI {
         if (buildingMenu.isVisible() || shiftMenu.isVisible() || statisticsMenu.isVisible() || farmResourceMenu.isVisible()) {
             closeInGameMenus();
         } else if (!isPaused) {
-            if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode()) {
+            if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode() || Tiles.isInBridgeMode()) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
                 Tiles.turnOffPathMode();
+                Tiles.turnOffBridgeMode();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
                 npcStatWindow.setVisible(false);

@@ -17,6 +17,7 @@ import static com.boxhead.builder.utils.Vector2i.*;
 public class Tiles {
     private static boolean isInPathMode = false;
     private static boolean isInFieldMode = false;
+    private static boolean isInBridgeMode = false;
     private static Vector2i origin = null;
     private static BoxCollider buildingCollider = null;
     private static boolean isRanch;
@@ -40,9 +41,14 @@ public class Tiles {
         return isInFieldMode;
     }
 
+    public static boolean isInBridgeMode() {
+        return isInBridgeMode;
+    }
+
     public static void toPathMode(Tile pathTile) {
         isInPathMode = true;
         isInFieldMode = false;
+        isInBridgeMode = false;
         Tiles.pathTile = pathTile;
     }
 
@@ -58,14 +64,26 @@ public class Tiles {
         origin = buildingCollider.getGridPosition().clone();
         isInFieldMode = true;
         isInPathMode = false;
+        isInBridgeMode = false;
     }
 
     public static void turnOffFieldMode() {
         isInFieldMode = false;
     }
 
+    public static void toBridgeMode() {
+        isInBridgeMode = true;
+        isInPathMode = false;
+        isInFieldMode = false;
+    }
+
+    public static void turnOffBridgeMode() {
+        origin = null;
+        isInBridgeMode = false;
+    }
+
     public static void handlePathMode(SpriteBatch batch) {
-        if (!isInPathMode || isInFieldMode)
+        if (!isInPathMode || isInFieldMode || isInBridgeMode)
             throw new IllegalStateException("Not in path mode");
 
         Vector2i mouseGrid = GameScreen.getMouseGridPosition();
@@ -86,8 +104,6 @@ public class Tiles {
 
                 if (World.isBuildable(line[i]) && tile != Tile.PATH) {
                     totalCost.add(pathCost);
-                } else if (tile == Tile.WATER) {
-                    totalCost.add(bridgeCost);
                 }
             }
 
@@ -97,19 +113,17 @@ public class Tiles {
                         Vector2i tile = line[i];
 
                         boolean[] neighbours = new boolean[4]; //top right bottom left
-                        if (tile.plus(UP).equals(line[i + 1]) || World.getTile(tile.plus(UP)) == pathTile || World.getTile(tile.plus(UP)) == Tile.BRIDGE_PATH)
+                        if (tile.plus(UP).equals(line[i + 1]) || World.getTile(tile.plus(UP)) == pathTile || World.getTile(tile.plus(UP)) == Tile.BRIDGE)
                             neighbours[0] = true;
-                        if (tile.plus(RIGHT).equals(line[i + 1]) || World.getTile(tile.plus(RIGHT)) == pathTile || World.getTile(tile.plus(RIGHT)) == Tile.BRIDGE_PATH)
+                        if (tile.plus(RIGHT).equals(line[i + 1]) || World.getTile(tile.plus(RIGHT)) == pathTile || World.getTile(tile.plus(RIGHT)) == Tile.BRIDGE)
                             neighbours[1] = true;
-                        if (tile.plus(DOWN).equals(line[i + 1]) || World.getTile(tile.plus(DOWN)) == pathTile || World.getTile(tile.plus(DOWN)) == Tile.BRIDGE_PATH)
+                        if (tile.plus(DOWN).equals(line[i + 1]) || World.getTile(tile.plus(DOWN)) == pathTile || World.getTile(tile.plus(DOWN)) == Tile.BRIDGE)
                             neighbours[2] = true;
-                        if (tile.plus(LEFT).equals(line[i + 1]) || World.getTile(tile.plus(LEFT)) == pathTile || World.getTile(tile.plus(LEFT)) == Tile.BRIDGE_PATH)
+                        if (tile.plus(LEFT).equals(line[i + 1]) || World.getTile(tile.plus(LEFT)) == pathTile || World.getTile(tile.plus(LEFT)) == Tile.BRIDGE)
                             neighbours[3] = true;
 
                         if (World.isBuildable(tile)) {
                             World.setTile(tile, pathTile, getTextureForTile(neighbours, pathTile));
-                        } else if (World.getTile(tile) == Tile.WATER) { //bridge
-                            World.setTile(tile, Tile.BRIDGE_PATH, getTextureForTile(neighbours, Tile.BRIDGE_PATH));
                         }
                     }
                     origin = null;
@@ -166,6 +180,21 @@ public class Tiles {
         return line;
     }
 
+    private static Vector2i[] horizontalLine(Vector2i origin, Vector2i target) {
+        int offset = target.x - origin.x;
+        int absoluteOffset = Math.abs(offset) + 1;
+        Vector2i[] line = new Vector2i[absoluteOffset + 1]; //the array is null terminated so that line[i + 1] in loops doesn't throw
+        int dir = offset < 0 ? -1 : 1;
+
+        Vector2i temp = origin.clone();
+        for (int i = 0; i < absoluteOffset; i++) {
+            line[i] = temp.clone();
+            temp.add(dir, 0);
+        }
+        line[absoluteOffset] = null;
+        return line;
+    }
+
     /**
      * @return texture of the tile based on neighbouring tiles
      */
@@ -211,7 +240,9 @@ public class Tiles {
     }
 
     private static void setBatchColorForTile(SpriteBatch batch, Vector2i gridPosition) {
-        if (World.isBuildable(gridPosition) || World.getTile(gridPosition) == Tile.WATER)
+        if (World.getTile(gridPosition).equals(Tile.PATH))
+            batch.setColor(SEMI_TRANSPARENT_YELLOW);
+        else if (World.isBuildable(gridPosition))
             batch.setColor(SEMI_TRANSPARENT_GREEN);
         else
             batch.setColor(SEMI_TRANSPARENT_RED);
@@ -221,7 +252,7 @@ public class Tiles {
      * @return the collider of the field only after it has been placed. Otherwise, null.
      */
     public static BoxCollider handleFieldMode(SpriteBatch batch) {
-        if (!isInFieldMode || isInPathMode)
+        if (!isInFieldMode || isInPathMode || isInBridgeMode)
             throw new IllegalStateException("Not in field mode");
 
         Vector2i mouseGrid = GameScreen.getMouseGridPosition();
@@ -297,6 +328,69 @@ public class Tiles {
             pos.set(origin.x + fieldWidth - 1, origin.y + y);
             if (isFarmable.test(pos))
                 World.addGameObject(new GameObject(Textures.Environment.FENCE_R, pos.clone()));
+        }
+    }
+
+    public static void handleBridgeMode(SpriteBatch batch) {
+        if (!isInBridgeMode || isInFieldMode || isInPathMode)
+            throw new IllegalStateException("Not in path mode");
+
+        Vector2i mouseGrid = GameScreen.getMouseGridPosition();
+
+        if (origin == null) {
+            batch.setColor(World.getTile(mouseGrid) == Tile.WATER ? SEMI_TRANSPARENT_GREEN : SEMI_TRANSPARENT_RED);
+            drawTile(batch, DEFAULT, mouseGrid);
+            if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
+                origin = mouseGrid;
+            }
+        } else {
+            Vector2i[] line = horizontalLine(origin, mouseGrid);
+            boolean buildBridge = InputManager.isButtonPressed(InputManager.LEFT_MOUSE);
+            Recipe totalCost = new Recipe();
+
+            for (int i = 0; i < line.length - 1; i++) {
+                if (World.getTile(line[i]) == Tile.WATER) {
+                    totalCost.add(bridgeCost);
+                }
+            }
+
+            if (Resource.canAfford(totalCost)) {
+                if (buildBridge) {
+                    for (int i = 0; i < line.length - 1; i++) {
+                        Vector2i tile = line[i];
+
+                        if (World.getTile(line[i]) == Tile.WATER) {
+                            try {
+                                World.setTile(tile, Tile.BRIDGE, Textures.Tile.valueOf(World.getTileTexture(line[i]).name() + "_BRIDGE"));
+                            } catch (IllegalArgumentException e) {
+                                World.setTile(tile, Tile.BRIDGE, Tile.BRIDGE.textures[0]);
+                            }
+                        }
+                    }
+                    origin = null;
+                    Resource.takeFromStorage(totalCost);
+
+                    BoxCollider lineArea;
+                    if (line[0].x == line[line.length - 2].x) {
+                        lineArea = new BoxCollider(line[0], 1, line.length - 1);
+                    } else {
+                        lineArea = new BoxCollider(line[0], line.length - 1, 1);
+                    }
+                    World.removeFieldWorks(lineArea);
+                } else {
+                    for (int i = 0; i < line.length - 1; i++) {
+                        batch.setColor(World.getTile(line[i]) == Tile.WATER ? SEMI_TRANSPARENT_GREEN : SEMI_TRANSPARENT_RED);
+                        drawTile(batch, DEFAULT, line[i]);
+                    }
+                }
+            } else {
+                batch.setColor(SEMI_TRANSPARENT_RED);
+                for (int i = 0; i < line.length - 1; i++) {
+                    drawTile(batch, DEFAULT, line[i]);
+                }
+            }
+
+            batch.setColor(DEFAULT_COLOR);
         }
     }
 

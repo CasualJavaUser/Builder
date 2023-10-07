@@ -645,6 +645,10 @@ public class World {
         return tiles[worldSize.x * y + x];
     }
 
+    public static Textures.Tile getTileTexture(Vector2i gridPosition) {
+        return tileTextures[worldSize.x * gridPosition.y + gridPosition.x];
+    }
+
     public static void setTile(Vector2i gridPosition, Tile tile) {
         tiles[worldSize.x * gridPosition.y + gridPosition.x] = tile;
         tileTextures[worldSize.x * gridPosition.y + gridPosition.x] = tile.textures[random.nextInt(tile.textures.length)];
