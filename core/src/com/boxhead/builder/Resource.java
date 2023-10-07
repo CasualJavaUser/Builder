@@ -16,7 +16,8 @@ public enum Resource {
     GRAIN,
     ALCOHOL,
     MILK,
-    MEAT;
+    MEAT,
+    FISH;
 
     /**
      * Resources that are free to use

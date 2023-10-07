@@ -22,7 +22,9 @@ public class Label extends UIElement {
 
     @Override
     public void draw(SpriteBatch batch) {
+        batch.setColor(tint);
         batch.draw(texture, getGlobalPosition().x, getGlobalPosition().y - texture.getRegionWidth());
+        batch.setColor(UI.DEFAULT_COLOR);
         UI.FONT.setColor(tint);
         UI.FONT.draw(batch, text, getGlobalPosition().x + texture.getRegionWidth() + 10, getGlobalPosition().y);
         UI.FONT.setColor(UI.DEFAULT_COLOR);

@@ -29,6 +29,7 @@ public class Buildings {
         if (type instanceof PlantationBuilding.Type t) return new PlantationBuilding(t, gridPosition);
         if (type instanceof SchoolBuilding.Type t) return new SchoolBuilding(t, gridPosition);
         if (type instanceof ServiceBuilding.Type t) return new ServiceBuilding(t, gridPosition);
+        if (type instanceof WaterBuilding.Type t) return new WaterBuilding(t, gridPosition);
         if (type instanceof ProductionBuilding.Type t) return new ProductionBuilding(t, gridPosition);
         if (type instanceof ResidentialBuilding.Type t) return new ResidentialBuilding(t, gridPosition);
         return new Building(type, gridPosition);
@@ -182,17 +183,30 @@ public class Buildings {
 
             Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
         }
-        if (currentBuilding.entrancePosition != null) {
-            Vector2i entrancePos = currentBuilding.entrancePosition.plus(gridPosition);
-            if (rangeX.contains(entrancePos.x) && rangeY.contains(entrancePos.y) && World.isBuildable(entrancePos))
-                batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
-            else {
-                batch.setColor(UI.SEMI_TRANSPARENT_RED);
-                isBuildable = false;
-            }
 
-            Tiles.drawTile(batch, Textures.Tile.DEFAULT, entrancePos);
+        Vector2i entrancePos = currentBuilding.entrancePosition.plus(gridPosition);
+        if (rangeX.contains(entrancePos.x) && rangeY.contains(entrancePos.y) && World.isBuildable(entrancePos))
+            batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
+        else {
+            batch.setColor(UI.SEMI_TRANSPARENT_RED);
+            isBuildable = false;
         }
+        Tiles.drawTile(batch, Textures.Tile.DEFAULT, entrancePos);
+
+        if (currentBuilding instanceof WaterBuilding.Type building) {
+            BoxCollider waterArea = building.waterArea.cloneAndTranslate(gridPosition);
+            for (Vector2i tile : waterArea) {
+                if (World.getTile(tile).equals(Tile.WATER)) {
+                    batch.setColor(UI.SEMI_TRANSPARENT_BLUE);
+                } else {
+                    batch.setColor(UI.SEMI_TRANSPARENT_MAGENTA);
+                    isBuildable = false;
+                }
+
+                Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
+            }
+        }
+
         return isBuildable;
     }
 

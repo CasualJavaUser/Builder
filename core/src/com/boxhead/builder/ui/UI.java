@@ -37,8 +37,10 @@ public class UI {
     public static final Color DEFAULT_UI_COLOR = new Color(1, 1, 1, 1);
     public static final Color SEMI_TRANSPARENT = new Color(1, 1, 1, .5f);
     public static final Color SEMI_TRANSPARENT_RED = new Color(.86f, .25f, .25f, .4f);
-    public static final Color SEMI_TRANSPARENT_YELLOW = new Color(.86f, .86f, .25f, .4f);
     public static final Color SEMI_TRANSPARENT_GREEN = new Color(.25f, .86f, .25f, .4f);
+    public static final Color SEMI_TRANSPARENT_BLUE = new Color(.25f, .25f, .86f, .4f);
+    public static final Color SEMI_TRANSPARENT_YELLOW = new Color(.86f, .86f, .25f, .4f);
+    public static final Color SEMI_TRANSPARENT_MAGENTA = new Color(.86f, .25f, .86f, .4f);
     public static final Color PRESSED_COLOR = new Color(.8f, .8f, .8f, 1);
     public static final Color VERY_TRANSPARENT = new Color(1, 1, 1, .2f);
     public static final Color WHITE = new Color(1, 1, 1, 1);
@@ -784,24 +786,29 @@ public class UI {
 
             tabs = new Tab[4];
 
+            //infrastructure
             tabs[0] = new Tab(this, true,
                     Pair.of(Building.Type.STORAGE_BARN, Textures.Ui.BARN),
                     Pair.of(ProductionBuilding.Type.BUILDERS_HUT, Textures.Ui.BIG_HAMMER),
                     Pair.of(ProductionBuilding.Type.TRANSPORT_OFFICE, Textures.Ui.CARRIAGE)
             );
 
+            //housing
             tabs[1] = new Tab(this, false,
                     Pair.of(ResidentialBuilding.Type.LOG_CABIN, Textures.Ui.HOUSE)
             );
 
+            //resources
             tabs[2] = new Tab(this, false,
                     Pair.of(ProductionBuilding.Type.LUMBERJACKS_HUT, Textures.Ui.AXE),
                     Pair.of(ProductionBuilding.Type.MINE, Textures.Ui.PICKAXE),
                     Pair.of(ProductionBuilding.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
                     Pair.of(PlantationBuilding.Type.PLANTATION, Textures.Ui.HOE),
-                    Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.COW)
+                    Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.COW),
+                    Pair.of(WaterBuilding.Type.FISHING_HUT, Textures.Ui.FUNGUS)
             );
 
+            //services
             tabs[3] = new Tab(this, false,
                     Pair.of(ServiceBuilding.Type.HOSPITAL, Textures.Ui.CROSS),
                     Pair.of(ServiceBuilding.Type.PUB, Textures.Ui.MUG),

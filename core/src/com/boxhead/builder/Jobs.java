@@ -171,6 +171,20 @@ public class Jobs {
         }
     };
 
+    public static final Job FISHERMAN = new Job() {
+        private final Recipe recipe = new Recipe(Pair.of(Resource.FISH, 5));
+
+        @Override
+        public Recipe getRecipe(ProductionBuilding productionBuilding) {
+            return recipe;
+        }
+
+        @Override
+        public String toString() {
+            return "fisherman";
+        }
+    };
+
     public static final Job CARRIER = new Job() {
         @Override
         public void assign(Villager assignee, ProductionBuilding workplace) {

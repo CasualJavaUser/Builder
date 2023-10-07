@@ -153,7 +153,7 @@ public class Textures {
     }
 
     public enum Resource implements TextureId {
-        NOTHING, WOOD, STONE, IRON, COAL, STEEL, TOOLS, GRAIN, ALCOHOL, MILK, MEAT
+        NOTHING, WOOD, STONE, IRON, COAL, STEEL, TOOLS, GRAIN, ALCOHOL, MILK, MEAT, FISH
     }
 
     public enum Environment implements TextureId {
