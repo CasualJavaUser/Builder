@@ -513,7 +513,7 @@ public class UI {
     public static void showPauseMenu(boolean open) {
         Logic.pause(open);
         isPaused = open;
-        DEFAULT_COLOR.set(open ? DARK : WHITE);
+        DEFAULT_COLOR.set(open ? DARK : World.getSkyColor(World.getTime()));
         DEFAULT_UI_COLOR.set(open ? DARK : WHITE);
         Layer.PAUSE_MENU.setVisible(open);
     }

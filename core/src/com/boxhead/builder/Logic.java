@@ -9,6 +9,7 @@ import com.boxhead.builder.game_objects.buildings.Building;
 import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
 import com.boxhead.builder.game_objects.buildings.SchoolBuilding;
 import com.boxhead.builder.game_objects.buildings.ServiceBuilding;
+import com.boxhead.builder.ui.UI;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,6 +33,8 @@ public class Logic {
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
+            UI.DEFAULT_COLOR.set(World.getSkyColor(World.getTime()));
+
             if (World.getTime() == orderedShifts[nextShift].start) {
                 currentShift = (nextShift + orderedShifts.length - 2) % orderedShifts.length;
                 startWorkday(orderedShifts[nextShift]);

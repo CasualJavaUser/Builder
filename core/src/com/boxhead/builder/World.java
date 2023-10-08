@@ -1,5 +1,6 @@
 package com.boxhead.builder;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -735,6 +736,23 @@ public class World {
             sum += villager.getStats()[stat.ordinal()];
         }
         return sum / villagers.size();
+    }
+
+    public static Color getSkyColor(double time) {
+        final double redLowest = -0.4d;
+        final double blueLowest = -0.25d;
+
+        if (time > FULL_DAY/2d) {
+            time -= FULL_DAY;
+        }
+        time /= HOUR;
+        double r = Math.pow(Math.E, -Math.pow((time / 2d), 2d)) * redLowest + 1;
+        double b = Math.min(
+                Math.pow(Math.E, -Math.pow((time / 1.5d - 2d), 2d)) * blueLowest + 1,
+                Math.pow(Math.E, -Math.pow((time / 1.5d + 2d), 2d)) * blueLowest + 1
+        );
+        double g = Math.pow(Math.E, -Math.pow((time / 2.8d), 2d)) * redLowest + 1;
+        return new Color((float) r, (float) g, (float) b, 1f);
     }
 
     public static void saveWorld(ObjectOutputStream out) throws IOException {
