@@ -18,7 +18,7 @@ public class World {
     public static final int TILE_SIZE = 16;
     public static final int HOUR = 3600;
     public static final int FULL_DAY = 86400;
-    public static final int YEAR = FULL_DAY * 10;
+    public static final int YEAR = FULL_DAY;
 
     /**
      * The size (in tiles) of the biggest GameObject texture.
@@ -87,7 +87,7 @@ public class World {
     public static void temp() {
         initVillagers(15);
         spawnVillager(new Villager(new Vector2i((int) (worldSize.x * 0.10), (int) (worldSize.y * 0.50) - 7)));
-        Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f), (int) (worldSize.y * 0.45));
+        Vector2i buildingPosition = new Vector2i((int) (worldSize.x * 0.45f)-2, (int) (worldSize.y * 0.45));
         BoxCollider collider = ProductionBuilding.Type.BUILDERS_HUT.relativeCollider.cloneAndTranslate(buildingPosition);
         placeBuilding(ProductionBuilding.Type.BUILDERS_HUT, buildingPosition);
         makeUnnavigable(collider);
@@ -243,11 +243,10 @@ public class World {
         double noiseFrequency = random.nextDouble() * 2 + 3;    //number of curves (3 <= x < 5)
         double curveMultiplier = random.nextDouble() * 4 + 16;  //curve size (16 <= x < 20)
         int width = 2;                                          //river width
-        double bias = random.nextDouble() - 0.5f;               //the general direction in which the river is going (positive - right, negative - left) (-0.5 <= x < 0.5)
-        float minDistanceFromEdge = 0.3f;
+        double bias = random.nextDouble() - 0.5d;               //the general direction in which the river is going (positive - right, negative - left) (-0.5 <= x < 0.5)
 
         int[] steps = new int[worldSize.y];
-        double startX = random.nextInt((int) (worldSize.x * (1 - 2 * minDistanceFromEdge))) + (int) (worldSize.x * minDistanceFromEdge);
+        double startX = worldSize.x/2f - bias * worldSize.y/2f;
         for (int i = 0; i < steps.length; i++) {
             double di = (double) i / noiseSize;
             double noise = PerlinNoise.noise2D(di * noiseFrequency, seed) * curveMultiplier;
@@ -538,7 +537,7 @@ public class World {
 
     public static boolean isBuildable(Vector2i position) {
         if (worldSize.x * position.y + position.x < tiles.length) {
-            return getTile(position) != Tile.WATER && !builtTiles.contains(position);
+            return getTile(position) != Tile.WATER && getTile(position) != Tile.BRIDGE && !builtTiles.contains(position);
         } else return false;
     }
 

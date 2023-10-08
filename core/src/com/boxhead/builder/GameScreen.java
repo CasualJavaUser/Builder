@@ -42,8 +42,7 @@ public class GameScreen implements Screen {
         Debug.init();
         Statistics.init();
 
-        camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
-        camera.update();
+        centerCamera();
     }
 
     @Override
@@ -201,5 +200,10 @@ public class GameScreen implements Screen {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+    }
+
+    public static void centerCamera() {
+        camera.position.set((float) World.getWidth() / 2, (float) World.getHeight() / 2, camera.position.z);
+        camera.update();
     }
 }

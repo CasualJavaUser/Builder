@@ -85,6 +85,7 @@ public class ProductionBuilding extends Building {
         );
 
         static {
+            BUILDERS_HUT.shifts[2] = true;
             values = initValues(Type.class).toArray(Type[]::new);
         }
 

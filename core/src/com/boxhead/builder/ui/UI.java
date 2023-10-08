@@ -255,7 +255,7 @@ public class UI {
                     Tiles.turnOffPathMode();
             });
             bridgeButton.setOnUp(() -> {
-                if (!Tiles.isInPathMode())
+                if (!Tiles.isInBridgeMode())
                     Tiles.toBridgeMode();
                 else
                     Tiles.turnOffBridgeMode();
@@ -1061,7 +1061,7 @@ public class UI {
         final Color graphColor;
 
         private Statistics.Type currentStat;
-        private float maxValue = 100;
+        private float upperLimit = 100;
 
         public StatisticsMenu() {
             super(Anchor.TOP_LEFT.getElement(), Layer.IN_GAME, Vector2i.zero(), false);
@@ -1082,7 +1082,10 @@ public class UI {
                 y -= 32 + PADDING;
                 buttons[i] = new Button(Textures.get(Textures.Ui.WIDE_BUTTON), this, layer, new Vector2i(window.getEdgeWidth() + PADDING, y), "", TextArea.Align.RIGHT);
                 int statIndex = i;
-                buttons[i].setOnUp(() -> currentStat = Statistics.Type.values()[statIndex]);
+                buttons[i].setOnUp(() -> {
+                    currentStat = Statistics.Type.values()[statIndex];
+                    updateUpperLimit();
+                });
             }
 
             window.setWindowHeight(Math.max(-y, GRAPH_SIZE + PADDING + window.getEdgeWidth()) + PADDING + window.getEdgeWidth());
@@ -1098,32 +1101,30 @@ public class UI {
                 spacing = spacing.substring(String.valueOf(statistic.getValue()).length());
                 buttons[i].setText(statistic.name().toLowerCase() + spacing + statistic.getValue());
             }
-
-            maxValue = 10;
-            float temp = getMaxValue();
-            while (maxValue < temp)
-                maxValue *= 10;
+            updateUpperLimit();
         }
 
         protected void drawGraph(ShapeRenderer renderer) {
             Vector2i origin = graph.getGlobalPosition().plus(11, 7);
             float[] values = Statistics.getValues().get(currentStat);
-            Vector2i prevPoint = new Vector2i(290, (int)(values[0] / (maxValue/300)));
+            Vector2i prevPoint = new Vector2i(290, (int)(values[0] / (upperLimit /300)));
             Vector2i point = new Vector2i();
 
             for (int i = 1; i < Statistics.VALUES_PER_STAT; i++) {
-                point.set(10 * (Statistics.VALUES_PER_STAT - 1 - i), (int)(values[i] / (maxValue/300)));
+                point.set(10 * (Statistics.VALUES_PER_STAT - 1 - i), (int)(values[i] / (upperLimit /300)));
                 renderer.rectLine(prevPoint.x + origin.x, prevPoint.y + origin.y, point.x + origin.x, point.y + origin.y, 5, graphColor, graphColor);
                 prevPoint.set(point);
             }
         }
 
-        private float getMaxValue() {
+        private void updateUpperLimit() {
             float max = 0;
             for (float value : Statistics.getValues().get(currentStat)) {
                 if (value > max) max = value;
             }
-            return max;
+            upperLimit = 10;
+            while (upperLimit < max)
+                upperLimit *= 10;
         }
 
         @Override

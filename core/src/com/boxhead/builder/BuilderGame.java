@@ -95,6 +95,7 @@ public class BuilderGame extends Game {
         loadingException = loadingExecutor.submit(() -> {
             LoadingScreen.setMessage("Loading...");
             World.generate((int) (Math.random() * 1000), new Vector2i(2001, 2001));
+            GameScreen.centerCamera();
             return null;
         });
     }
