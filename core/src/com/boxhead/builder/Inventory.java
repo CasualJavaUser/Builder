@@ -31,25 +31,23 @@ public class Inventory implements Serializable {
 
     public void moveResourcesTo(Inventory otherInventory, Resource resource, int units) {
         if (getResourceAmount(resource) < units || otherInventory.getAvailableCapacity() < units
-        || getAvailableCapacity() < -units || otherInventory.getResourceAmount(resource) < -units)
+                || getAvailableCapacity() < -units || otherInventory.getResourceAmount(resource) < -units)
             throw new IllegalArgumentException();
 
         put(resource, -units);
         otherInventory.put(resource, units);
     }
 
-    /**
-     * Moves as many units of resources as possible
-     *
-     * @return How many units were transferred
-     */
-    @Deprecated
-    public int moveResourcesTo(Inventory otherInventory, Resource resource) {
-        int moved = Math.min(resources.get(resource), otherInventory.getAvailableCapacity());
+    public void transferAllResourcesTo(Inventory otherInventory) {
+        if (otherInventory.getAvailableCapacity() < currentAmount)
+            throw new IllegalArgumentException();
 
-        take(resource, moved);
-        otherInventory.put(resource, moved);
-        return moved;
+        for (Resource resource : resources.keySet()) {
+            int moved = resources.get(resource);
+
+            take(resource, moved);
+            otherInventory.put(resource, moved);
+        }
     }
 
     public int getAvailableCapacity() {

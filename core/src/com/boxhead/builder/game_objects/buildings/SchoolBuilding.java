@@ -111,6 +111,15 @@ public class SchoolBuilding extends ProductionBuilding {
     }
 
     @Override
+    public void emptyOccupants() {
+        super.emptyOccupants(); //ProductionBuilding
+
+        for (Villager student : students) {
+            if (student.isInBuilding(this)) student.giveOrder(EXIT, this);
+        }
+    }
+
+    @Override
     public void startShift(Job.ShiftTime shiftTime) {
         super.startShift(shiftTime);
         for (Shift shift : studentShifts) {

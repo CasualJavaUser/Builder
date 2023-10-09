@@ -240,7 +240,7 @@ public class Tiles {
     }
 
     private static void setBatchColorForTile(SpriteBatch batch, Vector2i gridPosition) {
-        if (World.getTile(gridPosition).equals(Tile.PATH))
+        if (World.getTile(gridPosition) == Tile.PATH)
             batch.setColor(SEMI_TRANSPARENT_YELLOW);
         else if (World.isBuildable(gridPosition))
             batch.setColor(SEMI_TRANSPARENT_GREEN);
@@ -271,7 +271,7 @@ public class Tiles {
         Vector2i lowerLeftCorner = origin.clone();
         if (mouseGrid.x < origin.x) lowerLeftCorner.x -= fieldDimensions.x - 1;
         if (mouseGrid.y < origin.y) lowerLeftCorner.y -= fieldDimensions.y - 1;
-        BoxCollider field = new BoxCollider(lowerLeftCorner, fieldDimensions.x, fieldDimensions.y);
+        BoxCollider field = new BoxCollider(lowerLeftCorner, fieldDimensions);
 
         boolean withinLimits = fieldSizeRange.contains(fieldDimensions.x) && fieldSizeRange.contains(fieldDimensions.y);
         if (withinLimits) batch.setColor(SEMI_TRANSPARENT_GREEN);

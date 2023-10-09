@@ -52,6 +52,13 @@ public class ResidentialBuilding extends Building {
     }
 
     @Override
+    public void emptyOccupants() {
+        for (Villager resident : residents) {
+            if (resident.isInBuilding(this)) resident.giveOrder(Villager.Order.Type.EXIT, this);
+        }
+    }
+
+    @Override
     public Type getType() {
         return ((Type) type);
     }

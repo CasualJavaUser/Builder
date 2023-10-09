@@ -2,6 +2,9 @@ package com.boxhead.builder.game_objects.buildings;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
+import com.boxhead.builder.Logistics;
+import com.boxhead.builder.Resource;
+import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
@@ -9,27 +12,17 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
-import java.util.HashMap;
-import java.util.Map;
 
-public class ConstructionSite extends Building implements FieldWork {
-    private int progress = 0;
-    private final int totalLabour, capacity = 1;    //(temp) capacity of 1 makes debugging easier
-    private int currentlyWorking = 0;
-    private BoxCollider fieldCollider;
-    private final Map<Villager, Boolean> assigned = new HashMap<>(capacity);
-
+public class ConstructionSite extends BuildSite {
     public ConstructionSite(Building.Type type, Vector2i gridPosition, int totalLabour) {
         this(type, gridPosition, totalLabour, new BoxCollider());
     }
 
     public ConstructionSite(Building.Type type, Vector2i gridPosition, int totalLabour, BoxCollider fieldCollider) {
-        super(type, type.getConstructionSite(), gridPosition, type.buildCost.sum());
-        this.totalLabour = totalLabour;
-        this.fieldCollider = fieldCollider;
+        super(type, gridPosition, totalLabour, fieldCollider);
 
-        Resource.updateStoredResources(type.buildCost.negate());
-        Logistics.requestTransport(this, type.buildCost.negate(), Logistics.USE_STORAGE);
+        Resource.updateStoredResources(type.buildCost.negative());
+        Logistics.requestTransport(this, type.buildCost.negative(), Logistics.USE_STORAGE);
         reserveSpace(type.buildCost.sum());
     }
 
@@ -46,22 +39,7 @@ public class ConstructionSite extends Building implements FieldWork {
 
     @Override
     public Object getCharacteristic() {
-        return this.getClass();
-    }
-
-    @Override
-    public void assignWorker(Villager villager) {
-        if (assigned.size() < capacity) {
-            assigned.put(villager, false);
-        } else
-            throw new IllegalArgumentException("Assignment over capacity");
-    }
-
-    @Override
-    public void dissociateWorker(Villager villager) {
-        assigned.remove(villager);
-        updateCurrentlyWorking();
-        villager.setAnimation(Villager.Animation.WALK);
+        return BuildSite.class;
     }
 
     @Override
@@ -71,8 +49,7 @@ public class ConstructionSite extends Building implements FieldWork {
 
     @Override
     public void work() {
-        if ((float) progress / totalLabour < (float) inventory.getDisplayedAmount() / inventory.getMaxCapacity())
-            progress += currentlyWorking;
+        progress += currentlyWorking;
 
         if (progress >= totalLabour) {
             World.removeFieldWorks(this);

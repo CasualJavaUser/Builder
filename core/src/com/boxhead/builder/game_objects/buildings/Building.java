@@ -251,6 +251,8 @@ public class Building extends GameObject implements Clickable {
         return inventory;
     }
 
+    public void emptyOccupants(){}
+
     private void updateReservations(Villager reservee, Resource resource, int units) {
         Pair<Villager, Resource> pair = Pair.of(reservee, resource);
         int reserved = inventoryReservations.getOrDefault(pair, 0) + units;

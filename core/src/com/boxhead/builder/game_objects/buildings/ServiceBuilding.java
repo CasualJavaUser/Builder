@@ -99,6 +99,16 @@ public class ServiceBuilding extends ProductionBuilding {
         guests = new HashSet<>(type.guestCapacity);
     }
 
+
+    @Override
+    public void emptyOccupants() {
+        super.emptyOccupants(); //ProductionBuilding
+
+        for (Villager guest : guests) {
+            if (guest.isInBuilding(this)) guest.giveOrder(EXIT, this);
+        }
+    }
+
     @Override
     public Type getType() {
         return ((Type) type);

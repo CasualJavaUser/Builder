@@ -473,6 +473,13 @@ public class ProductionBuilding extends Building {
     }
 
     @Override
+    public void emptyOccupants() {
+        for (Villager employee : employees) {
+            if (employee.isInBuilding(this)) employee.giveOrder(EXIT, this);
+        }
+    }
+
+    @Override
     public void onClick() {
         super.onClick();
         showRange = true;

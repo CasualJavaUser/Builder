@@ -30,12 +30,30 @@ public class Recipe implements Iterable<Map.Entry<Resource, Integer>>, Cloneable
         return changes.get(resource);
     }
 
-    public Recipe negate() {
+    public Recipe negative() {
         Recipe negative = new Recipe(changes.size());
         for (Resource resource : changes.keySet()) {
             negative.changes.put(resource, -changes.get(resource));
         }
         return negative;
+    }
+
+    public Recipe half() {
+        Recipe half = new Recipe(changes.size());
+        for (Resource resource : changes.keySet()) {
+            half.changes.put(resource, changes.get(resource) / 2);
+        }
+        return half;
+    }
+
+    /**
+     * Rounds all resources down to the nearest 10
+     */
+    public void roundDown() {
+        for (Resource resource : changes.keySet()) {
+            int amount = changes.get(resource);
+            changes.put(resource, amount - (amount % 10));
+        }
     }
 
     public int sum() {

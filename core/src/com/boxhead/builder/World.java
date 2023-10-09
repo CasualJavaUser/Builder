@@ -116,18 +116,18 @@ public class World {
     }
 
     public static void handleNpcsAndBuildingsOnClick() {
-        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
-            for (Building building : buildings) {
-                if (building.isMouseOver()) {
-                    building.onClick();
-                    return;
-                }
+        if (!InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) return;
+
+        for (Building building : buildings) {
+            if (building.isMouseOver()) {
+                building.onClick();
+                return;
             }
-            for (Villager villager : villagers) {
-                if (villager.isMouseOver()) {
-                    villager.onClick();
-                    return;
-                }
+        }
+        for (Villager villager : villagers) {
+            if (villager.isMouseOver()) {
+                villager.onClick();
+                return;
             }
         }
     }
@@ -301,6 +301,12 @@ public class World {
 
     public static Building placeBuilding(Building.Type type, Vector2i gridPosition) {
         Building building = Buildings.create(type, gridPosition);
+        placeBuilding(building);
+        return building;
+    }
+
+    private static void placeBuilding(Building building) {
+        Building.Type type = building.getType();
         buildings.add(building);
         addGameObject(building);
         makeUnnavigable(building.getCollider());
@@ -316,7 +322,6 @@ public class World {
                 pb.updateEfficiency();
             }
         }
-        return building;
     }
 
     public static void placeFarm(FarmBuilding.Type type, Vector2i gridPosition, BoxCollider fieldCollider) {
@@ -330,9 +335,6 @@ public class World {
     }
 
     public static void removeBuilding(Building building) {
-        makeNavigable(building.getCollider());
-        makeUnbuilt(building.getCollider());
-        if (building instanceof ConstructionSite) fieldWorks.remove(building);
         if (building instanceof FarmBuilding<?> farm) makeUnbuilt(farm.getFieldCollider());
         buildings.remove(building);
         removeGameObject(building);
@@ -347,8 +349,8 @@ public class World {
     public static void placeFieldWork(FieldWork fieldWork) {
         makeUnnavigable(fieldWork.getCollider());
 
-        if (fieldWork instanceof ConstructionSite constructionSite) {
-            buildings.add(constructionSite);
+        if (fieldWork instanceof BuildSite buildSite) {
+            buildings.add(buildSite);
         } else if (fieldWork instanceof Harvestable harvestable) {
             harvestable.nextPhase();
         }
@@ -362,11 +364,12 @@ public class World {
             fieldWorks.remove(fieldWork);
             removeGameObject((GameObject) fieldWork);
 
-            if (fieldWork instanceof ConstructionSite)
+            if (fieldWork instanceof BuildSite) {
                 buildings.remove(fieldWork);
-            else if (fieldWork instanceof FarmAnimal)
+                if (fieldWork instanceof DemolitionSite)
+                    makeUnbuilt(fieldWork.getCollider());
+            } else if (fieldWork instanceof FarmAnimal)
                 animals.remove(fieldWork);
-
         }
         removedFieldWorks.clear();
     }
@@ -410,7 +413,7 @@ public class World {
         Vector2i objectPosition = gameObject.getGridPosition();
 
         while (objectPosition.y == gridPosition.y && objectPosition.x <= gridPosition.x) {
-            if (gameObject.getGridPosition().x == gridPosition.x && gameObject instanceof Harvestable harvestable) {
+            if (gameObject instanceof Harvestable harvestable && harvestable.getCollider().overlaps(gridPosition)) {
                 return harvestable;
             }
             i--;
@@ -501,28 +504,23 @@ public class World {
     }
 
     public static void showBuildableTiles(SpriteBatch batch) {
-        Vector2i pos = new Vector2i();
-        for (int y = 0; y < worldSize.y; y++) {
-            for (int x = 0; x < worldSize.x; x++) {
-                pos.set(x, y);
-                batch.setColor(UI.SEMI_TRANSPARENT_RED);
-                if (!isBuildable(pos)) batch.draw(Textures.get(Textures.Tile.DEFAULT), x * TILE_SIZE, y * TILE_SIZE);
-                batch.setColor(UI.DEFAULT_COLOR);
-            }
+        BoxCollider entireWorld = new BoxCollider(Vector2i.zero(), worldSize);
+        batch.setColor(UI.SEMI_TRANSPARENT_RED);
+
+        for (Vector2i tile : entireWorld) {
+            if (!isBuildable(tile)) Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
         }
+        batch.setColor(UI.DEFAULT_COLOR);
     }
 
     public static void showNavigableTiles(SpriteBatch batch) {
-        Vector2i pos = new Vector2i();
-        for (int y = 0; y < worldSize.y; y++) {
-            for (int x = 0; x < worldSize.x; x++) {
-                pos.set(x, y);
-                batch.setColor(UI.SEMI_TRANSPARENT_RED);
-                if (!isNavigable(pos))
-                    batch.draw(Textures.get(Textures.Tile.DEFAULT), x * TILE_SIZE, y * TILE_SIZE);
-                batch.setColor(UI.DEFAULT_COLOR);
-            }
+        BoxCollider entireWorld = new BoxCollider(Vector2i.zero(), worldSize);
+        batch.setColor(UI.SEMI_TRANSPARENT_RED);
+
+        for (Vector2i tile : entireWorld) {
+            if (!isNavigable(tile)) Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
         }
+        batch.setColor(UI.DEFAULT_COLOR);
     }
 
     public static void pathfindingTest(SpriteBatch batch) {
@@ -537,9 +535,9 @@ public class World {
     }
 
     public static boolean isBuildable(Vector2i position) {
-        if (worldSize.x * position.y + position.x < tiles.length) {
-            return getTile(position) != Tile.WATER && getTile(position) != Tile.BRIDGE && !builtTiles.contains(position);
-        } else return false;
+        if (isOutOfBounds(position)) return false;
+
+        return getTile(position) != Tile.WATER && !builtTiles.contains(position);
     }
 
     public static boolean isBuildable(int x, int y) {

@@ -3,10 +3,7 @@ package com.boxhead.builder;
 import com.boxhead.builder.game_objects.Harvestable;
 import com.boxhead.builder.game_objects.Harvestables;
 import com.boxhead.builder.game_objects.Villager;
-import com.boxhead.builder.game_objects.buildings.ConstructionSite;
-import com.boxhead.builder.game_objects.buildings.FarmBuilding;
-import com.boxhead.builder.game_objects.buildings.PlantationBuilding;
-import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
+import com.boxhead.builder.game_objects.buildings.*;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Circle;
 import com.boxhead.builder.utils.Pair;
@@ -148,7 +145,7 @@ public class Jobs {
 
         @Override
         public Object getPoI() {
-            return ConstructionSite.class;
+            return BuildSite.class;
         }
 
         @Override

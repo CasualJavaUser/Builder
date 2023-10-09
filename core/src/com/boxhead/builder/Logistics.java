@@ -128,6 +128,11 @@ public class Logistics {
         returningRequestTransport(building, resource, units);
     }
 
+    public static void requestTransport(Building building, Resource resource, int units, int overridePriority) {
+        Request request = returningRequestTransport(building, resource, units);
+        overrideRequestPriority(request, overridePriority);
+    }
+
     private static Request returningRequestTransport(Building building, Resource resource, int units) {
         SortedList<Request> list;
 

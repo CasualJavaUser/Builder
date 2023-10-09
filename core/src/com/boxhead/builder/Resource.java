@@ -65,6 +65,6 @@ public enum Resource {
                 }
             }
         }
-        updateStoredResources(recipe.negate());
+        updateStoredResources(recipe.negative());
     }
 }

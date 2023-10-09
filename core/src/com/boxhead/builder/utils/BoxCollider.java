@@ -32,6 +32,12 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
         this.height = height;
     }
 
+    public BoxCollider(Vector2i lowerLeftCorner, Vector2i dimensions) {
+        this.lowerLeftCorner = lowerLeftCorner;
+        this.width = dimensions.x;
+        this.height = dimensions.y;
+    }
+
     public BoxCollider(int x, int y, int width, int height) {
         this(new Vector2i(x, y), width, height);
     }
