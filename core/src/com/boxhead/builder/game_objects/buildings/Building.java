@@ -122,6 +122,12 @@ public class Building extends GameObject implements Clickable {
         inventory = new Inventory(storageCapacity);
     }
 
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+        drawIndicator(batch);
+    }
+
     public Type getType() {
         return type;
     }
@@ -266,6 +272,12 @@ public class Building extends GameObject implements Clickable {
             reservedTotals.remove(resource);
         else
             reservedTotals.put(resource, reserved);
+    }
+
+    protected void drawIndicator(SpriteBatch batch) {
+        if (inventory.isFull()) {
+            drawIndicator(Textures.get(Textures.Ui.NO_INPUT), batch);
+        }
     }
 
     protected void drawIndicator(TextureRegion texture, SpriteBatch batch) {

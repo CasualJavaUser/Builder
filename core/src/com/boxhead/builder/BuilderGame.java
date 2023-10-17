@@ -37,6 +37,7 @@ public class BuilderGame extends Game {
 
     @Override
     public void create() {
+        Textures.init();
         batch = new SpriteBatch();
         gameScreen = new GameScreen(batch);
         loadingScreen = new LoadingScreen(batch);

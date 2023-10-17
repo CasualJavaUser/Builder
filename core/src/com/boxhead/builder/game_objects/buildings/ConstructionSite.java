@@ -1,9 +1,9 @@
 package com.boxhead.builder.game_objects.buildings;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.boxhead.builder.*;
 import com.boxhead.builder.Logistics;
 import com.boxhead.builder.Resource;
+import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
@@ -29,7 +29,6 @@ public class ConstructionSite extends BuildSite {
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        drawIndicator(batch);
     }
 
     @Override
@@ -82,6 +81,7 @@ public class ConstructionSite extends BuildSite {
         }
     }
 
+    @Override
     protected void drawIndicator(SpriteBatch batch) {
         if (false)  //TODO check if demolishing
             drawIndicator(Textures.get(Textures.Ui.DEMOLISHING), batch);

@@ -813,7 +813,8 @@ public class UI {
                     Pair.of(ProductionBuilding.Type.STONE_GATHERERS, Textures.Ui.PICKAXE_WITH_STONE),
                     Pair.of(PlantationBuilding.Type.PLANTATION, Textures.Ui.HOE),
                     Pair.of(RanchBuilding.Type.RANCH, Textures.Ui.COW),
-                    Pair.of(WaterBuilding.Type.FISHING_HUT, Textures.Ui.FUNGUS)
+                    Pair.of(WaterBuilding.Type.FISHING_HUT, Textures.Ui.FISHING_ROD),
+                    Pair.of(WaterBuilding.Type.WATERMILL, Textures.Ui.WHEEL)
             );
 
             //services
@@ -906,10 +907,13 @@ public class UI {
 
                 this.buttons = new Button[buttons.length];
 
-                int x = 0, y = -64;
+                int x = 0, y = PADDING;
                 for (int i = 0; i < buttons.length; i++) {
                     Pair<Building.Type, Textures.Ui> pair = buttons[i];
-                    if (i%ROW_LENGTH == 0) x = 0;
+                    if (i%ROW_LENGTH == 0) {
+                        y -= PADDING + 64;
+                        x = 0;
+                    }
                     Button button = new Button(Textures.get(pair.second), this, Layer.IN_GAME, new Vector2i(x, y));
                     button.setOnUp(() -> showBuildingStats(pair.first));
                     x += 74;

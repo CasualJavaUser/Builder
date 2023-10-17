@@ -32,7 +32,6 @@ public class GameScreen implements Screen {
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
 
-        Textures.init();
         Tile.init();
         World.generate(60, new Vector2i(101, 101));
         World.temp();

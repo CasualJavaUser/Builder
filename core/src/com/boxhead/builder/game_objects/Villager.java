@@ -37,7 +37,7 @@ public class Villager extends NPC implements Clickable {
     private float education = 0f;
     private final float[] stats = new float[Stat.values().length];
     private final int skin;
-    protected transient Textures.NpcAnimation[] animations = new Textures.NpcAnimation[Animation.values().length];
+    protected transient Textures.NpcAnimation[] animations;
 
     private final Villager[] parents = new Villager[2];
     private Villager partner = null;
@@ -85,6 +85,7 @@ public class Villager extends NPC implements Clickable {
     }
 
     private void initAnimations() {
+        animations = new Textures.NpcAnimation[Animation.values().length];
         for (int i = 0; i < animations.length; i++) {
             animations[i] = Enum.valueOf(Textures.NpcAnimation.class, Animation.values()[i].name() + skin);
         }

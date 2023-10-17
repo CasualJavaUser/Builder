@@ -498,10 +498,9 @@ public class ProductionBuilding extends Building {
         }
 
         super.draw(batch);
-
-        drawIndicator(batch);
     }
 
+    @Override
     protected void drawIndicator(SpriteBatch batch) {
         TextureRegion texture;
         switch (inventory.checkStorageAvailability(getType().job.getRecipe(this))) {

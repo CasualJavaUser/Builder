@@ -12,15 +12,27 @@ public class WaterBuilding extends ProductionBuilding {
         protected static Type[] values;
 
         public static final Type FISHING_HUT = new Type(
-                Textures.Building.BUILDERS_HUT,
+                Textures.Building.FISHING_HUT,
                 "fishing hut",
-                new Vector2i(1, -1),
-                new BoxCollider(0, 0, 4, 2),
+                new Vector2i(0, -1),
+                new BoxCollider(0, 0, 3, 2),
                 new Recipe(Pair.of(Resource.WOOD, 20)),
                 Jobs.FISHERMAN,
                 3,
                 10,
-                new BoxCollider(5, 0, 1, 2)
+                new BoxCollider(3, 0, 2, 2)
+        );
+
+        public static final Type WATERMILL = new Type(
+                Textures.Building.WATERMILL,
+                "watermill",
+                new Vector2i(2, -1),
+                new BoxCollider(0, 0, 4, 4),
+                new Recipe(Pair.of(Resource.WOOD, 20)),
+                Jobs.FISHERMAN,
+                3,
+                10,
+                new BoxCollider(4, 0, 1, 4)
         );
 
         static {
