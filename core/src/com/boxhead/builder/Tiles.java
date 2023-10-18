@@ -10,51 +10,35 @@ import com.boxhead.builder.utils.Vector2i;
 
 import java.util.function.Predicate;
 
+import static com.boxhead.builder.Textures.Tile.BRIDGE;
 import static com.boxhead.builder.Textures.Tile.DEFAULT;
 import static com.boxhead.builder.ui.UI.*;
 import static com.boxhead.builder.utils.Vector2i.*;
 
 public class Tiles {
-    private static boolean isInPathMode = false;
-    private static boolean isInFieldMode = false;
-    private static boolean isInBridgeMode = false;
     private static Vector2i origin = null;
     private static BoxCollider buildingCollider = null;
     private static boolean isRanch;
     private static Range<Integer> fieldSizeRange;
     private static Tile pathTile = null;
 
+    private static Mode currentMode = null;
+
+    public enum Mode {
+        PATH,
+        FIELD,
+        BRIDGE,
+        REMOVE_PATH
+    }
+
     private static final Predicate<Vector2i> isFarmable = (vector) -> World.getTile(vector) == Tile.GRASS || World.getTile(vector) == Tile.FARMLAND;
 
     private static final Recipe pathCost = new Recipe(Pair.of(Resource.STONE, 1));
     private static final Recipe bridgeCost = new Recipe(Pair.of(Resource.STONE, 2));
 
-    public static BoxCollider getBuildingCollider() {
-        return buildingCollider;
-    }
-
-    public static boolean isInPathMode() {
-        return isInPathMode;
-    }
-
-    public static boolean isInFieldMode() {
-        return isInFieldMode;
-    }
-
-    public static boolean isInBridgeMode() {
-        return isInBridgeMode;
-    }
-
     public static void toPathMode(Tile pathTile) {
-        isInPathMode = true;
-        isInFieldMode = false;
-        isInBridgeMode = false;
+        currentMode = Mode.PATH;
         Tiles.pathTile = pathTile;
-    }
-
-    public static void turnOffPathMode() {
-        origin = null;
-        isInPathMode = false;
     }
 
     public static void toFieldMode(BoxCollider buildingCollider, boolean isRanch, Range<Integer> fieldSizeRange) {
@@ -62,28 +46,19 @@ public class Tiles {
         Tiles.isRanch = isRanch;
         Tiles.fieldSizeRange = fieldSizeRange;
         origin = buildingCollider.getGridPosition().clone();
-        isInFieldMode = true;
-        isInPathMode = false;
-        isInBridgeMode = false;
-    }
-
-    public static void turnOffFieldMode() {
-        isInFieldMode = false;
+        currentMode = Mode.FIELD;
     }
 
     public static void toBridgeMode() {
-        isInBridgeMode = true;
-        isInPathMode = false;
-        isInFieldMode = false;
+        currentMode = Mode.BRIDGE;
     }
 
-    public static void turnOffBridgeMode() {
-        origin = null;
-        isInBridgeMode = false;
+    public static void toRemovingMode() {
+        currentMode = Mode.REMOVE_PATH;
     }
 
     public static void handlePathMode(SpriteBatch batch) {
-        if (!isInPathMode || isInFieldMode || isInBridgeMode)
+        if (currentMode != Mode.PATH)
             throw new IllegalStateException("Not in path mode");
 
         Vector2i mouseGrid = GameScreen.getMouseGridPosition();
@@ -145,6 +120,156 @@ public class Tiles {
             } else {
                 batch.setColor(SEMI_TRANSPARENT_RED);
                 for (int i = 0; i < line.length - 1; i++) {
+                    drawTile(batch, DEFAULT, line[i]);
+                }
+            }
+
+            batch.setColor(DEFAULT_COLOR);
+        }
+    }
+
+    /**
+     * @return the collider of the field only after it has been placed. Otherwise, null.
+     */
+    public static BoxCollider handleFieldMode(SpriteBatch batch) {
+        if (currentMode != Mode.FIELD)
+            throw new IllegalStateException("Not in field mode");
+
+        Vector2i mouseGrid = GameScreen.getMouseGridPosition();
+        Vector2i fieldDimensions = mouseGrid.minus(origin).absolutise().add(1, 1);
+
+        if (mouseGrid.x >= buildingCollider.getGridPosition().x + buildingCollider.getWidth())
+            origin.x = buildingCollider.getGridPosition().x;
+        else if (mouseGrid.x < buildingCollider.getGridPosition().x)
+            origin.x = buildingCollider.getGridPosition().x + buildingCollider.getWidth() - 1;
+
+        if (mouseGrid.y < buildingCollider.getGridPosition().y)
+            origin.y = buildingCollider.getGridPosition().y - 1;
+        else if (mouseGrid.y >= buildingCollider.getGridPosition().y + buildingCollider.getHeight())
+            origin.y = buildingCollider.getGridPosition().y + buildingCollider.getHeight();
+
+        Vector2i lowerLeftCorner = origin.clone();
+        if (mouseGrid.x < origin.x) lowerLeftCorner.x -= fieldDimensions.x - 1;
+        if (mouseGrid.y < origin.y) lowerLeftCorner.y -= fieldDimensions.y - 1;
+        BoxCollider field = new BoxCollider(lowerLeftCorner, fieldDimensions);
+
+        boolean withinLimits = fieldSizeRange.contains(fieldDimensions.x) && fieldSizeRange.contains(fieldDimensions.y);
+        if (withinLimits) batch.setColor(SEMI_TRANSPARENT_GREEN);
+        else batch.setColor(SEMI_TRANSPARENT_RED);
+        field.draw(batch, DEFAULT, isFarmable);
+
+        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && withinLimits) {
+            //if plantation then change tiles
+            if (!isRanch) {
+                for (Vector2i tile : field) {
+                    if (isFarmable.test(tile)) World.setTile(tile, Tile.FARMLAND);
+                }
+            } else {
+                createFence(field);
+            }
+            origin = null;
+            return field;
+        }
+        return null;
+    }
+
+    public static void handleBridgeMode(SpriteBatch batch) {
+        if (currentMode != Mode.BRIDGE)
+            throw new IllegalStateException("Not in path mode");
+
+        Vector2i mouseGrid = GameScreen.getMouseGridPosition();
+
+        if (origin == null) {
+            batch.setColor(World.getTile(mouseGrid) == Tile.WATER ? SEMI_TRANSPARENT_GREEN : SEMI_TRANSPARENT_RED);
+            drawTile(batch, DEFAULT, mouseGrid);
+            if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
+                origin = mouseGrid;
+            }
+        } else {
+            Vector2i[] line = horizontalLine(origin, mouseGrid);
+            boolean buildBridge = InputManager.isButtonPressed(InputManager.LEFT_MOUSE);
+            Recipe totalCost = new Recipe();
+
+            for (int i = 0; i < line.length - 1; i++) {
+                if (World.getTile(line[i]) == Tile.WATER) {
+                    totalCost.add(bridgeCost);
+                }
+            }
+
+            if (Resource.canAfford(totalCost)) {
+                if (buildBridge) {
+                    for (int i = 0; i < line.length - 1; i++) {
+                        Vector2i tile = line[i];
+
+                        if (World.getTile(line[i]) == Tile.WATER) {
+                            try {
+                                World.setTile(tile, Tile.BRIDGE, Textures.Tile.valueOf(World.getTileTexture(line[i]).name() + "_BRIDGE"));
+                            } catch (IllegalArgumentException e) {
+                                World.setTile(tile, Tile.BRIDGE, Tile.BRIDGE.textures[0]);
+                            }
+                        }
+                    }
+                    origin = null;
+                    Resource.takeFromStorage(totalCost);
+
+                    BoxCollider lineArea;
+                    if (line[0].x == line[line.length - 2].x) {
+                        lineArea = new BoxCollider(line[0], 1, line.length - 1);
+                    } else {
+                        lineArea = new BoxCollider(line[0], line.length - 1, 1);
+                    }
+                    World.removeFieldWorks(lineArea);
+                } else {
+                    for (int i = 0; i < line.length - 1; i++) {
+                        batch.setColor(World.getTile(line[i]) == Tile.WATER ? SEMI_TRANSPARENT_GREEN : SEMI_TRANSPARENT_RED);
+                        drawTile(batch, DEFAULT, line[i]);
+                    }
+                }
+            } else {
+                batch.setColor(SEMI_TRANSPARENT_RED);
+                for (int i = 0; i < line.length - 1; i++) {
+                    drawTile(batch, DEFAULT, line[i]);
+                }
+            }
+
+            batch.setColor(DEFAULT_COLOR);
+        }
+    }
+
+    public static void handleRemovingMode(SpriteBatch batch) {
+        if (currentMode != Mode.REMOVE_PATH)
+            throw new IllegalStateException("Not in tile removing mode");
+
+        Vector2i mouseGrid = GameScreen.getMouseGridPosition();
+
+        if (origin == null) {
+            batch.setColor(SEMI_TRANSPARENT_GREEN);
+            drawTile(batch, DEFAULT, mouseGrid);
+            if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
+                origin = mouseGrid;
+            }
+        } else {
+            Vector2i[] line = straightLine(origin, mouseGrid);
+            boolean removeTiles = InputManager.isButtonPressed(InputManager.LEFT_MOUSE);
+
+
+            if (removeTiles) {
+                for (int i = 0; i < line.length - 1; i++) {
+                    if (World.getTile(line[i]) == Tile.PATH) {
+                        World.setTile(line[i], Tile.GRASS);
+                    }
+                    else if (World.getTile(line[i]) == Tile.BRIDGE) {
+                        Textures.Tile texture = World.getTileTexture(line[i]);
+                        if (texture == BRIDGE)
+                            World.setTile(line[i], Tile.WATER);
+                        else
+                            World.setTile(line[i], Tile.WATER, Textures.Tile.valueOf(texture.name().substring(0, texture.name().lastIndexOf('_'))));
+                    }
+                }
+                origin = null;
+            } else {
+                for (int i = 0; i < line.length - 1; i++) {
+                    batch.setColor(SEMI_TRANSPARENT_GREEN);
                     drawTile(batch, DEFAULT, line[i]);
                 }
             }
@@ -248,51 +373,6 @@ public class Tiles {
             batch.setColor(SEMI_TRANSPARENT_RED);
     }
 
-    /**
-     * @return the collider of the field only after it has been placed. Otherwise, null.
-     */
-    public static BoxCollider handleFieldMode(SpriteBatch batch) {
-        if (!isInFieldMode || isInPathMode || isInBridgeMode)
-            throw new IllegalStateException("Not in field mode");
-
-        Vector2i mouseGrid = GameScreen.getMouseGridPosition();
-        Vector2i fieldDimensions = mouseGrid.minus(origin).absolutise().add(1, 1);
-
-        if (mouseGrid.x >= buildingCollider.getGridPosition().x + buildingCollider.getWidth())
-            origin.x = buildingCollider.getGridPosition().x;
-        else if (mouseGrid.x < buildingCollider.getGridPosition().x)
-            origin.x = buildingCollider.getGridPosition().x + buildingCollider.getWidth() - 1;
-
-        if (mouseGrid.y < buildingCollider.getGridPosition().y)
-            origin.y = buildingCollider.getGridPosition().y - 1;
-        else if (mouseGrid.y >= buildingCollider.getGridPosition().y + buildingCollider.getHeight())
-            origin.y = buildingCollider.getGridPosition().y + buildingCollider.getHeight();
-
-        Vector2i lowerLeftCorner = origin.clone();
-        if (mouseGrid.x < origin.x) lowerLeftCorner.x -= fieldDimensions.x - 1;
-        if (mouseGrid.y < origin.y) lowerLeftCorner.y -= fieldDimensions.y - 1;
-        BoxCollider field = new BoxCollider(lowerLeftCorner, fieldDimensions);
-
-        boolean withinLimits = fieldSizeRange.contains(fieldDimensions.x) && fieldSizeRange.contains(fieldDimensions.y);
-        if (withinLimits) batch.setColor(SEMI_TRANSPARENT_GREEN);
-        else batch.setColor(SEMI_TRANSPARENT_RED);
-        field.draw(batch, DEFAULT, isFarmable);
-
-        if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && withinLimits) {
-            //if plantation then change tiles
-            if (!isRanch) {
-                for (Vector2i tile : field) {
-                    if (isFarmable.test(tile)) World.setTile(tile, Tile.FARMLAND);
-                }
-            } else {
-                createFence(field);
-            }
-            origin = null;
-            return field;
-        }
-        return null;
-    }
-
     public static void createFence(BoxCollider fieldCollider) {
         Vector2i origin = fieldCollider.getGridPosition();
         Vector2i pos = origin.clone();
@@ -331,67 +411,17 @@ public class Tiles {
         }
     }
 
-    public static void handleBridgeMode(SpriteBatch batch) {
-        if (!isInBridgeMode || isInFieldMode || isInPathMode)
-            throw new IllegalStateException("Not in path mode");
+    public static void turnOff() {
+        currentMode = null;
+        origin = null;
+    }
 
-        Vector2i mouseGrid = GameScreen.getMouseGridPosition();
+    public static Mode getCurrentMode() {
+        return currentMode;
+    }
 
-        if (origin == null) {
-            batch.setColor(World.getTile(mouseGrid) == Tile.WATER ? SEMI_TRANSPARENT_GREEN : SEMI_TRANSPARENT_RED);
-            drawTile(batch, DEFAULT, mouseGrid);
-            if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) {
-                origin = mouseGrid;
-            }
-        } else {
-            Vector2i[] line = horizontalLine(origin, mouseGrid);
-            boolean buildBridge = InputManager.isButtonPressed(InputManager.LEFT_MOUSE);
-            Recipe totalCost = new Recipe();
-
-            for (int i = 0; i < line.length - 1; i++) {
-                if (World.getTile(line[i]) == Tile.WATER) {
-                    totalCost.add(bridgeCost);
-                }
-            }
-
-            if (Resource.canAfford(totalCost)) {
-                if (buildBridge) {
-                    for (int i = 0; i < line.length - 1; i++) {
-                        Vector2i tile = line[i];
-
-                        if (World.getTile(line[i]) == Tile.WATER) {
-                            try {
-                                World.setTile(tile, Tile.BRIDGE, Textures.Tile.valueOf(World.getTileTexture(line[i]).name() + "_BRIDGE"));
-                            } catch (IllegalArgumentException e) {
-                                World.setTile(tile, Tile.BRIDGE, Tile.BRIDGE.textures[0]);
-                            }
-                        }
-                    }
-                    origin = null;
-                    Resource.takeFromStorage(totalCost);
-
-                    BoxCollider lineArea;
-                    if (line[0].x == line[line.length - 2].x) {
-                        lineArea = new BoxCollider(line[0], 1, line.length - 1);
-                    } else {
-                        lineArea = new BoxCollider(line[0], line.length - 1, 1);
-                    }
-                    World.removeFieldWorks(lineArea);
-                } else {
-                    for (int i = 0; i < line.length - 1; i++) {
-                        batch.setColor(World.getTile(line[i]) == Tile.WATER ? SEMI_TRANSPARENT_GREEN : SEMI_TRANSPARENT_RED);
-                        drawTile(batch, DEFAULT, line[i]);
-                    }
-                }
-            } else {
-                batch.setColor(SEMI_TRANSPARENT_RED);
-                for (int i = 0; i < line.length - 1; i++) {
-                    drawTile(batch, DEFAULT, line[i]);
-                }
-            }
-
-            batch.setColor(DEFAULT_COLOR);
-        }
+    public static BoxCollider getBuildingCollider() {
+        return buildingCollider;
     }
 
     public static void drawTile(SpriteBatch batch, Textures.Tile texture, Vector2i gridPosition) {

@@ -55,7 +55,7 @@ public class UI {
     private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
     @AddToUI private static TextArea tipArea;
-    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, tilingButton, shiftMenuButton, statisticsMenuButton, pauseGameButton, bridgeButton;
+    @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, pathButton, pathRemovingButton, shiftMenuButton, statisticsMenuButton, pauseGameButton, bridgeButton;
 
     @AddToUI private static UIElement timeElementGroup;
     @AddToUI private static Clock clock;
@@ -224,7 +224,8 @@ public class UI {
             workButton =           new Button(Textures.get(Textures.Ui.WORK), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             restButton =           new Button(Textures.get(Textures.Ui.REST), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             demolishButton =       new Button(Textures.get(Textures.Ui.DEMOLISH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
-            tilingButton =         new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            pathButton =           new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
+            pathRemovingButton =   new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             shiftMenuButton =      new Button(Textures.get(Textures.Ui.SHIFTS), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             statisticsMenuButton = new Button(Textures.get(Textures.Ui.GRAPH_BUTTON), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
             bridgeButton =         new Button(Textures.get(Textures.Ui.PATH), Anchor.BOTTOM_LEFT.getElement(), Layer.IN_GAME, new Vector2i(x += 74, PADDING));
@@ -248,17 +249,23 @@ public class UI {
                 if (Buildings.isInDemolishingMode()) Buildings.turnOffDemolishingMode();
                 else Buildings.toDemolishingMode();
             });
-            tilingButton.setOnUp(() -> {
-                if (!Tiles.isInPathMode())
+            pathButton.setOnUp(() -> {
+                if (Tiles.getCurrentMode() != Tiles.Mode.PATH)
                     Tiles.toPathMode(Tile.PATH);
                 else
-                    Tiles.turnOffPathMode();
+                    Tiles.turnOff();
+            });
+            pathRemovingButton.setOnUp(() -> {
+                if (Tiles.getCurrentMode() != Tiles.Mode.REMOVE_PATH)
+                    Tiles.toRemovingMode();
+                else
+                    Tiles.turnOff();
             });
             bridgeButton.setOnUp(() -> {
-                if (!Tiles.isInBridgeMode())
+                if (Tiles.getCurrentMode() != Tiles.Mode.BRIDGE)
                     Tiles.toBridgeMode();
                 else
-                    Tiles.turnOffBridgeMode();
+                    Tiles.turnOff();
             });
             shiftMenuButton.setOnUp(() -> shiftMenu.setVisible(!shiftMenu.isVisible()));
             statisticsMenuButton.setOnUp(() -> statisticsMenu.setVisible(!statisticsMenu.isVisible()));
@@ -486,11 +493,10 @@ public class UI {
         if (buildingMenu.isVisible() || shiftMenu.isVisible() || statisticsMenu.isVisible() || farmResourceMenu.isVisible()) {
             closeInGameMenus();
         } else if (!isPaused) {
-            if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.isInPathMode() || Tiles.isInBridgeMode()) {
+            if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.getCurrentMode() != null) {
                 Buildings.turnOffBuildingMode();
                 Buildings.turnOffDemolishingMode();
-                Tiles.turnOffPathMode();
-                Tiles.turnOffBridgeMode();
+                Tiles.turnOff();
             } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
                 buildingStatWindow.setVisible(false);
                 npcStatWindow.setVisible(false);

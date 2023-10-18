@@ -64,8 +64,9 @@ public class GameScreen implements Screen {
         if (!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
             else if (Buildings.isInDemolishingMode()) Buildings.handleDemolishingMode();
-            else if (Tiles.isInPathMode()) Tiles.handlePathMode(batch);
-            else if (Tiles.isInBridgeMode()) Tiles.handleBridgeMode(batch);
+            else if (Tiles.getCurrentMode() == Tiles.Mode.PATH) Tiles.handlePathMode(batch);
+            else if (Tiles.getCurrentMode() == Tiles.Mode.BRIDGE) Tiles.handleBridgeMode(batch);
+            else if (Tiles.getCurrentMode() == Tiles.Mode.REMOVE_PATH) Tiles.handleRemovingMode(batch);
             else {
                 World.handleNpcsAndBuildingsOnClick();
             }

@@ -39,7 +39,7 @@ public class Buildings {
         if (!isInBuildingMode || isInDemolishingMode)
             throw new IllegalStateException("Not in building mode");
 
-        if (Tiles.isInFieldMode()) {
+        if (Tiles.getCurrentMode() == Tiles.Mode.FIELD) {
             handleFieldMode(batch);
             return;
         }
@@ -110,7 +110,7 @@ public class Buildings {
         World.makeBuilt(constructionSite.getCollider());
         World.makeBuilt(fieldCollider);
 
-        Tiles.turnOffFieldMode();
+        Tiles.turnOff();
         if (!InputManager.isKeyDown(InputManager.CONTROL))
             turnOffBuildingMode();
     }
@@ -149,7 +149,7 @@ public class Buildings {
 
     public static void turnOffBuildingMode() {
         isInBuildingMode = false;
-        Tiles.turnOffFieldMode();
+        Tiles.turnOff();
         UI.setTip("");
     }
 
