@@ -49,7 +49,10 @@ public class CheckBox extends UIElement implements Clickable {
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        if (value)
+        if (value) {
+            batch.setColor(tint);
             batch.draw(Textures.get(Textures.Ui.CHECK), getGlobalPosition().x, getGlobalPosition().y);
+            batch.setColor(UI.DEFAULT_COLOR);
+        }
     }
 }
