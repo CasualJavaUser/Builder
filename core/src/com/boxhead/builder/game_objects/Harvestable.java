@@ -160,7 +160,8 @@ public class Harvestable extends GameObject implements FieldWork {
     }
 
     protected void exit() {
-        assigned.getWorkplace().dissociateFieldWork(assigned);
+        if (assigned.getWorkplace() != null)
+            assigned.getWorkplace().dissociateFieldWork(assigned);
         worked = false;
         assigned = null;
     }

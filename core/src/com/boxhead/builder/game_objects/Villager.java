@@ -600,9 +600,8 @@ public class Villager extends NPC implements Clickable {
     }
 
     public void quitJob() {
-        if (buildingIsIn == workplace || destinationBuilding == workplace) {
+        if (clockedIn)
             workplace.endShift(this);
-        }
         workplace = null;
     }
 

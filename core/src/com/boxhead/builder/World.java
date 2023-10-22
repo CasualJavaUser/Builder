@@ -740,16 +740,16 @@ public class World {
         final double redLowest = -0.4d;
         final double blueLowest = -0.25d;
 
-        if (time > FULL_DAY/2d) {
+        if (time > FULL_DAY / 2d) {
             time -= FULL_DAY;
         }
         time /= HOUR;
-        double r = Math.pow(Math.E, -Math.pow((time / 2d), 2d)) * redLowest + 1;
+        double r = Math.exp(-Math.pow((time / 2d), 2d)) * redLowest + 1;
         double b = Math.min(
-                Math.pow(Math.E, -Math.pow((time / 1.5d - 2d), 2d)) * blueLowest + 1,
-                Math.pow(Math.E, -Math.pow((time / 1.5d + 2d), 2d)) * blueLowest + 1
+                Math.exp(-Math.pow((time / 1.5d - 2d), 2d)) * blueLowest + 1,
+                Math.exp(-Math.pow((time / 1.5d + 2d), 2d)) * blueLowest + 1
         );
-        double g = Math.pow(Math.E, -Math.pow((time / 2.8d), 2d)) * redLowest + 1;
+        double g = Math.exp(-Math.pow((time / 2.8d), 2d)) * redLowest + 1;
         return new Color((float) r, (float) g, (float) b, 1f);
     }
 
