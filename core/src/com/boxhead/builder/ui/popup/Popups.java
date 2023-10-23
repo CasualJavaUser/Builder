@@ -1,6 +1,5 @@
 package com.boxhead.builder.ui.popup;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Action;
 
@@ -20,6 +19,7 @@ public abstract class Popups {
         inputPopup.text = text;
         inputPopup.prompt = prompt;
         inputPopup.onAccept = onAccept;
+        inputPopup.getTextField().setText("");
 
         activePopup = inputPopup;
         UI.setActiveTextField(inputPopup.getTextField());
@@ -41,11 +41,11 @@ public abstract class Popups {
         UI.Layer.POPUP.setVisible(true);
     }
 
-    public static void showPopup(String text) {
+    public static void showPopup(Exception e) {
         hidePopup();
 
         warningPopup = WarningPopup.getInstance();
-        warningPopup.text = text;
+        warningPopup.text = e.getClass().getSimpleName();
 
         activePopup = warningPopup;
         activePopup.setVisible(true);
@@ -53,7 +53,7 @@ public abstract class Popups {
         UI.Layer.POPUP.setVisible(true);
     }
 
-    public static void showInfoPopup(String text) {
+    public static void showPopup(String text) {
         hidePopup();
 
         infoPopup = InfoPopup.getInstance();

@@ -33,7 +33,7 @@ public class Logic {
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
-            UI.DEFAULT_COLOR.set(World.getSkyColor(World.getTime()));
+            UI.DEFAULT_COLOR.set(World.getAmbientColor(World.getTime()));
 
             if (World.getTime() == orderedShifts[nextShift].start) {
                 currentShift = (nextShift + orderedShifts.length - 2) % orderedShifts.length;

@@ -181,17 +181,32 @@ public class UIElement {
                     scissors.getHeight()
             );
         }
+        else if (parent != null && parent.scissors != null) {
+            batch.flush();
+            Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+            Gdx.gl.glScissor(
+                    parent.scissors.getGridPosition().x,
+                    parent.scissors.getGridPosition().y,
+                    parent.scissors.getWidth(),
+                    parent.scissors.getHeight()
+            );
+        }
     }
 
     protected void disableScissors(SpriteBatch batch) {
-        if(scissors != null) {
+        if(scissors != null || (parent != null && parent.scissors != null)) {
             batch.flush();
             Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         }
     }
 
     public BoxCollider getScissors() {
-        return scissors;
+        if (scissors != null)
+            return scissors;
+        else if (parent != null)
+            return parent.scissors;
+        else
+            return null;
     }
 
     public void draw(SpriteBatch batch) {

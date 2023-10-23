@@ -26,7 +26,7 @@ public class BuilderGame extends Game {
 
     private static Screen currentScreen;
 
-    private static File saveDirectory;
+    private static File rootDirectory, saveDirectory, settingsFile;
     private static final ExecutorService loadingExecutor = Executors.newSingleThreadExecutor();
     private static Future<Exception> loadingException;
     private static long lastSaveTime = 0;
@@ -38,24 +38,29 @@ public class BuilderGame extends Game {
     @Override
     public void create() {
         Textures.init();
-        batch = new SpriteBatch();
-        gameScreen = new GameScreen(batch);
-        loadingScreen = new LoadingScreen(batch);
-        menuScreen = new MenuScreen(batch);
 
         String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) saveDirectory = new File(System.getenv("APPDATA") + "/Box Head/saves/");
+        if (os.contains("win")) rootDirectory = new File(System.getenv("APPDATA") + "/Box Head/");
         else if (os.contains("mac"))
-            saveDirectory = new File(System.getProperty("user.home") + "/Library/Application Support/Box Head/saves/");
+            rootDirectory = new File(System.getProperty("user.home") + "/Library/Application Support/Box Head/");
         else if (os.contains("nix") || os.contains("nux") || os.indexOf("aix") > 0)
-            saveDirectory = new File(System.getProperty("user.home") + "/Home/.local/share/Box Head/saves/");
+            rootDirectory = new File(System.getProperty("user.home") + "/Home/.local/share/Box Head/");
         else throw new RuntimeException("Unsupported OS");
 
+        saveDirectory = new File(rootDirectory, "saves/");
+        settingsFile = new File(rootDirectory, "settings.set");
         if (!saveDirectory.exists()) saveDirectory.mkdirs();
+
+        loadSettings();
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(InputManager.getInstance());
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        batch = new SpriteBatch();
+        gameScreen = new GameScreen(batch);
+        loadingScreen = new LoadingScreen(batch);
+        menuScreen = new MenuScreen(batch);
 
         setScreen(gameScreen);
     }
@@ -67,6 +72,7 @@ public class BuilderGame extends Game {
 
     @Override
     public void dispose() {
+        saveSettings();
         NPC.executor.shutdown();
         batch.dispose();
         gameScreen.dispose();
@@ -215,6 +221,32 @@ public class BuilderGame extends Game {
             saves.removeIf(s -> !(s.isFile() && s.getName().endsWith(".save")));
         }
         return saves;
+    }
+
+    public static void saveSettings() {
+        loadingException = loadingExecutor.submit(() -> {
+            try {
+                settingsFile.createNewFile();
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(settingsFile));
+                InputManager.saveSettings(out);
+                out.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return e;
+            }
+            return null;
+        });
+    }
+
+    public static void loadSettings() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(settingsFile))) {
+            InputManager.loadSettings(in);
+        }
+        catch (FileNotFoundException ignored) {}
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static BuilderGame getInstance() {

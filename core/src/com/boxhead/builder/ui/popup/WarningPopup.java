@@ -9,7 +9,7 @@ import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
 public class WarningPopup extends Popup {
-    private Button okButton;
+    private final Button okButton;
 
     private static WarningPopup instance = null;
 

@@ -37,7 +37,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
                 "",
                 this,
                 layer,
-                new Vector2i(getEdgeWidth() + 16, y + 14),
+                new Vector2i(getEdgeWidth() + 16, y - 6),
                 16,
                 TextArea.Align.CENTER
         );
@@ -235,7 +235,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
 
                 x += Villager.TEXTURE_SIZE + 5;
             }
-            batch.setColor(UI.DEFAULT_COLOR);
+            batch.setColor(tint);
 
             if (i < 2)
                 batch.draw(Textures.get(Textures.Ui.SHIFT_DIVIDER),
@@ -247,6 +247,7 @@ public class BuildingStatWindow extends StatWindow<Building> {
     }
 
     private void drawResidentCounter(SpriteBatch batch, ResidentialBuilding building) {
+        batch.setColor(tint);
         int x = 0;
         for (Villager villager : building.getResidents()) {
             batch.draw(villager.getTexture(),

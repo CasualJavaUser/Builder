@@ -83,7 +83,7 @@ public class Buildings {
                 World.placeFieldWork(constructionSite);
                 World.makeBuilt(constructionSite.getCollider());
 
-                if (!InputManager.isKeyDown(InputManager.CONTROL))
+                if (!InputManager.isKeyDown(InputManager.KeyBinding.PLACE_MULTIPLE))
                     turnOffBuildingMode();
             }
         }
@@ -111,7 +111,7 @@ public class Buildings {
         World.makeBuilt(fieldCollider);
 
         Tiles.turnOff();
-        if (!InputManager.isKeyDown(InputManager.CONTROL))
+        if (!InputManager.isKeyDown(InputManager.KeyBinding.PLACE_MULTIPLE))
             turnOffBuildingMode();
     }
 
@@ -139,7 +139,7 @@ public class Buildings {
         rangeY = Range.between(0, World.getHeight() - currentBuilding.getTexture().getRegionHeight());
         isInDemolishingMode = false;
         isInBuildingMode = true;
-        UI.setTip("Press CTRL to place multiple");
+        UI.setTip("Press " + InputManager.getKeyName(InputManager.KeyBinding.PLACE_MULTIPLE) + " to place multiple");
     }
 
     public static void toDemolishingMode() {

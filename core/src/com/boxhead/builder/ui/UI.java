@@ -52,7 +52,6 @@ public class UI {
     private static Button activeButton = null;
     private static ScrollPane activeScrollPane = null;
     private static Clickable clickedElement = null;
-    private static final Set<UIElement> saveWindowElements = new HashSet<>();
 
     @AddToUI private static TextArea tipArea;
     @AddToUI private static Button buildMenuButton, npcButton, workButton, restButton, demolishButton, pathButton, pathRemovingButton, shiftMenuButton, statisticsMenuButton, pauseGameButton, bridgeButton;
@@ -66,20 +65,13 @@ public class UI {
     @AddToUI private static NPCStatWindow npcStatWindow;
     @AddToUI private static BuildingStatWindow buildingStatWindow;
 
+    @AddToUI private static BuildingMenu buildingMenu;
     @AddToUI private static ShiftMenu shiftMenu;
     @AddToUI private static StatisticsMenu statisticsMenu;
-    @AddToUI private static BuildingMenu buildingMenu;
     @AddToUI private static FarmResourceMenu farmResourceMenu;
     @AddToUI private static PauseMenu pauseMenu;
-
-    @AddToUI private static Window saveWindow;
-    @AddToUI private static TextArea saveText;
-    @AddToUI private static ScrollPane scrollPane;
-    @AddToUI private static Button saveWindowBackButton;
-
-    @AddToUI private static Window settingsWindow;
-    @AddToUI private static TextArea settingsText;
-    @AddToUI private static Button settingsWindowBackButton;
+    @AddToUI private static SettingsMenu settingsMenu;
+    @AddToUI private static SaveMenu saveMenu;
 
     public static final int PADDING = 10;
     private static boolean isPaused = false;
@@ -150,72 +142,6 @@ public class UI {
         FONT = generator.generateFont(parameter);
         generator.dispose();
 
-        //region saveWindow
-        saveWindow = new Window(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.SAVE_MENU, new Vector2i());
-        saveWindow.setContentWidth(500);
-        saveWindow.setContentHeight(500);
-        saveWindow.setLocalPosition(-saveWindow.getWindowWidth() / 2, -saveWindow.getWindowHeight() / 2);
-
-        saveText = new TextArea(
-                "Save",
-                saveWindow,
-                Layer.SAVE_MENU,
-                new Vector2i(0, saveWindow.getWindowHeight() - saveWindow.getEdgeWidth() - PADDING),
-                saveWindow.getWindowWidth(),
-                TextArea.Align.CENTER
-        );
-
-        scrollPane = new ScrollPane(
-                saveWindow,
-                Layer.SAVE_MENU,
-                0,
-                saveWindow.getEdgeWidth() + PADDING *2 + 32,
-                saveWindow.getWindowWidth(),
-                saveText.getLocalPosition().y - 25);
-
-        saveWindowBackButton = new Button(
-                Textures.get(Textures.Ui.SMALL_BUTTON),
-                saveWindow,
-                Layer.SAVE_MENU,
-                new Vector2i(saveWindow.getWindowWidth()/2 - 40, saveWindow.getEdgeWidth() + PADDING),
-                "Back");
-        saveWindowBackButton.setOnUp(() -> Layer.SAVE_MENU.setVisible(false));
-
-        saveWindow.setTint(WHITE);
-        saveText.setTint(WHITE);
-        saveWindowBackButton.setTint(WHITE);
-        //endregion
-
-        //region settingsWindow
-        {
-            settingsWindow = new Window(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.SETTINGS_MENU, new Vector2i());
-            settingsWindow.setContentWidth(500);
-            settingsWindow.setContentHeight(500);
-            settingsWindow.setLocalPosition(-settingsWindow.getWindowWidth() / 2, -settingsWindow.getWindowHeight() / 2);
-
-            settingsText = new TextArea(
-                    "Settings",
-                    settingsWindow,
-                    Layer.SETTINGS_MENU,
-                    new Vector2i(0, settingsWindow.getWindowHeight() - 25),
-                    settingsWindow.getWindowWidth(),
-                    TextArea.Align.CENTER
-            );
-
-            settingsWindowBackButton = new Button(
-                    Textures.get(Textures.Ui.SMALL_BUTTON),
-                    settingsWindow,
-                    Layer.SETTINGS_MENU,
-                    new Vector2i(settingsWindow.getWindowWidth()/2 - 40, settingsWindow.getEdgeWidth() + PADDING),
-                    "Back");
-            settingsWindowBackButton.setOnUp(() -> Layer.SETTINGS_MENU.setVisible(false));
-
-            settingsWindow.setTint(WHITE);
-            settingsText.setTint(WHITE);
-            settingsWindowBackButton.setTint(WHITE);
-        }
-        //endregion
-
         //region mainButtonGroup
         {
             int x = PADDING;
@@ -269,7 +195,6 @@ public class UI {
             });
             shiftMenuButton.setOnUp(() -> shiftMenu.setVisible(!shiftMenu.isVisible()));
             statisticsMenuButton.setOnUp(() -> statisticsMenu.setVisible(!statisticsMenu.isVisible()));
-            pauseGameButton.setOnUp(() -> showPauseMenu(true));
         }
         //endregion
 
@@ -309,7 +234,11 @@ public class UI {
         statisticsMenu = new StatisticsMenu();
         farmResourceMenu = new FarmResourceMenu();
         pauseMenu = new PauseMenu();
+        saveMenu = new SaveMenu();
+        settingsMenu = new SettingsMenu();
         resourceList = new ResourceList();
+
+        pauseGameButton.setOnUp(pauseMenu::show);
 
         npcStatWindow = new NPCStatWindow(Layer.IN_GAME);
         buildingStatWindow = new BuildingStatWindow(Layer.IN_GAME);
@@ -461,10 +390,6 @@ public class UI {
         return false;
     }
 
-    public static void pause(boolean pause) {
-        showPauseMenu(pause);
-    }
-
     public static boolean isPaused() {
         return isPaused;
     }
@@ -476,7 +401,8 @@ public class UI {
         Anchor.BOTTOM_LEFT.getElement().setGlobalPosition(0, 0);
         Anchor.BOTTOM_RIGHT.getElement().setGlobalPosition(Gdx.graphics.getWidth(), 0);
         Anchor.BOTTOM_CENTER.getElement().setGlobalPosition(Gdx.graphics.getWidth()/2, 0);
-        scrollPane.updateScissors();
+        saveMenu.updateScissors();
+        settingsMenu.updateScissors();
     }
 
     public static void showNPCStatWindow(Villager villager) {
@@ -490,7 +416,17 @@ public class UI {
     }
 
     public static void onEscape() {
-        if (buildingMenu.isVisible() || shiftMenu.isVisible() || statisticsMenu.isVisible() || farmResourceMenu.isVisible()) {
+        /*if (InputManager.isListeningForKey()) {
+            InputManager.stopListening();
+        } else if (!onEscapeStack.empty()) {
+            onEscapeStack.pop().execute();
+        } else {
+            showPauseMenu(true);
+        }*/
+
+        /*if (InputManager.isListeningForKey()) {
+            InputManager.stopListening();
+        } else if (buildingMenu.isVisible() || shiftMenu.isVisible() || statisticsMenu.isVisible() || farmResourceMenu.isVisible()) {
             closeInGameMenus();
         } else if (!isPaused) {
             if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.getCurrentMode() != null) {
@@ -506,83 +442,38 @@ public class UI {
         } else {
             if(getTopVisibleLayer() == Layer.PAUSE_MENU) showPauseMenu(false);
             else getTopVisibleLayer().setVisible(false);
+        }*/
+
+        if (InputManager.isListeningForKey())
+            InputManager.stopListening();
+        else if (Popups.isActive())
+            Popups.hidePopup();
+        else if (settingsMenu.isVisible())
+            settingsMenu.hide();
+        else if (saveMenu.isVisible())
+            saveMenu.hide();
+        else if (pauseMenu.isVisible())
+            pauseMenu.hide();
+        else if (buildingMenu.isVisible() || shiftMenu.isVisible() || statisticsMenu.isVisible() || farmResourceMenu.isVisible()) {
+            closeInGameMenus();
+        } else if (Buildings.isInBuildingMode() || Buildings.isInDemolishingMode() || Tiles.getCurrentMode() != null) {
+            Buildings.turnOffBuildingMode();
+            Buildings.turnOffDemolishingMode();
+            Tiles.turnOff();
+        } else if (buildingStatWindow.isVisible() || npcStatWindow.isVisible()) {
+            buildingStatWindow.setVisible(false);
+            npcStatWindow.setVisible(false);
+        } else {
+            showPauseMenu();
         }
     }
+    
 
     private static Layer getTopVisibleLayer() {
         for (int i = Layer.values().length-1; i >= 0; i--) {
             if(Layer.values()[i].isVisible()) return Layer.values()[i];
         }
-        return null;
-    }
-
-    public static void showPauseMenu(boolean open) {
-        Logic.pause(open);
-        isPaused = open;
-        DEFAULT_COLOR.set(open ? DARK : World.getSkyColor(World.getTime()));
-        DEFAULT_UI_COLOR.set(open ? DARK : WHITE);
-        Layer.PAUSE_MENU.setVisible(open);
-    }
-
-    private static void showLoadMenu() {
-        Layer.SAVE_MENU.getElements().removeAll(saveWindowElements);
-        scrollPane.clear();
-        activeScrollPane = scrollPane;
-
-        Layer.SAVE_MENU.setVisible(true);
-        saveText.setText("Load");
-
-        SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
-
-        if (saves.size() == 0) {
-            TextArea textArea = new TextArea(Textures.get(Textures.Ui.WIDE_AREA), "No saves", scrollPane, Layer.SAVE_MENU, new Vector2i(), TextArea.Align.CENTER);
-            textArea.setTint(WHITE);
-            textArea.addToUI();
-            scrollPane.addElement(textArea);
-        }
-        else {
-            for (File save : saves) {
-                createSaveField(save, false);
-            }
-        }
-    }
-
-    public static void showSaveMenu() {
-        Layer.SAVE_MENU.getElements().removeAll(saveWindowElements);
-        scrollPane.clear();
-        activeScrollPane = scrollPane;
-
-        Layer.SAVE_MENU.setVisible(true);
-        saveText.setText("Save");
-        TextureRegion texture = Textures.get(Textures.Ui.WIDE_AREA);
-
-        SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
-
-        Button newSaveButton = new Button(texture, scrollPane, Layer.SAVE_MENU, new Vector2i(), "New save");
-
-        newSaveButton.setOnUp(() -> {
-            Popups.showPopup("New save", "New save...", s -> {
-                if (BuilderGame.getSaveFile(s + ".save").exists()) {
-                    Popups.showPopup("Override save?", () -> {
-                        BuilderGame.saveToFile(s + ".save");
-                        Layer.SAVE_MENU.setVisible(false);
-                    });
-                }
-                else {
-                    BuilderGame.saveToFile(s + ".save");
-                    Layer.SAVE_MENU.setVisible(false);
-                }
-            });
-        });
-
-        saveWindowElements.add(newSaveButton);
-        newSaveButton.setTint(WHITE);
-        newSaveButton.addToUI();
-        scrollPane.addElement(newSaveButton);
-
-        for (File save : saves) {
-            createSaveField(save, true);
-        }
+        return Layer.WORLD;
     }
 
     public static void setActiveTextField(TextField activeTextField) {
@@ -601,73 +492,20 @@ public class UI {
         tipArea.setText(tip);
     }
 
-    private static void createSaveField(File saveFile, boolean isSaving) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat();
+    public static void showPauseMenu() {
+        pauseMenu.show();
+    }
 
-        UIElement area = new UIElement(Textures.get(Textures.Ui.WIDE_AREA), scrollPane, Layer.SAVE_MENU, new Vector2i());
+    public static void hidePauseMenu() {
+        pauseMenu.hide();
+    }
 
-        TextArea textArea = new TextArea(
-                saveFile.getName().substring(0, saveFile.getName().lastIndexOf(".")) + "\n" +
-                    dateFormat.format(saveFile.lastModified()),
-                area,
-                Layer.SAVE_MENU,
-                new Vector2i(158, area.getHeight() - 15),
-                area.getWidth() - 148,
-                TextArea.Align.CENTER
-        );
+    public static void showSaveMenu() {
+        saveMenu.showSaveMenu();
+    }
 
-        Button saveButton = new Button(Textures.get(isSaving ? Textures.Ui.SAVE : Textures.Ui.LOAD), area, Layer.SAVE_MENU, new Vector2i(PADDING, PADDING));
-
-        saveButton.setOnUp(() -> {
-            if (isSaving) {
-                Popups.showPopup("Override save?", () -> {
-                    BuilderGame.saveToFile(saveFile);
-                    Layer.SAVE_MENU.setVisible(false);
-                });
-            } else {
-                if (BuilderGame.timeSinceLastSave()  > 60_000) {
-                    Popups.showPopup("Load save?", () -> {
-                        BuilderGame.loadFromFile(saveFile);
-                        Layer.SAVE_MENU.setVisible(false);
-                    });
-                }
-                else {
-                    BuilderGame.loadFromFile(saveFile);
-                    Layer.SAVE_MENU.setVisible(false);
-                }
-            }
-        });
-
-        Button deleteButton = new Button(Textures.get(Textures.Ui.DELETE), area, Layer.SAVE_MENU, new Vector2i(PADDING * 2 + 64, PADDING));
-
-        deleteButton.setOnUp(() -> {
-            Popups.showPopup("Delete file?", () -> {
-                saveFile.delete();
-                if (isSaving) showSaveMenu();
-                else showLoadMenu();
-            });
-        });
-
-        saveWindowElements.add(area);
-        saveWindowElements.add(textArea);
-        saveWindowElements.add(saveButton);
-        saveWindowElements.add(deleteButton);
-
-        area.setTint(WHITE);
-        textArea.setTint(WHITE);
-        saveButton.setTint(WHITE);
-        deleteButton.setTint(WHITE);
-
-        area.addToUI();
-        textArea.addToUI();
-        saveButton.addToUI();
-        deleteButton.addToUI();
-
-        scrollPane.addElement(area);
-
-        textArea.setScissors(scrollPane.getScissors());
-        saveButton.setScissors(scrollPane.getScissors());
-        deleteButton.setScissors(scrollPane.getScissors());
+    public static void showLoadMenu() {
+        saveMenu.showLoadMenu();
     }
 
     public static ResourceList getResourceList() {
@@ -726,10 +564,10 @@ public class UI {
             quitButton = new Button(Textures.get(Textures.Ui.BIG_BUTTON), Anchor.CENTER.getElement(), Layer.PAUSE_MENU, new Vector2i(x, -180), "Quit");
 
             newGameButton.setOnUp(BuilderGame::generateNewWorld);
-            resumeButton.setOnUp(() -> showPauseMenu(false));
+            resumeButton.setOnUp(UI::hidePauseMenu);
             loadButton.setOnUp(UI::showLoadMenu);
             saveButton.setOnUp(UI::showSaveMenu);
-            settingsButton.setOnUp(() -> Layer.SETTINGS_MENU.setVisible(true));
+            settingsButton.setOnUp(() -> settingsMenu.show());
             quitToMenuButton.setOnUp(() -> BuilderGame.getInstance().setScreen(BuilderGame.getMenuScreen()));
             quitButton.setOnUp(() -> Gdx.app.exit());
 
@@ -749,6 +587,22 @@ public class UI {
             quitButton.setVisible(!inGame);
         }
 
+        public void show() {
+            Logic.pause(true);
+            isPaused = true;
+            DEFAULT_COLOR.set(DARK);
+            DEFAULT_UI_COLOR.set(DARK);
+            Layer.PAUSE_MENU.setVisible(true);
+        }
+
+        public void hide() {
+            Logic.pause(false);
+            isPaused = false;
+            DEFAULT_COLOR.set(World.getAmbientColor(World.getTime()));
+            DEFAULT_UI_COLOR.set(WHITE);
+            Layer.PAUSE_MENU.setVisible(false);
+        }
+
         @Override
         public void addToUI() {
             super.addToUI();
@@ -759,6 +613,373 @@ public class UI {
             settingsButton.addToUI();
             quitToMenuButton.addToUI();
             quitButton.addToUI();
+        }
+    }
+
+    private static class SaveMenu extends Window {
+        private TextArea titleArea;
+        private ScrollPane scrollPane;
+        private Button backButton;
+
+        private Set<UIElement> scrollPaneElements = new HashSet<>();
+
+        public SaveMenu() {
+            super(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.SAVE_MENU, new Vector2i());
+            setContentWidth(500);
+            setContentHeight(500);
+            setLocalPosition(-getWindowWidth() / 2, -getWindowHeight() / 2);
+
+            titleArea = new TextArea(
+                    "Save",
+                    this,
+                    layer,
+                    new Vector2i(0, getWindowHeight() - (int)FONT.getLineHeight() - getEdgeWidth() - PADDING),
+                    getWindowWidth(),
+                    TextArea.Align.CENTER
+            );
+
+            scrollPane = new ScrollPane(
+                    this,
+                    layer,
+                    0,
+                    getEdgeWidth() + PADDING *2 + 32,
+                    getWindowWidth(),
+                    titleArea.getLocalPosition().y - PADDING);
+
+            backButton = new Button(
+                    Textures.get(Textures.Ui.SMALL_BUTTON),
+                    this,
+                    layer,
+                    new Vector2i(getWindowWidth()/2 - Textures.get(Textures.Ui.SMALL_BUTTON).getRegionWidth()/2, getEdgeWidth() + PADDING),
+                    "Back");
+            backButton.setOnUp(() -> {
+                Layer.SAVE_MENU.setVisible(false);
+                BuilderGame.saveSettings();
+            });
+
+            setTint(WHITE);
+            titleArea.setTint(WHITE);
+            backButton.setTint(WHITE);
+        }
+
+        public void showSaveMenu() {
+            Layer.SAVE_MENU.getElements().removeAll(scrollPaneElements);
+            scrollPane.clear();
+            setActiveScrollPane(scrollPane);
+
+            Layer.SAVE_MENU.setVisible(true);
+            titleArea.setText("Save");
+            TextureRegion texture = Textures.get(Textures.Ui.WIDE_AREA);
+
+            SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
+
+            Button newSaveButton = new Button(texture, scrollPane, Layer.SAVE_MENU, new Vector2i(), "New save");
+
+            newSaveButton.setOnUp(() -> {
+                Popups.showPopup("New save", "New save...", s -> {
+                    if (BuilderGame.getSaveFile(s + ".save").exists()) {
+                        Popups.showPopup("Override save?", () -> {
+                            BuilderGame.saveToFile(s + ".save");
+                            Layer.SAVE_MENU.setVisible(false);
+                        });
+                    }
+                    else {
+                        BuilderGame.saveToFile(s + ".save");
+                        Layer.SAVE_MENU.setVisible(false);
+                    }
+                });
+            });
+
+            scrollPaneElements.add(newSaveButton);
+            newSaveButton.setTint(WHITE);
+            newSaveButton.addToUI();
+            scrollPane.addElement(newSaveButton);
+
+            for (File save : saves) {
+                createSaveField(save, true);
+            }
+        }
+
+        protected void showLoadMenu() {
+            Layer.SAVE_MENU.getElements().removeAll(scrollPaneElements);
+            scrollPane.clear();
+            setActiveScrollPane(scrollPane);
+
+            Layer.SAVE_MENU.setVisible(true);
+            titleArea.setText("Load");
+
+            SortedSet<File> saves = BuilderGame.getSortedSaveFiles();
+
+            if (saves.size() == 0) {
+                TextArea textArea = new TextArea(Textures.get(Textures.Ui.WIDE_AREA), "No saves", scrollPane, Layer.SAVE_MENU, new Vector2i(), TextArea.Align.CENTER);
+                textArea.setTint(WHITE);
+                textArea.addToUI();
+                scrollPane.addElement(textArea);
+            }
+            else {
+                for (File save : saves) {
+                    createSaveField(save, false);
+                }
+            }
+        }
+
+        protected void hide() {
+            Layer.SAVE_MENU.setVisible(false);
+            setActiveScrollPane(null);
+        }
+
+        private void createSaveField(File saveFile, boolean isSaving) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat();
+
+            UIElement area = new UIElement(Textures.get(Textures.Ui.WIDE_AREA), scrollPane, Layer.SAVE_MENU, new Vector2i());
+
+            TextArea textArea = new TextArea(
+                    saveFile.getName().substring(0, saveFile.getName().lastIndexOf(".")) + "\n" +
+                            dateFormat.format(saveFile.lastModified()),
+                    area,
+                    Layer.SAVE_MENU,
+                    new Vector2i(158, (int)FONT.getLineHeight() * 2),
+                    area.getWidth() - 148,
+                    TextArea.Align.CENTER
+            );
+
+            Button saveButton = new Button(Textures.get(isSaving ? Textures.Ui.SAVE : Textures.Ui.LOAD), area, Layer.SAVE_MENU, new Vector2i(PADDING, PADDING));
+
+            saveButton.setOnUp(() -> {
+                if (isSaving) {
+                    Popups.showPopup("Override save?", () -> {
+                        BuilderGame.saveToFile(saveFile);
+                        Layer.SAVE_MENU.setVisible(false);
+                    });
+                } else {
+                    if (BuilderGame.timeSinceLastSave()  > 60_000) {
+                        Popups.showPopup("Load save?", () -> {
+                            BuilderGame.loadFromFile(saveFile);
+                            Layer.SAVE_MENU.setVisible(false);
+                        });
+                    }
+                    else {
+                        BuilderGame.loadFromFile(saveFile);
+                        Layer.SAVE_MENU.setVisible(false);
+                    }
+                }
+            });
+
+            Button deleteButton = new Button(Textures.get(Textures.Ui.DELETE), area, Layer.SAVE_MENU, new Vector2i(PADDING * 2 + 64, PADDING));
+
+            deleteButton.setOnUp(() -> {
+                Popups.showPopup("Delete file?", () -> {
+                    saveFile.delete();
+                    if (isSaving) showSaveMenu();
+                    else showLoadMenu();
+                });
+            });
+
+            scrollPaneElements.add(area);
+            scrollPaneElements.add(textArea);
+            scrollPaneElements.add(saveButton);
+            scrollPaneElements.add(deleteButton);
+
+            area.setTint(WHITE);
+            textArea.setTint(WHITE);
+            saveButton.setTint(WHITE);
+            deleteButton.setTint(WHITE);
+
+            area.addToUI();
+            textArea.addToUI();
+            saveButton.addToUI();
+            deleteButton.addToUI();
+
+            scrollPane.addElement(area);
+        }
+
+        public void updateScissors() {
+            scrollPane.updateScissors();
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            titleArea.addToUI();
+            backButton.addToUI();
+        }
+    }
+
+    private static class SettingsMenu extends Window {
+        private final ScrollPane scrollPane;
+        private final TextArea titleArea, fullscreenText, generalText, keybindingsText;
+        private final CheckBox fullscreenCheckBox;
+        private final Button backButton;
+        private TextArea[] keyNames;
+        private Button[] keyButtons;
+
+        public SettingsMenu() {
+            super(Textures.get(Textures.Ui.MENU_WINDOW), Anchor.CENTER.getElement(), Layer.SETTINGS_MENU, new Vector2i());
+            setContentWidth(500);
+            setContentHeight(500);
+            setLocalPosition(-getWindowWidth() / 2, -getWindowHeight() / 2);
+
+            int y = getWindowHeight() - getEdgeWidth() - (int)FONT.getLineHeight() - PADDING;
+            titleArea = new TextArea(
+                    "Settings",
+                    this,
+                    layer,
+                    new Vector2i(0, y),
+                    getWindowWidth(),
+                    TextArea.Align.CENTER
+            );
+
+            generalText = new TextArea(
+                    "General",
+                    this,
+                    layer,
+                    new Vector2i(),//new Vector2i(0, y -= (int)FONT.getCapHeight() + PADDING),
+                    getWindowWidth(),
+                    TextArea.Align.CENTER
+            );
+
+            fullscreenCheckBox = new CheckBox(
+                    this,
+                    layer,
+                    new Vector2i(),
+                    Gdx.graphics.isFullscreen()
+            );
+            fullscreenCheckBox.setOnUp(fullscreen -> {
+                if (fullscreen)
+                    Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+                else {
+                    Gdx.graphics.setWindowedMode(960, 640);
+                }
+            });
+
+            fullscreenText = new TextArea(
+                    "Fullscreen",
+                    fullscreenCheckBox,
+                    layer,
+                    new Vector2i(fullscreenCheckBox.getWidth()/2 - 200, 0),
+                    0,
+                    TextArea.Align.LEFT
+            );
+
+            keybindingsText = new TextArea(
+                    "Keybindings",
+                    this,
+                    layer,
+                    new Vector2i(),//new Vector2i(0, y -= (int)FONT.getCapHeight() + PADDING),
+                    getWindowWidth(),
+                    TextArea.Align.CENTER
+            );
+
+            backButton = new Button(
+                    Textures.get(Textures.Ui.SMALL_BUTTON),
+                    this,
+                    layer,
+                    new Vector2i(),
+                    "Back");
+            backButton.setLocalPosition(getWindowWidth()/2 - backButton.getWidth()/2, getEdgeWidth() + PADDING);
+            backButton.setOnUp(() -> {
+                Layer.SETTINGS_MENU.setVisible(false);
+                InputManager.stopListening();
+            });
+
+            y -= getEdgeWidth() + PADDING * 2 + backButton.getHeight();
+            scrollPane = new ScrollPane(
+                    this,
+                    layer,
+                    new Vector2i(0, getEdgeWidth() + PADDING * 2 + backButton.getHeight()),
+                    getWindowWidth(),
+                    y - PADDING
+            );
+
+            setTint(WHITE);
+            titleArea.setTint(WHITE);
+            generalText.setTint(WHITE);
+            fullscreenCheckBox.setTint(WHITE);
+            fullscreenText.setTint(WHITE);
+            keybindingsText.setTint(WHITE);
+            backButton.setTint(WHITE);
+            scrollPane.addElement(generalText);
+            scrollPane.addElement(fullscreenCheckBox);
+            scrollPane.addElement(keybindingsText);
+
+            keyNames = new TextArea[InputManager.KeyBinding.values().length];
+            keyButtons = new Button[InputManager.KeyBinding.values().length * 2];
+
+            for (int i = 0; i < InputManager.KeyBinding.values().length; i++) {
+                y -= 32 + PADDING;
+                Pair<Integer, Integer> binding = InputManager.KeyBinding.values()[i].keys;
+                int button_index = i * 2;
+
+                String keyName = binding.first == Input.Keys.UNKNOWN ? "" : Input.Keys.toString(binding.first);
+                keyButtons[button_index] = new Button(Textures.get(Textures.Ui.SMALL_BUTTON),
+                        this,
+                        layer,
+                        new Vector2i(),
+                        keyName
+                );
+                keyButtons[button_index].setOnUp(() -> {
+                    InputManager.stopListening();
+                    keyButtons[button_index].setText("...");
+                    InputManager.startListeningForKey(binding, keyButtons[button_index], true);
+                });
+
+                keyName = binding.second == Input.Keys.UNKNOWN ? "" : Input.Keys.toString(binding.second);
+                keyButtons[button_index + 1] = new Button(Textures.get(Textures.Ui.SMALL_BUTTON),
+                        keyButtons[button_index],
+                        layer,
+                        new Vector2i(100, 0),
+                        keyName
+                );
+                keyButtons[button_index + 1].setOnUp(() -> {
+                    InputManager.stopListening();
+                    keyButtons[button_index + 1].setText("...");
+                    InputManager.startListeningForKey(binding, keyButtons[button_index + 1], false);
+                });
+
+                keyNames[i] = new TextArea(
+                        InputManager.KeyBinding.values()[i].name().toLowerCase().replace('_', ' '),
+                        keyButtons[button_index],
+                        layer,
+                        new Vector2i(keyButtons[button_index].getWidth()/2 - 200, 0),
+                        0,
+                        TextArea.Align.LEFT
+                );
+                keyNames[i].setTint(WHITE);
+                keyButtons[button_index].setTint(WHITE);
+                keyButtons[button_index+1].setTint(WHITE);
+                scrollPane.addElement(keyButtons[button_index]);
+            }
+        }
+
+        protected void updateScissors() {
+            scrollPane.updateScissors();
+        }
+
+        public void show() {
+            Layer.SETTINGS_MENU.setVisible(true);
+            setActiveScrollPane(scrollPane);
+        }
+
+        public void hide() {
+            Layer.SETTINGS_MENU.setVisible(false);
+            setActiveScrollPane(null);
+        }
+
+        @Override
+        public void addToUI() {
+            super.addToUI();
+            titleArea.addToUI();
+            generalText.addToUI();
+            fullscreenCheckBox.addToUI();
+            fullscreenText.addToUI();
+            keybindingsText.addToUI();
+            backButton.addToUI();
+            for (TextArea text : keyNames) {
+                text.addToUI();
+            }
+            for (Button button : keyButtons) {
+                button.addToUI();
+            }
         }
     }
 
@@ -787,9 +1008,20 @@ public class UI {
                     texture.getRegionHeight() + 128 + PADDING * 2
             );
 
-            buildingImage = new UIElement(null, this, Layer.IN_GAME, new Vector2i(getEdgeWidth() + PADDING, getEdgeWidth() + PADDING));
+            buildingImage = new UIElement(
+                    null,
+                    this,
+                    Layer.IN_GAME,
+                    new Vector2i(getEdgeWidth() + PADDING, getEdgeWidth() + PADDING)
+            );
 
-            descriptionArea = new TextArea("", this, Layer.IN_GAME, new Vector2i(), 200, TextArea.Align.LEFT);
+            descriptionArea = new TextArea(
+                    "",
+                    this, Layer.IN_GAME,
+                    new Vector2i(getEdgeWidth() + PADDING * 2 + 128, 128),
+                    200,
+                    TextArea.Align.LEFT
+            );
 
             buildButton = new Button(
                     Textures.get(Textures.Ui.BUILD),
@@ -861,10 +1093,6 @@ public class UI {
                 description += "\n\nrange: " + productionType.range;
 
             descriptionArea.setText(description);
-            descriptionArea.setLocalPosition(
-                    buildingImage.getLocalPosition().x + (int)(buildingImage.getWidth() * scale) + PADDING,
-                    buildingImage.getLocalPosition().y + (int)(buildingImage.getHeight() * scale)
-            );
 
             buildButton.setOnUp(() -> {
                 Buildings.toBuildingMode(type);
@@ -872,13 +1100,6 @@ public class UI {
             });
 
             buildButton.setVisible(true);
-        }
-
-        @Override
-        public void setVisible(boolean visible) {
-            if (visible)
-                closeInGameMenus();
-            super.setVisible(visible);
         }
 
         @Override
@@ -895,6 +1116,13 @@ public class UI {
             for (Tab tab : tabs) {
                 tab.addToUI();
             }
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            if (visible)
+                closeInGameMenus();
+            super.setVisible(visible);
         }
 
         private class Tab extends UIElement {
@@ -964,7 +1192,7 @@ public class UI {
             checkBoxes = new CheckBox[types.length * 3];
             timelineSegments = new UIElement[types.length];
 
-            int y = -window.getEdgeWidth() - PADDING;
+            int y = -window.getEdgeWidth() - PADDING - (int)FONT.getLineHeight();
             int height = PADDING;
             int columnOffset = window.getEdgeWidth() + PADDING + NAME_WIDTH + (COLUMN_WIDTH - 32) / 2;
             int shiftOffset = 18;
@@ -981,13 +1209,13 @@ public class UI {
             timeLabels[5] = new TextArea("16:00", this, layer, new Vector2i(window.getEdgeWidth() + PADDING + NAME_WIDTH + COLUMN_WIDTH * 2, y), COLUMN_WIDTH, TextArea.Align.CENTER);
 
             y -= (int)FONT.getLineHeight() + PADDING * 3;
-            height += FONT.getLineHeight() + PADDING * 3;
+            height += (int)FONT.getLineHeight()+ PADDING * 3;
 
             timelineTop = new UIElement(
                     Textures.get(Textures.Ui.TIMELINE_TOP),
                     this,
                     layer,
-                    new Vector2i(columnOffset, y - (int)FONT.getLineHeight() + 32)
+                    new Vector2i(columnOffset, y + 32)
             );
 
             for (int i = 0; i < types.length; i++) {
@@ -1006,7 +1234,7 @@ public class UI {
                         Textures.get(Textures.Ui.TIMELINE_SEGMENT),
                         this,
                         layer,
-                        new Vector2i(columnOffset, y - (int)FONT.getLineHeight())
+                        new Vector2i(columnOffset, y)
                 );
 
                 for (int j = 0; j < ProductionBuilding.SHIFTS_PER_JOB; j++) {
@@ -1017,7 +1245,7 @@ public class UI {
                     checkBoxes[i * 3 + j] = new CheckBox(
                             this,
                             layer,
-                            new Vector2i(x, y - (int)FONT.getLineHeight()),
+                            new Vector2i(x, y),
                             type.getShiftActivity(j)
                     );
 
@@ -1032,13 +1260,6 @@ public class UI {
             height += PADDING;
             window.setContentHeight(height);
             window.setLocalPosition(0, -window.getWindowHeight());
-        }
-
-        @Override
-        public void setVisible(boolean visible) {
-            if (visible)
-                closeInGameMenus();
-            super.setVisible(visible);
         }
 
         @Override
@@ -1058,6 +1279,13 @@ public class UI {
             for (CheckBox checkBox : checkBoxes) {
                 checkBox.addToUI();
             }
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            if (visible)
+                closeInGameMenus();
+            super.setVisible(visible);
         }
     }
 
@@ -1140,8 +1368,8 @@ public class UI {
         @Override
         public void setVisible(boolean visible) {
             if (visible) {
-                updateValues();
                 closeInGameMenus();
+                updateValues();
             }
             super.setVisible(visible);
         }
@@ -1342,13 +1570,6 @@ public class UI {
         }
 
         @Override
-        public void setVisible(boolean visible) {
-            if (visible)
-                closeInGameMenus();
-            super.setVisible(visible);
-        }
-
-        @Override
         public void addToUI() {
             super.addToUI();
             window.addToUI();
@@ -1360,6 +1581,13 @@ public class UI {
             }
             descriptionArea.addToUI();
             acceptButton.addToUI();
+        }
+
+        @Override
+        public void setVisible(boolean visible) {
+            if (visible)
+                closeInGameMenus();
+            super.setVisible(visible);
         }
     }
 

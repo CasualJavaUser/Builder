@@ -57,8 +57,17 @@ public class Button extends UIElement implements Clickable {
         int x = Gdx.input.getX();
         int y = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
+        boolean isMouseOver =
+                x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
                 y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
+
+        if (getScissors() != null) {
+            isMouseOver = isMouseOver &&
+                    x >= getScissors().getGridPosition().x && x < getScissors().getGridPosition().x + getScissors().getWidth() &&
+                    y >= getScissors().getGridPosition().y && y < getScissors().getGridPosition().y + getScissors().getHeight();
+        }
+
+        return isMouseOver;
     }
 
     @Override

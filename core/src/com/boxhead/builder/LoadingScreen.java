@@ -28,7 +28,7 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void show() {
-        Popups.showInfoPopup("");
+        Popups.showPopup("");
     }
 
     @Override
@@ -45,11 +45,11 @@ public class LoadingScreen implements Screen {
                     BuilderGame.getInstance().setScreen(BuilderGame.getGameScreen());
                 }
                 else {
-                    Popups.showPopup(exception.getClass().getSimpleName());
+                    Popups.showPopup(exception);
                     BuilderGame.getInstance().setScreen(nextScreen);
                 }
             } catch (ExecutionException | InterruptedException e) {
-                Popups.showPopup(e.getClass().getSimpleName());
+                Popups.showPopup(e);
                 BuilderGame.getInstance().setScreen(nextScreen);
             }
         }

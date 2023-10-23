@@ -24,7 +24,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         UI.setInGame(false);
-        UI.showPauseMenu(true);
+        UI.showPauseMenu();
     }
 
     @Override

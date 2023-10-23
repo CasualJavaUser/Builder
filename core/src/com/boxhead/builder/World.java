@@ -537,7 +537,7 @@ public class World {
     public static boolean isBuildable(Vector2i position) {
         if (isOutOfBounds(position)) return false;
 
-        return getTile(position) != Tile.WATER && !builtTiles.contains(position);
+        return getTile(position) != Tile.WATER && getTile(position) != Tile.BRIDGE && !builtTiles.contains(position);
     }
 
     public static boolean isBuildable(int x, int y) {
@@ -736,7 +736,7 @@ public class World {
         return sum / villagers.size();
     }
 
-    public static Color getSkyColor(double time) {
+    public static Color getAmbientColor(double time) {
         final double redLowest = -0.4d;
         final double blueLowest = -0.25d;
 

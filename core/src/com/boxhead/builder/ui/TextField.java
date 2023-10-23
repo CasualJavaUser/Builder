@@ -69,7 +69,7 @@ public class TextField extends UIElement implements Clickable {
         char key = InputManager.getKeyTyped();
         if (key >= ' ' && key <= '~') text += key;
         else if (key == '\b' && text.length() > 0) {
-            if (!InputManager.isKeyDown(InputManager.CONTROL)) {
+            if (!InputManager.isKeyDown(InputManager.KeyBinding.PLACE_MULTIPLE)) {
                 text = text.substring(0, text.length() - 1);
             }
             else {

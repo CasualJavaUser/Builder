@@ -3,17 +3,39 @@ package com.boxhead.builder;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.boxhead.builder.ui.Button;
 import com.boxhead.builder.utils.Pair;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
+import static com.badlogic.gdx.Input.Keys.*;
+
 public class InputManager extends InputAdapter {
-    public static Pair<Integer, Integer> LEFT = Pair.of(Input.Keys.LEFT, Input.Keys.A);
-    public static Pair<Integer, Integer> RIGHT = Pair.of(Input.Keys.RIGHT, Input.Keys.D);
-    public static Pair<Integer, Integer> UP = Pair.of(Input.Keys.UP, Input.Keys.W);
-    public static Pair<Integer, Integer> DOWN = Pair.of(Input.Keys.DOWN, Input.Keys.S);
-    public static Pair<Integer, Integer> SHIFT = Pair.of(Input.Keys.SHIFT_LEFT, Input.Keys.SHIFT_RIGHT);
-    public static Pair<Integer, Integer> CONTROL = Pair.of(Input.Keys.CONTROL_LEFT, Input.Keys.CONTROL_RIGHT);
+    public enum KeyBinding {
+        MOVE_LEFT(LEFT, A),
+        MOVE_RIGHT(RIGHT, D),
+        MOVE_UP(UP, W),
+        MOVE_DOWN(DOWN, S),
+        SHIFT(SHIFT_LEFT, SHIFT_RIGHT),
+        PLACE_MULTIPLE(CONTROL_LEFT, CONTROL_RIGHT),
+        PAUSE(SPACE),
+        TICK_SPEED_1(NUM_1),
+        TICK_SPEED_2(NUM_2),
+        TICK_SPEED_3(NUM_3);
+
+        public final Pair<Integer, Integer> keys;
+
+        KeyBinding(Integer a, Integer b) {
+            keys = Pair.of(a, b);
+        }
+
+        KeyBinding(Integer a) {
+            keys = Pair.of(a, UNKNOWN);
+        }
+    }
 
     public static final int LEFT_MOUSE = Input.Buttons.LEFT;
     public static final int RIGHT_MOUSE = Input.Buttons.RIGHT;
@@ -25,8 +47,13 @@ public class InputManager extends InputAdapter {
 
     private static InputManager instance = new InputManager();
 
-    private static int keyPressed = -1;
-    private static char keyTyped = 0;
+    private static char keyTyped = Input.Keys.UNKNOWN;
+    private static int keyDown = Input.Keys.UNKNOWN;
+
+    private static boolean listeningForKey = false;
+    private static Pair<Integer, Integer> bindingToUpdate = null;
+    private static Button buttonToUpdate = null;
+    private static boolean updateFirst = true;
 
     static {
         Arrays.fill(buttonsUp, true);
@@ -35,12 +62,14 @@ public class InputManager extends InputAdapter {
 
     private InputManager() {}
 
-    public static boolean isKeyPressed(Pair<Integer, Integer> key) {
-        return (key.first != null && Gdx.input.isKeyJustPressed(key.first)) || (key.second != null && Gdx.input.isKeyJustPressed(key.second));
+    public static boolean isKeyPressed(KeyBinding keyBinding) {
+        return (keyBinding.keys.first != UNKNOWN && Gdx.input.isKeyJustPressed(keyBinding.keys.first)) ||
+                (keyBinding.keys.second != UNKNOWN && Gdx.input.isKeyJustPressed(keyBinding.keys.second));
     }
 
-    public static boolean isKeyDown(Pair<Integer, Integer> key) {
-        return (key.first != null && Gdx.input.isKeyPressed(key.first)) || (key.second != null && Gdx.input.isKeyPressed(key.second));
+    public static boolean isKeyDown(KeyBinding keyBinding) {
+        return (keyBinding.keys.first != UNKNOWN && Gdx.input.isKeyPressed(keyBinding.keys.first)) ||
+                (keyBinding.keys.second != UNKNOWN && Gdx.input.isKeyPressed(keyBinding.keys.second));
     }
 
     public static boolean isKeyPressed(int key) {
@@ -79,7 +108,7 @@ public class InputManager extends InputAdapter {
 
     @Override
     public boolean keyDown(int keycode) {
-        keyPressed = keycode;
+        keyDown = keycode;
         return super.keyUp(keycode);
     }
 
@@ -97,7 +126,8 @@ public class InputManager extends InputAdapter {
         return scrollDelta != 0;
     }
 
-    public static void resetScroll() {
+    public static void resetKeysAndScroll() {
+        keyTyped = Input.Keys.UNKNOWN;
         scrollDelta = 0;
     }
 
@@ -106,16 +136,69 @@ public class InputManager extends InputAdapter {
         return instance;
     }
 
-    public static int getPressedKey() {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) return keyPressed;
-        return -1;
+    public static char getKeyTyped() {
+        char kt = Input.Keys.UNKNOWN;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) kt = keyTyped;
+        return kt;
     }
 
-    public static char getKeyTyped() {
-        char temp;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) temp = keyTyped;
-        else temp = 0;
-        keyTyped = 0;
-        return temp;
+    public static int getKeyDown() {
+        int kd = Input.Keys.UNKNOWN;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) kd = keyDown;
+        return kd;
+    }
+
+    public static String getKeyName(KeyBinding keyBinding) {
+        return Input.Keys.toString(keyBinding.keys.first);
+    }
+
+    public static void startListeningForKey(Pair<Integer, Integer> binding, Button button, boolean first) {
+        bindingToUpdate = binding;
+        buttonToUpdate = button;
+        listeningForKey = true;
+        updateFirst = first;
+    }
+
+    public static void listenForKey() {
+        int keyDown = getKeyDown();
+        if (keyDown != Input.Keys.UNKNOWN) {
+            buttonToUpdate.setText(Input.Keys.toString(keyDown));
+            if (updateFirst)
+                bindingToUpdate.first = keyDown;
+            else
+                bindingToUpdate.second = keyDown;
+            listeningForKey = false;
+        }
+    }
+
+    public static void stopListening() {
+        if (buttonToUpdate != null) {
+            Integer keycode = updateFirst ? bindingToUpdate.first : bindingToUpdate.second;
+            String keyName = "";
+            if (keycode != UNKNOWN) keyName = Input.Keys.toString(keycode);
+            buttonToUpdate.setText(keyName);
+        }
+        listeningForKey = false;
+    }
+
+    public static boolean isListeningForKey() {
+        return listeningForKey;
+    }
+
+    public static void saveSettings(ObjectOutputStream oos) throws IOException {
+        for (KeyBinding binding : KeyBinding.values()) {
+            oos.write(0);
+            oos.writeUTF(binding.name());
+            oos.writeInt(binding.keys.first);
+            oos.writeInt(binding.keys.second);
+        }
+    }
+
+    public static void loadSettings(ObjectInputStream ois) throws IOException {
+        while (ois.read() != -1) {
+            KeyBinding binding = KeyBinding.valueOf(ois.readUTF());
+            binding.keys.first = ois.readInt();
+            binding.keys.second = ois.readInt();
+        }
     }
 }

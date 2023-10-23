@@ -72,8 +72,11 @@ public class GameScreen implements Screen {
             }
         }
 
-        if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
-        if (InputManager.isKeyPressed(Input.Keys.SPACE) && !UI.isPaused() && !Debug.isOpen()) Logic.pause(!Logic.isPaused());
+        handleInput();
+
+        if (InputManager.isListeningForKey()) {
+            InputManager.listenForKey();
+        }
 
         UI.drawUI(batch, camera);
 
@@ -94,7 +97,21 @@ public class GameScreen implements Screen {
         if (Debug.isOpen())
             Debug.handleInput();
 
-        InputManager.resetScroll();
+        InputManager.resetKeysAndScroll();
+    }
+
+    private static void handleInput() {
+        if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
+        else if (!UI.isPaused()) {
+            if (InputManager.isKeyPressed(InputManager.KeyBinding.PAUSE) && !UI.isPaused() && !Debug.isOpen())
+                Logic.pause(!Logic.isPaused());
+            else if (InputManager.isKeyPressed(InputManager.KeyBinding.TICK_SPEED_1))
+                Logic.setTickSpeed(Logic.NORMAL_SPEED);
+            else if (InputManager.isKeyPressed(InputManager.KeyBinding.TICK_SPEED_2))
+                Logic.setTickSpeed(Logic.SPEED_X2);
+            else if (InputManager.isKeyPressed(InputManager.KeyBinding.TICK_SPEED_3))
+                Logic.setTickSpeed(Logic.SPEED_X3);
+        }
     }
 
     public static Vector2 getMouseWorldPosition() {
@@ -149,17 +166,17 @@ public class GameScreen implements Screen {
     }
 
     private void moveCamera(float deltaTime) {
-        final float deltaPosition = InputManager.isKeyDown(InputManager.SHIFT)
+        final float deltaPosition = InputManager.isKeyDown(InputManager.KeyBinding.SHIFT)
                 ? FAST_SPEED * deltaTime * camera.zoom
                 : NORMAL_SPEED * deltaTime * camera.zoom;
 
-        if (InputManager.isKeyDown(InputManager.RIGHT))
+        if (InputManager.isKeyDown(InputManager.KeyBinding.MOVE_RIGHT))
             camera.position.x += deltaPosition;
-        if (InputManager.isKeyDown(InputManager.LEFT))
+        if (InputManager.isKeyDown(InputManager.KeyBinding.MOVE_LEFT))
             camera.position.x -= deltaPosition;
-        if (InputManager.isKeyDown(InputManager.UP))
+        if (InputManager.isKeyDown(InputManager.KeyBinding.MOVE_UP))
             camera.position.y += deltaPosition;
-        if (InputManager.isKeyDown(InputManager.DOWN))
+        if (InputManager.isKeyDown(InputManager.KeyBinding.MOVE_DOWN))
             camera.position.y -= deltaPosition;
 
         if (InputManager.isButtonDown(InputManager.RIGHT_MOUSE)) {

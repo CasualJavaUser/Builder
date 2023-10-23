@@ -164,18 +164,21 @@ public class Debug {
         textArea.setText(text);
     }
 
+    @SuppressWarnings("unused")
     public static void help() {
         for (Method method : availableMethods) {
             log(method.getName() + " " + method.getParameters().length);
         }
     }
 
+    @SuppressWarnings("unused")
     public static void selectNPC(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
         getVillagerById(i).onClick();
         log("Villager selected");
     }
 
+    @SuppressWarnings("unused")
     public static void getSelectedNPC() {
         if (UI.getNpcStatWindow().getPinnedObject() == null) {
             log("No villager selected");
@@ -184,17 +187,20 @@ public class Debug {
         log(UI.getNpcStatWindow().getPinnedObject().toString());
     }
 
+    @SuppressWarnings("unused")
     public static void getNPC(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
         log(getVillagerById(i).toString());
     }
 
+    @SuppressWarnings("unused")
     public static void selectBuilding(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
         getBuildingById(i).onClick();
         log("Building selected");
     }
 
+    @SuppressWarnings("unused")
     public static void getSelectedBuilding() {
         if (UI.getBuildingStatWindow().getPinnedObject() == null) {
             log("No building selected");
@@ -203,17 +209,20 @@ public class Debug {
         log(UI.getBuildingStatWindow().getPinnedObject().toString());
     }
 
+    @SuppressWarnings("unused")
     public static void getBuilding(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
         log(getBuildingById(i).toString());
     }
 
+    @SuppressWarnings("unused")
     public static void setTickSpeed(String speed) throws NumberFormatException {
         float s = Float.parseFloat(speed);
         Logic.setTickSpeed(Logic.NORMAL_SPEED / s);
         log("Tick speed set to " + (Logic.NORMAL_SPEED / s));
     }
 
+    @SuppressWarnings("unused")
     public static void average(String stat) {
         try {
             Stat s = Stat.valueOf(stat.toUpperCase());
@@ -259,6 +268,7 @@ public class Debug {
         log(hours + ":" + minutes + ":" + seconds);
     }
 
+    @SuppressWarnings("unused")
     public static void enableShift(String buildingId, String shiftIndex) {
         int bi = Integer.parseInt(buildingId);
         int si = Integer.parseInt(shiftIndex);
@@ -266,6 +276,7 @@ public class Debug {
         ((ProductionBuilding) getBuildingById(bi)).setShiftActivity(si, true);
     }
 
+    @SuppressWarnings("unused")
     public static void disableShift(String buildingId, String shiftIndex) {
         int bi = Integer.parseInt(buildingId);
         int si = Integer.parseInt(shiftIndex);
@@ -273,6 +284,7 @@ public class Debug {
         ((ProductionBuilding) getBuildingById(bi)).setShiftActivity(si, false);
     }
 
+    @SuppressWarnings("unused")
     public static void reproduce(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
         Villager villager = getVillagerById(i);
@@ -289,6 +301,7 @@ public class Debug {
         }
     }
 
+    @SuppressWarnings("unused")
     public static void kill(String id) throws NumberFormatException {
         int i = Integer.parseInt(id);
         getVillagerById(i).die();

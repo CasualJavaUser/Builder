@@ -45,12 +45,20 @@ public class TextArea extends UIElement {
     }
 
     @Override
+    public int getHeight() {
+        return (int)(text.split("\n").length * UI.FONT.getLineHeight());
+    }
+
+    @Override
+    public int getWidth() {
+        return targetWidth;
+    }
+
+    @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
 
-        int y = getGlobalPosition().y;
-        if (texture != null) y = (int)(getGlobalPosition().y + texture.getRegionHeight()/2 + UI.FONT.getXHeight());
         UI.FONT.setColor(tint);
-        UI.FONT.draw(batch, text, getGlobalPosition().x, y, targetWidth, hAlign.getNum(), false);
+        UI.FONT.draw(batch, text, getGlobalPosition().x, getGlobalPosition().y+UI.FONT.getLineHeight(), targetWidth, hAlign.getNum(), false);
     }
 }

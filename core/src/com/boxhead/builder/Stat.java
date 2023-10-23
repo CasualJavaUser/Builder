@@ -8,10 +8,10 @@ import java.util.function.Consumer;
 import static com.boxhead.builder.game_objects.Villager.Order.Type.GO_TO;
 
 public enum Stat {
-    HUNGER(50, 80, 0, 0.001f,
+    HUNGER(50, 80, 0, 0.0001f,
             villager -> standardSeekService(villager, Service.BARTENDING)),
 
-    TIREDNESS(70, 90, 0, 0.001f,
+    TIREDNESS(70, 90, 0, 0.0001f,
             villager -> {
                 if (villager.getHome() != null) {
                     if (villager.isClockedIn()) {
@@ -21,7 +21,7 @@ public enum Stat {
                 }
             }),
 
-    HEALTH(70, 20, 100, -0.001f,
+    HEALTH(70, 20, 100, -0.00001f,
             villager -> standardSeekService(villager, Service.HEALTHCARE));
 
     public final int mild, critical;

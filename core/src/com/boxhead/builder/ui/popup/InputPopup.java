@@ -3,14 +3,17 @@ package com.boxhead.builder.ui.popup;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.Textures;
-import com.boxhead.builder.ui.*;
+import com.boxhead.builder.ui.Button;
+import com.boxhead.builder.ui.TextField;
+import com.boxhead.builder.ui.UI;
+import com.boxhead.builder.ui.UIElement;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.util.function.Consumer;
 
 public class InputPopup extends Popup {
     private final Button okButton, cancelButton;
-    private TextField textField = null;
+    private TextField textField;
     protected String prompt = "";
     protected Consumer<String> onAccept = null;
 
@@ -37,7 +40,6 @@ public class InputPopup extends Popup {
         cancelButton = new Button(Textures.get(Textures.Ui.SMALL_BUTTON), this, UI.Layer.POPUP, new Vector2i(80 + 2*UI.PADDING, UI.PADDING), "Cancel");
         cancelButton.setOnUp(() -> {
             layer.setVisible(false);
-            textField.setText("");
             UI.setActiveTextField(null);
         });
     }
