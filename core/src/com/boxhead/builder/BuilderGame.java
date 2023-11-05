@@ -33,6 +33,8 @@ public class BuilderGame extends Game {
 
     private static BuilderGame instance;
 
+    private static final Random random = new Random();
+
     private BuilderGame() {}
 
     @Override
@@ -268,6 +270,10 @@ public class BuilderGame extends Game {
 
     public static MenuScreen getMenuScreen() {
         return menuScreen;
+    }
+
+    public static Random generalPurposeRandom() {
+        return random;
     }
 
     public static long timeSinceLastSave() {

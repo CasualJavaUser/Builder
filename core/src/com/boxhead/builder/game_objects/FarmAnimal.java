@@ -1,6 +1,7 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.boxhead.builder.BuilderGame;
 import com.boxhead.builder.FieldWork;
 import com.boxhead.builder.Resource;
 import com.boxhead.builder.World;
@@ -8,16 +9,16 @@ import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Vector2i;
 
 public class FarmAnimal extends Animal implements FieldWork {
+    private static final int PRODUCTION_INTERVAL = 50;
     private BoxCollider pen;
     private Villager assigned = null;
     private boolean worked = false;
     private long harvestDate;
     private long respawnDate;
     private boolean dead = false;
-    private final int productionInterval = 50;
     private int productionCounter = 0;
     private int amountLeft;
-    private BoxCollider collider;
+    private final BoxCollider collider;
 
     public FarmAnimal(Animals.Type type, Vector2i gridPosition, BoxCollider pen) {
         super(type, gridPosition);
@@ -34,8 +35,8 @@ public class FarmAnimal extends Animal implements FieldWork {
     @Override
     public void wander() {
         if (!dead && assigned == null && (path == null || followPath())) {
-            if (World.getRandom().nextInt(360) == 0) {
-                navigateTo(pen.toVector2iList().get(World.getRandom().nextInt(pen.getArea())));
+            if (BuilderGame.generalPurposeRandom().nextInt(360) == 0) {
+                navigateTo(pen.randomPosition());
             }
         }
     }
@@ -98,7 +99,7 @@ public class FarmAnimal extends Animal implements FieldWork {
 
     protected boolean productionCycle() {
         productionCounter++;
-        if (productionCounter >= productionInterval) {
+        if (productionCounter >= PRODUCTION_INTERVAL) {
             amountLeft--;
             productionCounter = 0;
             return true;

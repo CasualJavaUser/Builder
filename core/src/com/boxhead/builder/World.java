@@ -40,7 +40,6 @@ public class World {
     private static List<Building> buildings;
     private static List<Villager> villagers;
     private static List<Animal> animals;
-    private static Set<FieldWork> fieldWorks;
     private static Set<FieldWork> removedFieldWorks;
     private static SortedList<GameObject> gameObjects;
     /**
@@ -70,7 +69,6 @@ public class World {
         buildings = new ArrayList<>();
         villagers = new ArrayList<>();
         animals = new ArrayList<>();
-        fieldWorks = new HashSet<>();
         removedFieldWorks = new HashSet<>();
         gameObjects = new SortedList<>(GameObject.gridPositionComparator);
         objectsSumUpToLine = new int[worldSize.y + 1];
@@ -219,7 +217,6 @@ public class World {
             tree.nextPhase();
             tree.nextPhase();
             Harvestable.timeTriggers.clear();
-            fieldWorks.add(tree);
             addGameObject(tree);
         }
     }
@@ -235,7 +232,6 @@ public class World {
         if (smallNoise > -0.05f && bigNoise > 0.35f && isNavigable(pos) && isBuildable(pos)) {
             makeUnnavigable(rock.getCollider());
             rock.nextPhase();
-            fieldWorks.add(rock);
             addGameObject(rock);
         }
     }
@@ -354,14 +350,12 @@ public class World {
         } else if (fieldWork instanceof Harvestable harvestable) {
             harvestable.nextPhase();
         }
-        fieldWorks.add(fieldWork);
         changedFieldWorks.put(fieldWork, true);
         addGameObject((GameObject) fieldWork);
     }
 
     public static void removeFieldWorks() {
         for (FieldWork fieldWork : removedFieldWorks) {
-            fieldWorks.remove(fieldWork);
             removeGameObject((GameObject) fieldWork);
 
             if (fieldWork instanceof BuildSite) {
@@ -492,8 +486,9 @@ public class World {
                 animal.draw(batch);
         }
 
+        Range<Integer> YRange = Range.between(0, worldSize.y - 1);
         for (int y = gridULC.y + RENDER_BUFFER; y >= gridLRC.y - RENDER_BUFFER; y--) {
-            if (Range.between(0, worldSize.y - 1).contains(y)) {
+            if (YRange.contains(y)) {
                 for (int i = objectsSumUpToLine[y]; i < objectsSumUpToLine[y - 1]; i++) {
                     GameObject gameObject = gameObjects.get(i);
                     if (gameObject.getGridPosition().x >= gridULC.x - RENDER_BUFFER && gameObject.getGridPosition().x <= gridLRC.x)
@@ -676,10 +671,6 @@ public class World {
         }
     }
 
-    public static Random getRandom() {
-        return random;
-    }
-
     public static SortedList<GameObject> getGameObjects() {
         return gameObjects;
     }
@@ -694,10 +685,6 @@ public class World {
 
     public static List<Animal> getAnimals() {
         return animals;
-    }
-
-    public static Set<FieldWork> getFieldWorks() {
-        return fieldWorks;
     }
 
     public static int getWidth() {
@@ -804,11 +791,9 @@ public class World {
 
         for (FieldWork fieldWork : changedFieldWorks.keySet()) {
             if (changedFieldWorks.get(fieldWork)) {
-                fieldWorks.add(fieldWork);
                 addGameObject((GameObject) fieldWork);
                 makeUnnavigable(fieldWork.getCollider());
             } else {
-                fieldWorks.remove(fieldWork);
                 removeGameObject((GameObject) fieldWork);
                 makeNavigable(fieldWork.getCollider());
             }

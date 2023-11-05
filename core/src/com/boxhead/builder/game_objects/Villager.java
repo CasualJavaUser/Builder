@@ -66,7 +66,7 @@ public class Villager extends NPC implements Clickable {
     }
 
     public Villager(Vector2i gridPosition) {
-        this(World.getRandom().nextInt(2), World.getRandom().nextBoolean(), gridPosition);
+        this(BuilderGame.generalPurposeRandom().nextInt(2), BuilderGame.generalPurposeRandom().nextBoolean(), gridPosition);
     }
 
     private Villager(int skin, boolean gender, Vector2i gridPosition) {
@@ -75,7 +75,7 @@ public class Villager extends NPC implements Clickable {
         name = NAMES[(int) (Math.random() * NAMES.length)];
         surname = SURNAMES[(int) (Math.random() * SURNAMES.length)];
         this.gender = gender;
-        dayOfDecease = World.calculateDate(World.getRandom().nextInt(10 * World.YEAR) + (RETIREMENT_AGE + 5) * World.YEAR);
+        dayOfDecease = World.calculateDate(BuilderGame.generalPurposeRandom().nextInt(10 * World.YEAR) + (RETIREMENT_AGE + 5) * World.YEAR);
 
         for (int i = 0; i < stats.length; i++) {
             stats[i] = Stat.values()[i].initVal;
@@ -328,7 +328,7 @@ public class Villager extends NPC implements Clickable {
 
     @Override
     public void wander() {
-        if (World.getRandom().nextInt(360) == 0) {
+        if (BuilderGame.generalPurposeRandom().nextInt(360) == 0) {
             Vector2i randomPos = randomPosInRange(5);
             if (World.isNavigable(randomPos))
                 giveOrder(randomPos);

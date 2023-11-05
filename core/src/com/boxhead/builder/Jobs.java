@@ -262,11 +262,6 @@ public class Jobs {
         }
 
         @Override
-        public Object getPoI() {
-            return Harvestable.Characteristic.FIELD_CROP;
-        }
-
-        @Override
         public String toString() {
             return "farmer";
         }

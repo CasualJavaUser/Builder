@@ -3,6 +3,7 @@ package com.boxhead.builder.game_objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.boxhead.builder.BuilderGame;
 import com.boxhead.builder.Logic;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
@@ -137,8 +138,9 @@ public abstract class NPC extends GameObject{
     public abstract void wander();
 
     protected Vector2i randomPosInRange(int range) {
-        double angle = World.getRandom().nextDouble() * 2 * Math.PI;
-        return gridPosition.plus((int)(Math.cos(angle) * range), (int)(Math.sin(angle) * range));
+        double angle = BuilderGame.generalPurposeRandom().nextDouble() * 2 * Math.PI;
+        double distance = BuilderGame.generalPurposeRandom().nextDouble(range);
+        return gridPosition.plus((int)(Math.cos(angle) * distance), (int)(Math.sin(angle) * distance));
     }
 
     public int getId() {

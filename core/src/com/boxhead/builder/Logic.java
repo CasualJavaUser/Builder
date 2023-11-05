@@ -60,11 +60,9 @@ public class Logic {
 
                 if (villager.ageInTicks() == Villager.RETIREMENT_AGE * World.YEAR) {
                     villager.retire();
-                }
-                else if (World.getDate() > villager.getDayOfDecease()) {
+                } else if (World.getDate() > villager.getDayOfDecease()) {
                     villager.die();
-                }
-                else if (villager.ageInYears() >= Villager.WORKING_AGE) {
+                } else if (villager.ageInYears() >= Villager.WORKING_AGE) {
                     if (!villager.hasJob() && World.getTime() == orderedShifts[currentShift].end) {
                         villager.seekJobOrSchool();
                     } else if (villager.hasWorkplace() && World.getTime() == villager.getWorkplace().getShift(villager).getShiftTime().end) {
@@ -129,10 +127,9 @@ public class Logic {
 
     private static void produceResources() {
         for (Building building : World.getBuildings()) {
-            if (building instanceof ProductionBuilding && ((ProductionBuilding) building).getJob().getPoI() != null &&
-                    ((ProductionBuilding) building).canProduce()) {
-                Optional<FieldWork> fieldWork = FieldWork.findFieldWork(((ProductionBuilding) building).getJob().getPoI(), building.getEntrancePosition());
-                fieldWork.ifPresent(work -> Logistics.requestFieldWork((ProductionBuilding) building, work));
+            if (building instanceof ProductionBuilding pb && pb.getJob().getPoI() != null && pb.canProduce()) {
+                Optional<FieldWork> fieldWork = FieldWork.findFieldWorkInRange(pb.getJob().getPoI(), building.getEntrancePosition(), pb.getType().range);
+                fieldWork.ifPresent(work -> Logistics.requestFieldWork(pb, work));
             }
         }
 
@@ -174,9 +171,9 @@ public class Logic {
                     villager.getHappiness() > 80
             ) {
                 double lifespan = Villager.INFERTILITY_AGE - Villager.AGE_OF_CONSENT;
-                double daysPerYear = (double)World.YEAR / (double)World.FULL_DAY;
+                double daysPerYear = (double) World.YEAR / (double) World.FULL_DAY;
                 double probability = Villager.AVERAGE_NUM_OF_CHILDREN / (lifespan * daysPerYear);
-                if(World.getRandom().nextDouble() < probability)
+                if (BuilderGame.generalPurposeRandom().nextDouble() < probability)
                     villager.reproduce();
             }
         }

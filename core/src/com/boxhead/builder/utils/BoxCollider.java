@@ -2,6 +2,7 @@ package com.boxhead.builder.utils;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.BuilderGame;
 import com.boxhead.builder.Textures;
 import com.boxhead.builder.Tiles;
 
@@ -120,11 +121,19 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
         return new BoxCollider(lowerLeftCorner.plus(-1, -1), width + 2, height + 2);
     }
 
+
+    public Vector2i randomPosition() {
+        int index = BuilderGame.generalPurposeRandom().nextInt(getArea());
+        return lowerLeftCorner.plus(index % width, index / width);
+    }
+
     public List<Vector2i> toVector2iList() {
         int area = width * height;
         List<Vector2i> list = new ArrayList<>(area);
-        for (int i = 0; i < area; i++) {
-            list.add(new Vector2i(lowerLeftCorner.x + i % width, lowerLeftCorner.y + i / width));
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                list.add(lowerLeftCorner.plus(x, y));
+            }
         }
         return list;
     }

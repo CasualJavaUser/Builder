@@ -61,7 +61,9 @@ public class ProductionBuilding extends Building {
                 new BoxCollider(0, 0, 4, 2),
                 new Recipe(Pair.of(Resource.WOOD, 20)),
                 Jobs.BUILDER,
-                2
+                2,
+                0,
+                50
         );
         public static final Type TRANSPORT_OFFICE = new Type(
                 Textures.Building.CARRIAGE_HOUSE,
