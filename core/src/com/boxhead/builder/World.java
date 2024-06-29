@@ -113,18 +113,19 @@ public class World {
         makeBuilt(collider);
     }
 
-    public static void handleNpcsAndBuildingsOnClick() {
+    public static void handleObjectInteractions() {
         if (!InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) return;
 
         for (Building building : buildings) {
             if (building.isMouseOver()) {
-                building.onClick();
+                UI.showInfoWindow(building);
                 return;
             }
         }
+
         for (Villager villager : villagers) {
             if (villager.isMouseOver()) {
-                villager.onClick();
+                UI.showInfoWindow(villager);
                 return;
             }
         }
@@ -573,11 +574,6 @@ public class World {
 
         int index = gridPosition.y * World.worldSize.x + gridPosition.x;
         array[index] = value;
-    }
-
-    public static void setSeed(int seed) {
-        World.seed = seed;
-        random = new Random(seed);
     }
 
     public static int getSeed() {

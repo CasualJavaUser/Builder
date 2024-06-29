@@ -188,4 +188,9 @@ public class SchoolBuilding extends ProductionBuilding {
         }
         return capacity;
     }
+
+    @Override
+    public String getInfo() {
+        return super.getInfo() + "\nstudents: " + getNumberOfStudents() + " / " + getOverallStudentCapacity();
+    }
 }

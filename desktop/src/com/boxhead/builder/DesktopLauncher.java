@@ -9,6 +9,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setWindowedMode(960, 640);
+		config.setWindowSizeLimits(960, 640, 9999, 9999);
 		config.setTitle("Builder");
 		new Lwjgl3Application(BuilderGame.getInstance(), config);
 	}

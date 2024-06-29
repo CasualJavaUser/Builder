@@ -18,7 +18,7 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
     private static final long serialVersionUID = 2L;
 
     private final Vector2i lowerLeftCorner;
-    private final int width, height;
+    private int width, height;
 
     /**
      * Creates a 2D rectangular collider with the lower left corner at v1.
@@ -111,6 +111,12 @@ public class BoxCollider implements Iterable<Vector2i>, Serializable {
 
     public void setGridPosition(Vector2i gridPosition) {
         lowerLeftCorner.set(gridPosition);
+    }
+
+    public void set(BoxCollider collider) {
+        lowerLeftCorner.set(collider.getGridPosition());
+        width = collider.width;
+        height = collider.height;
     }
 
     public BoxCollider cloneAndTranslate(Vector2i gridPosition) {

@@ -1,89 +1,97 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.InputManager;
-import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Range;
+import com.boxhead.builder.utils.Vector2i;
 
-import java.util.*;
+public class ScrollPane extends BoxPane {
+    UIComponent firstComponent = null, lastComponent = null;
+    private final Vector2i nextPos = new Vector2i();
 
-public class ScrollPane extends UIElement {
-    private Set<UIElement> elements = new HashSet<>();
-    private UIElement firstElement = null, lastElement = null;
-    private int width, height;
-    private Vector2i nextPos;
-    private boolean scrollable = false;
+    public ScrollPane(int width, int height) {
+        this(width, height, UI.PADDING);
+    }
 
-    public ScrollPane(UIElement parent, UI.Layer layer, Vector2i position, int width, int height) {
-        super(parent, layer, position, true);
+    public ScrollPane(int width, int height, int padding) {
+        super(true, padding);
         this.width = width;
         this.height = height;
-        nextPos = new Vector2i(width / 2, height);
-        setScissors(
-                getGlobalPosition().x,
-                getGlobalPosition().y,
-                width,
-                height
-        );
-    }
-
-    public ScrollPane(UIElement parent, UI.Layer layer, int x1, int y1, int x2, int y2) {
-        this(parent, layer, new Vector2i(x1, y1), x2 - x1, y2 - y1);
-    }
-
-    public void addElement(UIElement element) {
-        if (elements.isEmpty()) firstElement = element;
-        lastElement = element;
-
-        elements.add(element);
-        element.setParent(this);
-        element.setLocalPosition(
-                nextPos.x - element.getWidth() / 2,
-                nextPos.y - element.getHeight());
-        nextPos.set(nextPos.x, nextPos.y - element.getHeight() - UI.PADDING);
-        element.setScissors(getScissors());
-
-        if (firstElement.getGlobalPosition().y + firstElement.getHeight() - lastElement.getGlobalPosition().y > height)
-            scrollable = true;
-    }
-
-    public void updateScissors() {
-        getScissors().getGridPosition().set(getGlobalPosition());
-    }
-
-    public void clear() {
-        for (UIElement element : elements) {
-            element.removeScissors();
-        }
-        nextPos.set(width / 2, height);
-        elements.clear();
-        firstElement = null;
-        lastElement = null;
-        scrollable = false;
-    }
-
-    public boolean isMouseOver() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + width) &&
-                y >= getGlobalPosition().y && y < (getGlobalPosition().y + height);
     }
 
     public void scroll() {
         if (!InputManager.isScrolled()) return;
 
-        if (!elements.isEmpty() && scrollable) {
-            int scroll = (int) (InputManager.getScroll() * 10);
-            int delta1 = (getGlobalPosition().y + height - firstElement.getHeight()) - firstElement.getGlobalPosition().y;
-            int delta2 = getGlobalPosition().y - lastElement.getGlobalPosition().y;
+        if (!components.isEmpty()) {
+            int scroll = (int) (InputManager.getScroll() * InputManager.SCROLL_SENSITIVITY);
+            int delta1 = getY() + height - firstComponent.getHeight() - firstComponent.getY();
+            int delta2 = getY() - lastComponent.getY();
             Range<Integer> range = Range.between(delta2, delta1);
             scroll = range.fit(scroll);
-            for (UIElement element : elements) {
-                element.setGlobalPosition(
-                        element.getGlobalPosition().x,
-                        element.getGlobalPosition().y + scroll);
+            for (UIComponent component : components) {
+                component.move(0, scroll);
             }
         }
+    }
+
+    public void scrollToBottom() {
+        if (!components.isEmpty()) {
+            int delta = getY() - lastComponent.getY();
+            for (UIComponent component : components) {
+                component.move(0, delta);
+            }
+        }
+    }
+
+    @Override
+    public void addUIComponent(UIComponent component) {
+        components.add(component);
+        if (firstComponent == null) firstComponent = component;
+        lastComponent = component;
+    }
+
+    @Override
+    public void pack() {
+        nextPos.set(getX() + width / 2, getY() + height);
+        for (UIComponent component : components) {
+            nextPos.add(0, -component.getHeight());
+            component.setPosition(nextPos.x - component.getWidth() / 2, nextPos.y);
+            nextPos.add(0, -padding);
+            if (component instanceof Pane pane) pane.pack();
+        }
+    }
+
+    @Override
+    public void clear() {
+        components.clear();
+        firstComponent = null;
+        lastComponent = null;
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        batch.flush();
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(
+                getX(),
+                getY(),
+                width,
+                height
+        );
+        super.draw(batch);
+        batch.flush();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
     }
 }

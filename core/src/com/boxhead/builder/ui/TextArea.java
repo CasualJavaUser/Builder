@@ -1,12 +1,10 @@
 package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.boxhead.builder.utils.Vector2i;
-
-public class TextArea extends UIElement {
-    private String text;
-    private int targetWidth;
+import com.boxhead.builder.Textures;
+public class TextArea extends DrawableComponent {
+    public String text;
+    private int width;
     private Align hAlign;
 
     public enum Align {
@@ -14,51 +12,65 @@ public class TextArea extends UIElement {
         CENTER(1),
         RIGHT(0);
 
-        private int num;
+        private final int value;
 
-        Align(int num) {
-            this.num = num;
+        Align(int value) {
+            this.value = value;
         }
 
-        public int getNum() {
-            return num;
+        public int getValue() {
+            return value;
         }
     }
 
-    public TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, Align align) {
-        this(texture, text, parent, layer, position, texture.getRegionWidth(), align);
-    }
-
-    public TextArea(String text, UIElement parent, UI.Layer layer, Vector2i position, int targetWidth, Align align) {
-        this(null, text, parent, layer, position, targetWidth, align);
-    }
-
-    private TextArea(TextureRegion texture, String text, UIElement parent, UI.Layer layer, Vector2i position, int targetWidth, Align align) {
-        super(texture, parent, layer, position);
+    private TextArea(Textures.Ui texture, String text, int width, Align hAlign) {
+        super(texture);
         this.text = text;
-        this.targetWidth = targetWidth;
-        hAlign = align;
+        this.width = width;
+        this.hAlign = hAlign;
+    }
+
+    public TextArea(Textures.Ui texture, String text, Align hAlign) {
+        this(texture, text, Textures.get(texture).getRegionWidth(), hAlign);
+    }
+
+    public TextArea(String text, int width, Align hAlign) {
+        this(null, text, width, hAlign);
+    }
+
+    public TextArea(String text) {
+        this(null, text, (int) (text.length() * UI.FONT_WIDTH), Align.CENTER);
     }
 
     public void setText(String text) {
         this.text = text;
     }
 
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
     @Override
-    public int getHeight() {
-        return (int)(text.split("\n").length * UI.FONT.getLineHeight());
+    public UIComponent onClick() {
+        return null;
     }
 
     @Override
     public int getWidth() {
-        return targetWidth;
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        if (texture != null)
+            return texture.getRegionHeight();
+        return text.split("\n").length * UI.FONT_HEIGHT;
     }
 
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-
-        UI.FONT.setColor(tint);
-        UI.FONT.draw(batch, text, getGlobalPosition().x, getGlobalPosition().y+UI.FONT.getLineHeight(), targetWidth, hAlign.getNum(), false);
+        UI.FONT.setColor(getTint());
+        UI.FONT.draw(batch, text, getX(), getY() + text.split("\n").length * UI.FONT_HEIGHT - 5, width, hAlign.getValue(), false);
     }
 }

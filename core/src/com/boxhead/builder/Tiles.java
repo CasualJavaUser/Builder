@@ -3,6 +3,7 @@ package com.boxhead.builder;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.game_objects.GameObject;
+import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
 import com.boxhead.builder.utils.Range;
@@ -21,6 +22,7 @@ public class Tiles {
     private static boolean isRanch;
     private static Range<Integer> fieldSizeRange;
     private static Tile pathTile = null;
+    private static BoxCollider fieldCollider = null;
 
     private static Mode currentMode = null;
 
@@ -39,6 +41,7 @@ public class Tiles {
     public static void toPathMode(Tile pathTile) {
         currentMode = Mode.PATH;
         Tiles.pathTile = pathTile;
+        UI.pushOnEscapeAction(Tiles::turnOff, () -> getCurrentMode() == Mode.PATH);
     }
 
     public static void toFieldMode(BoxCollider buildingCollider, boolean isRanch, Range<Integer> fieldSizeRange) {
@@ -47,14 +50,17 @@ public class Tiles {
         Tiles.fieldSizeRange = fieldSizeRange;
         origin = buildingCollider.getGridPosition().clone();
         currentMode = Mode.FIELD;
+        UI.pushOnEscapeAction(Tiles::turnOff, () -> getCurrentMode() == Mode.FIELD);
     }
 
     public static void toBridgeMode() {
         currentMode = Mode.BRIDGE;
+        UI.pushOnEscapeAction(Tiles::turnOff, () -> getCurrentMode() == Mode.BRIDGE);
     }
 
     public static void toRemovingMode() {
         currentMode = Mode.REMOVE_PATH;
+        UI.pushOnEscapeAction(Tiles::turnOff, () -> getCurrentMode() == Mode.REMOVE_PATH);
     }
 
     public static void handlePathMode(SpriteBatch batch) {
@@ -430,5 +436,14 @@ public class Tiles {
 
     public static void drawTile(SpriteBatch batch, TextureRegion texture, Vector2i gridPosition) {
         batch.draw(texture, gridPosition.x * World.TILE_SIZE, gridPosition.y * World.TILE_SIZE);
+    }
+
+    public static void handleCurrentMode(SpriteBatch batch) {
+        switch (currentMode) {
+            case PATH -> handlePathMode(batch);
+            case FIELD -> handleFieldMode(batch);
+            case BRIDGE -> handleBridgeMode(batch);
+            case REMOVE_PATH -> handleRemovingMode(batch);
+        }
     }
 }

@@ -62,7 +62,7 @@ public class Buildings {
                     gridPosition.plus(currentBuilding.entrancePosition),
                     productionBuilding.range);
         }
-        boolean isBuildable = checkAndShowTileAvailability(batch, gridPosition);
+        boolean isBuildable = checkAndShowTileAvailability(batch, gridPosition, currentBuilding);
 
         batch.setColor(UI.SEMI_TRANSPARENT);
         batch.draw(texture, screenX, screenY);
@@ -115,20 +115,28 @@ public class Buildings {
             turnOffBuildingMode();
     }
 
-    public static void handleDemolishingMode() {
+    public static void handleDemolishingMode(SpriteBatch batch) {
         if (!isInDemolishingMode || isInBuildingMode)
             throw new IllegalStateException("Not in demolishing mode");
 
-        if (!InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) return;
+        //if (!InputManager.isButtonPressed(InputManager.LEFT_MOUSE)) return;
 
         for (Building building : World.getBuildings()) {
             if (building.isMouseOver()) {
+                batch.setColor(UI.SEMI_TRANSPARENT_YELLOW);
                 if (building instanceof BuildSite)
-                    return;
+                    batch.setColor(UI.SEMI_TRANSPARENT_RED);
 
-                World.placeFieldWork(new DemolitionSite(building, 100));
-                if (!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT)) isInDemolishingMode = false;
-                break;
+                drawBuildingCollider(batch, building);
+
+                batch.setColor(UI.DEFAULT_COLOR);
+
+                if (InputManager.isButtonPressed(InputManager.LEFT_MOUSE) && !(building instanceof BuildSite)) {
+                    World.placeFieldWork(new DemolitionSite(building, 100));
+                    if (!InputManager.isKeyDown(Input.Keys.CONTROL_LEFT))
+                        turnOffDemolishingMode();
+                    return;
+                }
             }
         }
     }
@@ -137,14 +145,17 @@ public class Buildings {
         currentBuilding = building;
         rangeX = Range.between(0, World.getWidth() - currentBuilding.getTexture().getRegionWidth());
         rangeY = Range.between(0, World.getHeight() - currentBuilding.getTexture().getRegionHeight());
-        isInDemolishingMode = false;
+        turnOffDemolishingMode();
         isInBuildingMode = true;
         UI.setTip("Press " + InputManager.getKeyName(InputManager.KeyBinding.PLACE_MULTIPLE) + " to place multiple");
+        UI.pushOnEscapeAction(Buildings::turnOffBuildingMode, Buildings::isInBuildingMode);
     }
 
     public static void toDemolishingMode() {
         isInDemolishingMode = true;
-        isInBuildingMode = false;
+        turnOffBuildingMode();
+        UI.setTip("Press " + InputManager.getKeyName(InputManager.KeyBinding.PLACE_MULTIPLE) + " to demolish multiple");
+        UI.pushOnEscapeAction(Buildings::turnOffDemolishingMode, Buildings::isInDemolishingMode);
     }
 
     public static void turnOffBuildingMode() {
@@ -155,6 +166,7 @@ public class Buildings {
 
     public static void turnOffDemolishingMode() {
         isInDemolishingMode = false;
+        UI.setTip("");
     }
 
     public static boolean isInBuildingMode() {
@@ -165,9 +177,15 @@ public class Buildings {
         return isInDemolishingMode;
     }
 
-    private static boolean checkAndShowTileAvailability(SpriteBatch batch, Vector2i gridPosition) {
+    private static void drawBuildingCollider(SpriteBatch batch, Building building) {
+        for (Vector2i tile : building.getCollider()) {
+            Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
+        }
+    }
+
+    private static boolean checkAndShowTileAvailability(SpriteBatch batch, Vector2i gridPosition, Building.Type buildingType) {
         boolean isBuildable = true;
-        BoxCollider area = currentBuilding.relativeCollider.cloneAndTranslate(gridPosition);
+        BoxCollider area = buildingType.relativeCollider.cloneAndTranslate(gridPosition);
         List<Harvestable> harvestables = World.findHarvestables(area);
         List<Vector2i> harvestablePositions = new ArrayList<>(harvestables.size());
         for (Harvestable harvestable : harvestables) {
@@ -187,7 +205,7 @@ public class Buildings {
             Tiles.drawTile(batch, Textures.Tile.DEFAULT, tile);
         }
 
-        Vector2i entrancePos = currentBuilding.entrancePosition.plus(gridPosition);
+        Vector2i entrancePos = buildingType.entrancePosition.plus(gridPosition);
         if (rangeX.contains(entrancePos.x) && rangeY.contains(entrancePos.y) && World.isBuildable(entrancePos))
             batch.setColor(UI.SEMI_TRANSPARENT_GREEN);
         else {
@@ -196,7 +214,7 @@ public class Buildings {
         }
         Tiles.drawTile(batch, Textures.Tile.DEFAULT, entrancePos);
 
-        if (currentBuilding instanceof WaterBuilding.Type building) {
+        if (buildingType instanceof WaterBuilding.Type building) {
             BoxCollider waterArea = building.waterArea.cloneAndTranslate(gridPosition);
             for (Vector2i tile : waterArea) {
                 if (World.getTile(tile).equals(Tile.WATER)) {
@@ -236,7 +254,7 @@ public class Buildings {
             for (int i = 0; i < type.shifts.length; i++) {
                 type.shifts[i] = ois.readBoolean();
             }
-            UI.loadShiftMenuValues();
+            UI.updateShiftWindow();
         }
     }
 }

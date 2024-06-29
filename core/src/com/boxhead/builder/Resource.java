@@ -27,17 +27,17 @@ public enum Resource {
     public static void updateStoredResources(Recipe recipe) {
         for (Resource resource : recipe.changedResources()) {
             storedResources[resource.ordinal()] += recipe.getChange(resource);
-            UI.getResourceList().updateData(resource);
+            UI.updateResourceList(resource);
         }
     }
 
     public static void updateStoredResources(Resource resource, int amount) {
         storedResources[resource.ordinal()] += amount;
-        UI.getResourceList().updateData(resource);
+        UI.updateResourceList(resource);
     }
 
-    public static int getStored(Resource resource) {
-        return storedResources[resource.ordinal()];
+    public int getStored() {
+        return storedResources[ordinal()];
     }
 
     public static boolean canAfford(Recipe recipe) {

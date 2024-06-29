@@ -3,10 +3,7 @@ package com.boxhead.builder.game_objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.boxhead.builder.BuilderGame;
-import com.boxhead.builder.Logic;
-import com.boxhead.builder.Textures;
-import com.boxhead.builder.World;
+import com.boxhead.builder.*;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pathfinding;
 import com.boxhead.builder.utils.Vector2i;
@@ -35,7 +32,6 @@ public abstract class NPC extends GameObject{
     protected int pathStep;
     protected transient Future<?> pathfinding;
 
-    public static final int TEXTURE_SIZE = 16;  //TODO move to Villager?
     private static final int STEP_INTERVAL = 50;
 
     private float stateTime = 0;
@@ -135,11 +131,17 @@ public abstract class NPC extends GameObject{
         return spritePosition;
     }
 
+    public boolean isMouseOver() {
+        Vector2 mousePos = GameScreen.getMouseWorldPosition();
+        return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + currentTexture.getRegionWidth()) &&
+                mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + currentTexture.getRegionHeight());
+    }
+
     public abstract void wander();
 
     protected Vector2i randomPosInRange(int range) {
         double angle = BuilderGame.generalPurposeRandom().nextDouble() * 2 * Math.PI;
-        double distance = BuilderGame.generalPurposeRandom().nextDouble(range);
+        double distance = BuilderGame.generalPurposeRandom().nextDouble() * range;
         return gridPosition.plus((int)(Math.cos(angle) * distance), (int)(Math.sin(angle) * distance));
     }
 

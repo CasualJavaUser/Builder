@@ -1,5 +1,6 @@
 package com.boxhead.builder;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Set;
 
 public class Inventory implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 4L;
     private final Map<Resource, Integer> resources = new EnumMap<>(Resource.class);
     private final int maxCapacity;
@@ -25,7 +27,7 @@ public class Inventory implements Serializable {
     public enum Availability {
         AVAILABLE,
         FULL,
-        OUTPUT_FULL,
+        FULL_OUTPUT,
         LACKS_INPUT
     }
 
@@ -62,7 +64,7 @@ public class Inventory implements Serializable {
                 return Availability.LACKS_INPUT;
 
             if (change > getAvailableCapacity())
-                return Availability.OUTPUT_FULL;
+                return Availability.FULL_OUTPUT;
         }
         return Availability.AVAILABLE;
     }

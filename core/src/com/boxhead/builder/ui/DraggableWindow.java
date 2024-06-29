@@ -2,47 +2,41 @@ package com.boxhead.builder.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.Textures;
-import com.boxhead.builder.utils.Vector2i;
 import com.boxhead.builder.utils.Range;
+import com.boxhead.builder.utils.Vector2i;
 
-public class DraggableWindow extends Window implements Clickable {
+public class DraggableWindow extends Window {
     protected boolean isDragged = false;
     protected Button closeButton;
     private final Vector2i prevMousePos = new Vector2i();
 
-    public DraggableWindow(TextureRegion texture, UI.Layer layer, boolean isVisible) {
-        this(texture, null, layer, new Vector2i(), isVisible);
-    }
-
-    public DraggableWindow(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
-        this(texture, parent, layer, position, true);
-    }
-
-    public DraggableWindow(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, boolean isVisible) {
-        super(texture, parent, layer, position, isVisible);
-        closeButton = new Button(Textures.get(Textures.Ui.CLOSE_BUTTON), this, layer, new Vector2i());
-        closeButton.setOnClick(() -> this.setVisible(false));
+    public DraggableWindow(Style style, Pane pane) {
+        super(style, pane);
+        closeButton = new Button(Textures.Ui.CLOSE_BUTTON);
+        closeButton.setOnClick(this::close);
     }
 
     @Override
-    public void onClick() {
+    public UIComponent onClick() {
         prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
+        if (closeButton.isMouseOver()) {
+            closeButton.onClick();
+            return closeButton;
+        }
+        if (tabs[0].onClick() == null)
+            return this;
+        else
+            return tabs[0].onClick();
     }
 
     @Override
     public void onHold() {
         isDragged = true;
-        move(Gdx.input.getX() - prevMousePos.x, -(Gdx.input.getY() - prevMousePos.y));
-
-        Range<Integer> rangeX = Range.between(0, Gdx.graphics.getWidth() - getWindowWidth());
-        Range<Integer> rangeY = Range.between(0, Gdx.graphics.getHeight() - getWindowHeight());
-
-        setGlobalPosition(
-                rangeX.fit(getGlobalPosition().x),
-                rangeY.fit(getGlobalPosition().y)
-        );
+        Range<Integer> rangeX = Range.between(-getX(), Gdx.graphics.getWidth() - getX() - getWidth());
+        Range<Integer> rangeY = Range.between(-getY(), Gdx.graphics.getHeight() - getY() - getHeight());
+        move(rangeX.fit(Gdx.input.getX() - prevMousePos.x), rangeY.fit(-(Gdx.input.getY() - prevMousePos.y)));
 
         prevMousePos.set(Gdx.input.getX(), Gdx.input.getY());
     }
@@ -59,53 +53,26 @@ public class DraggableWindow extends Window implements Clickable {
     }
 
     @Override
-    public void setWindowWidth(int width) {
-        super.setWindowWidth(width);
-        closeButton.setLocalPosition(
-                getWindowWidth() - 40,
-                closeButton.getLocalPosition().y);
+    public void draw(SpriteBatch batch) {
+        closeButton.setPosition(getX() + getWidth() - 40, getY() + getHeight() - 16);
+        super.draw(batch);
+        closeButton.draw(batch);
     }
 
     @Override
-    public void setWindowHeight(int height) {
-        super.setWindowHeight(height);
-        closeButton.setLocalPosition(
-                closeButton.getLocalPosition().x,
-                getWindowHeight() - 4);
+    public void close() {
+        super.close();
+        isDragged = false;
     }
 
     @Override
-    public void setContentWidth(int width) {
-        super.setContentWidth(width);
-        closeButton.setLocalPosition(
-                getWindowWidth() - 40,
-                closeButton.getLocalPosition().y);
+    public int getHeight() {
+        return super.getHeight() + 12;
     }
 
     @Override
-    public void setContentHeight(int height) {
-        super.setContentHeight(height);
-        closeButton.setLocalPosition(
-                closeButton.getLocalPosition().x,
-                getWindowHeight() - 4);
-    }
-
-    @Override
-    public void setVisible(boolean visible) {
-        super.setVisible(visible);
-        if(!visible) isDragged = false;
-    }
-
-    @Override
-    public boolean isMouseOver() {
-        int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + getWindowWidth()) &&
-                y >= getGlobalPosition().y && y < (getGlobalPosition().y + getWindowHeight());
-    }
-
-    @Override
-    public void addToUI() {
-        super.addToUI();
-        closeButton.addToUI();
+    public void move(int x, int y) {
+        super.move(x, y);
+        tabs[0].move(x, y);
     }
 }

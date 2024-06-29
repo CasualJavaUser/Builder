@@ -62,14 +62,14 @@ carriage
   index: -1
 check
   rotate: false
-  xy: 968, 480
+  xy: 965, 448
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 check_box
   rotate: false
-  xy: 965, 448
+  xy: 965, 416
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -158,6 +158,13 @@ fungus
   orig: 64, 64
   offset: 0, 0
   index: -1
+go_button
+  rotate: false
+  xy: 968, 480
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 graph
   rotate: false
   xy: 0, 173
@@ -230,7 +237,7 @@ load
   index: -1
 menu_window
   rotate: false
-  xy: 307, 175
+  xy: 434, 8
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -307,14 +314,14 @@ pickaxe_with_stone
   index: -1
 play
   rotate: false
-  xy: 434, 9
+  xy: 531, 208
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 power_button
   rotate: false
-  xy: 965, 416
+  xy: 499, 192
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -370,7 +377,7 @@ services_tab
   index: -1
 shift_divider
   rotate: false
-  xy: 755, 171
+  xy: 307, 176
   size: 3, 16
   orig: 3, 16
   offset: 0, 0

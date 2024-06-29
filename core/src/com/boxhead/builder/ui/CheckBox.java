@@ -1,23 +1,27 @@
 package com.boxhead.builder.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.Textures;
-import com.boxhead.builder.utils.Vector2i;
 
 import java.util.function.Consumer;
 
-public class CheckBox extends UIElement implements Clickable {
+public class CheckBox extends DrawableComponent {
     private boolean value;
     private Consumer<Boolean> onUp = (b) -> {};
 
-    public CheckBox(UIElement parent, UI.Layer layer, Vector2i position) {
-        this (parent, layer, position, false);
+    public CheckBox() {
+        this (false);
     }
 
-    public CheckBox(UIElement parent, UI.Layer layer, Vector2i position, boolean value) {
-        super(Textures.get(Textures.Ui.CHECK_BOX), parent, layer, position);
+    public CheckBox(boolean value) {
+        super(Textures.Ui.CHECK_BOX);
         this.value = value;
+    }
+
+    public CheckBox(boolean value, Consumer<Boolean> onUp) {
+        super(Textures.Ui.CHECK_BOX);
+        this.value = value;
+        this.onUp = onUp;
     }
 
     /**
@@ -32,27 +36,22 @@ public class CheckBox extends UIElement implements Clickable {
     }
 
     @Override
+    public UIComponent onClick() {
+        return this;
+    }
+
+    @Override
     public void onUp() {
         value = !value;
         onUp.accept(value);
     }
 
     @Override
-    public boolean isMouseOver() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-        return x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
-                y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
-    }
-
-    @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
         if (value) {
-            batch.setColor(tint);
-            batch.draw(Textures.get(Textures.Ui.CHECK), getGlobalPosition().x, getGlobalPosition().y);
-            batch.setColor(UI.DEFAULT_COLOR);
+            batch.setColor(getTint());
+            batch.draw(Textures.get(Textures.Ui.CHECK), getX(), getY());
         }
     }
 }

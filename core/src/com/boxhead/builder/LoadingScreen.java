@@ -8,8 +8,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.boxhead.builder.ui.Popups;
 import com.boxhead.builder.ui.UI;
-import com.boxhead.builder.ui.popup.Popups;
 
 import java.util.concurrent.ExecutionException;
 
@@ -28,28 +28,28 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void show() {
-        Popups.showPopup("");
+        Popups.inform("");
     }
 
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BROWN);
         batch.begin();
-        UI.drawPopups(batch, camera);
+        UI.drawPopup(batch, camera);
         batch.end();
         if (BuilderGame.getLoadingException().isDone()) {
             try {
                 Exception exception = BuilderGame.getLoadingException().get();
                 if (exception == null) {
-                    Popups.hidePopup();
+                    Popups.close();
                     BuilderGame.getInstance().setScreen(BuilderGame.getGameScreen());
                 }
                 else {
-                    Popups.showPopup(exception);
+                    Popups.alert(exception.getClass().getSimpleName());
                     BuilderGame.getInstance().setScreen(nextScreen);
                 }
             } catch (ExecutionException | InterruptedException e) {
-                Popups.showPopup(e);
+                Popups.alert(e.getClass().getSimpleName());
                 BuilderGame.getInstance().setScreen(nextScreen);
             }
         }
@@ -68,7 +68,7 @@ public class LoadingScreen implements Screen {
         viewport.setWorldSize(width, height);
         viewport.update(width, height, false);
         batch.setProjectionMatrix(camera.combined);
-        UI.resizeUI();
+        UI.resizeUI(width, height);
     }
 
     @Override

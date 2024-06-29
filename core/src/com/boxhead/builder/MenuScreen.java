@@ -23,16 +23,16 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        UI.setInGame(false);
-        UI.showPauseMenu();
+        UI.showUI(UI.Screen.MAIN_MENU);
     }
 
     @Override
     public void render(float deltaTime) {
         ScreenUtils.clear(Color.BROWN);
-        UI.handleUiInteraction();
+        //UI.handleUiInteraction();
+        UI.handleUiInteractions();
         batch.begin();
-        UI.drawMenu(batch, camera);
+        UI.drawUI(batch, camera);
         batch.end();
     }
 
@@ -41,7 +41,7 @@ public class MenuScreen implements Screen {
         viewport.setWorldSize(width, height);
         viewport.update(width, height, false);
         batch.setProjectionMatrix(camera.combined);
-        UI.resizeUI();
+        UI.resizeUI(width, height);
     }
 
     @Override

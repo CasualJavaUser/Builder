@@ -37,7 +37,6 @@ public class GameScreen implements Screen {
         World.temp();
         UI.init();
         Logic.init();
-        UI.getResourceList().initData();
         Debug.init();
         Statistics.init();
 
@@ -49,28 +48,41 @@ public class GameScreen implements Screen {
         updateMouseWorldPosition();
 
         ScreenUtils.clear(Color.BLACK);
-        if (!UI.isPaused() && !Debug.isOpen()) {
+        if (!UI.isPaused() && !UI.isConsoleOpen()) {
             scroll();
             moveCamera(deltaTime);
         }
 
         batch.begin();
+        UI.DEFAULT_COLOR.set(World.getAmbientColor(World.getTime()));
+        if (UI.isPaused()) {
+            UI.DEFAULT_COLOR.set(new Color(UI.DEFAULT_COLOR.r * UI.DARK.r, UI.DEFAULT_COLOR.g * UI.DARK.g, UI.DEFAULT_COLOR.b * UI.DARK.b, UI.DARK.a));
+        }
+        batch.setColor(UI.DEFAULT_COLOR);
         World.drawMap(batch);
         World.drawObjects(batch);
         //World.showBuildableTiles(batch);
         //World.showNavigableTiles(batch);
         //World.pathfindingTest(batch);
 
-        if (!UI.handleUiInteraction() && !UI.isPaused()) {
+        if (!UI.handleUiInteractions()) {
+            if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
+            else if (Buildings.isInDemolishingMode()) Buildings.handleDemolishingMode(batch);
+            else if (Tiles.getCurrentMode() != null) Tiles.handleCurrentMode(batch);
+            else {
+                World.handleObjectInteractions();
+            }
+        }
+        /*if (!UI.handleUiInteraction() && !UI.isPaused()) {
             if (Buildings.isInBuildingMode()) Buildings.handleBuildingMode(batch);
             else if (Buildings.isInDemolishingMode()) Buildings.handleDemolishingMode();
             else if (Tiles.getCurrentMode() == Tiles.Mode.PATH) Tiles.handlePathMode(batch);
             else if (Tiles.getCurrentMode() == Tiles.Mode.BRIDGE) Tiles.handleBridgeMode(batch);
             else if (Tiles.getCurrentMode() == Tiles.Mode.REMOVE_PATH) Tiles.handleRemovingMode(batch);
             else {
-                World.handleNpcsAndBuildingsOnClick();
+                World.handleObjectInteractions();
             }
-        }
+        }*/
 
         handleInput();
 
@@ -78,6 +90,7 @@ public class GameScreen implements Screen {
             InputManager.listenForKey();
         }
 
+        //UI.drawUI(batch, camera);
         UI.drawUI(batch, camera);
 
         batch.end();
@@ -88,22 +101,21 @@ public class GameScreen implements Screen {
         renderer.end();
 
         if (InputManager.isKeyPressed(Input.Keys.GRAVE)) {
-            if (!Debug.isOpen())
-                Debug.openConsole();
+            if (!UI.isConsoleOpen())
+                UI.openConsole();
             else
-                Debug.quit();
+                UI.closeConsole();
         }
-
-        if (Debug.isOpen())
-            Debug.handleInput();
 
         InputManager.resetKeysAndScroll();
     }
 
     private static void handleInput() {
-        if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) UI.onEscape();
-        else if (!UI.isPaused()) {
-            if (InputManager.isKeyPressed(InputManager.KeyBinding.PAUSE) && !UI.isPaused() && !Debug.isOpen())
+        if (InputManager.isKeyPressed(Input.Keys.ESCAPE)) {
+            UI.onEscape();
+        }
+        else if (!UI.isPaused() && !UI.isConsoleOpen()) {
+            if (InputManager.isKeyPressed(InputManager.KeyBinding.PAUSE) && !UI.isConsoleOpen())
                 Logic.pause(!Logic.isPaused());
             else if (InputManager.isKeyPressed(InputManager.KeyBinding.TICK_SPEED_1))
                 Logic.setTickSpeed(Logic.NORMAL_SPEED);
@@ -111,6 +123,8 @@ public class GameScreen implements Screen {
                 Logic.setTickSpeed(Logic.SPEED_X2);
             else if (InputManager.isKeyPressed(InputManager.KeyBinding.TICK_SPEED_3))
                 Logic.setTickSpeed(Logic.SPEED_X3);
+            else if (InputManager.isKeyPressed(InputManager.KeyBinding.OPEN_BUILD_MENU))
+                UI.openCloseBuildMenu();
         }
     }
 
@@ -141,7 +155,7 @@ public class GameScreen implements Screen {
         viewport.setWorldSize(width, height);
         viewport.update(width, height, false);
         batch.setProjectionMatrix(camera.combined);
-        UI.resizeUI();
+        UI.resizeUI(width, height);
     }
 
     @Override
@@ -158,7 +172,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        UI.setInGame(true);
+        UI.showUI(UI.Screen.IN_GAME);
     }
 
     @Override

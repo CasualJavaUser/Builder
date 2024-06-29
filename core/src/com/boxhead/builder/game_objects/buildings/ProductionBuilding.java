@@ -1,7 +1,6 @@
 package com.boxhead.builder.game_objects.buildings;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.ui.UI;
@@ -176,6 +175,7 @@ public class ProductionBuilding extends Building {
     protected final Set<Building> buildingsInRange;
     protected float productionCounter = 0;
     protected boolean showRange = false;
+    protected Inventory.Availability storageAvailability = Inventory.Availability.AVAILABLE;
 
     public ProductionBuilding(Type type, Vector2i gridPosition) {
         super(type, gridPosition);
@@ -255,8 +255,8 @@ public class ProductionBuilding extends Building {
     }
 
     public boolean canProduce() {
-        return hasEmployeesInside() &&
-                inventory.checkStorageAvailability(getType().job.getRecipe(this)) == Inventory.Availability.AVAILABLE;
+        storageAvailability = inventory.checkStorageAvailability(getType().job.getRecipe(this));
+        return hasEmployeesInside() && storageAvailability == Inventory.Availability.AVAILABLE;
     }
 
     public void business() {
@@ -359,6 +359,7 @@ public class ProductionBuilding extends Building {
     }
 
     public void setEmployeeCapacity(int capacity) {
+        if (capacity < 0 || capacity > getType().maxEmployeeCapacity) return;
         employeeCapacity = capacity;
         for (int i = 0; i < SHIFTS_PER_JOB; i++) {
             if (!getType().getShiftActivity(i))
@@ -482,12 +483,6 @@ public class ProductionBuilding extends Building {
     }
 
     @Override
-    public void onClick() {
-        super.onClick();
-        showRange = true;
-    }
-
-    @Override
     public void draw(SpriteBatch batch) {
         if (showRange) {
             batch.setColor(UI.VERY_TRANSPARENT);
@@ -503,18 +498,37 @@ public class ProductionBuilding extends Building {
     }
 
     @Override
-    protected void drawIndicator(SpriteBatch batch) {
-        TextureRegion texture;
-        switch (inventory.checkStorageAvailability(getType().job.getRecipe(this))) {
-            case LACKS_INPUT:
-                texture = Textures.get(Textures.Ui.NO_INPUT); break;
-            case OUTPUT_FULL:
-                texture = Textures.get(Textures.Ui.FULL_OUTPUT); break;
-            default:
-                if (!active) texture = Textures.get(Textures.Ui.NOT_ACTIVE);
-                else return;
+    public String getInfo() {
+        StringBuilder info = new StringBuilder();
+        if (efficiency != 1) info.append("efficiency: ").append(String.format("%.2f", efficiency)).append("\n");
+        info.append("job quality: ").append(getJobQuality());
+
+        info.append("\n").append(inventory.getDisplayedAmount()).append(" / ").append(inventory.getMaxCapacity());
+        for (Resource resource : getJob().getRecipe(this).changedResources()) {
+            info.append("\n").append(resource.toString().toLowerCase()).append(": ").append(inventory.getResourceAmount(resource));
         }
-        drawIndicator(texture, batch);
+
+        return info.toString();
+    }
+
+    @Override
+    protected void checkAndDrawIndicator(SpriteBatch batch) {
+        warning = "";
+        if(!isActive()) {
+            drawIndicator(Indicator.NOT_ACTIVE, batch);
+            warning = "not active";
+        }
+
+        switch (storageAvailability) {
+            case LACKS_INPUT:
+                drawIndicator(Indicator.NO_INPUT, batch);
+                warning = "lacks input";
+                break;
+            case FULL_OUTPUT:
+                drawIndicator(Indicator.FULL_OUTPUT, batch);
+                warning = "full output";
+                break;
+        }
     }
 
     @Override

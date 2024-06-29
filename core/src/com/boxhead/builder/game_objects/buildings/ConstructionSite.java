@@ -3,7 +3,6 @@ package com.boxhead.builder.game_objects.buildings;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.Logistics;
 import com.boxhead.builder.Resource;
-import com.boxhead.builder.Textures;
 import com.boxhead.builder.World;
 import com.boxhead.builder.game_objects.Villager;
 import com.boxhead.builder.utils.BoxCollider;
@@ -12,6 +11,7 @@ import com.boxhead.builder.utils.Vector2i;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
+import java.util.Map;
 
 public class ConstructionSite extends BuildSite {
     public ConstructionSite(Building.Type type, Vector2i gridPosition, int totalLabour) {
@@ -82,9 +82,16 @@ public class ConstructionSite extends BuildSite {
     }
 
     @Override
-    protected void drawIndicator(SpriteBatch batch) {
-        if (false)  //TODO check if demolishing
-            drawIndicator(Textures.get(Textures.Ui.DEMOLISHING), batch);
+    protected void checkAndDrawIndicator(SpriteBatch batch) {}
+
+    @Override
+    public String getInfo() {
+        StringBuilder info = new StringBuilder();
+        for (Map.Entry<Resource, Integer> entry : getType().buildCost) {
+            info.append(entry.getKey().toString().toLowerCase()).append(": ").append(getInventory()
+                    .getResourceAmount(entry.getKey())).append(" / ").append(entry.getValue()).append("\n");
+        }
+        return info.toString();
     }
 
     public void setFieldCollider(BoxCollider fieldCollider) {

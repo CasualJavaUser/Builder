@@ -1,11 +1,8 @@
 package com.boxhead.builder.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.buildings.*;
-import com.boxhead.builder.ui.Clickable;
-import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Vector2i;
 
 import java.io.*;
@@ -16,7 +13,7 @@ import java.util.Optional;
 import static com.boxhead.builder.Stat.TIREDNESS;
 import static com.boxhead.builder.Stat.values;
 
-public class Villager extends NPC implements Clickable {
+public class Villager extends NPC {
     public static final String[] NAMES = {"Benjamin", "Ove", "Sixten", "Sakarias", "Joel", "Alf", "Gustaf", "Arfast", "Rolf", "Martin"};
     public static final String[] SURNAMES = {"Ekström", "Engdahl", "Tegnér", "Palme", "Axelsson", "Ohlin", "Ohlson", "Lindholm", "Sandberg", "Holgersson"};
 
@@ -337,18 +334,6 @@ public class Villager extends NPC implements Clickable {
 
     public Inventory getInventory() {
         return inventory;
-    }
-
-    @Override
-    public boolean isMouseOver() {
-        Vector2 mousePos = GameScreen.getMouseWorldPosition();
-        return mousePos.x >= spritePosition.x * World.TILE_SIZE && mousePos.x < (spritePosition.x * World.TILE_SIZE + currentTexture.getRegionWidth()) &&
-                mousePos.y >= spritePosition.y * World.TILE_SIZE && mousePos.y < (spritePosition.y * World.TILE_SIZE + currentTexture.getRegionHeight());
-    }
-
-    @Override
-    public void onClick() {
-        UI.showNPCStatWindow(this);
     }
 
     public static abstract class Order implements Serializable {
@@ -679,10 +664,8 @@ public class Villager extends NPC implements Clickable {
 
     @Override
     public String toString() {
-        String homeType = null;
-        String workplaceType = null;
-        if (home != null) homeType = home.getType().toString();
-        if (workplace != null) workplaceType = workplace.getType().toString();
+        String homeType = home == null ? null :  home.getType().toString();
+        String workplaceType = workplace == null ? null : workplace.getType().name;
 
         String s = name + " " + surname +
                 "\ngender: " + (gender ? "female" : "male") +
@@ -773,5 +756,30 @@ public class Villager extends NPC implements Clickable {
         textureId = Textures.Npc.valueOf("IDLE" + skin);
         initAnimations();
         currentTexture = getTexture();
+    }
+
+    public String getInfo() {
+        String job = getJob().toString();
+
+        StringBuilder info = new StringBuilder();
+
+        info.append(gender ? "female" : "male").append("\n").append(job).append("\nage: ").append(ageInYears());
+
+        String stat;
+        for (int i = 0; i < Stat.values().length; i++) {
+            stat = Stat.values()[i].toString().toLowerCase() + ": " + (int)stats[i];
+            info.append("\n").append(stat);
+        }
+
+        info.append("\neducation: ").append((int) (education * 100f)).append("%").append("\nhappiness: ").append(Math.round(getHappiness()));
+
+        if (partner != null && isLivingWithParents()) {
+            info.append("\n- living with parents");
+        }
+        else if (home == null) {
+            info.append("\n- homeless");
+        }
+
+        return info.toString();
     }
 }

@@ -9,7 +9,6 @@ import com.boxhead.builder.game_objects.buildings.Building;
 import com.boxhead.builder.game_objects.buildings.ProductionBuilding;
 import com.boxhead.builder.game_objects.buildings.SchoolBuilding;
 import com.boxhead.builder.game_objects.buildings.ServiceBuilding;
-import com.boxhead.builder.ui.UI;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,8 +32,6 @@ public class Logic {
     private static final Timer.Task task = new Timer.Task() {
         @Override
         public void run() {
-            UI.DEFAULT_COLOR.set(World.getAmbientColor(World.getTime()));
-
             if (World.getTime() == orderedShifts[nextShift].start) {
                 currentShift = (nextShift + orderedShifts.length - 2) % orderedShifts.length;
                 startWorkday(orderedShifts[nextShift]);
@@ -127,7 +124,7 @@ public class Logic {
 
     private static void produceResources() {
         for (Building building : World.getBuildings()) {
-            if (building instanceof ProductionBuilding pb && pb.getJob().getPoI() != null && pb.canProduce()) {
+            if (building instanceof ProductionBuilding pb && pb.canProduce() && pb.getJob().getPoI() != null) {
                 Optional<FieldWork> fieldWork = FieldWork.findFieldWorkInRange(pb.getJob().getPoI(), building.getEntrancePosition(), pb.getType().range);
                 fieldWork.ifPresent(work -> Logistics.requestFieldWork(pb, work));
             }
@@ -139,6 +136,7 @@ public class Logic {
                 order.ifPresent(o -> Logistics.takeOrder(transportOffice, o));
             }
         }
+
         for (int i = 0; i < World.getBuildings().size(); i++) {
             Building building = World.getBuildings().get(i);
 

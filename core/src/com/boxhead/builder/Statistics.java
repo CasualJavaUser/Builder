@@ -40,7 +40,7 @@ public class Statistics {
         }
     }
 
-    public static Map<Type, float[]> getValues() {
-        return values;
+    public static float[] getValues(Type type) {
+        return values.get(type);
     }
 }

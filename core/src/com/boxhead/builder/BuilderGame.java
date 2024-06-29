@@ -74,7 +74,6 @@ public class BuilderGame extends Game {
 
     @Override
     public void dispose() {
-        saveSettings();
         NPC.executor.shutdown();
         batch.dispose();
         gameScreen.dispose();

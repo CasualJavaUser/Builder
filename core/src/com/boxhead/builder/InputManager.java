@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.boxhead.builder.ui.Button;
+import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.Pair;
 
 import java.io.IOException;
@@ -24,7 +25,8 @@ public class InputManager extends InputAdapter {
         PAUSE(SPACE),
         TICK_SPEED_1(NUM_1),
         TICK_SPEED_2(NUM_2),
-        TICK_SPEED_3(NUM_3);
+        TICK_SPEED_3(NUM_3),
+        OPEN_BUILD_MENU(E);
 
         public final Pair<Integer, Integer> keys;
 
@@ -41,6 +43,7 @@ public class InputManager extends InputAdapter {
     public static final int RIGHT_MOUSE = Input.Buttons.RIGHT;
 
     private static float scrollDelta = 0;
+    public static final float SCROLL_SENSITIVITY = 10f;
 
     private static final boolean[] buttonsUp = new boolean[5];
     private static final boolean[] keysUp = new boolean[Input.Keys.MAX_KEYCODE];
@@ -152,21 +155,22 @@ public class InputManager extends InputAdapter {
         return Input.Keys.toString(keyBinding.keys.first);
     }
 
-    public static void startListeningForKey(Pair<Integer, Integer> binding, Button button, boolean first) {
+    public static void startListeningForKey(Pair<Integer, Integer> binding, com.boxhead.builder.ui.Button button, boolean first) {
         bindingToUpdate = binding;
         buttonToUpdate = button;
         listeningForKey = true;
         updateFirst = first;
+        UI.pushOnEscapeAction(InputManager::stopListening, InputManager::isListeningForKey);
     }
 
     public static void listenForKey() {
         int keyDown = getKeyDown();
-        if (keyDown != Input.Keys.UNKNOWN) {
-            buttonToUpdate.setText(Input.Keys.toString(keyDown));
-            if (updateFirst)
-                bindingToUpdate.first = keyDown;
-            else
-                bindingToUpdate.second = keyDown;
+        if (keyDown != UNKNOWN && keyDown != ESCAPE) {
+                buttonToUpdate.setText(Input.Keys.toString(keyDown));
+                if (updateFirst)
+                    bindingToUpdate.first = keyDown;
+                else
+                    bindingToUpdate.second = keyDown;
             listeningForKey = false;
         }
     }

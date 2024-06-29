@@ -180,4 +180,9 @@ public class ServiceBuilding extends ProductionBuilding {
     public boolean canProvideService() {
         return employeesInside > 0/* && !inventory.isEmpty()*/;
     }
+
+    @Override
+    public String getInfo() {
+        return super.getInfo() + "\nguests: " + guests.size() + " / " + getType().guestCapacity;
+    }
 }

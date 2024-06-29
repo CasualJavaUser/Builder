@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.GameObject;
 import com.boxhead.builder.game_objects.Villager;
-import com.boxhead.builder.ui.Clickable;
 import com.boxhead.builder.ui.UI;
 import com.boxhead.builder.utils.BoxCollider;
 import com.boxhead.builder.utils.Pair;
@@ -18,7 +17,7 @@ import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class Building extends GameObject implements Clickable {
+public class Building extends GameObject {
     public static class Type {
         public final Textures.Building texture;
         public final String name;
@@ -29,7 +28,7 @@ public class Building extends GameObject implements Clickable {
         public final BoxCollider relativeCollider;
         public final Recipe buildCost;
 
-        protected static Type[] values;
+        protected static final Type[] values;
 
         public static final Type STORAGE_BARN = new Type (
                 Textures.Building.STORAGE_BARN,
@@ -107,6 +106,24 @@ public class Building extends GameObject implements Clickable {
     public final Inventory inventory;
     private final Map<Pair<Villager, Resource>, Integer> inventoryReservations = new HashMap<>();
     private final Map<Resource, Integer> reservedTotals = new HashMap<>();
+    protected String warning = "";
+
+    public enum Indicator {
+        NO_INPUT(Textures.Ui.NO_INPUT),
+        FULL_OUTPUT(Textures.Ui.FULL_OUTPUT),
+        NOT_ACTIVE(Textures.Ui.NOT_ACTIVE),
+        DEMOLISHING(Textures.Ui.DEMOLISHING);
+
+        private final Textures.Ui texture;
+
+        Indicator(Textures.Ui texture) {
+            this.texture = texture;
+        }
+
+        public Textures.Ui getTexture() {
+            return texture;
+        }
+    }
 
     public Building(Type type, Vector2i gridPosition) {
         this(type, type.texture, gridPosition, 200);
@@ -125,7 +142,7 @@ public class Building extends GameObject implements Clickable {
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        drawIndicator(batch);
+        checkAndDrawIndicator(batch);
     }
 
     public Type getType() {
@@ -144,14 +161,8 @@ public class Building extends GameObject implements Clickable {
         return id;
     }
 
-    @Override
     public boolean isMouseOver() {
         return collider.overlaps(GameScreen.getMouseGridPosition());
-    }
-
-    @Override
-    public void onClick() {
-        UI.showBuildingStatWindow(this);
     }
 
     public Vector2i getEntrancePosition() {
@@ -274,15 +285,17 @@ public class Building extends GameObject implements Clickable {
             reservedTotals.put(resource, reserved);
     }
 
-    protected void drawIndicator(SpriteBatch batch) {
+    protected void checkAndDrawIndicator(SpriteBatch batch) {
         if (inventory.isFull()) {
-            drawIndicator(Textures.get(Textures.Ui.NO_INPUT), batch);
+            drawIndicator(Indicator.NO_INPUT, batch);
+            warning = "inventory full";
         }
     }
 
-    protected void drawIndicator(TextureRegion texture, SpriteBatch batch) {
+    protected void drawIndicator(Indicator indicator, SpriteBatch batch) {
+        batch.setColor(UI.DEFAULT_UI_COLOR);
         batch.draw(
-                texture,
+                Textures.get(indicator.getTexture()),
                 ((float) gridPosition.x + (float) collider.getWidth() / 2f) * World.TILE_SIZE - 32 * GameScreen.camera.zoom,
                 (gridPosition.y + collider.getHeight()) * World.TILE_SIZE,
                 0,
@@ -293,6 +306,22 @@ public class Building extends GameObject implements Clickable {
                 GameScreen.camera.zoom,
                 0
         );
+        batch.setColor(UI.DEFAULT_COLOR);
+    }
+
+    public String getInfo() {
+        StringBuilder info = new StringBuilder();
+        info.append(inventory.getDisplayedAmount()).append(" / ").append(inventory.getMaxCapacity());
+        for (Resource resource : inventory.getStoredResources()) {
+            if (resource != Resource.NOTHING) {
+                info.append("\n").append(resource.toString().toLowerCase()).append(": ").append(inventory.getResourceAmount(resource));
+            }
+        }
+        return info.toString();
+    }
+
+    public String getWarning() {
+        return warning;
     }
 
     @Serial

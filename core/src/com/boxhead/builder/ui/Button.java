@@ -1,41 +1,66 @@
 package com.boxhead.builder.ui;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.boxhead.builder.Textures;
 import com.boxhead.builder.utils.Action;
-import com.boxhead.builder.utils.Vector2i;
 
-public class Button extends UIElement implements Clickable {
-
+public class Button extends DrawableComponent {
+    private String text;
+    private boolean pressed = false;
+    private final TextArea.Align hAlign;
     private Action onClick = () -> {};
     private Action onUp = () -> {};
-    private String text;
-    private Color defaultTint;
-    private final TextArea.Align hAlign;
 
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text, TextArea.Align align) {
-        super(texture, parent, layer, position);
+    public Button(Textures.Ui texture, String text, TextArea.Align hAlign) {
+        super(texture);
         this.text = text;
-        defaultTint = tint;
-        hAlign = align;
+        this.hAlign = hAlign;
+    }
+    
+    public Button(Textures.Ui texture, String text) {
+        this(texture, text, TextArea.Align.CENTER);
+    }
+    
+    public Button(Textures.Ui textures) {
+        this(textures, "", TextArea.Align.CENTER);
     }
 
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position, String text) {
-        this(texture, parent, layer, position, text, TextArea.Align.CENTER);
+    @Override
+    public UIComponent onClick() {
+        onClick.execute();
+        return this;
     }
 
-    public Button(TextureRegion texture, UIElement parent, UI.Layer layer, Vector2i position) {
-        this(texture, parent, layer, position, null);
+    @Override
+    public void onHold() {
+        pressed = true;
     }
 
-    public Button(TextureRegion texture, UI.Layer layer, Vector2i position) {
-        this(texture, null, layer, position, null);
+    @Override
+    public void onUp() {
+        onUp.execute();
+        pressed = false;
+    }
+    
+    @Override
+    public void draw(SpriteBatch batch) {
+        batch.setColor(pressed ? UI.PRESSED_COLOR : getTint());
+        super.draw(batch, batch.getColor());
+        if(text != null) {
+            UI.FONT.setColor(getTint());
+            UI.FONT.draw(
+                    batch,
+                    text,
+                    getX() + UI.PADDING,
+                    getY() + getHeight()/2f + UI.FONT_HEIGHT/2f - 5,
+                    texture.getRegionWidth() - 2 * UI.PADDING,
+                    hAlign.getValue(),
+                    false);
+        }
     }
 
-    public void setOnClick(Action action) {
-        onClick = action;
+    public void setOnClick(Action onClick) {
+        this.onClick = onClick;
     }
 
     public void setOnUp(Action onUp) {
@@ -46,63 +71,7 @@ public class Button extends UIElement implements Clickable {
         this.text = text;
     }
 
-    @Override
-    public void setTint(Color tint) {
-        super.setTint(tint);
-        defaultTint = tint;
-    }
-
-    @Override
-    public boolean isMouseOver() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-        boolean isMouseOver =
-                x >= getGlobalPosition().x && x < (getGlobalPosition().x + texture.getRegionWidth()) &&
-                y >= getGlobalPosition().y && y < (getGlobalPosition().y + texture.getRegionHeight());
-
-        if (getScissors() != null) {
-            isMouseOver = isMouseOver &&
-                    x >= getScissors().getGridPosition().x && x < getScissors().getGridPosition().x + getScissors().getWidth() &&
-                    y >= getScissors().getGridPosition().y && y < getScissors().getGridPosition().y + getScissors().getHeight();
-        }
-
-        return isMouseOver;
-    }
-
-    @Override
-    public void onClick() {
-        onClick.execute();
-    }
-
-    @Override
-    public void onHold() {
-        Clickable.super.onHold();
-        tint = UI.PRESSED_COLOR;
-    }
-
-    @Override
-    public void onUp() {
-        onUp.execute();
-        tint = defaultTint;
-    }
-
-    @Override
-    public void draw(SpriteBatch batch) {
-        super.draw(batch);
-        batch.setColor(tint);
-        if(text != null) {
-            UI.FONT.setColor(tint);
-            UI.FONT.draw(
-                    batch,
-                    text,
-                    getGlobalPosition().x + UI.PADDING,
-                    getGlobalPosition().y + (int)(texture.getRegionHeight()/2 + UI.FONT.getCapHeight()/2),
-                    texture.getRegionWidth() - 2 * UI.PADDING,
-                    hAlign.getNum(),
-                    false);
-            UI.FONT.setColor(UI.DEFAULT_COLOR);
-        }
-        batch.setColor(UI.DEFAULT_COLOR);
+    public String getText() {
+        return text;
     }
 }

@@ -1,5 +1,6 @@
 package com.boxhead.builder.game_objects.buildings;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.boxhead.builder.*;
 import com.boxhead.builder.game_objects.Villager;
 
@@ -57,5 +58,10 @@ public class DemolitionSite extends BuildSite {
                 villager.giveOrder(Villager.Order.Type.GO_TO, villager.getWorkplace());
             }
         }
+    }
+
+    @Override
+    protected void checkAndDrawIndicator(SpriteBatch batch) {
+        drawIndicator(Indicator.DEMOLISHING, batch);
     }
 }
